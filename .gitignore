@@ -1,18 +1,37 @@
-# This .gitignore is appropriate for repositories deployed to GitHub Pages and using
-# a Gemfile as specified at https://github.com/github/pages-gem#conventional
+# dependencies
+node_modules/
 
-# Basic Jekyll gitignores (synchronize to Jekyll.gitignore)
-_site/
-.sass-cache/
-.jekyll-cache/
-.jekyll-metadata
+# build output
+dist/
+dist-ssr/
+*.tsbuildinfo
 
-# Additional Ruby/bundler ignore for when you run: bundle install
-/vendor
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
 
-# Specific ignore for GitHub Pages
-# GitHub Pages will always use its own deployed version of pages-gem
-# This means GitHub Pages will NOT use your Gemfile.lock and therefore it is
-# counterproductive to check this file into the repository.
-# Details at https://github.com/github/pages-gem/issues/768
-Gemfile.lock
+# environment: .env holds only public defaults and is committed; local overrides are not
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# local state of AI coding tools (the shared instructions live in AGENTS.md, CLAUDE.md and GEMINI.md)
+.claude/settings.local.json
+CLAUDE.local.md
+.gemini/settings.local.json
+GEMINI.local.md
+.agents/
+.worktrees/
+worktrees/

@@ -42,9 +42,9 @@ Do this before Task 1. It takes a few minutes and it is what keeps every later s
 
 * Test: the shell checks in Step 5. A Vitest test for these files is added in Task 1, when Vitest exists.
 
-* \[ \] **Step 1: Prepare the repository.** Work inside the existing `gati-chitra` repository folder (run `git init` only if `.git/` does not exist yet; keep the existing `README.md` and custom `SECURITY.md` intact). Create `docs/superpowers/plans/` and copy `plan.md` to `docs/superpowers/plans/2026-11-02-gati-chitra.md` with `cp plan.md docs/superpowers/plans/2026-11-02-gati-chitra.md`, then remove the root `plan.md` (`rm -f plan.md`) so there is a single canonical plan file for tracking checkboxes. (That folder is where the superpowers skills keep plans, so they will find it.)
+* [x] **Step 1: Prepare the repository.** Work inside the existing `gati-chitra` repository folder (run `git init` only if `.git/` does not exist yet; keep the existing `README.md` and custom `SECURITY.md` intact). Create `docs/superpowers/plans/` and copy `plan.md` to `docs/superpowers/plans/2026-11-02-gati-chitra.md` with `cp plan.md docs/superpowers/plans/2026-11-02-gati-chitra.md`, then remove the root `plan.md` (`rm -f plan.md`) so there is a single canonical plan file for tracking checkboxes. (That folder is where the superpowers skills keep plans, so they will find it.)
 
-* \[ \] **Step 2: Create `.gitignore`** with exactly this content:
+* [x] **Step 2: Create `.gitignore`** with exactly this content:
 
 ```
 # dependencies
@@ -87,7 +87,7 @@ worktrees/
 
 ```
 
-* \[ \] **Step 3: Create the three agent files** with exactly the content below. They are written in Markdown; the four-backtick fences here only keep the inner formatting intact, so leave the fences out of the files.
+* [x] **Step 3: Create the three agent files** with exactly the content below. They are written in Markdown; the four-backtick fences here only keep the inner formatting intact, so leave the fences out of the files.
 
 `AGENTS.md`:
 
@@ -214,9 +214,9 @@ Check: ask "Which skills can you use?" and confirm that `brainstorming`, `writin
 
 ```
 
-* \[ \] **Step 4: Install the two skills** in the tool you are running, with the commands in your tool's file, and check that they are available (each file says how). This is a one-time step per machine. If a command asks for a confirmation, a login or a permission you cannot give, stop and ask the person you are working with to run it. Install superpowers first. If a command fails because the tool or the project changed its install method, read the project's page (https://github.com/obra/superpowers, https://github.com/blader/humanizer), use the current method, and record it in `DECISIONS.md`.
+* [x] **Step 4: Install the two skills** in the tool you are running, with the commands in your tool's file, and check that they are available (each file says how). This is a one-time step per machine. If a command asks for a confirmation, a login or a permission you cannot give, stop and ask the person you are working with to run it. Install superpowers first. If a command fails because the tool or the project changed its install method, read the project's page (https://github.com/obra/superpowers, https://github.com/blader/humanizer), use the current method, and record it in `DECISIONS.md`.
 
-* \[ \] **Step 5: Verify** (run these in the repository folder):
+* [x] **Step 5: Verify** (run these in the repository folder):
 
 ```
 git check-ignore node_modules/x dist/x test-results/x .env.local .DS_Store .worktrees/x
@@ -228,7 +228,7 @@ head -3 CLAUDE.md GEMINI.md
 
 ```
 
-* \[ \] **Step 6: Commit.** `git add -A && git commit -m "chore: agent instruction files and .gitignore"`
+* [x] **Step 6: Commit.** `git add -A && git commit -m "chore: agent instruction files and .gitignore"`
 
 **From now on:** use the superpowers skills whenever you write code or a plan (the process in `AGENTS.md`), and run the humanizer on every README, docs page and wiki page before you commit it (leaving the existing custom `SECURITY.md` untouched). Task 23 repeats this for the README. The install commands above were checked against the projects' own pages and the Gemini CLI documentation on 2026-11-02; those pages are the place to look if a command stops working.
 
