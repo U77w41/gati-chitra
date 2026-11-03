@@ -169,17 +169,18 @@ export async function exportVideo(
     panY: -baseFrame.world.y * zoom,
   };
 
-  const m = await import('mediabunny');
-  const target = new m.BufferTarget();
-  const output = new m.Output({
+  const { BufferTarget, CanvasSource, Mp4OutputFormat, Output, WebMOutputFormat } =
+    await import('mediabunny');
+  const target = new BufferTarget();
+  const output = new Output({
     format:
       support.container === 'mp4'
-        ? new m.Mp4OutputFormat()
-        : new m.WebMOutputFormat(),
+        ? new Mp4OutputFormat()
+        : new WebMOutputFormat(),
     target,
   });
 
-  const source = new m.CanvasSource(canvas, {
+  const source = new CanvasSource(canvas, {
     codec: support.codec,
     bitrate: videoBitrate(plan.width, plan.height, plan.fps),
   });

@@ -4,6 +4,8 @@ import zlib from 'node:zlib';
 
 const base = process.env.BASE_PATH ?? '/';
 const dist = 'dist';
+const INITIAL_JS_BUDGET_KB = 150;
+const LAZY_CHUNK_BUDGET_KB = 80;
 
 const htmlPath = path.join(dist, 'index.html');
 if (!fs.existsSync(htmlPath)) {
@@ -37,6 +39,7 @@ if (refs.size === 0) {
 }
 
 let totalGz = 0;
+const initialFiles = new Set();
 
 for (const ref of refs) {
   if (!ref.startsWith(base)) {
@@ -46,6 +49,7 @@ for (const ref of refs) {
 
   const relative = ref.slice(base.length);
   const filePath = path.join(dist, relative);
+  initialFiles.add(path.resolve(filePath));
 
   if (!fs.existsSync(filePath)) {
     console.error(`Asset file not found: ${filePath}`);
@@ -60,9 +64,38 @@ for (const ref of refs) {
 
 console.log(`Total initial JS: ${(totalGz / 1024).toFixed(2)} KB (gzip)`);
 
-if (totalGz > 350 * 1024) {
-  console.error('Initial JavaScript is over the 350 KB budget');
+if (totalGz > INITIAL_JS_BUDGET_KB * 1024) {
+  console.error(`Initial JavaScript is over the ${INITIAL_JS_BUDGET_KB} KB budget`);
   process.exit(1);
+}
+
+const assetsDir = path.join(dist, 'assets');
+let largestLazy = null;
+
+if (fs.existsSync(assetsDir)) {
+  const assetFiles = fs.readdirSync(assetsDir);
+  for (const file of assetFiles) {
+    if (!file.endsWith('.js')) continue;
+    const filePath = path.resolve(path.join(assetsDir, file));
+    if (initialFiles.has(filePath)) continue;
+
+    const content = fs.readFileSync(filePath);
+    const gz = zlib.gzipSync(content, { level: 9 }).length;
+    const sizeKb = gz / 1024;
+
+    if (!largestLazy || sizeKb > largestLazy.sizeKb) {
+      largestLazy = { name: file, sizeKb };
+    }
+
+    if (gz > LAZY_CHUNK_BUDGET_KB * 1024) {
+      console.error(`Lazy chunk ${file} is over the ${LAZY_CHUNK_BUDGET_KB} KB budget`);
+      process.exit(1);
+    }
+  }
+}
+
+if (largestLazy) {
+  console.log(`Largest lazy chunk: ${largestLazy.name} ${largestLazy.sizeKb.toFixed(2)} KB (gzip)`);
 }
 
 const templatesIndexPath = path.join(dist, 'templates', 'index.json');
