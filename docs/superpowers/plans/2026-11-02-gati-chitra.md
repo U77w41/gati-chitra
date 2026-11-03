@@ -1858,7 +1858,7 @@ export function withNodeAt(scene: Scene, nodeId: string, center: Point, measure:
 
 `withNodeAt(scene, id, center, measure)`: copy the node boxes with the new centre for `id`; recompute groups with `computeGroups`, edges with `routeEdges`, bounds with `computeBounds`.
 
-* \[ \] **Step 1: Write the failing tests** (`box(id, x, y, w = 100, h = 40)` builds a `NodeBox`):
+* [x] **Step 1: Write the failing tests** (`box(id, x, y, w = 100, h = 40)` builds a `NodeBox`):
 
 ```
 // borderPoint
@@ -1900,13 +1900,13 @@ expect(tangentAt({ id: 'e', kind: 'straight', from: { x: 0, y: 0 }, to: { x: 0, 
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/layout`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/layout`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `geometry.ts`, `scene.ts` and `computeBounds`, following the formulas above.
+* [x] **Step 3: Implement** `geometry.ts`, `scene.ts` and `computeBounds`, following the formulas above.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: geometry, edge routing, hit testing and scene"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: geometry, edge routing, hit testing and scene"`
 
 ### Task 10: Themes and the canvas renderer
 

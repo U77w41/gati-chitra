@@ -92,6 +92,79 @@ export function computeGroups(
   return groupBoxes;
 }
 
+export function computeBounds(
+  doc: ParsedDoc,
+  layout: SceneLayout,
+  measure: MeasureText,
+): Rect {
+  if (doc.nodes.length === 0) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+
+  for (const box of Object.values(layout.nodes)) {
+    const left = box.center.x - box.width / 2;
+    const right = box.center.x + box.width / 2;
+    const top = box.center.y - box.height / 2;
+    const bottom = box.center.y + box.height / 2;
+    if (left < minX) minX = left;
+    if (right > maxX) maxX = right;
+    if (top < minY) minY = top;
+    if (bottom > maxY) maxY = bottom;
+  }
+
+  for (const gBox of Object.values(layout.groups)) {
+    const left = gBox.rect.x;
+    const right = gBox.rect.x + gBox.rect.width;
+    const top = gBox.rect.y;
+    const bottom = gBox.rect.y + gBox.rect.height;
+    if (left < minX) minX = left;
+    if (right > maxX) maxX = right;
+    if (top < minY) minY = top;
+    if (bottom > maxY) maxY = bottom;
+  }
+
+  for (const edge of doc.edges) {
+    const path = layout.edges[edge.id];
+    if (!path) continue;
+
+    for (const pt of [path.from, path.to, path.control]) {
+      if (!pt) continue;
+      if (pt.x < minX) minX = pt.x;
+      if (pt.x > maxX) maxX = pt.x;
+      if (pt.y < minY) minY = pt.y;
+      if (pt.y > maxY) maxY = pt.y;
+    }
+
+    if (edge.label && edge.label.length > 0) {
+      const chipW = measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX;
+      const chipH = LAYOUT.edgeLabelH;
+      const cx = path.labelPoint.x;
+      const cy = path.labelPoint.y;
+      const left = cx - chipW / 2;
+      const right = cx + chipW / 2;
+      const top = cy - chipH / 2;
+      const bottom = cy + chipH / 2;
+
+      if (left < minX) minX = left;
+      if (right > maxX) maxX = right;
+      if (top < minY) minY = top;
+      if (bottom > maxY) maxY = bottom;
+    }
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    width: maxX - minX,
+    height: maxY - minY,
+  };
+}
+
 export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
   if (doc.nodes.length === 0) {
     return {
@@ -167,39 +240,11 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
 
   const groups = computeGroups(doc, nodes);
 
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-
-  for (const box of Object.values(nodes)) {
-    const left = box.center.x - box.width / 2;
-    const right = box.center.x + box.width / 2;
-    const top = box.center.y - box.height / 2;
-    const bottom = box.center.y + box.height / 2;
-    if (left < minX) minX = left;
-    if (right > maxX) maxX = right;
-    if (top < minY) minY = top;
-    if (bottom > maxY) maxY = bottom;
-  }
-
-  for (const gBox of Object.values(groups)) {
-    const left = gBox.rect.x;
-    const right = gBox.rect.x + gBox.rect.width;
-    const top = gBox.rect.y;
-    const bottom = gBox.rect.y + gBox.rect.height;
-    if (left < minX) minX = left;
-    if (right > maxX) maxX = right;
-    if (top < minY) minY = top;
-    if (bottom > maxY) maxY = bottom;
-  }
-
-  const bounds: Rect = {
-    x: minX,
-    y: minY,
-    width: maxX - minX,
-    height: maxY - minY,
-  };
+  const bounds = computeBounds(
+    doc,
+    { nodes, groups, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 } },
+    measure,
+  );
 
   return {
     nodes,
