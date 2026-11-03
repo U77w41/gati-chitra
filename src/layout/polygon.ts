@@ -1,8 +1,26 @@
 import { LAYOUT } from '../core/constants';
-import type { NodeBox, ParsedDoc, Point, ShapeKind } from '../core/types';
+import type { NodeBox, ParsedDoc, Point, Rect, ShapeKind } from '../core/types';
 
 function cross(a: Point, b: Point): number {
   return a.x * b.y - a.y * b.x;
+}
+
+export function rectBorderPoint(rect: Rect, toward: Point): Point {
+  const cx = rect.x + rect.width / 2;
+  const cy = rect.y + rect.height / 2;
+  const dx = toward.x - cx;
+  const dy = toward.y - cy;
+  if (dx === 0 && dy === 0) {
+    return { x: cx, y: cy };
+  }
+  let t = Infinity;
+  if (dx !== 0) {
+    t = Math.min(t, rect.width / 2 / Math.abs(dx));
+  }
+  if (dy !== 0) {
+    t = Math.min(t, rect.height / 2 / Math.abs(dy));
+  }
+  return { x: cx + dx * t, y: cy + dy * t };
 }
 
 export function shapePolygon(box: NodeBox, shape: ShapeKind): Point[] | null {

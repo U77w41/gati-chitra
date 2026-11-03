@@ -1266,7 +1266,7 @@ git add -A && git commit -m "feat: diagram title, accessible names and SVG links
     5. Pins still override positions.
   - **Edges whose end is a group:** in dagre, they go to the group's first member node in document order (searching nested groups depth-first). With no member, the edge is not given to dagre and is not routed. When routing, that end is `rectBorderPoint(groupRect, otherEnd)`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('lays out a sealed LR subgraph sideways inside a TB chart', () => {
@@ -1293,10 +1293,10 @@ it('does not throw for an arrow to an empty subgraph', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test -- src/layout`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. Keep `layout.ts` under 300 lines by putting the sealed-group pass in `subgraph-layout.ts`.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts`. Expected: PASS; the v0.1 300-node layout test is still under 2 s.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test -- src/layout`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. Keep `layout.ts` under 300 lines by putting the sealed-group pass in `subgraph-layout.ts`.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts`. Expected: PASS; the v0.1 300-node layout test is still under 2 s.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: subgraph direction and arrows to subgraphs"

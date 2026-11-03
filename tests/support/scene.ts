@@ -59,3 +59,13 @@ export function nodeOf(shape: ShapeKind, label = 'x'): GraphNode {
 export function dist(a: Point, b: Point): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
+
+export function distanceToRectBorder(p: Point, r: { x: number; y: number; width: number; height: number }): number {
+  const clampY = Math.max(r.y, Math.min(r.y + r.height, p.y));
+  const dLeft = Math.hypot(p.x - r.x, p.y - clampY);
+  const dRight = Math.hypot(p.x - (r.x + r.width), p.y - clampY);
+  const clampX = Math.max(r.x, Math.min(r.x + r.width, p.x));
+  const dTop = Math.hypot(p.x - clampX, p.y - r.y);
+  const dBottom = Math.hypot(p.x - clampX, p.y - (r.y + r.height));
+  return Math.min(dLeft, dRight, dTop, dBottom);
+}

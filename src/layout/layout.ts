@@ -2,7 +2,11 @@ import dagre from '@dagrejs/dagre';
 import { LAYOUT } from '../core/constants';
 import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout, TextRun } from '../core/types';
 import { sizeNode, type MeasureText } from './measure';
-import { parseInlineMarkdown } from './rich-text';
+import {
+  layoutSealedSubgraphs,
+  placeSealedGroup,
+  populateMainGraph,
+} from './subgraph-layout';
 
 let dagreRuns = 0;
 
@@ -193,6 +197,8 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
       sizedNodes[node.id] = sizeNode(node, measure, doc.direction);
     }
 
+    const { sealed, sealedBoxes, topLevelSealed } = layoutSealedSubgraphs(doc, sizedNodes, measure);
+
     const g = new dagre.graphlib.Graph({ compound: true, multigraph: true });
     g.setGraph({
       rankdir: doc.direction, nodesep: LAYOUT.nodeSep, ranksep: LAYOUT.rankSep,
@@ -200,44 +206,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
     });
     g.setDefaultEdgeLabel(() => ({}));
 
-    for (const group of doc.groups) {
-      g.setNode('group:' + group.id, {});
-      if (group.parent) {
-        g.setParent('group:' + group.id, 'group:' + group.parent);
-      }
-    }
-
-    for (const node of doc.nodes) {
-      const sized = sizedNodes[node.id];
-      g.setNode(node.id, { width: sized.width, height: sized.height });
-      if (node.group) {
-        g.setParent(node.id, 'group:' + node.group);
-      }
-    }
-
-    for (const edge of doc.edges) {
-      if (edge.fromIsGroup || edge.toIsGroup) continue;
-      if (edge.from !== edge.to) {
-        const hasLabel = edge.label && edge.label.length > 0;
-        let labelW = 0;
-        if (hasLabel) {
-          if (edge.markdown) {
-            const runs = parseInlineMarkdown(edge.label);
-            labelW = runs.reduce(
-              (sum, r) => sum + measure(r.text, LAYOUT.edgeLabelFontSize, { bold: r.bold, italic: r.italic }),
-              0,
-            );
-          } else {
-            labelW = measure(edge.label, LAYOUT.edgeLabelFontSize);
-          }
-        }
-        const labelObj = {
-          minlen: edge.length,
-          ...(hasLabel ? { width: labelW + 2 * LAYOUT.edgeLabelPadX, height: LAYOUT.edgeLabelH, labelpos: 'c' } : {}),
-        };
-        g.setEdge(edge.from, edge.to, labelObj, edge.id);
-      }
-    }
+    populateMainGraph(g, doc, sizedNodes, measure, sealed, sealedBoxes, topLevelSealed);
 
     dagreRuns++;
     dagre.layout(g);
@@ -245,7 +214,11 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
     dagrePositions = {};
     for (const node of doc.nodes) {
       const dagreNode = g.node(node.id) as { x: number; y: number } | undefined;
-      dagrePositions[node.id] = { x: dagreNode?.x ?? 0, y: dagreNode?.y ?? 0 };
+      if (dagreNode) dagrePositions[node.id] = { x: dagreNode.x, y: dagreNode.y };
+    }
+    for (const gid of topLevelSealed) {
+      const gPos = g.node('group:' + gid) as { x: number; y: number } | undefined;
+      if (gPos) placeSealedGroup(gid, gPos.x, gPos.y, sealedBoxes, sealed, dagrePositions);
     }
 
     lastEntry = { key, dagrePositions, sizedNodes };

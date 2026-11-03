@@ -18,7 +18,7 @@ export function buildScene(doc: ParsedDoc, measure: MeasureText): Scene {
   }
 
   const layout = layoutDoc(doc, measure);
-  const edges = routeEdges(doc, layout.nodes);
+  const edges = routeEdges(doc, layout.nodes, layout.groups);
   const bounds = computeBounds(doc, { ...layout, edges }, measure);
 
   return {
@@ -46,7 +46,7 @@ export function withNodeAt(
   }
 
   const groups = computeGroups(scene.doc, nodes);
-  const edges = routeEdges(scene.doc, nodes);
+  const edges = routeEdges(scene.doc, nodes, groups);
   const bounds = computeBounds(
     scene.doc,
     { nodes, groups, edges, bounds: scene.layout.bounds, title: scene.layout.title },

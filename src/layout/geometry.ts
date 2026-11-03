@@ -1,15 +1,16 @@
 import { LAYOUT } from '../core/constants';
 import type {
   EdgePath,
+  GroupBox,
   NodeBox,
   ParsedDoc,
   Point,
   Scene,
   ShapeKind,
 } from '../core/types';
-import { borderPoint, handlePoint, shapePolygon } from './polygon';
+import { borderPoint, handlePoint, rectBorderPoint, shapePolygon } from './polygon';
 
-export { borderPoint, handlePoint, shapePolygon };
+export { borderPoint, handlePoint, rectBorderPoint, shapePolygon };
 
 export type Hit =
   | { kind: 'handle'; id: string }
@@ -54,6 +55,7 @@ export function tangentAt(path: EdgePath, u: number): Point {
 export function routeEdges(
   doc: ParsedDoc,
   nodes: Record<string, NodeBox>,
+  groupBoxes: Record<string, GroupBox> = {},
 ): Record<string, EdgePath> {
   const nodeShapeMap = new Map<string, ShapeKind>();
   for (const n of doc.nodes) {
@@ -81,22 +83,43 @@ export function routeEdges(
 
     for (let i = 0; i < n; i++) {
       const edge = list[i];
-      const fromBox = nodes[edge.from];
-      const toBox = nodes[edge.to];
-      if (!fromBox || !toBox) continue;
+      let fromCenter: Point;
+      let toCenter: Point;
+      let fromShape: ShapeKind = 'rect';
+      let toShape: ShapeKind = 'rect';
 
-      const fromShape = nodeShapeMap.get(edge.from) ?? 'rect';
-      const toShape = nodeShapeMap.get(edge.to) ?? 'rect';
+      if (edge.fromIsGroup) {
+        const g = groupBoxes[edge.from];
+        if (!g) continue;
+        fromCenter = { x: g.rect.x + g.rect.width / 2, y: g.rect.y + g.rect.height / 2 };
+      } else {
+        const fromBox = nodes[edge.from];
+        if (!fromBox) continue;
+        fromCenter = fromBox.center;
+        fromShape = nodeShapeMap.get(edge.from) ?? 'rect';
+      }
+
+      if (edge.toIsGroup) {
+        const g = groupBoxes[edge.to];
+        if (!g) continue;
+        toCenter = { x: g.rect.x + g.rect.width / 2, y: g.rect.y + g.rect.height / 2 };
+      } else {
+        const toBox = nodes[edge.to];
+        if (!toBox) continue;
+        toCenter = toBox.center;
+        toShape = nodeShapeMap.get(edge.to) ?? 'rect';
+      }
 
       let pathKind: 'straight' | 'quad' | 'loop' = 'straight';
       let p0: Point;
       let p1: Point;
       let control: Point | null = null;
 
-      if (edge.from === edge.to) {
+      if (edge.from === edge.to && !edge.fromIsGroup) {
         pathKind = 'loop';
-        const cx = fromBox.center.x;
-        const cy = fromBox.center.y;
+        const cx = fromCenter.x;
+        const cy = fromCenter.y;
+        const fromBox = nodes[edge.from]!;
         const w = fromBox.width;
         const h = fromBox.height;
         const size = LAYOUT.selfLoopSize;
@@ -104,20 +127,22 @@ export function routeEdges(
         p1 = { x: cx + w / 2, y: cy - h / 2 + 14 };
         control = { x: cx + w / 2 + size, y: cy - h / 2 - size };
       } else {
-        p0 = borderPoint(fromBox, fromShape, toBox.center);
-        p1 = borderPoint(toBox, toShape, fromBox.center);
+        p0 = edge.fromIsGroup
+          ? rectBorderPoint(groupBoxes[edge.from]!.rect, toCenter)
+          : borderPoint(nodes[edge.from]!, fromShape, toCenter);
+        p1 = edge.toIsGroup
+          ? rectBorderPoint(groupBoxes[edge.to]!.rect, fromCenter)
+          : borderPoint(nodes[edge.to]!, toShape, fromCenter);
 
         if (n === 1) {
           pathKind = 'straight';
           control = null;
         } else {
           pathKind = 'quad';
-          const idA = edge.from < edge.to ? edge.from : edge.to;
-          const idB = edge.from < edge.to ? edge.to : edge.from;
-          const boxA = nodes[idA];
-          const boxB = nodes[idB];
-          const vx = boxB.center.x - boxA.center.x;
-          const vy = boxB.center.y - boxA.center.y;
+          const centerA = edge.from < edge.to ? fromCenter : toCenter;
+          const centerB = edge.from < edge.to ? toCenter : fromCenter;
+          const vx = centerB.x - centerA.x;
+          const vy = centerB.y - centerA.y;
           const vlen = Math.hypot(vx, vy);
           const d = vlen === 0 ? { x: 0, y: 1 } : { x: vx / vlen, y: vy / vlen };
           const nrm = { x: -d.y, y: d.x };
