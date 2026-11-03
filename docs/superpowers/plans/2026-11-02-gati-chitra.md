@@ -864,7 +864,7 @@ Every task lists: **Delivers** (feature IDs), **Files**, **Interfaces**, numbere
 
 * Produces: the npm scripts `dev`, `build`, `preview`, `test`, `test:e2e`; the `BASE_PATH` environment variable read by `vite.config.ts`.
 
-* \[ \] **Step 1: Create the project.** Work in the repository folder from Task 0 (it already has `git init`, `.gitignore`, the agent files and the plan). Run `npm init -y`, then set `"type": "module"` in `package.json` and these scripts exactly:
+* [x] **Step 1: Create the project.** Work in the repository folder from Task 0 (it already has `git init`, `.gitignore`, the agent files and the plan). Run `npm init -y`, then set `"type": "module"` in `package.json` and these scripts exactly:
 
 ```
 {
@@ -877,9 +877,9 @@ Every task lists: **Delivers** (feature IDs), **Files**, **Interfaces**, numbere
 
 ```
 
-* \[ \] **Step 2: Install dependencies.** Run `npm install @dagrejs/dagre gifenc`, then `npm install -D typescript vite vitest @playwright/test @types/node`, then `npx playwright install chromium`. Do not install `mediabunny` yet (Task 20).
+* [x] **Step 2: Install dependencies.** Run `npm install @dagrejs/dagre gifenc`, then `npm install -D typescript vite vitest @playwright/test @types/node`, then `npx playwright install chromium`. Do not install `mediabunny` yet (Task 20).
 
-* \[ \] **Step 3: Write the config files.**
+* [x] **Step 3: Write the config files.**
 
   * `tsconfig.json`: `compilerOptions` = `target ES2022`, `module ESNext`, `moduleResolution Bundler`, `lib ["ES2022","DOM","DOM.Iterable"]`, `strict true`, `noEmit true`, `skipLibCheck true`, `types ["node"]`; `include` = `["src","tests","scripts","vite.config.ts","playwright.config.ts"]`.
 
@@ -897,7 +897,7 @@ Every task lists: **Delivers** (feature IDs), **Files**, **Interfaces**, numbere
 
   * `src/vite-env.d.ts`: the single line `/// <reference types="vite/client" />` (it gives `import.meta.env` and CSS imports their types).
 
-* \[ \] **Step 4: Declare the types of `gifenc`** (the package ships none). Create `src/types/gifenc.d.ts` with exactly:
+* [x] **Step 4: Declare the types of `gifenc`** (the package ships none). Create `src/types/gifenc.d.ts` with exactly:
 
 ```
 declare module 'gifenc' {
@@ -918,7 +918,7 @@ declare module 'gifenc' {
 
 ```
 
-* \[ \] **Step 5: Write the tests.** `src/sanity.test.ts`: one test asserting `1 + 1` equals `2`. `src/repo.test.ts` pins the files from Task 0 (it reads them with `node:fs` from the project root):
+* [x] **Step 5: Write the tests.** `src/sanity.test.ts`: one test asserting `1 + 1` equals `2`. `src/repo.test.ts` pins the files from Task 0 (it reads them with `node:fs` from the project root):
 
 ```
 import { existsSync, readFileSync } from 'node:fs';
@@ -950,9 +950,9 @@ it('.gitignore keeps generated and local files out, and keeps the shared files i
 
 ```
 
-* \[ \] **Step 6: Verify.** Run `npm test` (expect 2 test files and every test passing) and `npm run build` (expect no errors and a `dist` folder).
+* [x] **Step 6: Verify.** Run `npm test` (expect 2 test files and every test passing) and `npm run build` (expect no errors and a `dist` folder).
 
-* \[ \] **Step 7: Commit.** `git add -A && git commit -m "chore: scaffold project"`
+* [x] **Step 7: Commit.** `git add -A && git commit -m "chore: scaffold project"`
 
 ### Task 2: Constants and types
 
