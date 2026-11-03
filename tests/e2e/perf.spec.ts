@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Performance budgets', () => {
-  test('renders 100-node binary tree under 50ms per frame in traffic style', async ({
+  test('renders 100-node binary tree under 33ms per frame in traffic style', async ({
     page,
   }) => {
     await page.goto('/?e2e=1');
@@ -26,7 +26,21 @@ test.describe('Performance budgets', () => {
       return (window as any).__studio.measureFrames(30);
     });
 
-    expect(avgMs).toBeLessThan(50);
+    expect(avgMs).toBeLessThan(33);
+  });
+
+  test('idle canvas does not repaint', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(300);
+
+    await page.locator('#anim-pause').click();
+    await page.waitForTimeout(100);
+
+    const countBefore = await page.evaluate(() => (window as any).__studio.getDrawCount());
+    await page.waitForTimeout(500);
+    const countAfter = await page.evaluate(() => (window as any).__studio.getDrawCount());
+
+    expect(countAfter).toBe(countBefore);
   });
 
   test('parses and lays out 300-node chain in under 3 seconds', async ({

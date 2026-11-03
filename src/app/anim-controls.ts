@@ -1,5 +1,6 @@
 import type { AnimStyle, ThemeChoice } from '../core/types';
 import { THEMES } from '../render/themes';
+import { requestRedraw } from './render-loop';
 import type { AppState } from './state';
 import { saveSettings, type KeyValueStore } from './storage';
 
@@ -66,26 +67,31 @@ export function setupAnimControls(
   animStyleEl.addEventListener('change', () => {
     state.settings.anim.style = animStyleEl.value as AnimStyle;
     saveSettings(store, state.settings);
+    requestRedraw();
   });
   animSpeedEl.addEventListener('input', () => {
     state.settings.anim.speed = parseFloat(animSpeedEl.value);
     updateSliderOutputs();
     saveSettings(store, state.settings);
+    requestRedraw();
   });
   animDensityEl.addEventListener('input', () => {
     state.settings.anim.density = parseInt(animDensityEl.value, 10);
     updateSliderOutputs();
     saveSettings(store, state.settings);
+    requestRedraw();
   });
   animGlowEl.addEventListener('change', () => {
     state.settings.anim.glow = animGlowEl.checked;
     saveSettings(store, state.settings);
+    requestRedraw();
   });
 
   function togglePause(): void {
     state.paused = !state.paused;
     updatePauseButton();
     onPauseToggle(state.paused);
+    requestRedraw();
   }
 
   animPauseEl.addEventListener('click', togglePause);
@@ -97,6 +103,7 @@ export function setupAnimControls(
       choice === 'auto' ? false : THEMES[choice].glowDefault;
     animGlowEl.checked = state.settings.anim.glow;
     saveSettings(store, state.settings);
+    requestRedraw();
   });
 
   return { togglePause };

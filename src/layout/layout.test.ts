@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseMermaid } from '../mermaid/parse';
-import { layoutDoc } from './layout';
+import { dagreRunCount, layoutDoc } from './layout';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
 import type { SceneLayout } from '../core/types';
@@ -125,5 +125,15 @@ describe('layout', () => {
     expect(duration).toBeLessThan(2000);
     expect(Object.keys(chainLayout.nodes).length).toBe(300);
     assertNoOverlappingCenters(chainLayout);
+  });
+
+  it('moving a pin does not re-run dagre', () => {
+    const a = parseMermaid('flowchart TD\nA --> B\nB --> C');
+    const b = parseMermaid('flowchart TD\nA --> B\nB --> C\n%% studio:pos A 10 20');
+    layoutDoc(a, testMeasure);
+    const n = dagreRunCount();
+    const lb = layoutDoc(b, testMeasure);
+    expect(dagreRunCount()).toBe(n);
+    expect(lb.nodes.A.center).toEqual({ x: 10, y: 20 });
   });
 });

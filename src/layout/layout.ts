@@ -3,6 +3,12 @@ import { LAYOUT } from '../core/constants';
 import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout } from '../core/types';
 import { sizeNode, type MeasureText } from './measure';
 
+let dagreRuns = 0;
+
+export function dagreRunCount(): number {
+  return dagreRuns;
+}
+
 export function computeGroups(
   doc: ParsedDoc,
   nodes: Record<string, NodeBox>,
@@ -165,6 +171,22 @@ export function computeBounds(
   };
 }
 
+export function structureKey(doc: ParsedDoc, measure: MeasureText): string {
+  const mSample = measure('W', 14);
+  const nKey = doc.nodes.map((n) => `${n.id}\0${n.shape}\0${n.label}`).join('\x01');
+  const eKey = doc.edges.map((e) => `${e.from}\0${e.to}\0${e.kind}\0${e.label}\0${(e as unknown as { length?: number }).length ?? 1}`).join('\x01');
+  const gKey = doc.groups.map((g) => `${g.id}\0${g.parent ?? ''}\0${g.title}\0${g.direction ?? ''}`).join('\x01');
+  return `${doc.direction}|${mSample}|${nKey}|${eKey}|${gKey}`;
+}
+
+interface LayoutCacheEntry {
+  key: string;
+  dagrePositions: Record<string, { x: number; y: number }>;
+  sizedNodes: Record<string, { width: number; height: number; lines: string[] }>;
+}
+
+let lastEntry: LayoutCacheEntry | null = null;
+
 export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
   if (doc.nodes.length === 0) {
     return {
@@ -175,56 +197,74 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
     };
   }
 
-  const sizedNodes: Record<string, { width: number; height: number; lines: string[] }> = {};
-  for (const node of doc.nodes) {
-    sizedNodes[node.id] = sizeNode(node, measure);
-  }
+  const key = structureKey(doc, measure);
+  let dagrePositions: Record<string, { x: number; y: number }>;
+  let sizedNodes: Record<string, { width: number; height: number; lines: string[] }>;
 
-  const g = new dagre.graphlib.Graph({ compound: true, multigraph: true });
-  g.setGraph({
-    rankdir: doc.direction,
-    nodesep: LAYOUT.nodeSep,
-    ranksep: LAYOUT.rankSep,
-    edgesep: LAYOUT.edgeSep,
-    marginx: LAYOUT.margin,
-    marginy: LAYOUT.margin,
-  });
-  g.setDefaultEdgeLabel(() => ({}));
-
-  for (const group of doc.groups) {
-    g.setNode('group:' + group.id, {});
-    if (group.parent) {
-      g.setParent('group:' + group.id, 'group:' + group.parent);
+  if (lastEntry && lastEntry.key === key) {
+    dagrePositions = lastEntry.dagrePositions;
+    sizedNodes = lastEntry.sizedNodes;
+  } else {
+    sizedNodes = {};
+    for (const node of doc.nodes) {
+      sizedNodes[node.id] = sizeNode(node, measure);
     }
-  }
 
-  for (const node of doc.nodes) {
-    const sized = sizedNodes[node.id];
-    g.setNode(node.id, { width: sized.width, height: sized.height });
-    if (node.group) {
-      g.setParent(node.id, 'group:' + node.group);
+    const g = new dagre.graphlib.Graph({ compound: true, multigraph: true });
+    g.setGraph({
+      rankdir: doc.direction,
+      nodesep: LAYOUT.nodeSep,
+      ranksep: LAYOUT.rankSep,
+      edgesep: LAYOUT.edgeSep,
+      marginx: LAYOUT.margin,
+      marginy: LAYOUT.margin,
+    });
+    g.setDefaultEdgeLabel(() => ({}));
+
+    for (const group of doc.groups) {
+      g.setNode('group:' + group.id, {});
+      if (group.parent) {
+        g.setParent('group:' + group.id, 'group:' + group.parent);
+      }
     }
-  }
 
-  for (const edge of doc.edges) {
-    if (edge.from !== edge.to) {
-      const hasLabel = edge.label && edge.label.length > 0;
-      const labelObj = hasLabel
-        ? {
-            width: measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX,
-            height: LAYOUT.edgeLabelH,
-            labelpos: 'c',
-          }
-        : {};
-      g.setEdge(edge.from, edge.to, labelObj, edge.id);
+    for (const node of doc.nodes) {
+      const sized = sizedNodes[node.id];
+      g.setNode(node.id, { width: sized.width, height: sized.height });
+      if (node.group) {
+        g.setParent(node.id, 'group:' + node.group);
+      }
     }
-  }
 
-  dagre.layout(g);
+    for (const edge of doc.edges) {
+      if (edge.from !== edge.to) {
+        const hasLabel = edge.label && edge.label.length > 0;
+        const labelObj = hasLabel
+          ? {
+              width: measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX,
+              height: LAYOUT.edgeLabelH,
+              labelpos: 'c',
+            }
+          : {};
+        g.setEdge(edge.from, edge.to, labelObj, edge.id);
+      }
+    }
+
+    dagreRuns++;
+    dagre.layout(g);
+
+    dagrePositions = {};
+    for (const node of doc.nodes) {
+      const dagreNode = g.node(node.id) as { x: number; y: number } | undefined;
+      dagrePositions[node.id] = { x: dagreNode?.x ?? 0, y: dagreNode?.y ?? 0 };
+    }
+
+    lastEntry = { key, dagrePositions, sizedNodes };
+  }
 
   const nodes: Record<string, NodeBox> = {};
   for (const node of doc.nodes) {
-    const dagreNode = g.node(node.id) as { x: number; y: number } | undefined;
+    const dagreNode = dagrePositions[node.id];
     const center = doc.pins[node.id]
       ? { ...doc.pins[node.id] }
       : { x: dagreNode?.x ?? 0, y: dagreNode?.y ?? 0 };

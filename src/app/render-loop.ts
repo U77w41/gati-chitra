@@ -1,4 +1,4 @@
-import type { Focus } from '../core/types';
+import type { AnimStyle, Focus } from '../core/types';
 import { frameState, phaseAt } from '../anim/anim';
 import { handlePoint } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
@@ -6,6 +6,30 @@ import { withNodeAt } from '../layout/scene';
 import { drawBackground, drawScene } from '../render/draw';
 import { THEMES, resolveTheme } from '../render/themes';
 import type { AppState } from './state';
+
+let dirty = true;
+let drawCount = 0;
+
+export function shouldDraw(s: {
+  dirty: boolean;
+  paused: boolean;
+  style: AnimStyle;
+  presenting: boolean;
+}): boolean {
+  return s.dirty || (!s.paused && s.style !== 'off') || s.presenting;
+}
+
+export function requestRedraw(): void {
+  dirty = true;
+}
+
+export function getDrawCount(): number {
+  return drawCount;
+}
+
+export function resetDrawCount(): void {
+  drawCount = 0;
+}
 
 export interface RenderLoopEnv {
   canvasEl: HTMLCanvasElement;
@@ -15,14 +39,35 @@ export interface RenderLoopEnv {
   startTime: number;
   getPausedPhase: () => number;
   getFocus?: () => Focus | null;
+  isPresenting?: () => boolean;
 }
 
 export function startRenderLoop(env: RenderLoopEnv): () => void {
-  const { canvasEl, ctx, getState, measure, startTime, getPausedPhase, getFocus } = env;
+  const {
+    canvasEl,
+    ctx,
+    getState,
+    measure,
+    startTime,
+    getPausedPhase,
+    getFocus,
+    isPresenting,
+  } = env;
   let animId: number;
 
   function render(): void {
     const state = getState();
+    const presenting = isPresenting ? isPresenting() : false;
+    const style = state.settings.anim.style;
+    const paused = state.paused;
+
+    if (!shouldDraw({ dirty, paused, style, presenting })) {
+      animId = requestAnimationFrame(render);
+      return;
+    }
+    dirty = false;
+    drawCount++;
+
     const scheme =
       document.documentElement.getAttribute('data-scheme') === 'dark'
         ? 'dark'

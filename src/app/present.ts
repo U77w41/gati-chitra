@@ -1,5 +1,6 @@
 import { ANIM, MESSAGES } from '../core/constants';
 import { showMessage } from './message';
+import { requestRedraw } from './render-loop';
 import type { Focus } from '../core/types';
 import { buildSteps, focusAt, type Step } from '../anim/steps';
 import type { AppState } from './state';
@@ -65,6 +66,7 @@ export function setupPresentMode(env: PresentEnv): PresentController {
     currentIndex = clamped;
     currentFocus = focusAt(steps, currentIndex);
     presentStepEl.textContent = `Step ${currentIndex + 1} of ${steps.length}`;
+    requestRedraw();
   }
 
   function start(): void {
@@ -103,6 +105,7 @@ export function setupPresentMode(env: PresentEnv): PresentController {
 
     triggerFit();
     startTimer();
+    requestRedraw();
   }
 
   function exit(): void {
@@ -123,6 +126,7 @@ export function setupPresentMode(env: PresentEnv): PresentController {
     inFullscreen = false;
 
     triggerFit();
+    requestRedraw();
   }
 
   function toggleAutoAdvance(): void {

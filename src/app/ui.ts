@@ -13,7 +13,7 @@ import { setupGallery } from './gallery';
 import { setupInlineEditor } from './inline-edit';
 import { setupPresentMode } from './present';
 import { setupProperties } from './properties';
-import { startRenderLoop } from './render-loop';
+import { requestRedraw, startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
 import { setupKeyboardShortcuts } from './shortcuts';
 import { commitText, createState, type AppState, type CommitSource } from './state';
@@ -30,7 +30,7 @@ import { mountChrome } from './chrome';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
-  mountChrome(document, store, import.meta.env.VITE_SOURCE_URL ?? '');
+  mountChrome(document, store, import.meta.env.VITE_SOURCE_URL ?? '', () => requestRedraw());
   document.getElementById('main')?.focus();
 
   const initialText = loadDoc(store) ?? SAMPLE_TEXT;
@@ -62,6 +62,7 @@ export async function initApp(): Promise<void> {
         width: canvasEl.clientWidth,
         height: canvasEl.clientHeight,
       });
+      requestRedraw();
     }
   }
 
@@ -112,6 +113,7 @@ export async function initApp(): Promise<void> {
     updateButtons();
     updateProps();
     autosave.schedule();
+    requestRedraw();
     if (!hasFitted && state.scene) { triggerFit(); hasFitted = true; }
   }
 
@@ -141,10 +143,14 @@ export async function initApp(): Promise<void> {
     }
   }
 
-  const { dispatch, handleAddNodeAt } = createDispatcher({
+  const { dispatch: rawDispatch, handleAddNodeAt } = createDispatcher({
     getState: () => state, measure, commit, executeOp, messageEl, inlineEditor, updateProps,
     setFreshlyCreatedNodeId: (id) => { freshlyCreatedNodeId = id; },
   });
+  const dispatch: typeof rawDispatch = (event) => {
+    rawDispatch(event);
+    requestRedraw();
+  };
 
   function doUndo(): void { commit('', 'undo'); }
   function doRedo(): void { commit('', 'redo'); }
@@ -226,8 +232,8 @@ export async function initApp(): Promise<void> {
 
   setupKeyboardShortcuts({
     onUndo: doUndo, onRedo: doRedo, onFit: triggerFit,
-    onZoomIn: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25); },
-    onZoomOut: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8); },
+    onZoomIn: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25); requestRedraw(); },
+    onZoomOut: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8); requestRedraw(); },
     onPresent: () => present.start(),
     onTogglePause: () => animControls.togglePause(),
     onDelete: () => dispatch({ type: 'keyDown', key: 'Delete' }),
@@ -238,14 +244,14 @@ export async function initApp(): Promise<void> {
 
   setupCanvasEvents({
     canvasEl, getState: () => state, dispatch,
-    updateView: (fn) => { state.view = fn(state.view); },
+    updateView: (fn) => { state.view = fn(state.view); requestRedraw(); },
     isPresenting: present.isPresenting,
   });
 
   const ro = new ResizeObserver(() => {
     const dpr = window.devicePixelRatio || 1;
     const w = Math.round(canvasEl.clientWidth * dpr), h = Math.round(canvasEl.clientHeight * dpr);
-    if (canvasEl.width !== w || canvasEl.height !== h) { canvasEl.width = w; canvasEl.height = h; }
+    if (canvasEl.width !== w || canvasEl.height !== h) { canvasEl.width = w; canvasEl.height = h; requestRedraw(); }
   });
   ro.observe(canvasEl);
 
@@ -253,6 +259,7 @@ export async function initApp(): Promise<void> {
     canvasEl, ctx, getState: () => state, measure, startTime,
     getPausedPhase: () => pausedPhase,
     getFocus: present.getCurrentFocus,
+    isPresenting: present.isPresenting,
   });
 
   setupExportPanel({

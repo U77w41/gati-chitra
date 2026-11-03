@@ -24,6 +24,7 @@ interface StudioApi {
   ) => { width: number; height: number };
   getResolvedTheme: () => import('./core/types').ThemeId;
   measureFrames: (count: number) => number;
+  getDrawCount: () => number;
 }
 
 interface Window {

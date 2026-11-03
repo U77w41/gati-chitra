@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { parseMermaid } from '../mermaid/parse';
 import { buildScene } from '../layout/scene';
 import { testMeasure } from '../../tests/support/measure';
+import { sceneOf } from '../../tests/support/scene';
 import { createRecordingContext } from '../../tests/support/recording-context';
 import { THEMES } from './themes';
+import { prepare } from './prepared';
 import {
   drawBackground,
   drawScene,
@@ -199,5 +201,10 @@ describe('draw', () => {
 
     const bidirectional = edgeStyle(doc.edges[2], theme);
     expect(bidirectional.startArrow).toBe(true);
+  });
+
+  it('caches prepared data per scene', () => {
+    const s = sceneOf('flowchart TD\nA --> B');
+    expect(prepare(s)).toBe(prepare(s));
   });
 });

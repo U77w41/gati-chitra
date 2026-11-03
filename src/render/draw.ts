@@ -9,6 +9,7 @@ import type {
 import { handlePoint, pointOnPath } from '../layout/geometry';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
 import { traceNodePath } from './node-path';
+import { prepare } from './prepared';
 import { edgeStyle, nodeStyle } from './style';
 
 export type Ctx2D = CanvasRenderingContext2D;
@@ -53,9 +54,10 @@ export function drawScene(
   ctx.scale(view.zoom, view.zoom);
 
   // 2. Groups
-  const groups = Object.values(scene.layout.groups);
-  groups.sort((a, b) => a.depth - b.depth);
-  for (const g of groups) {
+  const prep = prepare(scene);
+  for (const gid of prep.groupOrder) {
+    const g = scene.layout.groups[gid];
+    if (!g) continue;
     ctx.beginPath();
     ctx.roundRect(g.rect.x, g.rect.y, g.rect.width, g.rect.height, 10);
     ctx.fillStyle = theme.groupFill;

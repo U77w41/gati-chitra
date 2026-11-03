@@ -6,6 +6,7 @@ import type { ExportMode } from '../core/types';
 import type { EditorEvent } from '../editor/controller';
 import { worldToScreen } from '../editor/view';
 import { resolveTheme, THEMES } from '../render/themes';
+import { getDrawCount } from './render-loop';
 import type { AppState } from './state';
 
 export interface StudioEnv {
@@ -128,5 +129,6 @@ export function setupStudioApi(env: StudioEnv): void {
       const t1 = performance.now();
       return (t1 - t0) / count;
     },
+    getDrawCount: () => getDrawCount(),
   };
 }
