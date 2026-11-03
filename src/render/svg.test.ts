@@ -39,7 +39,7 @@ describe('SVG export', () => {
     const s = svg('flowchart TD\nA[Start] --> B{Check}');
     expect(s.startsWith('<svg xmlns="http://www.w3.org/2000/svg"')).toBe(true);
     expect(s.endsWith('</svg>')).toBe(true);
-    expect(s).toContain('<title>Flowchart</title>');
+    expect(s).toContain('<title id="gc-title">Flowchart</title>');
     expect(s).toContain('>Start</text>');
     expect(s).toContain('>Check</text>');
     expect(count(s, '<rect ')).toBe(2);
@@ -121,5 +121,11 @@ describe('SVG export', () => {
     expect(svg('flowchart TD\nA["`**Hi** there`"]')).toContain(
       '<tspan font-weight="bold">Hi</tspan><tspan> there</tspan>',
     );
+  });
+
+  it('writes accessible SVG with safe links', () => {
+    const s = svg('flowchart TD\naccTitle: Orders\nA\nclick A "https://x.org/?a=1&b=2" "Tip" _blank');
+    expect(s).toContain('<title id="gc-title">Orders</title>');
+    expect(s).toContain('<a href="https://x.org/?a=1&amp;b=2" target="_blank" rel="noopener noreferrer"><title>Tip</title>');
   });
 });

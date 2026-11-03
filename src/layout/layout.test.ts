@@ -144,4 +144,10 @@ describe('layout', () => {
       l.nodes.B.center.y - l.nodes.A.center.y + LAYOUT.rankSep / 2,
     );
   });
+
+  it('puts the title above the content', () => {
+    const l = L('---\ntitle: Checkout\n---\nflowchart TD\nA');
+    expect(l.title!.center.y).toBeLessThan(l.nodes.A.center.y - l.nodes.A.height / 2);
+    expect(l.bounds.y).toBeLessThanOrEqual(l.title!.center.y - LAYOUT.titleFontSize / 2);
+  });
 });

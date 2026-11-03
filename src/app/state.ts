@@ -129,6 +129,7 @@ export function commitText(
           groups: {},
           edges: {},
           bounds: { x: 0, y: 0, width: 0, height: 0 },
+          title: null,
         },
       },
       ok: newState.doc.ok,

@@ -14,7 +14,9 @@ test.describe('Accessibility and reduced motion', () => {
     const canvas = page.locator('#canvas');
     await expect(canvas).toHaveAttribute('role', 'img');
     const ariaLabel = await canvas.getAttribute('aria-label');
-    expect(ariaLabel?.startsWith('Flowchart with')).toBe(true);
+    expect(ariaLabel).toBe('Flowchart');
+    const descText = await page.locator('#canvas-desc').textContent();
+    expect(descText).toContain('nodes');
 
     // every button has an accessible name
     const buttons = await page.locator('button').all();
@@ -166,5 +168,18 @@ test.describe('Accessibility and reduced motion', () => {
     await page.waitForTimeout(100);
     const dark = await getColors();
     expect(contrastRatio(dark.border, dark.bg)).toBeGreaterThanOrEqual(3);
+  });
+
+  test('accTitle and accDescr name and describe the canvas', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\naccTitle: Orders\naccDescr: How orders flow\nA --> B');
+    });
+    await page.waitForTimeout(100);
+    const canvas = page.locator('#canvas');
+    await expect(canvas).toHaveAttribute('aria-label', 'Orders');
+    const desc = page.locator('#canvas-desc');
+    await expect(desc).toHaveText(/1 arrow\.$/);
   });
 });

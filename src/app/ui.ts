@@ -23,6 +23,7 @@ import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
 import { checkInitialShare, setupHashChangeListener, setupShareHandler } from './share-handler';
 import { mountChrome } from './chrome';
+import { describeDiagram } from './describe';
 import { stripFences } from '../mermaid/fences';
 
 export async function initApp(): Promise<void> {
@@ -67,7 +68,10 @@ export async function initApp(): Promise<void> {
 
   function updateAriaLabel(): void {
     if (state.scene) {
-      canvasEl.setAttribute('aria-label', `Flowchart with ${state.doc.nodes.length} nodes and ${state.doc.edges.length} arrows`);
+      const desc = describeDiagram(state.doc);
+      canvasEl.setAttribute('aria-label', desc.name);
+      const descEl = document.getElementById('canvas-desc');
+      if (descEl) descEl.textContent = desc.description;
     }
   }
 
@@ -278,8 +282,7 @@ export async function initApp(): Promise<void> {
   });
 
   setupGallery({
-    dialogEl: document.querySelector('#gallery')!,
-    btnTemplates: document.querySelector('#btn-templates')!,
+    dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!,
     baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl,
   });
 

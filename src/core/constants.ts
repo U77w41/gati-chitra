@@ -58,6 +58,8 @@ export const LAYOUT = {
   doubleCircleGap: 5,
   trapezoidInset: 14,
   asymmetricNotch: 14,
+  titleFontSize: 20,
+  titleH: 36,
 } as const;
 
 export const VIEW = { zoomMin: 0.1, zoomMax: 4, wheelSensitivity: 0.002, fitMargin: 48 } as const;

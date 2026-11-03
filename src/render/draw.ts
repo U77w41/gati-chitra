@@ -82,6 +82,19 @@ export function drawScene(
   ctx.translate(view.panX, view.panY);
   ctx.scale(view.zoom, view.zoom);
 
+  // 1. Title
+  if (scene.layout.title) {
+    ctx.font = `bold ${LAYOUT.titleFontSize}px ${FONT_STACK_SANS}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = theme.nodeText;
+    ctx.fillText(
+      scene.layout.title.text,
+      scene.layout.title.center.x,
+      scene.layout.title.center.y,
+    );
+  }
+
   // 2. Groups
   const prep = prepare(scene);
   for (const gid of prep.groupOrder) {

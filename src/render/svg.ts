@@ -1,5 +1,6 @@
 import { EXPORT, FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import type { ExportMode, Scene, Theme } from '../core/types';
+import { describeDiagram } from '../app/describe';
 import { shapePolygon, tangentAt } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { parseInlineMarkdown } from '../layout/rich-text';
@@ -38,9 +39,14 @@ export function renderSvg(
   measure: MeasureText,
 ): string {
   const frame = exportFrame(scene.layout.bounds, opts.mode, 1);
-  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${fmt(frame.pixelWidth)}" height="${fmt(frame.pixelHeight)}" viewBox="${fmt(frame.world.x)} ${fmt(frame.world.y)} ${fmt(frame.world.width)} ${fmt(frame.world.height)}" role="img" font-family="${escapeXml(FONT_STACK_SANS)}">`;
+  const desc = describeDiagram(scene.doc);
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${fmt(frame.pixelWidth)}" height="${fmt(frame.pixelHeight)}" viewBox="${fmt(frame.world.x)} ${fmt(frame.world.y)} ${fmt(frame.world.width)} ${fmt(frame.world.height)}" role="img" aria-labelledby="gc-title gc-desc" font-family="${escapeXml(FONT_STACK_SANS)}">`;
 
-  out += `<title>Flowchart</title><desc>Flowchart with ${scene.doc.nodes.length} nodes and ${scene.doc.edges.length} arrows</desc>`;
+  out += `<title id="gc-title">${escapeXml(desc.name)}</title><desc id="gc-desc">${escapeXml(desc.description)}</desc>`;
+
+  if (scene.layout.title) {
+    out += `<text x="${fmt(scene.layout.title.center.x)}" y="${fmt(scene.layout.title.center.y)}" dy="0.35em" text-anchor="middle" font-size="${LAYOUT.titleFontSize}" font-weight="bold" fill="${theme.nodeText}">${escapeXml(scene.layout.title.text)}</text>`;
+  }
 
   if (!opts.transparent) {
     if (theme.backgroundGradient) {
@@ -154,6 +160,13 @@ export function renderSvg(
   for (const node of scene.doc.nodes) {
     const box = scene.layout.nodes[node.id];
     if (!box) continue;
+    const link = scene.doc.links[node.id];
+    if (link) {
+      out += `<a href="${escapeXml(link.url)}" target="${link.target}" rel="noopener noreferrer">`;
+      if (link.tooltip) {
+        out += `<title>${escapeXml(link.tooltip)}</title>`;
+      }
+    }
     const st = nodeStyle(node, theme);
     const cx = box.center.x;
     const cy = box.center.y;
@@ -258,6 +271,10 @@ export function renderSvg(
           out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
         }
       }
+    }
+
+    if (link) {
+      out += '</a>';
     }
   }
 

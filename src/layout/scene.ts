@@ -49,7 +49,7 @@ export function withNodeAt(
   const edges = routeEdges(scene.doc, nodes);
   const bounds = computeBounds(
     scene.doc,
-    { nodes, groups, edges, bounds: scene.layout.bounds },
+    { nodes, groups, edges, bounds: scene.layout.bounds, title: scene.layout.title },
     measure,
   );
 
@@ -60,6 +60,7 @@ export function withNodeAt(
       groups,
       edges,
       bounds,
+      title: scene.layout.title,
     },
   };
 }

@@ -113,7 +113,7 @@ export function createDispatcher(env: DispatcherEnv): {
     const editorEnv: EditorEnv = {
       scene: state.scene ?? {
         doc: state.doc,
-        layout: { nodes: {}, groups: {}, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 } },
+        layout: { nodes: {}, groups: {}, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 }, title: null },
       },
       ok: state.doc.ok,
       measure,

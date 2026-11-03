@@ -164,7 +164,7 @@ export function structureKey(doc: ParsedDoc, measure: MeasureText): string {
   const nKey = doc.nodes.map((n) => `${n.id}\0${n.shape}\0${n.label}`).join('\x01');
   const eKey = doc.edges.map((e) => `${e.from}\0${e.to}\0${e.kind}\0${e.label}\0${(e as unknown as { length?: number }).length ?? 1}`).join('\x01');
   const gKey = doc.groups.map((g) => `${g.id}\0${g.parent ?? ''}\0${g.title}\0${g.direction ?? ''}`).join('\x01');
-  return `${doc.direction}|${mSample}|${nKey}|${eKey}|${gKey}`;
+  return `${doc.direction}|${doc.title ?? ''}|${mSample}|${nKey}|${eKey}|${gKey}`;
 }
 
 interface LayoutCacheEntry {
@@ -177,12 +177,7 @@ let lastEntry: LayoutCacheEntry | null = null;
 
 export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
   if (doc.nodes.length === 0) {
-    return {
-      nodes: {},
-      groups: {},
-      edges: {},
-      bounds: { x: 0, y: 0, width: 0, height: 0 },
-    };
+    return { nodes: {}, groups: {}, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 }, title: null };
   }
 
   const key = structureKey(doc, measure);
@@ -277,14 +272,17 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
 
   const bounds = computeBounds(
     doc,
-    { nodes, groups, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 } },
+    { nodes, groups, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 }, title: null },
     measure,
   );
 
-  return {
-    nodes,
-    groups,
-    edges: {},
-    bounds,
-  };
+  let title = null;
+  if (doc.title) {
+    title = { text: doc.title, center: { x: bounds.x + bounds.width / 2, y: bounds.y - LAYOUT.titleH / 2 } };
+    const tW = measure(doc.title, LAYOUT.titleFontSize);
+    if (tW > bounds.width) { bounds.x -= (tW - bounds.width) / 2; bounds.width = tW; }
+    bounds.y -= LAYOUT.titleH;
+    bounds.height += LAYOUT.titleH;
+  }
+  return { nodes, groups, edges: {}, bounds, title };
 }

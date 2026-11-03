@@ -77,6 +77,7 @@ export interface EdgePath {
 export interface SceneLayout {
   nodes: Record<string, NodeBox>; groups: Record<string, GroupBox>;
   edges: Record<string, EdgePath>; bounds: Rect;
+  title: { text: string; center: Point } | null;
 }
 export interface Scene { doc: ParsedDoc; layout: SceneLayout }
 

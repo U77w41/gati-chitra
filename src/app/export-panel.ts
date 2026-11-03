@@ -44,6 +44,11 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     exportMessage.textContent = noScene ? MESSAGES.nothingToExport : '';
     if (exportProgress) exportProgress.hidden = true;
 
+    const title = state.doc.title ?? state.doc.accTitle;
+    if (title && exportName.value.trim() === 'diagram') {
+      exportName.value = title;
+    }
+
     const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(
       '#export-png, #export-svg, #export-gif, #export-video',
     );
