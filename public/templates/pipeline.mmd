@@ -1,0 +1,9 @@
+graph LR
+  subgraph ingest [Ingest]
+    S3[(Raw files)] --> Parse[Parse]
+  end
+  subgraph serve [Serve]
+    API[API] --> UI[[Web app]]
+  end
+  Parse --> Store[(Warehouse)]
+  Store --> API

@@ -1,0 +1,6 @@
+flowchart TB
+  classDef hot fill:#ffe4e1,stroke:#c0392b,stroke-width:2px;
+  A[Alert]:::hot --> B[Page on-call]
+  B -.-> C[Ack]
+  style C fill:#e8f8f5
+  linkStyle 0 stroke:#c0392b,stroke-width:3px

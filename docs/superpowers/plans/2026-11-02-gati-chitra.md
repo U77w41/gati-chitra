@@ -2969,7 +2969,7 @@ Load templates with `templateUrl(import.meta.env.BASE_URL, file)` so they work u
 
 3. Start-up: if `location.hash` starts with `#v1`, call `decodeShare`. A string: apply it as the diagram (source `'share'`) and replace the URL with `location.pathname + location.search` (`history.replaceState`). The shared diagram does **not** overwrite the autosaved diagram until the user edits it. `null`: show `MESSAGES.shareInvalid` and start normally (autosaved diagram or sample).
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // share.test.ts (runs in Node 22, which has CompressionStream and DecompressionStream)
@@ -3016,13 +3016,13 @@ loadTemplate with an OK response -> its text;  with a failing fetch -> null
 
 * Too large: set a text consisting of `flowchart TD\nA["` followed by 15000 random letters and digits and `"]`; click `#btn-share`: `#message` shows `This diagram is too large for a link. Save it as a .mmd file instead.`
 
-* \[ \] **Step 2: Run** `npx vitest run src/share`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/share`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the files and the UI. `toBase64Url` builds a binary string in chunks of 0x8000 bytes (to avoid argument-count limits) and calls `btoa`.
+* [x] **Step 3: Implement** the files and the UI. `toBase64Url` builds a binary string in chunks of 0x8000 bytes (to avoid argument-count limits) and calls `btoa`.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: share links and templates"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: share links and templates"`
 
 ### Task 19: Present mode, shortcuts, reduced motion, accessibility
 

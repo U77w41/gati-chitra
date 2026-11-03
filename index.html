@@ -34,6 +34,11 @@
         <button id="btn-add-node">Add node</button>
         <input type="file" id="file-picker" accept=".mmd,.txt" style="display: none" />
       </div>
+      <div id="share-box" hidden>
+        <label for="share-url">Share URL</label>
+        <input type="text" id="share-url" readonly />
+        <button id="share-box-close" aria-label="Close">✕</button>
+      </div>
       <div id="workspace">
         <section id="text-panel">
           <textarea id="source" spellcheck="false" aria-label="Mermaid text"></textarea>
@@ -146,6 +151,13 @@
           <button id="export-svg">Save as SVG</button>
           <button id="export-gif">Save as GIF</button>
         </div>
+      </dialog>
+      <dialog id="gallery">
+        <div class="dialog-header">
+          <h2>Templates</h2>
+          <button id="gallery-close" aria-label="Close">✕</button>
+        </div>
+        <div class="dialog-body" id="gallery-list"></div>
       </dialog>
     </div>
     <script type="module" src="/src/app/main.ts"></script>

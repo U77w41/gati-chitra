@@ -1,37 +1,43 @@
-import {
-  MESSAGES,
-  TIMING,
-} from '../core/constants';
-import type { Point, ShapeKind, TextOp } from '../core/types';
+import { MESSAGES, TIMING } from '../core/constants';
+import type { TextOp } from '../core/types';
 import { phaseAt } from '../anim/anim';
-import { fitView, panBy, screenToWorld } from '../editor/view';
-import {
-  reduce,
-  type EditorEffect,
-  type EditorEnv,
-  type EditorEvent,
-} from '../editor/controller';
+import { fitView, screenToWorld } from '../editor/view';
 import { canvasMeasure } from '../layout/measure';
 import { applyOp } from '../mermaid/ops';
 import { setupAnimControls } from './anim-controls';
 import { setupCanvasEvents } from './canvas-events';
 import { setupDiagnostics } from './diagnostics';
+import { createDispatcher } from './dispatcher';
 import { setupExportPanel } from './export-panel';
+import { setupGallery } from './gallery';
 import { setupInlineEditor } from './inline-edit';
-import { createConnectedNode, createNodeAt } from './node-creator';
 import { setupProperties } from './properties';
 import { startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
+import { setupShareHandler } from './share-handler';
 import { setupKeyboardShortcuts } from './shortcuts';
 import { commitText, createState, type AppState, type CommitSource } from './state';
 import { loadDoc, loadSettings, safeStore, saveDoc } from './storage';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
+import { decodeShare } from '../share/share';
 
-export function initApp(): void {
+export async function initApp(): Promise<void> {
   const store = safeStore();
-  const initialText = loadDoc(store) ?? SAMPLE_TEXT;
+  let initialText = loadDoc(store) ?? SAMPLE_TEXT;
   const initialSettings = loadSettings(store);
+
+  let initialShareError: string | null = null;
+  const hash = window.location.hash;
+  if (hash.startsWith('#v1')) {
+    const sharedText = await decodeShare(hash);
+    if (sharedText !== null) {
+      initialText = sharedText;
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else {
+      initialShareError = MESSAGES.shareInvalid;
+    }
+  }
 
   let state: AppState = createState(initialText, initialSettings);
   const measure = canvasMeasure();
@@ -146,66 +152,25 @@ export function initApp(): void {
     }
   }
 
-  function handleAddNodeAt(at: Point, shape: ShapeKind): void {
-    const { newId, error } = createNodeAt(state, at, shape, commit);
-    if (error) {
-      messageEl.textContent = error;
-      return;
-    }
-    if (newId) {
-      freshlyCreatedNodeId = newId;
-      state.editor.selection = { kind: 'node', id: newId };
-      state.editor.editing = { kind: 'node', id: newId, initial: 'New' };
-      updateProps();
-      inlineEditor.start('node', newId, 'New', (t) => dispatch({ type: 'commitEdit', text: t }), () => { freshlyCreatedNodeId = null; dispatch({ type: 'cancelEdit' }); });
-    }
-  }
+  const { dispatch, handleAddNodeAt } = createDispatcher({
+    getState: () => state,
+    measure,
+    commit,
+    executeOp,
+    messageEl,
+    inlineEditor,
+    updateProps,
+    setFreshlyCreatedNodeId: (id) => {
+      freshlyCreatedNodeId = id;
+    },
+  });
 
-  function handleAddConnectedNode(fromId: string, at: Point): void {
-    const { newId, error } = createConnectedNode(state, fromId, at, commit);
-    if (error) {
-      messageEl.textContent = error;
-      return;
-    }
-    if (newId) {
-      freshlyCreatedNodeId = newId;
-      state.editor.selection = { kind: 'node', id: newId };
-      state.editor.editing = { kind: 'node', id: newId, initial: 'New' };
-      updateProps();
-      inlineEditor.start('node', newId, 'New', (t) => dispatch({ type: 'commitEdit', text: t }), () => { freshlyCreatedNodeId = null; dispatch({ type: 'cancelEdit' }); });
-    }
+  function doUndo(): void {
+    commit('', 'undo');
   }
-
-  function handleEffects(effects: EditorEffect[]): void {
-    for (const eff of effects) {
-      if (eff.type === 'applyOp') executeOp(eff.op);
-      else if (eff.type === 'panBy') state.view = panBy(state.view, eff.dx, eff.dy);
-      else if (eff.type === 'message') messageEl.textContent = eff.text;
-      else if (eff.type === 'addNodeAt') handleAddNodeAt(eff.at, eff.shape);
-      else if (eff.type === 'addConnectedNode') handleAddConnectedNode(eff.fromId, eff.at);
-      else if (eff.type === 'startEdit') {
-        inlineEditor.start(eff.kind, eff.id, eff.initial, (t) => dispatch({ type: 'commitEdit', text: t }), () => dispatch({ type: 'cancelEdit' }));
-      }
-    }
+  function doRedo(): void {
+    commit('', 'redo');
   }
-
-  function dispatch(event: EditorEvent): void {
-    const env: EditorEnv = {
-      scene: state.scene ?? {
-        doc: state.doc,
-        layout: { nodes: {}, groups: {}, edges: {}, bounds: { x: 0, y: 0, width: 0, height: 0 } },
-      },
-      ok: state.doc.ok,
-      measure,
-    };
-    const { state: nextEditor, effects } = reduce(state.editor, event, env);
-    state.editor = nextEditor;
-    updateProps();
-    handleEffects(effects);
-  }
-
-  function doUndo(): void { commit('', 'undo'); }
-  function doRedo(): void { commit('', 'redo'); }
 
   updateDiagnostics(state.doc);
   updateAriaLabel();
@@ -214,6 +179,9 @@ export function initApp(): void {
   if (state.scene) {
     triggerFit();
     hasFitted = true;
+  }
+  if (initialShareError) {
+    messageEl.textContent = initialShareError;
   }
 
   sourceEl.addEventListener('input', () => {
@@ -282,6 +250,24 @@ export function initApp(): void {
     dialogEl: document.querySelector<HTMLDialogElement>('#export-panel')!,
     getState: () => state,
     btnExport: document.querySelector<HTMLButtonElement>('#btn-export')!,
+  });
+
+  setupShareHandler({
+    btnShare: document.querySelector<HTMLButtonElement>('#btn-share')!,
+    shareBox: document.querySelector<HTMLElement>('#share-box')!,
+    shareUrlInput: document.querySelector<HTMLInputElement>('#share-url')!,
+    shareBoxClose: document.querySelector<HTMLButtonElement>('#share-box-close'),
+    messageEl,
+    getState: () => state,
+  });
+
+  setupGallery({
+    dialogEl: document.querySelector<HTMLDialogElement>('#gallery')!,
+    btnTemplates: document.querySelector<HTMLButtonElement>('#btn-templates')!,
+    baseUrl: import.meta.env.BASE_URL,
+    commit,
+    triggerFit,
+    messageEl,
   });
 
   setupStudioApi({

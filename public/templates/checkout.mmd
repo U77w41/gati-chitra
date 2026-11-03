@@ -1,0 +1,6 @@
+flowchart LR
+  Cart[Cart] --> Pay{Payment ok?}
+  Pay -->|yes| Ship[[Ship order]]
+  Pay -->|no| Retry[Retry payment]
+  Retry --> Pay
+  Ship --> Done([Delivered])

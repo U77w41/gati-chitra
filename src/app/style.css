@@ -220,7 +220,8 @@ body {
   box-shadow: var(--shadow-l2);
 }
 
-#export-panel {
+#export-panel,
+#gallery {
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
   background-color: var(--card-background);
@@ -232,8 +233,33 @@ body {
   box-shadow: var(--shadow-l2);
 }
 
-#export-panel::backdrop {
+#export-panel::backdrop,
+#gallery::backdrop {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.template {
+  background-color: var(--card-background-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text-main);
+  padding: 8px 12px;
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+#share-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  background-color: var(--card-background);
+  border-bottom: 1px solid var(--border);
+}
+
+#share-box[hidden] {
+  display: none;
 }
 
 .dialog-header {
