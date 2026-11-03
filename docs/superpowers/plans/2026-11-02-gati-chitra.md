@@ -2001,7 +2001,7 @@ Daylight and Midnight use the same palette as the page (the tokens in Part 2), s
 
 11. `ctx.restore()`.
 
-* \[ \] **Step 1: Write the failing tests.** `themes.test.ts`: `THEME_IDS` equals the four ids; every theme has all `Theme` fields; `THEMES.lagoon.backgroundGradient` equals `['#06222b', '#0b4a52']`; `glowDefault` is true for lagoon and ember only; `THEMES.daylight.nodeStroke` is `#34495e` and `THEMES.midnight.background` is `#303030`; `THEME_CHOICES` equals `['auto', 'daylight', 'midnight', 'lagoon', 'ember']`; `resolveTheme('auto', 'light')` is `'daylight'`, `resolveTheme('auto', 'dark')` is `'midnight'`, `resolveTheme('lagoon', 'dark')` is `'lagoon'` and `resolveTheme('ember', 'light')` is `'ember'`. `draw.test.ts` (helper `draw(text, options?, frame?, theme?)` builds the scene with `testMeasure`, uses `view = { zoom: 1, panX: 0, panY: 0 }`, and returns the recorded calls; `count(calls, name)` counts calls):
+* [x] **Step 1: Write the failing tests.** `themes.test.ts`: `THEME_IDS` equals the four ids; every theme has all `Theme` fields; `THEMES.lagoon.backgroundGradient` equals `['#06222b', '#0b4a52']`; `glowDefault` is true for lagoon and ember only; `THEMES.daylight.nodeStroke` is `#34495e` and `THEMES.midnight.background` is `#303030`; `THEME_CHOICES` equals `['auto', 'daylight', 'midnight', 'lagoon', 'ember']`; `resolveTheme('auto', 'light')` is `'daylight'`, `resolveTheme('auto', 'dark')` is `'midnight'`, `resolveTheme('lagoon', 'dark')` is `'lagoon'` and `resolveTheme('ember', 'light')` is `'ember'`. `draw.test.ts` (helper `draw(text, options?, frame?, theme?)` builds the scene with `testMeasure`, uses `view = { zoom: 1, panX: 0, panY: 0 }`, and returns the recorded calls; `count(calls, name)` counts calls):
 
 ```
 // background
@@ -2045,13 +2045,13 @@ edgeStyle for bidirectional -> startArrow true
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/render`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/render`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `themes.ts`, `draw.ts` and the recording context helper as specified.
+* [x] **Step 3: Implement** `themes.ts`, `draw.ts` and the recording context helper as specified.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: themes and canvas renderer"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: themes and canvas renderer"`
 
 ### Task 11: Animation engine
 
