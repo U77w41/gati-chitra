@@ -114,6 +114,14 @@ export const SHARE = {
   maxDecodedBytes: 80_000,
 } as const;
 
+export const UI = {
+  narrowBreakpoint: 768,
+  splitMin: 0.2,
+  splitMax: 0.8,
+  splitDefault: 0.33,
+  splitStep: 0.05,
+} as const;
+
 export const MESSAGES = {
   notFlowchart: "Only flowchart diagrams are supported. Start with 'flowchart TD' or 'graph LR'.",
   tooManyNodes: 'Too many nodes (limit 300).',

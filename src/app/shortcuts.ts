@@ -8,7 +8,29 @@ export type ShortcutAction =
   | 'zoomOut'
   | 'delete'
   | 'rename'
-  | 'escape';
+  | 'escape'
+  | 'help';
+
+export const SHORTCUT_HELP: {
+  keys: string;
+  action: ShortcutAction | 'pan' | 'navigate' | 'nudge';
+  text: string;
+}[] = [
+  { keys: 'Ctrl+Z / Cmd+Z', action: 'undo', text: 'Undo' },
+  { keys: 'Ctrl+Y / Cmd+Shift+Z', action: 'redo', text: 'Redo' },
+  { keys: 'Ctrl+0 / Cmd+0', action: 'fit', text: 'Fit diagram to view' },
+  { keys: '+ / =', action: 'zoomIn', text: 'Zoom in' },
+  { keys: '-', action: 'zoomOut', text: 'Zoom out' },
+  { keys: 'P', action: 'present', text: 'Toggle present mode' },
+  { keys: 'K', action: 'togglePause', text: 'Pause or resume animation' },
+  { keys: 'Delete / Backspace', action: 'delete', text: 'Delete selected node or edge' },
+  { keys: 'Enter', action: 'rename', text: 'Rename selected node' },
+  { keys: 'Escape', action: 'escape', text: 'Deselect or exit' },
+  { keys: '?', action: 'help', text: 'Show help and shortcuts' },
+  { keys: 'Drag canvas', action: 'pan', text: 'Pan the diagram view' },
+  { keys: 'Arrow keys in present mode', action: 'navigate', text: 'Next or previous present step' },
+  { keys: 'Arrow keys on splitter', action: 'nudge', text: 'Resize panels' },
+];
 
 export interface KeyInfo {
   key: string;
@@ -54,6 +76,8 @@ export function shortcutFor(k: KeyInfo): ShortcutAction | null {
     return null;
   }
 
+  if (k.key === '?') return 'help';
+
   if (k.shift) {
     if (k.key === '+') return 'zoomIn';
     return null;
@@ -82,6 +106,7 @@ export interface ShortcutsEnv {
   onDelete: () => void;
   onRename: () => void;
   onEscape: () => void;
+  onHelp?: () => void;
   isPresenting?: () => boolean;
 }
 
@@ -101,7 +126,7 @@ export function setupKeyboardShortcuts(env: ShortcutsEnv): () => void {
     const action = shortcutFor(info);
     if (!action) return;
 
-    if (action !== 'escape' || (target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA' && !inEditor)) {
+    if (action !== 'escape') {
       e.preventDefault();
     }
 
@@ -150,6 +175,9 @@ export function setupKeyboardShortcuts(env: ShortcutsEnv): () => void {
         break;
       case 'escape':
         env.onEscape();
+        break;
+      case 'help':
+        env.onHelp?.();
         break;
     }
   };

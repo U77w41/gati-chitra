@@ -49,12 +49,14 @@ describe('storage', () => {
     expect(loadSettings(emptyStore)).toEqual({
       theme: 'auto',
       anim: DEFAULT_ANIM,
+      split: 0.33,
     });
 
     const badJsonStore = createMemoryStore({ 'gati-chitra:v1:settings': '{bad json' });
     expect(loadSettings(badJsonStore)).toEqual({
       theme: 'auto',
       anim: DEFAULT_ANIM,
+      split: 0.33,
     });
 
     const invalidFieldsStore = createMemoryStore({
@@ -66,6 +68,7 @@ describe('storage', () => {
     expect(loadSettings(invalidFieldsStore)).toEqual({
       theme: 'auto',
       anim: { style: 'dash', speed: 3, density: 1, glow: true },
+      split: 0.33,
     });
 
     const validStore = createMemoryStore({
@@ -76,5 +79,12 @@ describe('storage', () => {
     });
     expect(loadSettings(validStore).theme).toBe('lagoon');
     expect(saveSettings(throwingStore, loadSettings(validStore))).toBe(false);
+  });
+
+  it('loads the split from settings', () => {
+    const store = (obj: Record<string, unknown>) =>
+      createMemoryStore({ 'gati-chitra:v1:settings': JSON.stringify(obj) });
+    expect(loadSettings(store({ split: 3 })).split).toBe(0.8);
+    expect(loadSettings(store({})).split).toBe(0.33);
   });
 });

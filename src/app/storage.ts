@@ -1,7 +1,8 @@
-import { ANIM, STORAGE } from '../core/constants';
+import { ANIM, STORAGE, UI } from '../core/constants';
 import type { AnimSettings, ThemeChoice } from '../core/types';
 import { DEFAULT_ANIM } from '../anim/anim';
 import { THEME_CHOICES } from '../render/themes';
+import { clampSplit } from './splitter';
 
 export interface KeyValueStore {
   getItem(key: string): string | null;
@@ -12,6 +13,7 @@ export interface KeyValueStore {
 export interface Settings {
   theme: ThemeChoice;
   anim: AnimSettings;
+  split: number;
 }
 
 export function safeStore(): KeyValueStore | null {
@@ -51,6 +53,7 @@ export function loadSettings(store: KeyValueStore | null): Settings {
   const defaults: Settings = {
     theme: 'auto',
     anim: { ...DEFAULT_ANIM },
+    split: UI.splitDefault,
   };
 
   if (!store) return defaults;
@@ -83,9 +86,15 @@ export function loadSettings(store: KeyValueStore | null): Settings {
     const glow =
       typeof animRaw?.glow === 'boolean' ? animRaw.glow : defaults.anim.glow;
 
+    const split =
+      typeof parsed?.split === 'number' && !isNaN(parsed.split)
+        ? clampSplit(parsed.split)
+        : defaults.split;
+
     return {
       theme,
       anim: { style, speed, density, glow },
+      split,
     };
   } catch {
     return defaults;

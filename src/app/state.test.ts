@@ -6,7 +6,7 @@ import { MESSAGES } from '../core/constants';
 import type { Settings } from './storage';
 
 describe('state', () => {
-  const settings: Settings = { theme: 'auto', anim: DEFAULT_ANIM };
+  const settings: Settings = { theme: 'auto', anim: DEFAULT_ANIM, split: 0.33 };
 
   it('keeps the last picture when layout fails', () => {
     const s = createState('flowchart TD\nA', settings);

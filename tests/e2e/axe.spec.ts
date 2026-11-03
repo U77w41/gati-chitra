@@ -49,6 +49,15 @@ test.describe('Automated accessibility checks (WCAG 2.1 AA)', () => {
     await checkAxe(page, 'Templates dialog open');
   });
 
+  test('the Help dialog open', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
+    await page.click('#btn-help');
+    await page.waitForTimeout(200);
+    await expect(page.locator('#help-dialog')).toBeVisible();
+    await checkAxe(page, 'Help dialog open');
+  });
+
   test('present mode', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);

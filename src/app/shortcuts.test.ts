@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { shortcutFor, type KeyInfo } from './shortcuts';
+import { SHORTCUT_HELP, shortcutFor, type KeyInfo, type ShortcutAction } from './shortcuts';
 
 function k(partial: Partial<KeyInfo> & { key: string }): KeyInfo {
   return {
@@ -58,5 +58,14 @@ describe('shortcutFor', () => {
 
   it('leaves keys inside the editor to the editor', () => {
     expect(shortcutFor({ key: 'z', ctrl: true, meta: false, shift: false, alt: false, targetTag: 'DIV', inEditor: true })).toBeNull();
+  });
+
+  it('documents every shortcut', () => {
+    const actions: ShortcutAction[] = ['undo', 'redo', 'fit', 'present', 'togglePause', 'zoomIn', 'zoomOut', 'delete', 'rename', 'escape', 'help'];
+    for (const a of actions) expect(SHORTCUT_HELP.some((h) => h.action === a)).toBe(true);
+  });
+
+  it('? opens help', () => {
+    expect(shortcutFor({ key: '?', ctrl: false, meta: false, shift: true, alt: false, targetTag: 'BODY', inEditor: false })).toBe('help');
   });
 });

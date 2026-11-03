@@ -283,4 +283,59 @@ test.describe('Site Chrome and Scheme', () => {
       expect(box!.y + box!.height).toBeLessThanOrEqual(812 + 1);
     }
   });
+
+  test('groups toolbar buttons into File, Edit and View', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    const fileGroup = page.getByRole('group', { name: 'File' });
+    await expect(fileGroup).toBeVisible();
+    await expect(fileGroup.locator('#btn-templates')).toBeVisible();
+
+    const editGroup = page.getByRole('group', { name: 'Edit' });
+    await expect(editGroup).toBeVisible();
+
+    const viewGroup = page.getByRole('group', { name: 'View' });
+    await expect(viewGroup).toBeVisible();
+  });
+
+  test('pressing ? opens help dialog listing Undo', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.locator('body').focus();
+    await page.keyboard.press('?');
+    const dialog = page.locator('#help-dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText('Undo');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  });
+
+  test('resizable splitter adjusts panel widths and keyboard controls', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('./?e2e=1');
+    const splitter = page.locator('#splitter');
+    await expect(splitter).toBeVisible();
+
+    await splitter.focus();
+    const initialVal = Number(await splitter.getAttribute('aria-valuenow'));
+    await page.keyboard.press('ArrowRight');
+    const newVal = Number(await splitter.getAttribute('aria-valuenow'));
+    expect(newVal).toBe(initialVal + 5);
+
+    const textPanel = page.locator('#text-panel');
+    const initialBox = await textPanel.boundingBox();
+    const splitBox = await splitter.boundingBox();
+
+    await page.mouse.move(splitBox!.x + splitBox!.width / 2, splitBox!.y + splitBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(splitBox!.x + 100, splitBox!.y + splitBox!.height / 2);
+    await page.mouse.up();
+    await page.waitForTimeout(200);
+
+    const widenedBox = await textPanel.boundingBox();
+    expect(widenedBox!.width).toBeGreaterThan(initialBox!.width + 50);
+
+    await page.reload();
+    await page.waitForTimeout(200);
+    const reloadedBox = await page.locator('#text-panel').boundingBox();
+    expect(reloadedBox!.width).toBeGreaterThan(initialBox!.width + 50);
+  });
 });

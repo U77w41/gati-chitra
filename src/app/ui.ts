@@ -15,7 +15,7 @@ import { requestRedraw, startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
 import { setupKeyboardShortcuts } from './shortcuts';
 import { commitText, createState, type AppState, type CommitSource } from './state';
-import { loadDoc, loadSettings, safeStore, setupAutosave, setupDocSync } from './storage';
+import { loadDoc, loadSettings, safeStore, saveSettings, setupAutosave, setupDocSync } from './storage';
 import { setMessageElement, showMessage } from './message';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
@@ -24,6 +24,8 @@ import { mountChrome } from './chrome';
 import { describeDiagram } from './describe';
 import { stripFences } from '../mermaid/fences';
 import { createCodeEditor } from './code-editor';
+import { setupHelpDialog } from './help';
+import { setupSplitter } from './splitter';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -182,24 +184,17 @@ export async function initApp(): Promise<void> {
   };
 
 
-  refreshDiagnostics();
-  updateAriaLabel();
-  updateButtons();
-  updateProps();
+  refreshDiagnostics(); updateAriaLabel(); updateButtons(); updateProps();
   if (state.scene) { triggerFit(); hasFitted = true; }
 
   if (sharedToLoad !== null) {
-    commit(sharedToLoad, 'share');
-    showMessage(MESSAGES.shareOpened);
+    commit(sharedToLoad, 'share'); showMessage(MESSAGES.shareOpened);
   } else if (initialShareError) {
     showMessage(initialShareError);
   }
 
   setupHashChangeListener(
-    (shared) => {
-      commit(shared, 'share');
-      showMessage(MESSAGES.shareOpened);
-    },
+    (shared) => { commit(shared, 'share'); showMessage(MESSAGES.shareOpened); },
     (err) => showMessage(err),
   );
 
@@ -221,11 +216,19 @@ export async function initApp(): Promise<void> {
     },
   });
 
+  setupSplitter({
+    handle: document.querySelector('#splitter')!, workspace: document.querySelector('#workspace')!,
+    get: () => state.settings.split,
+    set: (v) => { state.settings.split = v; saveSettings(store, state.settings); },
+  });
+
+  const help = setupHelpDialog({
+    dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')!,
+  });
+
   const present = setupPresentMode({
-    btnPresent: document.querySelector('#btn-present')!,
-    canvasPanel: document.querySelector('#canvas-panel')!,
-    presentStepEl: document.querySelector('#present-step')!,
-    messageEl, getState: () => state, triggerFit,
+    btnPresent: document.querySelector('#btn-present')!, canvasPanel: document.querySelector('#canvas-panel')!,
+    presentStepEl: document.querySelector('#present-step')!, messageEl, getState: () => state, triggerFit,
   });
 
   const animControls = setupAnimControls({
@@ -240,11 +243,11 @@ export async function initApp(): Promise<void> {
     onUndo: doUndo, onRedo: doRedo, onFit: triggerFit,
     onZoomIn: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25); requestRedraw(); },
     onZoomOut: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8); requestRedraw(); },
-    onPresent: () => present.start(),
-    onTogglePause: () => animControls.togglePause(),
+    onPresent: () => present.start(), onTogglePause: () => animControls.togglePause(),
     onDelete: () => dispatch({ type: 'keyDown', key: 'Delete' }),
     onRename: () => dispatch({ type: 'keyDown', key: 'Enter' }),
-    onEscape: () => { if (present.isPresenting()) present.exit(); else dispatch({ type: 'keyDown', key: 'Escape' }); },
+    onEscape: () => { if (help.isOpen()) help.close(); else if (present.isPresenting()) present.exit(); else dispatch({ type: 'keyDown', key: 'Escape' }); },
+    onHelp: () => help.open(),
     isPresenting: present.isPresenting,
   });
 
@@ -256,17 +259,13 @@ export async function initApp(): Promise<void> {
 
   startRenderLoop({
     canvasEl, ctx, getState: () => state, measure, startTime,
-    getPausedPhase: () => pausedPhase,
-    getFocus: present.getCurrentFocus,
+    getPausedPhase: () => pausedPhase, getFocus: present.getCurrentFocus,
     isPresenting: present.isPresenting,
     onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });
 
   import('./export-panel').then(({ setupExportPanel }) => {
-    setupExportPanel({
-      dialogEl: document.querySelector('#export-panel')!,
-      getState: () => state, btnExport: document.querySelector('#btn-export')!,
-    });
+    setupExportPanel({ dialogEl: document.querySelector('#export-panel')!, getState: () => state, btnExport: document.querySelector('#btn-export')! });
   });
 
   setupShareHandler({
@@ -276,10 +275,7 @@ export async function initApp(): Promise<void> {
   });
 
   import('./gallery').then(({ setupGallery }) => {
-    setupGallery({
-      dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!,
-      baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl,
-    });
+    setupGallery({ dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!, baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl });
   });
 
   setupStudioApi({

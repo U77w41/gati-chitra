@@ -1534,7 +1534,7 @@ git add -A && git commit -m "feat: Mermaid highlighting and errors on their line
   - `setupSplitter(env: { handle: HTMLElement; workspace: HTMLElement; get(): number; set(v: number): void }): () => void`.
 - **Splitter:** `<div id="splitter" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="33" aria-label="Resize panels">`. Pointer drag sets the text panel's share of `#workspace`. ArrowLeft and ArrowRight change it by `UI.splitStep`. It is saved in settings and hidden under `UI.narrowBreakpoint`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('documents every shortcut', () => {
@@ -1558,10 +1558,10 @@ e2e in `chrome.spec.ts`:
 - Pressing `?` opens a dialog that lists "Undo".
 - Dragging `#splitter` 100 px to the right widens `#text-panel`, and a reload keeps the width.
 - With `#splitter` focused, ArrowRight raises `aria-valuenow` by 5.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- chrome.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. Generate the README shortcut table from `SHORTCUT_HELP` by hand in Task 52, not by a script.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- chrome.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. Generate the README shortcut table from `SHORTCUT_HELP` by hand in Task 52, not by a script.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: grouped toolbar, help and resizable panels"

@@ -31,20 +31,28 @@
     <main id="main" class="container-wide" tabindex="-1">
       <div id="app">
         <div id="toolbar" role="toolbar" aria-label="Diagram tools">
-          <button id="btn-new">New</button>
-          <button id="btn-open">Open</button>
-          <button id="btn-save-mmd">Save .mmd</button>
-          <button id="btn-undo" disabled>Undo</button>
-          <button id="btn-redo" disabled>Redo</button>
-          <button id="btn-fit">Fit</button>
-          <button id="btn-autolayout" disabled>Auto-layout</button>
-          <button id="btn-present" disabled>Present</button>
-          <button id="btn-export" disabled>Export</button>
-          <button id="btn-share" disabled>Share</button>
-          <button id="btn-templates" disabled>Templates</button>
-          <label for="add-shape" class="visually-hidden">New node shape</label>
-          <select id="add-shape"></select>
-          <button id="btn-add-node">Add node</button>
+          <div role="group" aria-label="File">
+            <button id="btn-new">New</button>
+            <button id="btn-open">Open</button>
+            <button id="btn-save-mmd">Save .mmd</button>
+            <button id="btn-share" disabled>Share</button>
+            <button id="btn-templates" disabled>Templates</button>
+          </div>
+          <div role="group" aria-label="Edit">
+            <button id="btn-undo" disabled>Undo</button>
+            <button id="btn-redo" disabled>Redo</button>
+            <label for="add-shape" class="visually-hidden">New node shape</label>
+            <select id="add-shape"></select>
+            <button id="btn-add-node">Add node</button>
+          </div>
+          <div role="group" aria-label="View">
+            <button id="btn-fit">Fit</button>
+            <button id="btn-autolayout" disabled>Auto-layout</button>
+            <button id="btn-present" disabled>Present</button>
+          </div>
+          <div class="toolbar-spacer"></div>
+          <button id="btn-help" aria-label="Help" title="Help">?</button>
+          <button id="btn-export" class="btn-primary" disabled>Export</button>
           <input type="file" id="file-picker" accept=".mmd,.txt,.md" style="display: none" />
         </div>
         <div id="share-box" hidden>
@@ -58,6 +66,7 @@
             <div id="diagnostics-summary" aria-live="polite"></div>
             <ul id="diagnostics"></ul>
           </section>
+          <div id="splitter" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="33" aria-label="Resize panels"></div>
           <section id="canvas-panel">
             <canvas id="canvas" role="img" aria-describedby="canvas-desc"></canvas>
             <p id="canvas-desc" class="visually-hidden"></p>
@@ -169,6 +178,13 @@
             <button id="gallery-close" aria-label="Close">✕</button>
           </div>
           <div class="dialog-body" id="gallery-list"></div>
+        </dialog>
+        <dialog id="help-dialog" aria-modal="true" aria-label="Help">
+          <div class="dialog-header">
+            <h2>Help &amp; Shortcuts</h2>
+            <button id="help-close" aria-label="Close">✕</button>
+          </div>
+          <div class="dialog-body" id="help-body"></div>
         </dialog>
       </div>
     </main>
