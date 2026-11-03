@@ -26,6 +26,7 @@ describe('tokens', () => {
     expect(readNodeRef('x A', 2)).toMatchObject({ ref: { id: 'A' }, end: 3 });
     expect(cleanLabel('  hi  ')).toBe('hi');
     expect(cleanLabel('a<BR>b')).toBe('a\nb');
+    expect(cleanLabel('say #quot;x#quot;')).toBe('say "x"');
     expect(cleanLabel('a'.repeat(300)).length).toBe(200);
   });
 });

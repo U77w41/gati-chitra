@@ -1471,7 +1471,7 @@ export function formatLabel(label: string): string;
 
 * **deleteNode(id):** error if the node does not exist. For each edge touching the node, in descending index order, run the `deleteEdge` steps with `exclude = [id]`. Then remove every statement line that consists only of this node (one node token and nothing else); rewrite a statement made only of node tokens and `&` without this node (or remove it if nothing is left). Remove `style <id> <style text>` lines. In `class a,b name` lines remove `id` from the list and delete the line if the list is empty. Remove the node's `pos` line.
 
-* \[ \] **Step 1: Write the failing tests** (`ok` means `applyOp` returns exactly `{ text }`; `\n` shows line breaks):
+* [x] **Step 1: Write the failing tests** (`ok` means `applyOp` returns exactly `{ text }`; `\n` shows line breaks):
 
 ```
 const run = (t: string, op: TextOp) => applyOp(t, op);
@@ -1538,13 +1538,13 @@ formatLabel('say "x"') // '"say #quot;x#quot;"';  formatLabel('a;b') // '"a;b"'
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/mermaid/ops.add-delete.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/mermaid/ops.add-delete.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the three files following the rules above, and verify `cleanLabel` in `src/mermaid/tokens.ts` replaces `#quot;` with `"` (add `expect(cleanLabel('say #quot;x#quot;')).toBe('say "x"')` to `src/mermaid/tokens.test.ts` so labels written by `formatLabel` read back unchanged). Re-parse with `parseMermaid` whenever a rule says "run again".
+* [x] **Step 3: Implement** the three files following the rules above, and verify `cleanLabel` in `src/mermaid/tokens.ts` replaces `#quot;` with `"` (add `expect(cleanLabel('say #quot;x#quot;')).toBe('say "x"')` to `src/mermaid/tokens.test.ts` so labels written by `formatLabel` read back unchanged). Re-parse with `parseMermaid` whenever a rule says "run again".
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: text patches for pins, add and delete"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: text patches for pins, add and delete"`
 
 ### Task 7: Text patches, part 2: rename, shape, arrow style, reverse, colours, direction
 
