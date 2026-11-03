@@ -2099,7 +2099,7 @@ export function frameState(scene: Scene, settings: AnimSettings, phase: number):
 
   * Edges that have no entry in `scene.layout.edges` are skipped.
 
-* \[ \] **Step 1: Write the failing tests.** For scenes use `buildScene(parseMermaid(text), testMeasure)`.
+* [x] **Step 1: Write the failing tests.** For scenes use `buildScene(parseMermaid(text), testMeasure)`.
 
 ```
 // hash32
@@ -2145,13 +2145,13 @@ frameState(scene('flowchart TD'), DEFAULT_ANIM, 0.3).particles               // 
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/anim`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/anim`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `hash.ts` and `anim.ts` as specified.
+* [x] **Step 3: Implement** `hash.ts` and `anim.ts` as specified.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: deterministic animation engine"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: deterministic animation engine"`
 
 ### Task 12: The app shell: viewport, live preview, controls, text panel, storage
 
