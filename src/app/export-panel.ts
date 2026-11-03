@@ -3,7 +3,9 @@ import type { ExportMode } from '../core/types';
 import { downloadBlob } from '../export/download';
 import { safeFilename } from '../export/filename';
 import { exportPng } from '../export/png';
+import { canvasMeasure } from '../layout/measure';
 import { isEmptyBounds } from '../render/frame';
+import { renderSvg } from '../render/svg';
 import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
 
@@ -21,6 +23,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
   const exportScale = dialogEl.querySelector<HTMLSelectElement>('#export-scale')!;
   const exportTransparent = dialogEl.querySelector<HTMLInputElement>('#export-transparent')!;
   const exportPngBtn = dialogEl.querySelector<HTMLButtonElement>('#export-png')!;
+  const exportSvgBtn = dialogEl.querySelector<HTMLButtonElement>('#export-svg')!;
   const exportCancel = dialogEl.querySelector<HTMLButtonElement>('#export-cancel')!;
   const exportClose = dialogEl.querySelector<HTMLButtonElement>('#export-close')!;
   const exportMessage = dialogEl.querySelector<HTMLElement>('#export-message')!;
@@ -79,6 +82,35 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       exportMessage.textContent = err?.message ?? 'Export failed';
     } finally {
       exportPngBtn.disabled = false;
+    }
+  });
+
+  exportSvgBtn.addEventListener('click', () => {
+    const state = getState();
+    if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
+
+    const scheme =
+      document.documentElement.getAttribute('data-scheme') === 'dark'
+        ? 'dark'
+        : 'light';
+    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const mode = exportMode.value as ExportMode;
+    const transparent = exportTransparent.checked;
+    const filename = safeFilename(exportName.value, 'svg');
+
+    try {
+      const svgText = renderSvg(
+        state.scene,
+        theme,
+        { mode, transparent },
+        canvasMeasure(),
+      );
+      const blob = new Blob([svgText], {
+        type: 'image/svg+xml;charset=utf-8',
+      });
+      downloadBlob(blob, filename);
+    } catch (err: any) {
+      exportMessage.textContent = err?.message ?? 'Export failed';
     }
   });
 }

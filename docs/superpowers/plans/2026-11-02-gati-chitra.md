@@ -2744,7 +2744,7 @@ Each shape carries `fill`, `stroke` and `stroke-width` from `nodeStyle`. After i
 </svg>
 ```
 
-* \[ \] **Step 1: Write the failing tests** (`svg(text, opts?, theme?)` builds the scene with `testMeasure` and calls `renderSvg`; `count(s, needle)` counts occurrences):
+* [x] **Step 1: Write the failing tests** (`svg(text, opts?, theme?)` builds the scene with `testMeasure` and calls `renderSvg`; `count(s, needle)` counts occurrences):
 
 ```
 fmt(1.5) // '1.5'      fmt(2) // '2'      fmt(-0) // '0'      fmt(3.14159) // '3.14'      fmt(0.004) // '0'
@@ -2784,13 +2784,13 @@ svg('flowchart TD\nA -->|yes| B') contains '>yes</text>'
 
 * Manual check (record the result in `DECISIONS.md`): open the file in your slide tool and in a vector editor if you have them; note whether text keeps its font.
 
-* \[ \] **Step 2: Run** `npx vitest run src/render/svg.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/render/svg.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `svg.ts`; add `#export-svg` ("Save as SVG") to the panel; its blob type is `image/svg+xml;charset=utf-8` and its name comes from `safeFilename(name, 'svg')`.
+* [x] **Step 3: Implement** `svg.ts`; add `#export-svg` ("Save as SVG") to the panel; its blob type is `image/svg+xml;charset=utf-8` and its name comes from `safeFilename(name, 'svg')`.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: SVG export"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: SVG export"`
 
 ### Task 17: GIF export
 
