@@ -970,7 +970,7 @@ it('.gitignore keeps generated and local files out, and keeps the shared files i
 
 * Produces: every export named in Part 2 and Part 3; `testMeasure(text: string): number` in `tests/support/measure.ts`, which returns `text.length * 8` (a fixed fake text width used by all layout tests).
 
-* \[ \] **Step 1: Write the failing test** `src/core/constants.test.ts`:
+* [x] **Step 1: Write the failing test** `src/core/constants.test.ts`:
 
 ```
 import { LIMITS, LAYOUT, ANIM, EXPORT, SHARE, MESSAGES, SCHEME, BRAND } from './constants';
@@ -1006,13 +1006,13 @@ it('builds messages', () => {
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/core/constants.test.ts`. Expected: FAIL (module not found).
+* [x] **Step 2: Run** `npx vitest run src/core/constants.test.ts`. Expected: FAIL (module not found).
 
-* \[ \] **Step 3: Create** `src/core/constants.ts` by copying the code block in Part 2 exactly, and `src/core/types.ts` by copying the code block in Part 3 exactly. Create `tests/support/measure.ts` exporting `testMeasure`.
+* [x] **Step 3: Create** `src/core/constants.ts` by copying the code block in Part 2 exactly, and `src/core/types.ts` by copying the code block in Part 3 exactly. Create `tests/support/measure.ts` exporting `testMeasure`.
 
-* \[ \] **Step 4: Run** the test again. Expected: PASS. Run `npm run build`. Expected: no type errors.
+* [x] **Step 4: Run** the test again. Expected: PASS. Run `npm run build`. Expected: no type errors.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: add constants and shared types"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: add constants and shared types"`
 
 ### Task 3: Parser, part 1: header, node references, line classification
 
