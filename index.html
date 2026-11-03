@@ -106,6 +106,38 @@
           <div id="message" aria-live="polite"></div>
         </section>
       </div>
+      <dialog id="export-panel">
+        <div class="dialog-header">
+          <h2>Export</h2>
+          <button id="export-close" aria-label="Close">✕</button>
+        </div>
+        <div class="dialog-body">
+          <label for="export-name">Filename</label>
+          <input type="text" id="export-name" value="diagram" />
+
+          <label for="export-mode">Frame</label>
+          <select id="export-mode">
+            <option value="content">Fit to content</option>
+            <option value="slide">16:9 slide frame</option>
+          </select>
+
+          <label for="export-scale">Scale</label>
+          <select id="export-scale">
+            <option value="1">1x</option>
+            <option value="2">2x</option>
+            <option value="3">3x</option>
+          </select>
+
+          <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
+
+          <progress id="export-progress" hidden></progress>
+          <div id="export-message" aria-live="polite"></div>
+        </div>
+        <div class="dialog-footer">
+          <button id="export-cancel">Cancel</button>
+          <button id="export-png">Save as PNG</button>
+        </div>
+      </dialog>
     </div>
     <script type="module" src="/src/app/main.ts"></script>
   </body>

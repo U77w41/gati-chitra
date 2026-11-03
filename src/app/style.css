@@ -219,3 +219,51 @@ body {
   resize: none;
   box-shadow: var(--shadow-l2);
 }
+
+#export-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background-color: var(--card-background);
+  color: var(--text-main);
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  margin: auto;
+  box-shadow: var(--shadow-l2);
+}
+
+#export-panel::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dialog-header h2 {
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+#export-message {
+  font-size: var(--font-size-xs);
+  color: var(--danger);
+  min-height: 1.2em;
+}

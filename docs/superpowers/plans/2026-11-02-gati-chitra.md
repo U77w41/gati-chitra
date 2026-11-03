@@ -2623,7 +2623,7 @@ export function exportPng(scene: Scene, theme: Theme, opts: PngOptions): Promise
 
 **Export panel** (`createExportPanel`, a `<dialog id="export-panel">` opened by `#btn-export`; later tasks add buttons to it): `#export-name` (text, default `diagram`), `#export-mode` (select: `content` "Fit to content", `slide` "16:9 slide frame"), `#export-scale` (select: 1x, 2x, 3x), `#export-transparent` (checkbox "Transparent background"), `#export-png` (button "Save as PNG"), `#export-progress` (a `<progress>` element, hidden when idle), `#export-cancel`, `#export-close`, and a message line `#export-message` with `aria-live="polite"`. When the dialog opens and there is no scene or `isEmptyBounds(scene.layout.bounds)`, disable every save button and show `MESSAGES.nothingToExport`. `#export-png` runs `exportPng` and `downloadBlob(blob, safeFilename(name, 'png'))`; when `reduced`, show `MESSAGES.pngReduced(scaleUsed)`. Also expose `window.__studio.getExportSize(mode, scale)` returning `{ width, height }` from `exportFrame`. Move the minimal `downloadBlob` written in Task 12 into `download.ts`.
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // frame.test.ts
@@ -2665,13 +2665,13 @@ safeFilename('ÜBER', 'png')         // 'ber.png'
 
 * Empty diagram (`__studio.setText('flowchart TD')`): opening the panel shows `Nothing to export. Add a node first.`, the save buttons are disabled and no download happens (Review Focus 4).
 
-* \[ \] **Step 2: Run** `npx vitest run src/render/frame.test.ts src/export` and the e2e file. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/render/frame.test.ts src/export` and the e2e file. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the files above, build the export panel and wire `#btn-export` and `#btn-save-mmd` to the shared `downloadBlob`.
+* [x] **Step 3: Implement** the files above, build the export panel and wire `#btn-export` and `#btn-save-mmd` to the shared `downloadBlob`.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: export panel and PNG export"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: export panel and PNG export"`
 
 ### Task 16: SVG export
 

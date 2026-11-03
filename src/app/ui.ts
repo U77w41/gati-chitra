@@ -16,24 +16,15 @@ import { applyOp } from '../mermaid/ops';
 import { setupAnimControls } from './anim-controls';
 import { setupCanvasEvents } from './canvas-events';
 import { setupDiagnostics } from './diagnostics';
+import { setupExportPanel } from './export-panel';
 import { setupInlineEditor } from './inline-edit';
 import { createConnectedNode, createNodeAt } from './node-creator';
 import { setupProperties } from './properties';
 import { startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
 import { setupKeyboardShortcuts } from './shortcuts';
-import {
-  commitText,
-  createState,
-  type AppState,
-  type CommitSource,
-} from './state';
-import {
-  loadDoc,
-  loadSettings,
-  safeStore,
-  saveDoc,
-} from './storage';
+import { commitText, createState, type AppState, type CommitSource } from './state';
+import { loadDoc, loadSettings, safeStore, saveDoc } from './storage';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
 
@@ -285,6 +276,12 @@ export function initApp(): void {
     measure,
     startTime,
     getPausedPhase: () => pausedPhase,
+  });
+
+  setupExportPanel({
+    dialogEl: document.querySelector<HTMLDialogElement>('#export-panel')!,
+    getState: () => state,
+    btnExport: document.querySelector<HTMLButtonElement>('#btn-export')!,
   });
 
   setupStudioApi({

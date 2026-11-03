@@ -1,6 +1,6 @@
 import type { ShapeKind, TextOp } from '../core/types';
 import { canRedo, canUndo } from '../editor/history';
-import { downloadBlob } from './download';
+import { downloadText } from './download';
 import type { AppState, CommitSource } from './state';
 
 export interface ToolbarEnv {
@@ -44,7 +44,7 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     }
   });
   btnSave.addEventListener('click', () => {
-    downloadBlob(env.sourceEl.value, 'diagram.mmd', 'text/vnd.mermaid');
+    downloadText(env.sourceEl.value, 'diagram.mmd', 'text/vnd.mermaid');
   });
   btnFit.addEventListener('click', env.triggerFit);
   btnUndo.addEventListener('click', env.doUndo);

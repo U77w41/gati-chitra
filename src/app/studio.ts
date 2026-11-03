@@ -1,4 +1,6 @@
 import { handlePoint } from '../layout/geometry';
+import { exportFrame } from '../render/frame';
+import type { ExportMode } from '../core/types';
 import { worldToScreen } from '../editor/view';
 import { resolveTheme } from '../render/themes';
 import type { AppState } from './state';
@@ -74,6 +76,12 @@ export function setupStudioApi(env: StudioEnv): void {
       env.dispatch?.(event);
     },
     getSelection: () => env.getState().editor.selection,
+    getExportSize: (mode: ExportMode, scale: number) => {
+      const state = env.getState();
+      const bounds = state.scene?.layout.bounds ?? { x: 0, y: 0, width: 0, height: 0 };
+      const frame = exportFrame(bounds, mode, scale);
+      return { width: frame.pixelWidth, height: frame.pixelHeight };
+    },
     getResolvedTheme: () => {
       const state = env.getState();
       const scheme =
