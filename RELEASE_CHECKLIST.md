@@ -53,3 +53,15 @@ Tick every box before the release tag.
 
 - [x] The site is deployed by the workflow and the Pages source is set to GitHub Actions.
 - [x] The tag `v0.1.0` exists.
+
+## v0.2.0
+
+- [x] Automated, in Chromium, Firefox and WebKit.
+- [x] `check:dist` reports initial JS of 150 KB gzip or less, and a largest lazy chunk of 80 KB gzip or less. Both numbers are in `DECISIONS.md`.
+- [ ] By hand: `subgraph X` nested inside `subgraph X` shows a warning, and editing continues.
+- [ ] By hand: Tab to every toolbar button and footer link and press Enter; each one acts.
+- [ ] By hand: open a share link over an existing diagram, then press Ctrl+Z; your diagram is back.
+- [ ] By hand: with two tabs open, an edit in one appears in the other.
+- [ ] By hand: a paused, idle tab uses close to no CPU (browser task manager).
+- [ ] The first workflow run on `main` deploys, and the site works under `/gati-chitra/`.
+

@@ -16,3 +16,4 @@ Task 24: chose oxlint 1.90.0 because it is the current release.
 Task 28: chose #8c8c91 (light) and #8e8e8e (dark) for --border because they preserve hue and achieve >= 3:1 WCAG contrast against backgrounds.
 Task 30: chose 57.26 KB gzip (level 9) for mediabunny lazy chunk after tree-shaking specific imports.
 Task 32: chose to run Chromium and WebKit locally (Firefox fails to launch locally on macOS without Full Disk Access due to TCC blocking ~/Library/Application Support/Firefox; GitHub Actions CI runs all three on ubuntu-latest) and actionlint could not run locally (executable not installed).
+Task 33: confirmed 53.38 KB initial JS gzip (level 9) and 57.26 KB largest lazy chunk gzip (level 9) against the 150 KB and 80 KB budgets.

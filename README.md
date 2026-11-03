@@ -18,11 +18,20 @@ npm run dev
 Run the automated test suites:
 
 ```bash
+npm run lint        # Check code with oxlint
 npm test            # Run unit tests
 npm run build       # Type check and bundle for production
 npm run check:dist  # Verify build integrity, assets, and bundle budget
 npm run test:e2e     # Run end-to-end browser tests
 ```
+
+## What's new in v0.2.0
+
+- Resilience: duplicate subgraph IDs and layout errors no longer crash the application or clear the diagram.
+- Share links and autosave: opening a shared diagram does not overwrite local storage until edited, broken links show an error message with undo support, and updates synchronize across browser tabs.
+- Performance: idle diagrams stop redrawing when paused, dragging pinned nodes reuses existing layout coordinates, and the video export bundle has stricter size budgets.
+- Accessibility: toolbar buttons and controls support keyboard activation, UI borders meet WCAG 3:1 contrast ratios, and screen readers announce diagnostics summaries and control labels.
+- Continuous integration: tests verify Chromium, Firefox, and WebKit on GitHub Actions under production base paths.
 
 ## Supported Mermaid syntax
 
@@ -51,12 +60,12 @@ The table below lists the available keyboard shortcuts:
 | `+` / `=` | Zoom in (1.25x) |
 | `-` | Zoom out (0.8x) |
 | `p` | Toggle present mode |
-| `Space` | Toggle pause or play animation |
+| `k` | Toggle pause or play animation |
 | `Delete` / `Backspace` | Delete selected node or edge |
 | `Enter` | Rename selected node |
 | `Escape` | Close dialog or exit present mode |
 
-Keyboard shortcuts do not trigger while typing in text inputs or textareas.
+Hold `Space` while dragging to pan the canvas. Keyboard shortcuts do not trigger while typing in text inputs or textareas.
 
 ## Limits
 
@@ -65,9 +74,10 @@ Gati-chitra sets limits to ensure dependable browser performance:
 - Maximum source text length: 20,000 characters
 - Maximum nodes: 300
 - Maximum edges: 600
-- Zoom range: 0.2x to 5.0x
+- Zoom range: 0.1x to 4x
 - Maximum export side length: 8,192 pixels
-- Maximum export canvas area: 16,000,000 pixels
+- Maximum PNG export area: 40,000,000 pixels
+- Maximum GIF and video frame area: 2,073,600 pixels
 - Export frame rates: 10 to 25 fps
 - Export loop counts: 1 to 5 loops
 
@@ -102,5 +112,7 @@ Repository instructions for AI coding assistants are maintained in `AGENTS.md`, 
 ## Known limitations
 
 - Subgraphs and node groups are edited directly in the Mermaid text rather than on the interactive canvas.
-- Source statements should be formatted one per line.
+- Multiple statements on a single line separated by semicolons are planned for v0.3.0.
+- Extended link lengths (`--->`, `====>`), invisible links (`~~~`), and additional arrow combinations (`<==>`, `x--x`, `o--o`) will be added in v0.3.0.
+- Hyphenated and Unicode node identifiers will be added in v0.3.0.
 - Only flowchart diagrams are supported.
