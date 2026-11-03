@@ -1208,7 +1208,7 @@ Offsets in tokens are character positions in the full `line` string passed in (i
 
 4. The `SourceLine` becomes `kind: 'statement'`, `nodeIds` = ids in order of first appearance on the line without duplicates, `edgeIndexes` = the indexes created on this line.
 
-* \[ \] **Step 1: Write the failing tests** `src/mermaid/edges.test.ts`. Table-driven: for each row, parse `'flowchart TD\n' + input` and compare. "Edges" lists `from>to kind 'label'`.
+* [x] **Step 1: Write the failing tests** `src/mermaid/edges.test.ts`. Table-driven: for each row, parse `'flowchart TD\n' + input` and compare. "Edges" lists `from>to kind 'label'`.
 
 | Input line | Expected edges | Node count | 
 | ----- | ----- | ----- | 
@@ -1263,13 +1263,13 @@ expect(parseMermaid(dup).ok).toBe(false);
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/mermaid/edges.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/mermaid/edges.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `readEdgeOperator` and `scanStatement` in `tokens.ts`, and replace the single-node statement branch in `parse.ts` with the statement handling above. Use the regular expressions of Part 4 exactly.
+* [x] **Step 3: Implement** `readEdgeOperator` and `scanStatement` in `tokens.ts`, and replace the single-node statement branch in `parse.ts` with the statement handling above. Use the regular expressions of Part 4 exactly.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: parse edges, labels, chains and node groups"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: parse edges, labels, chains and node groups"`
 
 ### Task 5: Parser, part 3: groups, classes, styles, comments, positions
 

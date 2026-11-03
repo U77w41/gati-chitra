@@ -2,6 +2,7 @@ import { LIMITS, MESSAGES } from '../core/constants';
 import type {
   Diagnostic,
   Direction,
+  EdgeKind,
   GraphEdge,
   GraphGroup,
   GraphNode,
@@ -10,41 +11,7 @@ import type {
   SourceLine,
   StyleMap,
 } from '../core/types';
-import { type NodeRef, readNodeRef } from './tokens';
-
-function parseSingleNodeGroup(trimmed: string): NodeRef[] | null {
-  let text = trimmed;
-  if (text.endsWith(';')) {
-    text = text.slice(0, -1).trim();
-  }
-  if (!text) return null;
-  let pos = 0;
-  const refs: NodeRef[] = [];
-  let expectRef = true;
-
-  while (pos < text.length) {
-    while (pos < text.length && /\s/.test(text[pos])) pos++;
-    if (pos >= text.length) break;
-
-    if (!expectRef) {
-      if (text[pos] === '&') {
-        pos++;
-        expectRef = true;
-        continue;
-      }
-      return null;
-    }
-
-    const res = readNodeRef(text, pos);
-    if (!res) return null;
-    refs.push(res.ref);
-    pos = res.end;
-    expectRef = false;
-  }
-
-  if (expectRef || refs.length === 0) return null;
-  return refs;
-}
+import { type NodeRef, scanStatement } from './tokens';
 
 export function parseMermaid(text: string): ParsedDoc {
   if (text.length > LIMITS.maxTextChars) {
@@ -84,6 +51,7 @@ export function parseMermaid(text: string): ParsedDoc {
   const classDefs: Record<string, StyleMap> = {};
   const pins: Record<string, Point> = {};
   let hasReportedMaxNodes = false;
+  let hasReportedMaxEdges = false;
 
   let first = -1;
   for (let i = 0; i < rawLines.length; i++) {
@@ -202,40 +170,85 @@ export function parseMermaid(text: string): ParsedDoc {
       continue;
     }
 
-    const nodeRefs = parseSingleNodeGroup(trimmed);
-    if (nodeRefs) {
+    const tokens = scanStatement(raw);
+    if (tokens) {
       lines[i].kind = 'statement';
-      const seenOnLine = new Set<string>();
+      const nodeGroups: NodeRef[][] = [[]];
+      const ops: { kind: EdgeKind; label: string }[] = [];
 
-      for (const ref of nodeRefs) {
-        if (!seenOnLine.has(ref.id)) {
-          seenOnLine.add(ref.id);
-          lines[i].nodeIds.push(ref.id);
+      for (const tok of tokens) {
+        if (tok.type === 'node') {
+          nodeGroups[nodeGroups.length - 1].push(tok.ref);
+        } else if (tok.type === 'edge') {
+          ops.push({ kind: tok.kind, label: tok.label });
+          nodeGroups.push([]);
         }
+      }
 
-        const existing = nodes.find(n => n.id === ref.id);
-        if (!existing) {
-          if (nodes.length >= LIMITS.maxNodes) {
-            if (!hasReportedMaxNodes) {
-              diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.tooManyNodes });
-              hasReportedMaxNodes = true;
+      const seenOnLine = new Set<string>();
+      for (const group of nodeGroups) {
+        for (const ref of group) {
+          if (!seenOnLine.has(ref.id)) {
+            seenOnLine.add(ref.id);
+            lines[i].nodeIds.push(ref.id);
+          }
+
+          const existing = nodes.find(n => n.id === ref.id);
+          if (!existing) {
+            if (nodes.length >= LIMITS.maxNodes) {
+              if (!hasReportedMaxNodes) {
+                diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.tooManyNodes });
+                hasReportedMaxNodes = true;
+              }
+            } else {
+              nodes.push({
+                id: ref.id,
+                label: ref.label ?? ref.id,
+                shape: ref.shape ?? 'rect',
+                classNames: ref.className ? [ref.className] : [],
+                style: {},
+                group: null,
+                line: i,
+              });
             }
           } else {
-            nodes.push({
-              id: ref.id,
-              label: ref.label ?? ref.id,
-              shape: ref.shape ?? 'rect',
-              classNames: ref.className ? [ref.className] : [],
-              style: {},
-              group: null,
-              line: i,
-            });
+            if (ref.shape !== null) existing.shape = ref.shape;
+            if (ref.label !== null) existing.label = ref.label;
+            if (ref.className && !existing.classNames.includes(ref.className)) {
+              existing.classNames.push(ref.className);
+            }
           }
-        } else {
-          if (ref.shape !== null) existing.shape = ref.shape;
-          if (ref.label !== null) existing.label = ref.label;
-          if (ref.className && !existing.classNames.includes(ref.className)) {
-            existing.classNames.push(ref.className);
+        }
+      }
+
+      for (let opIdx = 0; opIdx < ops.length; opIdx++) {
+        const leftGroup = nodeGroups[opIdx];
+        const rightGroup = nodeGroups[opIdx + 1];
+        for (const a of leftGroup) {
+          for (const b of rightGroup) {
+            const aExists = nodes.some(n => n.id === a.id);
+            const bExists = nodes.some(n => n.id === b.id);
+            if (aExists && bExists) {
+              if (edges.length >= LIMITS.maxEdges) {
+                if (!hasReportedMaxEdges) {
+                  diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.tooManyEdges });
+                  hasReportedMaxEdges = true;
+                }
+              } else {
+                const edgeIndex = edges.length;
+                edges.push({
+                  id: 'e' + edgeIndex,
+                  index: edgeIndex,
+                  from: a.id,
+                  to: b.id,
+                  kind: ops[opIdx].kind,
+                  label: ops[opIdx].label,
+                  style: {},
+                  line: i,
+                });
+                lines[i].edgeIndexes.push(edgeIndex);
+              }
+            }
           }
         }
       }
