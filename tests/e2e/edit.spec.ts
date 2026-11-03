@@ -358,4 +358,25 @@ test.describe('Editing, connecting and properties panel', () => {
     const val = await page.locator('#source').inputValue();
     expect(val).toBe('flowchart TD\nFromMd');
   });
+
+  test('properties list every shape', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\nA[Start]');
+    });
+    await page.waitForTimeout(300);
+
+    const aScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('A'));
+    await page.mouse.click(aScreen.x, aScreen.y);
+    await page.waitForTimeout(100);
+
+    const options = page.locator('#prop-shape option');
+    await expect(options).toHaveCount(20);
+
+    await page.selectOption('#prop-shape', { label: 'Document' });
+    await page.waitForTimeout(200);
+
+    const text = await page.locator('#source').inputValue();
+    expect(text).toContain('A@{ shape: doc, label: "Start" }');
+  });
 });

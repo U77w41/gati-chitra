@@ -1,3 +1,4 @@
+import { EDGE_KIND_NAMES, SHAPE_NAMES } from '../core/shapes';
 import type { EdgeKind, ShapeKind, TextOp } from '../core/types';
 import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
@@ -37,6 +38,22 @@ export function setupProperties(env: PropertiesEnv): () => void {
 
   const nodeSection = panelEl.querySelector<HTMLElement>('#prop-section-node')!;
   const edgeSection = panelEl.querySelector<HTMLElement>('#prop-section-edge')!;
+
+  propShape.innerHTML = '';
+  for (const [shape, name] of Object.entries(SHAPE_NAMES)) {
+    const opt = document.createElement('option');
+    opt.value = shape;
+    opt.textContent = name;
+    propShape.appendChild(opt);
+  }
+
+  propKind.innerHTML = '';
+  for (const [kind, name] of Object.entries(EDGE_KIND_NAMES)) {
+    const opt = document.createElement('option');
+    opt.value = kind;
+    opt.textContent = name;
+    propKind.appendChild(opt);
+  }
 
   function onCommitLabel(): void {
     const state = getState();

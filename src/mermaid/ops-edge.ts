@@ -2,6 +2,7 @@ import { MESSAGES } from '../core/constants';
 import type { EdgeKind, TextOpResult } from '../core/types';
 import { edgeOperatorText, formatPipeLabel } from './format';
 import { parseMermaid } from './parse';
+import { splitStatements } from './parse-statement';
 import { scanStatement, type StatementToken } from './tokens';
 
 function indentOf(line: string): string {
@@ -74,11 +75,19 @@ export function deleteEdgeInternal(
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
+  const parts = splitStatements(lines[L]);
+  if (parts.length > 1) {
+    const indent = indentOf(lines[L]);
+    const splitLines = parts.map(p => `${indent}${p.trim()}`);
+    lines.splice(L, 1, ...splitLines);
+    return deleteEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, exclude);
+  }
+
   const edgesOnLine = doc.edges.filter(e => e.line === L);
   if (edgesOnLine.length > 1) {
     const split = splitStatement(lines[L]);
     lines.splice(L, 1, ...split);
-    return deleteEdgeInternal(lines.join('\n') + '\n', index, exclude);
+    return deleteEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, exclude);
   }
 
   const lineTokens = scanStatement(lines[L]);
@@ -133,7 +142,8 @@ export function deleteEdgeInternal(
     }
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 export function renameEdgeInternal(
@@ -150,23 +160,33 @@ export function renameEdgeInternal(
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
+  const parts = splitStatements(lines[L]);
+  if (parts.length > 1) {
+    const indent = indentOf(lines[L]);
+    const splitLines = parts.map(p => `${indent}${p.trim()}`);
+    lines.splice(L, 1, ...splitLines);
+    return renameEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, label);
+  }
+
   const edgesOnLine = doc.edges.filter(e => e.line === L);
   if (edgesOnLine.length > 1) {
     const split = splitStatement(lines[L]);
     lines.splice(L, 1, ...split);
-    return renameEdgeInternal(lines.join('\n') + '\n', index, label);
+    return renameEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, label);
   }
 
   const toks = scanStatement(lines[L]);
   const edgeTok = toks?.find(t => t.type === 'edge');
   if (edgeTok) {
-    const opText = edgeOperatorText(edge.kind);
+    const refPrefix = edgeTok.ref ? `${edgeTok.ref}@` : '';
+    const opText = refPrefix + edgeOperatorText(edge.kind, edgeTok.length);
     const pipe = label ? '|' + formatPipeLabel(label) + '|' : '';
     lines[L] =
       lines[L].slice(0, edgeTok.start) + opText + pipe + lines[L].slice(edgeTok.end);
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 export function setEdgeKindInternal(
@@ -183,23 +203,33 @@ export function setEdgeKindInternal(
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
+  const parts = splitStatements(lines[L]);
+  if (parts.length > 1) {
+    const indent = indentOf(lines[L]);
+    const splitLines = parts.map(p => `${indent}${p.trim()}`);
+    lines.splice(L, 1, ...splitLines);
+    return setEdgeKindInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, kind);
+  }
+
   const edgesOnLine = doc.edges.filter(e => e.line === L);
   if (edgesOnLine.length > 1) {
     const split = splitStatement(lines[L]);
     lines.splice(L, 1, ...split);
-    return setEdgeKindInternal(lines.join('\n') + '\n', index, kind);
+    return setEdgeKindInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index, kind);
   }
 
   const toks = scanStatement(lines[L]);
   const edgeTok = toks?.find(t => t.type === 'edge');
   if (edgeTok) {
-    const opText = edgeOperatorText(kind);
+    const refPrefix = edgeTok.ref ? `${edgeTok.ref}@` : '';
+    const opText = refPrefix + edgeOperatorText(kind, edgeTok.length);
     const pipe = edge.label ? '|' + formatPipeLabel(edge.label) + '|' : '';
     lines[L] =
       lines[L].slice(0, edgeTok.start) + opText + pipe + lines[L].slice(edgeTok.end);
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 export function reverseEdgeInternal(text: string, index: number): TextOpResult {
@@ -214,11 +244,19 @@ export function reverseEdgeInternal(text: string, index: number): TextOpResult {
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
+  const parts = splitStatements(lines[L]);
+  if (parts.length > 1) {
+    const indent = indentOf(lines[L]);
+    const splitLines = parts.map(p => `${indent}${p.trim()}`);
+    lines.splice(L, 1, ...splitLines);
+    return reverseEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index);
+  }
+
   const edgesOnLine = doc.edges.filter(e => e.line === L);
   if (edgesOnLine.length > 1) {
     const split = splitStatement(lines[L]);
     lines.splice(L, 1, ...split);
-    return reverseEdgeInternal(lines.join('\n') + '\n', index);
+    return reverseEdgeInternal(lines.join('\n') + (text.endsWith('\n') ? '\n' : ''), index);
   }
 
   const toks = scanStatement(lines[L]);
@@ -239,5 +277,6 @@ export function reverseEdgeInternal(text: string, index: number): TextOpResult {
     lines[L] = `${prefix}${textB} ${edgeText} ${textA}${suffix}`;
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }

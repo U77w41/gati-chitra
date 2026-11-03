@@ -311,4 +311,28 @@ describe('text patches: edit operations', () => {
       expect(newSpecial).toEqual(origSpecial);
     }
   });
+
+  it.each([
+    ['A@{ shape: doc, label: "R" }', { type: 'renameNode', id: 'A', label: 'Q' }, 'A@{ shape: doc, label: "Q" }'],
+    ['A@{ shape: doc }', { type: 'renameNode', id: 'A', label: 'Q' }, 'A@{ shape: doc, label: "Q" }'],
+    ['A@{ shape: doc, label: "R" }', { type: 'setShape', id: 'A', shape: 'diamond' }, 'A@{ shape: diam, label: "R" }'],
+    ['A[x]', { type: 'setShape', id: 'A', shape: 'trapezoid' }, 'A[/x\\]'],
+    ['A e1@---> B', { type: 'setEdgeKind', index: 0, kind: 'thickArrow' }, 'A e1@===> B'],
+    ['A e1@--> B', { type: 'reverseEdge', index: 0 }, 'B e1@--> A'],
+  ] as const)('%s', (line, op, expected) => {
+    expect(applyOp(`flowchart TD\n${line}`, op)).toEqual({ text: `flowchart TD\n${expected}` });
+  });
+
+  it('splits a ; line before changing it', () => {
+    const r = applyOp('flowchart TD\n  A --> B; B --> C', { type: 'deleteEdge', index: 1 }) as { text: string };
+    const d = parseMermaid(r.text);
+    expect(r.text).not.toContain(';');
+    expect(d.edges.map(e => [e.from, e.to])).toEqual([['A', 'B']]);
+    expect(r.text.split('\n')[1]).toBe('  A --> B');
+  });
+
+  it('a rename never creates an entity', () => {
+    const r = applyOp('flowchart TD\nA[x]', { type: 'renameNode', id: 'A', label: 'C#1;' }) as { text: string };
+    expect(parseMermaid(r.text).nodes[0].label).toBe('C#1;');
+  });
 });

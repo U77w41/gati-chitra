@@ -22,7 +22,8 @@ import {
   spliceLine,
 } from './ops-node';
 import { parseMermaid } from './parse';
-import { formatPinLine, PIN_LINE_RE, PIN_MARKER } from './positions';
+import { splitStatements } from './parse-statement';
+import { clearPinsInternal, setPinInternal } from './positions';
 import { parseStyleString } from './styles';
 
 export { edgeOperatorText, formatLabel, shapeTokens, spliceLine, splitStatement };
@@ -33,41 +34,17 @@ function indentOf(line: string): string {
 }
 
 function getInsertionInfo(doc: ParsedDoc): { index: number; indent: string } {
-  let depth = 0;
-  let lastTopLevelIndex = -1;
-  let lastTopLevelLine: string | null = null;
-  let headerIndex = -1;
-
+  let depth = 0, lastIdx = -1, lastLine: string | null = null, headerIdx = -1;
+  const contentKinds = new Set(['statement', 'subgraph', 'end', 'direction', 'classDef', 'class', 'style', 'linkStyle']);
   for (let i = 0; i < doc.lines.length; i++) {
     const l = doc.lines[i];
-    if (l.kind === 'header') headerIndex = i;
+    if (l.kind === 'header') headerIdx = i;
     if (l.kind === 'end') depth = Math.max(0, depth - 1);
-
-    const isContent = [
-      'statement',
-      'subgraph',
-      'end',
-      'direction',
-      'classDef',
-      'class',
-      'style',
-      'linkStyle',
-    ].includes(l.kind);
-
-    if (isContent && depth === 0) {
-      lastTopLevelIndex = i;
-      lastTopLevelLine = l.text;
-    }
-
+    if (contentKinds.has(l.kind) && depth === 0) { lastIdx = i; lastLine = l.text; }
     if (l.kind === 'subgraph') depth++;
   }
-
-  if (lastTopLevelIndex !== -1) {
-    return { index: lastTopLevelIndex, indent: indentOf(lastTopLevelLine!) };
-  }
-  if (headerIndex !== -1) {
-    return { index: headerIndex, indent: '  ' };
-  }
+  if (lastIdx !== -1) return { index: lastIdx, indent: indentOf(lastLine!) };
+  if (headerIdx !== -1) return { index: headerIdx, indent: '  ' };
   return { index: doc.lines.length - 1, indent: '  ' };
 }
 
@@ -79,9 +56,7 @@ function setNodeStyleInternal(text: string, id: string, style: StyleMap): TextOp
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
-  let styleLineIdx = -1;
-  let existingStyleMap: StyleMap = {};
-
+  let styleLineIdx = -1, existingStyleMap: StyleMap = {};
   for (let i = 0; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (trimmed.startsWith('style ')) {
@@ -98,33 +73,22 @@ function setNodeStyleInternal(text: string, id: string, style: StyleMap): TextOp
     }
   }
 
+  const merged = { ...existingStyleMap };
+  for (const [k, v] of Object.entries(style)) {
+    if (v === '') delete merged[k]; else merged[k] = v;
+  }
+  const pairs = Object.entries(merged).map(([k, v]) => `${k}:${v}`);
+
   if (styleLineIdx !== -1) {
-    const merged = { ...existingStyleMap };
-    for (const [k, v] of Object.entries(style)) {
-      if (v === '') {
-        delete merged[k];
-      } else {
-        merged[k] = v;
-      }
-    }
-    const pairs = Object.entries(merged).map(([k, v]) => `${k}:${v}`);
-    if (pairs.length === 0) {
-      lines.splice(styleLineIdx, 1);
-    } else {
-      const indent = indentOf(lines[styleLineIdx]);
-      lines[styleLineIdx] = `${indent}style ${id} ${pairs.join(',')}`;
-    }
-  } else {
-    const pairs = Object.entries(style)
-      .filter(([, v]) => v !== '')
-      .map(([k, v]) => `${k}:${v}`);
-    if (pairs.length > 0) {
-      const { index, indent } = getInsertionInfo(doc);
-      lines.splice(index + 1, 0, `${indent}style ${id} ${pairs.join(',')}`);
-    }
+    if (pairs.length === 0) lines.splice(styleLineIdx, 1);
+    else lines[styleLineIdx] = `${indentOf(lines[styleLineIdx])}style ${id} ${pairs.join(',')}`;
+  } else if (pairs.length > 0) {
+    const { index, indent } = getInsertionInfo(doc);
+    lines.splice(index + 1, 0, `${indent}style ${id} ${pairs.join(',')}`);
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 function renameGroupInternal(text: string, id: string, title: string): TextOpResult {
@@ -138,7 +102,8 @@ function renameGroupInternal(text: string, id: string, title: string): TextOpRes
 
   const indent = indentOf(lines[grp.line]);
   lines[grp.line] = `${indent}subgraph ${id} [${formatLabel(title)}]`;
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 function setDirectionInternal(text: string, direction: Direction): TextOpResult {
@@ -157,57 +122,66 @@ function setDirectionInternal(text: string, direction: Direction): TextOpResult 
     );
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
+}
+
+function getTargetLines(doc: ParsedDoc, op: TextOp): number[] {
+  switch (op.type) {
+    case 'deleteEdge':
+    case 'renameEdge':
+    case 'setEdgeKind':
+    case 'reverseEdge':
+      return doc.edges[op.index] ? [doc.edges[op.index].line] : [];
+    case 'renameNode':
+    case 'setShape':
+      return doc.lines.filter(l => l.nodeIds.includes(op.id)).map(l => l.index);
+    case 'deleteNode':
+      return [
+        ...doc.lines.filter(l => l.nodeIds.includes(op.id)).map(l => l.index),
+        ...doc.edges.filter(e => e.from === op.id || e.to === op.id).map(e => e.line),
+      ];
+    case 'renameGroup':
+      return doc.groups.filter(g => g.id === op.id).map(g => g.line);
+    case 'setDirection':
+      return doc.lines.filter(l => l.kind === 'header').map(l => l.index);
+    default:
+      return [];
+  }
 }
 
 export function applyOp(text: string, op: TextOp): TextOpResult {
   const doc = parseMermaid(text);
   if (!doc.ok) return { error: MESSAGES.fixTextFirst };
 
+  const targetLines = getTargetLines(doc, op);
+  if (targetLines.length > 0) {
+    const rawLines = doc.lines.map(l => l.text);
+    const multiStmtLines = targetLines.filter(
+      idx => idx >= 0 && idx < rawLines.length && splitStatements(rawLines[idx]).length > 1
+    );
+    if (multiStmtLines.length > 0) {
+      const sorted = Array.from(new Set(multiStmtLines)).sort((a, b) => b - a);
+      for (const idx of sorted) {
+        const raw = rawLines[idx];
+        const indent = indentOf(raw);
+        const parts = splitStatements(raw).map(p => `${indent}${p.trim()}`);
+        rawLines.splice(idx, 1, ...parts);
+      }
+      const trailing = text.endsWith('\n') ? '\n' : '';
+      return applyOp(rawLines.join('\n') + trailing, op);
+    }
+  }
+
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
   if (op.type === 'setPin') {
-    if (!doc.nodes.some(n => n.id === op.id)) {
-      return { error: MESSAGES.unknownNode(op.id) };
-    }
-    const pinLine = formatPinLine(op.id, op.x, op.y);
-    const existingIdx = lines.findIndex(l => {
-      const m = PIN_LINE_RE.exec(l);
-      return m && m[1] === op.id;
-    });
-
-    if (existingIdx !== -1) {
-      lines[existingIdx] = pinLine;
-    } else {
-      let lastPosIdx = -1;
-      for (let i = lines.length - 1; i >= 0; i--) {
-        if (PIN_LINE_RE.test(lines[i])) {
-          lastPosIdx = i;
-          break;
-        }
-      }
-      if (lastPosIdx !== -1) {
-        lines.splice(lastPosIdx + 1, 0, pinLine);
-      } else {
-        while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
-        const markerIdx = lines.findIndex(l => l.trim() === PIN_MARKER);
-        if (markerIdx !== -1) {
-          lines.splice(markerIdx + 1, 0, pinLine);
-        } else {
-          lines.push('', PIN_MARKER, pinLine);
-        }
-      }
-    }
-    return { text: lines.join('\n') + '\n' };
+    return setPinInternal(text, op.id, op.x, op.y, doc.nodes.some(n => n.id === op.id));
   }
 
   if (op.type === 'clearPins') {
-    const filtered = lines.filter(l => !PIN_LINE_RE.test(l) && l.trim() !== PIN_MARKER);
-    while (filtered.length > 0 && filtered[filtered.length - 1].trim() === '') {
-      filtered.pop();
-    }
-    return { text: filtered.join('\n') + '\n' };
+    return clearPinsInternal(text);
   }
 
   if (op.type === 'addNode') {
@@ -219,7 +193,8 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
         ? `${indent}${id}@{ shape: ${SHAPE_SHORT[op.shape]}, label: "${formatLabel(op.label)}" }`
         : `${indent}${id}${tok.open}${formatLabel(op.label)}${tok.close}`;
     lines.splice(index + 1, 0, nodeLine);
-    const newText = lines.join('\n') + '\n';
+    const trailing = text.endsWith('\n') ? '\n' : '';
+    const newText = lines.join('\n') + (trailing || '\n');
     if (op.pin) {
       const pinRes = applyOp(newText, {
         type: 'setPin',
@@ -247,7 +222,8 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
     const pipe = op.label ? `|${formatPipeLabel(op.label)}|` : '';
     const edgeLine = `${indent}${op.from} ${opText}${pipe} ${op.to}`;
     lines.splice(index + 1, 0, edgeLine);
-    return { text: lines.join('\n') + '\n' };
+    const trailing = text.endsWith('\n') ? '\n' : '';
+    return { text: lines.join('\n') + trailing };
   }
 
   if (op.type === 'deleteEdge') {

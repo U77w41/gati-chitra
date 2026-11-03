@@ -1312,7 +1312,7 @@ git add -A && git commit -m "feat: subgraph direction and arrows to subgraphs"
 - Consumes: `SHAPE_SHORT`, `SHAPE_NAMES`, `EDGE_KIND_NAMES` (Task 35), `edgeOperatorText(kind, length)` (Task 34), `readProps` (Task 35).
 - Produces: Part 4.8 behaviour for `applyOp`. `formatLabel` writes `#` followed by `[A-Za-z0-9]+;` as `#35;` plus the rest.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it.each([
@@ -1339,10 +1339,10 @@ it('a rename never creates an entity', () => {
 ```
 
 e2e in `edit.spec.ts`: "properties list every shape". Select node A; `#prop-shape option` count is 20; choose "Document"; the text line for A becomes `A@{ shape: doc, label: "Start" }`.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement** Part 4.8 and the generated selects.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement** Part 4.8 and the generated selects.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: visual edits keep the new syntax intact"

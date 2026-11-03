@@ -1,3 +1,4 @@
+import { SHAPE_NAMES } from '../core/shapes';
 import type { ShapeKind, TextOp } from '../core/types';
 import { canRedo, canUndo } from '../editor/history';
 import { stripFences } from '../mermaid/fences';
@@ -28,6 +29,14 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     document.querySelector<HTMLButtonElement>('#btn-add-node')!;
   const addShapeEl = document.querySelector<HTMLSelectElement>('#add-shape')!;
   const filePicker = document.querySelector<HTMLInputElement>('#file-picker')!;
+
+  addShapeEl.innerHTML = '';
+  for (const [shape, name] of Object.entries(SHAPE_NAMES)) {
+    const opt = document.createElement('option');
+    opt.value = shape;
+    opt.textContent = name;
+    addShapeEl.appendChild(opt);
+  }
 
   filePicker.accept = '.mmd,.txt,.md';
   btnNew.addEventListener('click', () =>

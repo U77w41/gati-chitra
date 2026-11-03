@@ -144,12 +144,27 @@ export function renameNodeInternal(
           const edits: { start: number; end: number; text: string }[] = [];
           for (const tok of toks) {
             if (tok.type === 'node' && tok.ref.id === id && tok.ref.shape !== null) {
-              const tokens = shapeTokens(tok.ref.shape);
               const classSuffix = tok.ref.className ? ':::' + tok.ref.className : '';
-              const replacement =
-                tokens === null
-                  ? `${id}@{ shape: ${SHAPE_SHORT[tok.ref.shape]}, label: "${newLabel}" }${classSuffix}`
-                  : `${id}${tokens.open}${newLabel}${tokens.close}${classSuffix}`;
+              const tokText = lines[i].slice(tok.start, tok.end);
+              let replacement: string;
+              if (tokText.includes('@{')) {
+                const labelRegex = /label\s*:\s*(?:"(?:[^"\\]|\\.)*"|'[^']*'|[^,}]+)/;
+                if (labelRegex.test(tokText)) {
+                  replacement = tokText.replace(labelRegex, `label: "${newLabel}"`);
+                } else {
+                  const closeIdx = tokText.lastIndexOf('}');
+                  const before = tokText.slice(0, closeIdx).trimEnd();
+                  const after = tokText.slice(closeIdx);
+                  const sep = before.endsWith('{') ? ' ' : ', ';
+                  replacement = `${before}${sep}label: "${newLabel}" ${after}`;
+                }
+              } else {
+                const tokens = shapeTokens(tok.ref.shape);
+                replacement =
+                  tokens === null
+                    ? `${id}@{ shape: ${SHAPE_SHORT[tok.ref.shape]}, label: "${newLabel}" }${classSuffix}`
+                    : `${id}${tokens.open}${newLabel}${tokens.close}${classSuffix}`;
+              }
               edits.push({
                 start: tok.start,
                 end: tok.end,
@@ -209,10 +224,20 @@ export function setShapeInternal(
             if (tok.type === 'node' && tok.ref.id === id && tok.ref.shape !== null) {
               const classSuffix = tok.ref.className ? ':::' + tok.ref.className : '';
               const rawLabel = tok.ref.label ?? id;
-              const replacement =
-                newTokens === null
-                  ? `${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${rawLabel}" }${classSuffix}`
-                  : `${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}${classSuffix}`;
+              const tokText = lines[i].slice(tok.start, tok.end);
+              let replacement: string;
+              if (tokText.includes('@{')) {
+                const shapeRegex = /shape\s*:\s*[A-Za-z0-9_-]+/;
+                if (shapeRegex.test(tokText)) {
+                  replacement = tokText.replace(shapeRegex, `shape: ${SHAPE_SHORT[shape]}`);
+                } else {
+                  replacement = tokText.replace(/@\{\s*/, `@{ shape: ${SHAPE_SHORT[shape]}, `);
+                }
+              } else if (newTokens === null) {
+                replacement = `${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${formatLabel(rawLabel)}" }${classSuffix}`;
+              } else {
+                replacement = `${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}${classSuffix}`;
+              }
               edits.push({
                 start: tok.start,
                 end: tok.end,
