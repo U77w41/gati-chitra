@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, it } from 'vitest';
 
 const read = (p: string) => readFileSync(p, 'utf8');
@@ -36,4 +37,26 @@ it('has a lint script, an engines field and a Node version file', () => {
 it('points agents at the improvements plan', () => {
   expect(readFileSync('AGENTS.md', 'utf8')).toContain('docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md');
 });
+
+function walk(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...walk(full));
+    } else if (entry.isFile() && full.endsWith('.ts') && !full.endsWith('.test.ts')) {
+      files.push(full);
+    }
+  }
+  return files;
+}
+
+it('every source file in src/ has fewer than 300 lines', () => {
+  const files = walk('src');
+  for (const f of files) {
+    const count = read(f).split('\n').length;
+    expect(count, `${f} has ${count} lines (expected < 300)`).toBeLessThan(300);
+  }
+});
+
 

@@ -401,7 +401,7 @@ Every task lists **Files**, **Interfaces**, numbered **Steps** and a **Commit**.
 **Interfaces:**
 - Produces: `npm run lint` = `oxlint --deny-warnings -D no-explicit-any -D no-unused-vars src scripts`. `interface StudioApi` in `src/vite-env.d.ts` with the methods `studio.ts` already exposes, and `interface Window { __studio?: StudioApi }`.
 
-- [ ] **Step 1: Write the failing test** in `src/repo.test.ts`
+- [x] **Step 1: Write the failing test** in `src/repo.test.ts`
 
 ```ts
 it('has a lint script, an engines field and a Node version file', () => {
@@ -416,15 +416,15 @@ it('points agents at the improvements plan', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL (no `engines`, no `.nvmrc`).
-- [ ] **Step 3: Add oxlint and the scripts.**
+- [x] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL (no `engines`, no `.nvmrc`).
+- [x] **Step 3: Add oxlint and the scripts.**
   - Pin `oxlint` to its current version.
   - `.nvmrc` holds `26`: Node 26 has been the Active LTS line since October 2026, and it is what the owner develops on. If https://nodejs.org/en/about/previous-releases says otherwise, use the Active LTS major it lists and note it in `DECISIONS.md`.
   - `AGENTS.md` already names this plan (the owner committed that change with the plan), so the second test passes from the start. Leave `AGENTS.md`, `CLAUDE.md` and `GEMINI.md` as they are.
-- [ ] **Step 4: Run** `npm run lint`. Expected: FAIL listing the `any` uses and unused code.
-- [ ] **Step 5: Remove every `any`** in `src` (except `src/types/gifenc.d.ts`) with real types: `unknown` plus narrowing for caught errors and decoded data, the `StudioApi` interface for `window.__studio`, mediabunny's exported types in `video.ts`, `BlobPart` in `share.ts`. Delete the dead code.
-- [ ] **Step 6: Run** `npm run lint && npm test && npm run build`. Expected: all pass, `0 warnings`.
-- [ ] **Step 7: Commit**
+- [x] **Step 4: Run** `npm run lint`. Expected: FAIL listing the `any` uses and unused code.
+- [x] **Step 5: Remove every `any`** in `src` (except `src/types/gifenc.d.ts`) with real types: `unknown` plus narrowing for caught errors and decoded data, the `StudioApi` interface for `window.__studio`, mediabunny's exported types in `video.ts`, `BlobPart` in `share.ts`. Delete the dead code.
+- [x] **Step 6: Run** `npm run lint && npm test && npm run build`. Expected: all pass, `0 warnings`.
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A && git commit -m "chore: lint, Node version file, remove any and dead code"
@@ -440,11 +440,11 @@ git add -A && git commit -m "chore: lint, Node version file, remove any and dead
 **Interfaces:**
 - Consumes and produces: `parseMermaid(text: string): ParsedDoc`, unchanged. The new modules are internal to `src/mermaid`. Later tasks add new syntax to the module that owns it: statements in `parse-statement.ts`, line kinds in `parse-blocks.ts`, front matter in `parse-header.ts`.
 
-- [ ] **Step 1: Write the failing test** in `src/repo.test.ts`: walk `src/` and assert every `.ts` file that is not a test has fewer than 300 lines; the failure message names the file.
-- [ ] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL naming `src/mermaid/parse.ts` (417 lines).
-- [ ] **Step 3: Move code without changing behaviour.** Move the existing functions into the three files by responsibility; `parse.ts` keeps the line loop, the limits and the final `ok` computation. While moving, replace the three copies of the empty `ParsedDoc` literal with one `emptyDoc(lines: SourceLine[], diagnostics: Diagnostic[]): ParsedDoc`.
-- [ ] **Step 4: Run** `npm test && npm run lint`. Expected: all pass with no test changed.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing test** in `src/repo.test.ts`: walk `src/` and assert every `.ts` file that is not a test has fewer than 300 lines; the failure message names the file.
+- [x] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL naming `src/mermaid/parse.ts` (417 lines).
+- [x] **Step 3: Move code without changing behaviour.** Move the existing functions into the three files by responsibility; `parse.ts` keeps the line loop, the limits and the final `ok` computation. While moving, replace the three copies of the empty `ParsedDoc` literal with one `emptyDoc(lines: SourceLine[], diagnostics: Diagnostic[]): ParsedDoc`.
+- [x] **Step 4: Run** `npm test && npm run lint`. Expected: all pass with no test changed.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "refactor: split the parser into header, block and statement modules"
