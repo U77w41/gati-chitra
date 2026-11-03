@@ -226,6 +226,7 @@ export function hitTest(scene: Scene, p: Point, handleNodeId: string | null): Hi
   let nearestDistance = Infinity;
 
   for (const edge of scene.doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
 

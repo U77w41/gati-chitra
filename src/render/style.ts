@@ -24,33 +24,40 @@ export function edgeStyle(
 } {
   const style = edge.style;
   const stroke = style.stroke ?? theme.edge;
+
+  let kind = edge.kind;
+  if (kind === 'dottedBidirectional') kind = 'dottedArrow';
+  else if (kind === 'thickBidirectional') kind = 'thickArrow';
+  else if (kind === 'circleBoth') kind = 'circleEnd';
+  else if (kind === 'crossBoth') kind = 'crossEnd';
+
   const width = style['stroke-width']
     ? parseFloat(style['stroke-width'])
-    : edge.kind === 'thick' || edge.kind === 'thickArrow'
+    : kind === 'thick' || kind === 'thickArrow'
       ? LAYOUT.edgeWidthThick
       : LAYOUT.edgeWidth;
 
   const dash = style['stroke-dasharray']
     ? style['stroke-dasharray'].trim().split(/[\s,]+/).map(Number)
-    : edge.kind === 'dotted' || edge.kind === 'dottedArrow'
+    : kind === 'dotted' || kind === 'dottedArrow'
       ? [...LAYOUT.dottedDash]
       : null;
 
   let endMarker: 'arrow' | 'circle' | 'cross' | 'none' = 'none';
   if (
-    edge.kind === 'arrow' ||
-    edge.kind === 'dottedArrow' ||
-    edge.kind === 'thickArrow' ||
-    edge.kind === 'bidirectional'
+    kind === 'arrow' ||
+    kind === 'dottedArrow' ||
+    kind === 'thickArrow' ||
+    kind === 'bidirectional'
   ) {
     endMarker = 'arrow';
-  } else if (edge.kind === 'circleEnd') {
+  } else if (kind === 'circleEnd') {
     endMarker = 'circle';
-  } else if (edge.kind === 'crossEnd') {
+  } else if (kind === 'crossEnd') {
     endMarker = 'cross';
   }
 
-  const startArrow = edge.kind === 'bidirectional';
+  const startArrow = kind === 'bidirectional';
 
   return { stroke, width, dash, endMarker, startArrow };
 }

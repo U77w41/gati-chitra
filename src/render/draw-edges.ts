@@ -10,6 +10,7 @@ export function drawEdges(
   options: DrawOptions,
 ): void {
   for (const edge of scene.doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
 
@@ -132,6 +133,7 @@ export function drawEdgeDashOverlay(
   dashOffset: number,
 ): void {
   for (const edge of scene.doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
     ctx.beginPath();

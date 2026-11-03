@@ -10,32 +10,25 @@ export interface NodeRef {
 
 export type StatementToken =
   | { type: 'node'; ref: NodeRef; start: number; end: number }
-  | { type: 'edge'; kind: EdgeKind; label: string; start: number; end: number }
+  | { type: 'edge'; kind: EdgeKind; label: string; length: number; start: number; end: number }
   | { type: 'amp'; start: number; end: number }
   | { type: 'semi'; start: number; end: number };
 
 export const SHAPE_TABLE: { open: string; close: string; shape: ShapeKind }[] = [
-  { open: '[[', close: ']]', shape: 'subroutine' },
-  { open: '[(', close: ')]', shape: 'cylinder' },
-  { open: '[/', close: '/]', shape: 'parallelogram' },
-  { open: '[\\', close: '\\]', shape: 'parallelogramAlt' },
-  { open: '([', close: '])', shape: 'stadium' },
-  { open: '((', close: '))', shape: 'circle' },
-  { open: '{{', close: '}}', shape: 'hexagon' },
-  { open: '[', close: ']', shape: 'rect' },
-  { open: '(', close: ')', shape: 'round' },
-  { open: '{', close: '}', shape: 'diamond' },
+  { open: '[[', close: ']]', shape: 'subroutine' }, { open: '[(', close: ')]', shape: 'cylinder' },
+  { open: '[/', close: '/]', shape: 'parallelogram' }, { open: '[\\', close: '\\]', shape: 'parallelogramAlt' },
+  { open: '([', close: '])', shape: 'stadium' }, { open: '((', close: '))', shape: 'circle' },
+  { open: '{{', close: '}}', shape: 'hexagon' }, { open: '[', close: ']', shape: 'rect' },
+  { open: '(', close: ')', shape: 'round' }, { open: '{', close: '}', shape: 'diamond' },
 ];
 
 export function cleanLabel(raw: string): string {
-  let cleaned = raw.trim();
-  cleaned = cleaned.replace(/<br\s*\/?>/gi, '\n');
-  cleaned = cleaned.replace(/#quot;/g, '"');
+  let cleaned = raw.trim().replace(/<br\s*\/?>/gi, '\n').replace(/#quot;/g, '"');
   return cleaned.slice(0, LIMITS.maxLabelChars);
 }
 
 export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number } | null {
-  const idRegex = /[A-Za-z0-9_]+/y;
+  const idRegex = /[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*/uy;
   idRegex.lastIndex = pos;
   const matchId = idRegex.exec(s);
   if (!matchId) return null;
@@ -73,7 +66,7 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
 
   let className: string | null = null;
   if (s.startsWith(':::', end)) {
-    const classRegex = /:::([A-Za-z0-9_]+)/y;
+    const classRegex = /:::([\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*)/uy;
     classRegex.lastIndex = end;
     const matchClass = classRegex.exec(s);
     if (matchClass) {
@@ -88,34 +81,40 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
   };
 }
 
-const INLINE_OPENERS: {
-  opener: RegExp;
-  closers: { regex: RegExp; kind: EdgeKind }[];
-}[] = [
-  {
-    opener: /^--(?=\s)/,
-    closers: [
-      { regex: /^-{2,}>/, kind: 'arrow' },
-      { regex: /^-{3,}/, kind: 'open' },
-    ],
-  },
-  {
-    opener: /^-\.(?=\s)/,
-    closers: [
-      { regex: /^\.+->/, kind: 'dottedArrow' },
-      { regex: /^\.+-/, kind: 'dotted' },
-    ],
-  },
-  {
-    opener: /^==(?=\s)/,
-    closers: [
-      { regex: /^={2,}>/, kind: 'thickArrow' },
-      { regex: /^={3,}/, kind: 'thick' },
-    ],
-  },
+const INLINE_OPENERS: { opener: RegExp; closers: { regex: RegExp; kind: EdgeKind }[] }[] = [
+  { opener: /^--(?=\s)/, closers: [{ regex: /^-{2,}>/, kind: 'arrow' }, { regex: /^-{3,}/, kind: 'open' }] },
+  { opener: /^-\.(?=\s)/, closers: [{ regex: /^\.+->/, kind: 'dottedArrow' }, { regex: /^\.+-/, kind: 'dotted' }] },
+  { opener: /^==(?=\s)/, closers: [{ regex: /^={2,}>/, kind: 'thickArrow' }, { regex: /^={3,}/, kind: 'thick' }] },
 ];
 
+export function computeEdgeLength(kind: EdgeKind, text: string): number {
+  switch (kind) {
+    case 'arrow':
+    case 'bidirectional':
+    case 'thickArrow':
+    case 'thickBidirectional':
+      return Math.max(1, (text.match(/[-=]/g) || []).length - 1);
+    case 'open':
+    case 'thick':
+    case 'invisible':
+    case 'circleEnd':
+    case 'crossEnd':
+    case 'circleBoth':
+    case 'crossBoth':
+      return Math.max(1, (text.match(/[-=~]/g) || []).length - 2);
+    case 'dottedArrow':
+    case 'dotted':
+    case 'dottedBidirectional':
+      return Math.max(1, (text.match(/\./g) || []).length);
+  }
+}
+
 const OPERATORS_TABLE: { regex: RegExp; kind: EdgeKind }[] = [
+  { regex: /^<-\.+->/, kind: 'dottedBidirectional' },
+  { regex: /^<={2,}>/, kind: 'thickBidirectional' },
+  { regex: /^o-{2,}o(?=\s)/, kind: 'circleBoth' },
+  { regex: /^x-{2,}x(?=\s)/, kind: 'crossBoth' },
+  { regex: /^~{3,}/, kind: 'invisible' },
   { regex: /^<-{2,}>/, kind: 'bidirectional' },
   { regex: /^-{2,}o(?=\s)/, kind: 'circleEnd' },
   { regex: /^-{2,}x(?=\s)/, kind: 'crossEnd' },
@@ -130,7 +129,7 @@ const OPERATORS_TABLE: { regex: RegExp; kind: EdgeKind }[] = [
 export function readEdgeOperator(
   s: string,
   pos: number
-): { kind: EdgeKind; label: string; end: number } | null {
+): { kind: EdgeKind; label: string; length: number; end: number } | null {
   while (pos < s.length && /\s/.test(s[pos])) pos++;
   if (pos >= s.length) return null;
 
@@ -147,9 +146,11 @@ export function readEdgeOperator(
             const m = closer.regex.exec(candRest);
             if (m) {
               const label = s.slice(pos + openerLen, cand).trim();
+              const length = computeEdgeLength(closer.kind, m[0]);
               return {
                 kind: closer.kind,
                 label,
+                length,
                 end: cand + m[0].length,
               };
             }
@@ -160,14 +161,16 @@ export function readEdgeOperator(
     }
   }
 
-  // 2. Try the nine operator patterns
+  // 2. Try the operator patterns
   let matchedKind: EdgeKind | null = null;
+  let opLength = 1;
   let opEnd = pos;
 
   for (const op of OPERATORS_TABLE) {
     const m = op.regex.exec(rest);
     if (m) {
       matchedKind = op.kind;
+      opLength = computeEdgeLength(op.kind, m[0]);
       opEnd = pos + m[0].length;
       break;
     }
@@ -206,6 +209,7 @@ export function readEdgeOperator(
   return {
     kind: matchedKind,
     label,
+    length: opLength,
     end,
   };
 }
@@ -263,6 +267,7 @@ export function scanStatement(line: string): StatementToken[] | null {
         type: 'edge',
         kind: op.kind,
         label: op.label,
+        length: op.length,
         start: p,
         end: op.end,
       });

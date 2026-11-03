@@ -40,7 +40,7 @@ export function frameState(
     return { particles: [], dashOffset: null, nodeGlow: {} };
   }
 
-  const validEdges = scene.doc.edges.filter((e) => scene.layout.edges[e.id]);
+  const validEdges = scene.doc.edges.filter((e) => e.kind !== 'invisible' && scene.layout.edges[e.id]);
   if (validEdges.length === 0) {
     if (settings.style === 'dash') {
       const dashOffset =

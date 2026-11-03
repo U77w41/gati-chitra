@@ -4,7 +4,8 @@ export type ShapeKind =
   | 'hexagon' | 'parallelogram' | 'parallelogramAlt' | 'cylinder' | 'subroutine';
 export type EdgeKind =
   | 'arrow' | 'open' | 'dottedArrow' | 'dotted' | 'thickArrow'
-  | 'thick' | 'circleEnd' | 'crossEnd' | 'bidirectional';
+  | 'thick' | 'circleEnd' | 'crossEnd' | 'bidirectional'
+  | 'dottedBidirectional' | 'thickBidirectional' | 'circleBoth' | 'crossBoth' | 'invisible';
 export type StyleMap = Record<string, string>; // CSS-like, e.g. { fill: '#f9f', 'stroke-width': '2px' }
 
 export interface Point { x: number; y: number }
@@ -18,7 +19,7 @@ export interface GraphNode {
 export interface GraphEdge {
   id: string;    // `e${index}`
   index: number; // 0-based order of creation; matches linkStyle numbers
-  from: string; to: string; kind: EdgeKind; label: string; style: StyleMap;
+  from: string; to: string; kind: EdgeKind; label: string; length: number; style: StyleMap;
   line: number;  // 0-based index of the line that defines the edge
 }
 export interface GraphGroup {

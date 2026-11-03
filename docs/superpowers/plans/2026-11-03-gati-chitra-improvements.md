@@ -792,7 +792,7 @@ Parser tasks (34 to 37) come first, drawing tasks (38 to 42) next, and text patc
   - `edgeOperatorText(kind: EdgeKind, length?: number): string` writes the longer operator: `('arrow', 2)` gives `--->`, `('dotted', 3)` gives `-...-`, `('invisible', 1)` gives `~~~`.
   - Until Task 39 the renderers treat `dottedBidirectional` as `dottedArrow`, `thickBidirectional` as `thickArrow`, `circleBoth` as `circleEnd` and `crossBoth` as `crossEnd`, and skip `invisible` edges in drawing, hit-testing and particles.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('reads several statements on one line', () => {
@@ -831,10 +831,10 @@ it('writes longer operators', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test -- src/mermaid`. Expected: FAIL.
-- [ ] **Step 3: Implement** Part 4.1 to 4.3 in `tokens.ts` and `parse-statement.ts`, and the fallbacks listed in the Interfaces block in the renderers.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS, including every v0.1 corpus test.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test -- src/mermaid`. Expected: FAIL.
+- [x] **Step 3: Implement** Part 4.1 to 4.3 in `tokens.ts` and `parse-statement.ts`, and the fallbacks listed in the Interfaces block in the renderers.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS, including every v0.1 corpus test.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: parse more arrow forms, link length and several statements per line"

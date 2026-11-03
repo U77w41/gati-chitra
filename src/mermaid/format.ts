@@ -25,26 +25,37 @@ export function shapeTokens(shape: ShapeKind): { open: string; close: string } {
   }
 }
 
-export function edgeOperatorText(kind: EdgeKind): string {
+export function edgeOperatorText(kind: EdgeKind, length: number = 1): string {
+  const len = Math.max(1, length);
   switch (kind) {
     case 'arrow':
-      return '-->';
+      return '-'.repeat(len + 1) + '>';
     case 'open':
-      return '---';
+      return '-'.repeat(len + 2);
     case 'dottedArrow':
-      return '-.->';
+      return '-' + '.'.repeat(len) + '->';
     case 'dotted':
-      return '-.-';
+      return '-' + '.'.repeat(len) + '-';
     case 'thickArrow':
-      return '==>';
+      return '='.repeat(len + 1) + '>';
     case 'thick':
-      return '===';
+      return '='.repeat(len + 2);
     case 'circleEnd':
-      return '--o';
+      return '-'.repeat(len + 1) + 'o';
     case 'crossEnd':
-      return '--x';
+      return '-'.repeat(len + 1) + 'x';
     case 'bidirectional':
-      return '<-->';
+      return '<' + '-'.repeat(len + 1) + '>';
+    case 'dottedBidirectional':
+      return '<-' + '.'.repeat(len) + '->';
+    case 'thickBidirectional':
+      return '<' + '='.repeat(len + 1) + '>';
+    case 'circleBoth':
+      return 'o' + '-'.repeat(len + 1) + 'o';
+    case 'crossBoth':
+      return 'x' + '-'.repeat(len + 1) + 'x';
+    case 'invisible':
+      return '~'.repeat(len + 2);
   }
 }
 

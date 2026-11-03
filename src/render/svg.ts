@@ -59,6 +59,7 @@ export function renderSvg(
 
   const arrowSize = LAYOUT.arrowSize;
   for (const edge of scene.doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
     const st = edgeStyle(edge, theme);

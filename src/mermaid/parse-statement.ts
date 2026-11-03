@@ -18,24 +18,95 @@ export interface StatementContext {
   hasReportedMaxEdges: boolean;
 }
 
+export function splitStatements(line: string): string[] {
+  const parts: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  let inPipe = false;
+  let square = 0;
+  let round = 0;
+  let curly = 0;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+      current += ch;
+    } else if (inQuotes) {
+      current += ch;
+    } else if (ch === '|') {
+      inPipe = !inPipe;
+      current += ch;
+    } else if (inPipe) {
+      current += ch;
+    } else if (ch === '[') {
+      square++;
+      current += ch;
+    } else if (ch === ']') {
+      if (square > 0) square--;
+      current += ch;
+    } else if (ch === '(') {
+      round++;
+      current += ch;
+    } else if (ch === ')') {
+      if (round > 0) round--;
+      current += ch;
+    } else if (ch === '{') {
+      curly++;
+      current += ch;
+    } else if (ch === '}') {
+      if (curly > 0) curly--;
+      current += ch;
+    } else if (ch === ';' && square === 0 && round === 0 && curly === 0) {
+      if (current.trim() !== '') {
+        parts.push(current);
+      }
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+
+  if (current.trim() !== '') {
+    parts.push(current);
+  }
+
+  return parts;
+}
+
 export function parseStatement(raw: string, lineIndex: number, ctx: StatementContext): void {
-  const tokens = scanStatement(raw);
-  if (tokens) {
-    ctx.lines[lineIndex].kind = 'statement';
+  const parts = splitStatements(raw);
+  if (parts.length === 0) {
+    ctx.lines[lineIndex].kind = 'unknown';
+    ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.unknownLine });
+    return;
+  }
+
+  const allTokens = parts.map(p => scanStatement(p));
+  if (allTokens.some(t => t === null)) {
+    ctx.lines[lineIndex].kind = 'unknown';
+    ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.unknownLine });
+    return;
+  }
+
+  ctx.lines[lineIndex].kind = 'statement';
+  const seenOnLine = new Set<string>();
+
+  for (const tokens of allTokens) {
+    if (!tokens) continue;
     const nodeGroups: NodeRef[][] = [[]];
-    const ops: { kind: EdgeKind; label: string }[] = [];
+    const ops: { kind: EdgeKind; label: string; length: number }[] = [];
 
     for (const tok of tokens) {
       if (tok.type === 'node') {
         nodeGroups[nodeGroups.length - 1].push(tok.ref);
       } else if (tok.type === 'edge') {
-        ops.push({ kind: tok.kind, label: tok.label });
+        ops.push({ kind: tok.kind, label: tok.label, length: tok.length });
         nodeGroups.push([]);
       }
     }
 
     const currentGroupId = ctx.currentGroupId;
-    const seenOnLine = new Set<string>();
 
     for (const group of nodeGroups) {
       for (const ref of group) {
@@ -97,6 +168,7 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
                 to: b.id,
                 kind: ops[opIdx].kind,
                 label: ops[opIdx].label,
+                length: ops[opIdx].length,
                 style: {},
                 line: lineIndex,
               });
@@ -106,8 +178,5 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
         }
       }
     }
-  } else {
-    ctx.lines[lineIndex].kind = 'unknown';
-    ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.unknownLine });
   }
 }
