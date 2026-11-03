@@ -4,7 +4,8 @@ These instructions apply to every AI coding agent that works in this repository.
 
 ## 1. Read first
 
-- The build plan is `docs/superpowers/plans/2026-11-02-gati-chitra.md`. Read its "Start here" section and Part 0 before you change anything.
+- The build plan is `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60). Before you change anything, read its "Start here" section and its Part 0. If you are Gemini CLI, also read its "Running this plan with Gemini CLI" section.
+- The first plan, `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23, all done), is the reference for every contract the new plan does not change. Do not work from it.
 - Work through the plan's tasks in order, one task at a time, with one commit per task and the commit message the plan gives.
 - When the plan leaves something open, choose the simplest option and add one line to `DECISIONS.md` in the form `Task N: chose X because Y`.
 - To find where you are: run `git log --oneline`, read `DECISIONS.md`, and continue with the first task in the plan that has no commit yet. Tick the checkboxes in the plan copy as you finish steps.
