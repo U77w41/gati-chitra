@@ -1,176 +1,202 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-scheme="light">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gati-chitra</title>
+    <title>Gati-chitra · Ujjwal Chowdhury</title>
+    <meta name="description" content="Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video. Everything runs in your browser." />
+    <meta name="author" content="Ujjwal Chowdhury" />
+    <link rel="canonical" href="%VITE_SITE_URL%" />
+
+    <meta property="og:title" content="Gati-chitra · Ujjwal Chowdhury" />
+    <meta property="og:description" content="Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video. Everything runs in your browser." />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
+    <meta property="og:site_name" content="Ujjwal Chowdhury" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://u77w41.github.io/support-my-work/assets/avatar.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Gati-chitra · Ujjwal Chowdhury" />
+    <meta name="twitter:description" content="Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video." />
+
+    <meta name="theme-color" content="#f5f5fa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#303030" media="(prefers-color-scheme: dark)" />
+
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <link rel="alternate icon" href="%BASE_URL%favicon.ico" />
+    <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
+    <script src="%BASE_URL%theme-init.js"></script>
   </head>
   <body>
-    <div id="app">
-      <div id="toolbar" role="toolbar" aria-label="Diagram tools">
-        <button id="btn-new">New</button>
-        <button id="btn-open">Open</button>
-        <button id="btn-save-mmd">Save .mmd</button>
-        <button id="btn-undo" disabled>Undo</button>
-        <button id="btn-redo" disabled>Redo</button>
-        <button id="btn-fit">Fit</button>
-        <button id="btn-autolayout" disabled>Auto-layout</button>
-        <button id="btn-present" disabled>Present</button>
-        <button id="btn-export" disabled>Export</button>
-        <button id="btn-share" disabled>Share</button>
-        <button id="btn-templates" disabled>Templates</button>
-        <select id="add-shape">
-          <option value="rect">Rectangle</option>
-          <option value="round">Rounded</option>
-          <option value="stadium">Stadium</option>
-          <option value="circle">Circle</option>
-          <option value="diamond">Diamond</option>
-          <option value="hexagon">Hexagon</option>
-          <option value="parallelogram">Parallelogram</option>
-          <option value="parallelogramAlt">Parallelogram reversed</option>
-          <option value="cylinder">Cylinder</option>
-          <option value="subroutine">Subroutine</option>
-        </select>
-        <button id="btn-add-node">Add node</button>
-        <input type="file" id="file-picker" accept=".mmd,.txt" style="display: none" />
-      </div>
-      <div id="share-box" hidden>
-        <label for="share-url">Share URL</label>
-        <input type="text" id="share-url" readonly />
-        <button id="share-box-close" aria-label="Close">✕</button>
-      </div>
-      <div id="workspace">
-        <section id="text-panel">
-          <textarea id="source" spellcheck="false" aria-label="Mermaid text"></textarea>
-          <ul id="diagnostics" aria-live="polite"></ul>
-        </section>
-        <section id="canvas-panel">
-          <canvas id="canvas" role="img"></canvas>
-          <div id="props" hidden>
-            <div id="prop-section-label">
-              <label for="prop-label">Label</label>
-              <input type="text" id="prop-label" />
+    <header class="site-header" id="site-header"></header>
+    <main id="main" class="container-wide" tabindex="-1">
+      <div id="app">
+        <div id="toolbar" role="toolbar" aria-label="Diagram tools">
+          <button id="btn-new">New</button>
+          <button id="btn-open">Open</button>
+          <button id="btn-save-mmd">Save .mmd</button>
+          <button id="btn-undo" disabled>Undo</button>
+          <button id="btn-redo" disabled>Redo</button>
+          <button id="btn-fit">Fit</button>
+          <button id="btn-autolayout" disabled>Auto-layout</button>
+          <button id="btn-present" disabled>Present</button>
+          <button id="btn-export" disabled>Export</button>
+          <button id="btn-share" disabled>Share</button>
+          <button id="btn-templates" disabled>Templates</button>
+          <select id="add-shape">
+            <option value="rect">Rectangle</option>
+            <option value="round">Rounded</option>
+            <option value="stadium">Stadium</option>
+            <option value="circle">Circle</option>
+            <option value="diamond">Diamond</option>
+            <option value="hexagon">Hexagon</option>
+            <option value="parallelogram">Parallelogram</option>
+            <option value="parallelogramAlt">Parallelogram reversed</option>
+            <option value="cylinder">Cylinder</option>
+            <option value="subroutine">Subroutine</option>
+          </select>
+          <button id="btn-add-node">Add node</button>
+          <input type="file" id="file-picker" accept=".mmd,.txt" style="display: none" />
+        </div>
+        <div id="share-box" hidden>
+          <label for="share-url">Share URL</label>
+          <input type="text" id="share-url" readonly />
+          <button id="share-box-close" aria-label="Close">✕</button>
+        </div>
+        <div id="workspace">
+          <section id="text-panel">
+            <textarea id="source" spellcheck="false" aria-label="Mermaid text"></textarea>
+            <ul id="diagnostics" aria-live="polite"></ul>
+          </section>
+          <section id="canvas-panel">
+            <canvas id="canvas" role="img"></canvas>
+            <div id="props" hidden>
+              <div id="prop-section-label">
+                <label for="prop-label">Label</label>
+                <input type="text" id="prop-label" />
+              </div>
+              <div id="prop-section-node">
+                <label for="prop-shape">Shape</label>
+                <select id="prop-shape">
+                  <option value="rect">Rectangle</option>
+                  <option value="round">Rounded</option>
+                  <option value="stadium">Stadium</option>
+                  <option value="circle">Circle</option>
+                  <option value="diamond">Diamond</option>
+                  <option value="hexagon">Hexagon</option>
+                  <option value="parallelogram">Parallelogram</option>
+                  <option value="parallelogramAlt">Parallelogram reversed</option>
+                  <option value="cylinder">Cylinder</option>
+                  <option value="subroutine">Subroutine</option>
+                </select>
+                <label for="prop-fill">Fill</label>
+                <input type="color" id="prop-fill" />
+                <label for="prop-stroke">Stroke</label>
+                <input type="color" id="prop-stroke" />
+                <button id="prop-clear-colours">Clear colours</button>
+              </div>
+              <div id="prop-section-edge">
+                <label for="prop-kind">Kind</label>
+                <select id="prop-kind">
+                  <option value="arrow">Arrow</option>
+                  <option value="open">Line</option>
+                  <option value="dottedArrow">Dotted arrow</option>
+                  <option value="dotted">Dotted line</option>
+                  <option value="thickArrow">Thick arrow</option>
+                  <option value="thick">Thick line</option>
+                  <option value="circleEnd">Circle end</option>
+                  <option value="crossEnd">Cross end</option>
+                  <option value="bidirectional">Both ways</option>
+                </select>
+                <button id="prop-reverse">Reverse</button>
+              </div>
+              <button id="prop-delete">Delete</button>
             </div>
-            <div id="prop-section-node">
-              <label for="prop-shape">Shape</label>
-              <select id="prop-shape">
-                <option value="rect">Rectangle</option>
-                <option value="round">Rounded</option>
-                <option value="stadium">Stadium</option>
-                <option value="circle">Circle</option>
-                <option value="diamond">Diamond</option>
-                <option value="hexagon">Hexagon</option>
-                <option value="parallelogram">Parallelogram</option>
-                <option value="parallelogramAlt">Parallelogram reversed</option>
-                <option value="cylinder">Cylinder</option>
-                <option value="subroutine">Subroutine</option>
+            <textarea id="inline-edit" style="display: none;"></textarea>
+            <div id="canvas-controls">
+              <select id="anim-style">
+                <option value="pulse">pulse</option>
+                <option value="traffic">traffic</option>
+                <option value="dash">dash</option>
+                <option value="off">off</option>
               </select>
-              <label for="prop-fill">Fill</label>
-              <input type="color" id="prop-fill" />
-              <label for="prop-stroke">Stroke</label>
-              <input type="color" id="prop-stroke" />
-              <button id="prop-clear-colours">Clear colours</button>
-            </div>
-            <div id="prop-section-edge">
-              <label for="prop-kind">Kind</label>
-              <select id="prop-kind">
-                <option value="arrow">Arrow</option>
-                <option value="open">Line</option>
-                <option value="dottedArrow">Dotted arrow</option>
-                <option value="dotted">Dotted line</option>
-                <option value="thickArrow">Thick arrow</option>
-                <option value="thick">Thick line</option>
-                <option value="circleEnd">Circle end</option>
-                <option value="crossEnd">Cross end</option>
-                <option value="bidirectional">Both ways</option>
+              <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+              <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
+              <label><input id="anim-glow" type="checkbox" /> Glow</label>
+              <button id="anim-pause" aria-pressed="false">Pause</button>
+              <select id="theme">
+                <option value="auto">Match page</option>
+                <option value="daylight">Daylight</option>
+                <option value="midnight">Midnight</option>
+                <option value="lagoon">Lagoon</option>
+                <option value="ember">Ember</option>
               </select>
-              <button id="prop-reverse">Reverse</button>
             </div>
-            <button id="prop-delete">Delete</button>
+            <div id="present-step" hidden></div>
+            <div id="message" aria-live="polite"></div>
+          </section>
+        </div>
+        <dialog id="export-panel" aria-modal="true" aria-label="Export diagram">
+          <div class="dialog-header">
+            <h2>Export</h2>
+            <button id="export-close" aria-label="Close">✕</button>
           </div>
-          <textarea id="inline-edit" style="display: none;"></textarea>
-          <div id="canvas-controls">
-            <select id="anim-style">
-              <option value="pulse">pulse</option>
-              <option value="traffic">traffic</option>
-              <option value="dash">dash</option>
-              <option value="off">off</option>
+          <div class="dialog-body">
+            <label for="export-name">Filename</label>
+            <input type="text" id="export-name" value="diagram" />
+
+            <label for="export-mode">Frame</label>
+            <select id="export-mode">
+              <option value="content">Fit to content</option>
+              <option value="slide">16:9 slide frame</option>
             </select>
-            <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
-            <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
-            <label><input id="anim-glow" type="checkbox" /> Glow</label>
-            <button id="anim-pause" aria-pressed="false">Pause</button>
-            <select id="theme">
-              <option value="auto">Match page</option>
-              <option value="daylight">Daylight</option>
-              <option value="midnight">Midnight</option>
-              <option value="lagoon">Lagoon</option>
-              <option value="ember">Ember</option>
+
+            <label for="export-scale">Scale</label>
+            <select id="export-scale">
+              <option value="1">1x</option>
+              <option value="2">2x</option>
+              <option value="3">3x</option>
             </select>
+
+            <label for="export-fps">FPS</label>
+            <select id="export-fps">
+              <option value="10">10 fps</option>
+              <option value="20" selected>20 fps</option>
+              <option value="25">25 fps</option>
+            </select>
+
+            <label for="export-loops">Loops</label>
+            <select id="export-loops">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+
+            <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
+
+            <progress id="export-progress" hidden></progress>
+            <div id="export-message" aria-live="polite"></div>
           </div>
-          <div id="present-step" hidden></div>
-          <div id="message" aria-live="polite"></div>
-        </section>
+          <div class="dialog-footer">
+            <button id="export-cancel">Cancel</button>
+            <button id="export-png">Save as PNG</button>
+            <button id="export-svg">Save as SVG</button>
+            <button id="export-gif">Save as GIF</button>
+            <button id="export-video">Save as video</button>
+          </div>
+        </dialog>
+        <dialog id="gallery" aria-modal="true" aria-label="Templates gallery">
+          <div class="dialog-header">
+            <h2>Templates</h2>
+            <button id="gallery-close" aria-label="Close">✕</button>
+          </div>
+          <div class="dialog-body" id="gallery-list"></div>
+        </dialog>
       </div>
-      <dialog id="export-panel" aria-modal="true" aria-label="Export diagram">
-        <div class="dialog-header">
-          <h2>Export</h2>
-          <button id="export-close" aria-label="Close">✕</button>
-        </div>
-        <div class="dialog-body">
-          <label for="export-name">Filename</label>
-          <input type="text" id="export-name" value="diagram" />
-
-          <label for="export-mode">Frame</label>
-          <select id="export-mode">
-            <option value="content">Fit to content</option>
-            <option value="slide">16:9 slide frame</option>
-          </select>
-
-          <label for="export-scale">Scale</label>
-          <select id="export-scale">
-            <option value="1">1x</option>
-            <option value="2">2x</option>
-            <option value="3">3x</option>
-          </select>
-
-          <label for="export-fps">FPS</label>
-          <select id="export-fps">
-            <option value="10">10 fps</option>
-            <option value="20" selected>20 fps</option>
-            <option value="25">25 fps</option>
-          </select>
-
-          <label for="export-loops">Loops</label>
-          <select id="export-loops">
-            <option value="1">1</option>
-            <option value="2" selected>2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-
-          <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
-
-          <progress id="export-progress" hidden></progress>
-          <div id="export-message" aria-live="polite"></div>
-        </div>
-        <div class="dialog-footer">
-          <button id="export-cancel">Cancel</button>
-          <button id="export-png">Save as PNG</button>
-          <button id="export-svg">Save as SVG</button>
-          <button id="export-gif">Save as GIF</button>
-          <button id="export-video">Save as video</button>
-        </div>
-      </dialog>
-      <dialog id="gallery" aria-modal="true" aria-label="Templates gallery">
-        <div class="dialog-header">
-          <h2>Templates</h2>
-          <button id="gallery-close" aria-label="Close">✕</button>
-        </div>
-        <div class="dialog-body" id="gallery-list"></div>
-      </dialog>
-    </div>
+    </main>
+    <footer class="site-footer" id="site-footer"></footer>
+    <noscript>This tool needs JavaScript.</noscript>
     <script type="module" src="/src/app/main.ts"></script>
   </body>
 </html>

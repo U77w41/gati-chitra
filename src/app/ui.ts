@@ -22,9 +22,13 @@ import { loadDoc, loadSettings, safeStore, saveDoc } from './storage';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
 import { decodeShare } from '../share/share';
+import { mountChrome } from './chrome';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
+  mountChrome(document, store, import.meta.env.VITE_SOURCE_URL ?? '');
+  document.getElementById('main')?.focus();
+
   let initialText = loadDoc(store) ?? SAMPLE_TEXT;
   const initialSettings = loadSettings(store);
 
@@ -97,17 +101,11 @@ export async function initApp(): Promise<void> {
   });
 
   const updateButtons = setupToolbar({
-    getState: () => state,
-    commit,
-    executeOp,
-    triggerFit,
-    doUndo,
-    doRedo,
-    onAddNode: (shape) =>
-      handleAddNodeAt(
-        screenToWorld(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }),
-        shape,
-      ),
+    getState: () => state, commit, executeOp, triggerFit, doUndo, doRedo,
+    onAddNode: (shape) => handleAddNodeAt(
+      screenToWorld(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }),
+      shape,
+    ),
     sourceEl,
   });
 
@@ -124,10 +122,7 @@ export async function initApp(): Promise<void> {
     updateButtons();
     updateProps();
     scheduleAutosave();
-    if (!hasFitted && state.scene) {
-      triggerFit();
-      hasFitted = true;
-    }
+    if (!hasFitted && state.scene) { triggerFit(); hasFitted = true; }
   }
 
   function commit(text: string, source: CommitSource, opts?: { coalesce?: boolean }): void {
@@ -149,42 +144,23 @@ export async function initApp(): Promise<void> {
   }
 
   const { dispatch, handleAddNodeAt } = createDispatcher({
-    getState: () => state,
-    measure,
-    commit,
-    executeOp,
-    messageEl,
-    inlineEditor,
-    updateProps,
-    setFreshlyCreatedNodeId: (id) => {
-      freshlyCreatedNodeId = id;
-    },
+    getState: () => state, measure, commit, executeOp, messageEl, inlineEditor, updateProps,
+    setFreshlyCreatedNodeId: (id) => { freshlyCreatedNodeId = id; },
   });
 
-  function doUndo(): void {
-    commit('', 'undo');
-  }
-  function doRedo(): void {
-    commit('', 'redo');
-  }
+  function doUndo(): void { commit('', 'undo'); }
+  function doRedo(): void { commit('', 'redo'); }
 
   updateDiagnostics(state.doc);
   updateAriaLabel();
   updateButtons();
   updateProps();
-  if (state.scene) {
-    triggerFit();
-    hasFitted = true;
-  }
-  if (initialShareError) {
-    messageEl.textContent = initialShareError;
-  }
+  if (state.scene) { triggerFit(); hasFitted = true; }
+  if (initialShareError) messageEl.textContent = initialShareError;
 
   sourceEl.addEventListener('input', () => {
     if (parseTimer) clearTimeout(parseTimer);
-    parseTimer = setTimeout(() => {
-      commit(sourceEl.value, 'typing');
-    }, TIMING.parseDebounceMs);
+    parseTimer = setTimeout(() => commit(sourceEl.value, 'typing'), TIMING.parseDebounceMs);
   });
 
   const present = setupPresentMode({
@@ -203,61 +179,39 @@ export async function initApp(): Promise<void> {
       animPauseEl: document.querySelector('#anim-pause')!,
       themeEl: document.querySelector('#theme')!,
     },
-    () => state,
-    store,
+    () => state, store,
     (paused) => {
       if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
     },
   );
 
   setupKeyboardShortcuts({
-    onUndo: doUndo,
-    onRedo: doRedo,
-    onFit: triggerFit,
-    onZoomIn: () => {
-      state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25);
-    },
-    onZoomOut: () => {
-      state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8);
-    },
+    onUndo: doUndo, onRedo: doRedo, onFit: triggerFit,
+    onZoomIn: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25); },
+    onZoomOut: () => { state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8); },
     onPresent: () => present.start(),
     onTogglePause: () => animControls.togglePause(),
     onDelete: () => dispatch({ type: 'keyDown', key: 'Delete' }),
     onRename: () => dispatch({ type: 'keyDown', key: 'Enter' }),
-    onEscape: () => {
-      if (present.isPresenting()) present.exit();
-      else dispatch({ type: 'keyDown', key: 'Escape' });
-    },
+    onEscape: () => { if (present.isPresenting()) present.exit(); else dispatch({ type: 'keyDown', key: 'Escape' }); },
     isPresenting: present.isPresenting,
   });
 
   setupCanvasEvents({
-    canvasEl,
-    getState: () => state,
-    dispatch,
-    updateView: (fn) => {
-      state.view = fn(state.view);
-    },
+    canvasEl, getState: () => state, dispatch,
+    updateView: (fn) => { state.view = fn(state.view); },
     isPresenting: present.isPresenting,
   });
 
   const ro = new ResizeObserver(() => {
     const dpr = window.devicePixelRatio || 1;
-    const w = Math.round(canvasEl.clientWidth * dpr);
-    const h = Math.round(canvasEl.clientHeight * dpr);
-    if (canvasEl.width !== w || canvasEl.height !== h) {
-      canvasEl.width = w;
-      canvasEl.height = h;
-    }
+    const w = Math.round(canvasEl.clientWidth * dpr), h = Math.round(canvasEl.clientHeight * dpr);
+    if (canvasEl.width !== w || canvasEl.height !== h) { canvasEl.width = w; canvasEl.height = h; }
   });
   ro.observe(canvasEl);
 
   startRenderLoop({
-    canvasEl,
-    ctx,
-    getState: () => state,
-    measure,
-    startTime,
+    canvasEl, ctx, getState: () => state, measure, startTime,
     getPausedPhase: () => pausedPhase,
     getFocus: present.getCurrentFocus,
   });
@@ -273,8 +227,7 @@ export async function initApp(): Promise<void> {
     shareBox: document.querySelector('#share-box')!,
     shareUrlInput: document.querySelector('#share-url')!,
     shareBoxClose: document.querySelector('#share-box-close'),
-    messageEl,
-    getState: () => state,
+    messageEl, getState: () => state,
   });
 
   setupGallery({
@@ -285,10 +238,14 @@ export async function initApp(): Promise<void> {
   });
 
   setupStudioApi({
-    getState: () => state,
-    sourceEl,
+    getState: () => state, sourceEl,
     applyNewText: (t: string) => commit(t, 'open'),
-    dispatch,
-    getPresentStep: present.getPresentStep,
+    dispatch, getPresentStep: present.getPresentStep,
   });
+
+  document
+    .querySelectorAll<HTMLButtonElement>(
+      '#toolbar button, #canvas-controls button, #props button, dialog button',
+    )
+    .forEach((b) => b.classList.add(b.id === 'btn-export' ? 'btn-primary' : 'btn-secondary'));
 }

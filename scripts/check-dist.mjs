@@ -80,5 +80,35 @@ for (const entry of templates) {
   }
 }
 
+// 7. Check that brand assets exist in dist/
+const brandFiles = ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'theme-init.js'];
+for (const file of brandFiles) {
+  const p = path.join(dist, file);
+  if (!fs.existsSync(p)) {
+    console.error(`Missing brand asset in dist: ${file}`);
+    process.exit(1);
+  }
+}
+
+// 8. Check that base URLs are applied in dist/index.html
+const expectedAttrs = [
+  `href="${base}favicon.svg"`,
+  `href="${base}favicon.ico"`,
+  `href="${base}apple-touch-icon.png"`,
+  `src="${base}theme-init.js"`,
+];
+for (const expected of expectedAttrs) {
+  if (!html.includes(expected)) {
+    console.error(`Expected ${expected} in dist/index.html`);
+    process.exit(1);
+  }
+}
+
+// 9. Check that dist/index.html contains no %VITE_ placeholder
+if (html.includes('%VITE_')) {
+  console.error('Unreplaced environment placeholder in dist/index.html');
+  process.exit(1);
+}
+
 console.log('OK');
 process.exit(0);

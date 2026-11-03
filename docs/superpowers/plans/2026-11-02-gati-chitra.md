@@ -3928,19 +3928,19 @@ body.presenting #workspace { grid-template-columns: 1fr; }
 
 9. Check that `dist/index.html` contains no `%VITE_` text. Otherwise print `Unreplaced environment placeholder in dist/index.html` and exit 1.
 
-* \[ \] **Step 1: Install the font package.** `npm install @fontsource/lato`.
+* [x] **Step 1: Install the font package.** `npm install @fontsource/lato`.
 
-* \[ \] **Step 2: Write the failing tests** (below).
+* [x] **Step 2: Write the failing tests** (below).
 
-* \[ \] **Step 3: Create** `favicon.svg`, `theme-init.js`, `icons.ts`, `scheme.ts`, `chrome.ts`, `chrome.css` and the `.env` file, extend `src/vite-env.d.ts`, rewrite `index.html`, then run `npm run icons`.
+* [x] **Step 3: Create** `favicon.svg`, `theme-init.js`, `icons.ts`, `scheme.ts`, `chrome.ts`, `chrome.css` and the `.env` file, extend `src/vite-env.d.ts`, rewrite `index.html`, then run `npm run icons`.
 
-* \[ \] **Step 4: Wire** `main.ts` and `ui.ts` as described, add the skin to `style.css`, and extend `check-dist.mjs`.
+* [x] **Step 4: Wire** `main.ts` and `ui.ts` as described, add the skin to `style.css`, and extend `check-dist.mjs`.
 
-* \[ \] **Step 5: Run** `npm test`, `npm run build && npm run check:dist`, and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 5: Run** `npm test`, `npm run build && npm run check:dist`, and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 6: Compare by eye (a step for the person you are working with; an agent cannot judge this).** Ask them to open https://u77w41.github.io/diff-checker/ next to the running site in a light and a dark browser window and compare: header height and layout, logo and name, round toggle, nav buttons, footer line and links, colours, font. Write any difference they accept into `DECISIONS.md`. If nobody is available, write `Task 22: visual comparison with the reference site not done` there and go on.
+* [x] **Step 6: Compare by eye (a step for the person you are working with; an agent cannot judge this).** Ask them to open https://u77w41.github.io/diff-checker/ next to the running site in a light and a dark browser window and compare: header height and layout, logo and name, round toggle, nav buttons, footer line and links, colours, font. Write any difference they accept into `DECISIONS.md`. If nobody is available, write `Task 22: visual comparison with the reference site not done` there and go on.
 
-* \[ \] **Step 7: Commit.** `git add -A && git commit -m "feat: logo, favicon, site header and footer, colour scheme"`
+* [x] **Step 7: Commit.** `git add -A && git commit -m "feat: logo, favicon, site header and footer, colour scheme"`
 
 **Tests.**
 
