@@ -24,6 +24,12 @@
 #source .cm-editor.cm-focused {
   outline: none;
 }
+#source .cm-activeLine {
+  background-color: #0000000a;
+}
+:root[data-scheme="dark"] #source .cm-activeLine {
+  background-color: #ffffff08;
+}
 #source .cm-scroller {
   overflow: auto;
   font-family: inherit;

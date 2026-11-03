@@ -8,8 +8,6 @@ import { setupAnimControls } from './anim-controls';
 import { setupCanvasEvents } from './canvas-events';
 import { setupDiagnostics } from './diagnostics';
 import { createDispatcher } from './dispatcher';
-import { setupExportPanel } from './export-panel';
-import { setupGallery } from './gallery';
 import { setupInlineEditor } from './inline-edit';
 import { setupPresentMode } from './present';
 import { setupProperties } from './properties';
@@ -124,13 +122,18 @@ export async function initApp(): Promise<void> {
 
   let freshlyCreatedNodeId: string | null = null;
 
+  function refreshDiagnostics(): void {
+    updateDiagnostics(state.doc);
+    editor.setDiagnostics(state.doc.diagnostics);
+  }
+
   function updateAfterCommit(): void {
     if (state.editor.selection) {
       const { kind, id } = state.editor.selection;
       const list = kind === 'node' ? state.doc.nodes : kind === 'edge' ? state.doc.edges : state.doc.groups;
       if (!list.some((item) => item.id === id)) state.editor.selection = null;
     }
-    updateDiagnostics(state.doc);
+    refreshDiagnostics();
     updateAriaLabel();
     updateButtons();
     updateProps();
@@ -179,7 +182,7 @@ export async function initApp(): Promise<void> {
   };
 
 
-  updateDiagnostics(state.doc);
+  refreshDiagnostics();
   updateAriaLabel();
   updateButtons();
   updateProps();
@@ -226,12 +229,9 @@ export async function initApp(): Promise<void> {
   });
 
   const animControls = setupAnimControls({
-    animStyleEl: document.querySelector('#anim-style')!,
-    animSpeedEl: document.querySelector('#anim-speed')!,
-    animDensityEl: document.querySelector('#anim-density')!,
-    animGlowEl: document.querySelector('#anim-glow')!,
-    animPauseEl: document.querySelector('#anim-pause')!,
-    themeEl: document.querySelector('#theme')!,
+    animStyleEl: document.querySelector('#anim-style')!, animSpeedEl: document.querySelector('#anim-speed')!,
+    animDensityEl: document.querySelector('#anim-density')!, animGlowEl: document.querySelector('#anim-glow')!,
+    animPauseEl: document.querySelector('#anim-pause')!, themeEl: document.querySelector('#theme')!,
   }, () => state, store, (paused) => {
     if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
   });
@@ -262,9 +262,11 @@ export async function initApp(): Promise<void> {
     onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });
 
-  setupExportPanel({
-    dialogEl: document.querySelector('#export-panel')!,
-    getState: () => state, btnExport: document.querySelector('#btn-export')!,
+  import('./export-panel').then(({ setupExportPanel }) => {
+    setupExportPanel({
+      dialogEl: document.querySelector('#export-panel')!,
+      getState: () => state, btnExport: document.querySelector('#btn-export')!,
+    });
   });
 
   setupShareHandler({
@@ -273,9 +275,11 @@ export async function initApp(): Promise<void> {
     messageEl, getState: () => state,
   });
 
-  setupGallery({
-    dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!,
-    baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl,
+  import('./gallery').then(({ setupGallery }) => {
+    setupGallery({
+      dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!,
+      baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl,
+    });
   });
 
   setupStudioApi({

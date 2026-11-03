@@ -1,5 +1,5 @@
 import { BRAND } from '../core/constants';
-import { escapeXml } from '../render/svg';
+import { escapeXml } from '../render/xml';
 import { ICONS, logoSvg } from './icons';
 import {
   readPref,

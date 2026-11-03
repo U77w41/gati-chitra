@@ -1,5 +1,5 @@
 import { defaultKeymap } from '@codemirror/commands';
-import { Prec } from '@codemirror/state';
+import { Compartment, Prec } from '@codemirror/state';
 import {
   drawSelection,
   EditorView,
@@ -7,6 +7,7 @@ import {
   keymap,
   lineNumbers,
 } from '@codemirror/view';
+import type { Diagnostic } from '../core/types';
 import { minimalChange } from '../editor/text-diff';
 
 export interface CodeEditorEnv {
@@ -25,6 +26,7 @@ export interface CodeEditor {
   focus(): void;
   destroy(): void;
   getCaret(): { line: number; col: number };
+  setDiagnostics(d: Diagnostic[]): void;
   readonly view: EditorView;
 }
 
@@ -61,11 +63,20 @@ export function createCodeEditor(
     ])
   );
 
+  const langConf = new Compartment();
+  const lintConf = new Compartment();
+  let pendingDiagnostics: Diagnostic[] | null = null;
+  let cmHelper: {
+    setDiagnostics(view: EditorView, diags: Diagnostic[]): void;
+  } | null = null;
+
   const view = new EditorView({
     doc: env.initialText,
     parent,
     extensions: [
       lineNumbers(),
+      lintConf.of([]),
+      langConf.of([]),
       drawSelection(),
       highlightActiveLine(),
       keymap.of(defaultKeymap),
@@ -87,6 +98,23 @@ export function createCodeEditor(
         }
       }),
     ],
+  });
+
+  import('./mermaid-lang').then((m) => {
+    view.dispatch({
+      effects: [
+        langConf.reconfigure([m.mermaidLanguage, m.mermaidHighlighting]),
+        lintConf.reconfigure([m.lintGutter()]),
+      ],
+    });
+    cmHelper = {
+      setDiagnostics(v, diags) {
+        v.dispatch(m.setDiagnostics(v.state, m.toCmDiagnostics(v.state.doc, diags)));
+      },
+    };
+    if (pendingDiagnostics) {
+      cmHelper.setDiagnostics(view, pendingDiagnostics);
+    }
   });
 
   return {
@@ -125,6 +153,7 @@ export function createCodeEditor(
         effects: EditorView.scrollIntoView(lineObj.from, { y: 'center' }),
         selection: { anchor: lineObj.from },
       });
+      view.focus();
     },
     focus() {
       view.focus();
@@ -136,6 +165,12 @@ export function createCodeEditor(
       const head = view.state.selection.main.head;
       const lineObj = view.state.doc.lineAt(head);
       return { line: lineObj.number, col: head - lineObj.from };
+    },
+    setDiagnostics(d: Diagnostic[]) {
+      pendingDiagnostics = d;
+      if (cmHelper) {
+        cmHelper.setDiagnostics(view, d);
+      }
     },
   };
 }

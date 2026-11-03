@@ -1486,7 +1486,7 @@ export function toCmDiagnostics(doc: Text, diags: Diagnostic[]): CmDiagnostic[];
 
   Keywords: `flowchart graph subgraph end direction classDef class style linkStyle click accTitle accDescr TB TD BT RL LR default`. Operators: every Part 4 edge operator, `&` and `:::`. Strings: bracketed label text and `|pipe labels|` (pipes included). Comments: `%%` to the end of the line. Property: the text after a style id in `classDef`, `style` and `linkStyle`, and the body of `@{ }`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 const types = (l: string) => tokenizeLine(l).map(t => t.type);
@@ -1504,10 +1504,10 @@ it('maps diagnostics to whole lines', () => {
 ```
 
 e2e: break line 3; a `.cm-lint-marker-error` appears in the gutter beside line 3. Tab to the first diagnostic button and press Enter: the caret is on line 3.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. `ui.ts` calls `setDiagnostics` wherever it now refreshes the diagnostics list.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. `ui.ts` calls `setDiagnostics` wherever it now refreshes the diagnostics list.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: Mermaid highlighting and errors on their lines"

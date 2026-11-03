@@ -2,12 +2,8 @@ import { MESSAGES } from '../core/constants';
 import type { ExportMode } from '../core/types';
 import { downloadBlob } from '../export/download';
 import { safeFilename } from '../export/filename';
-import { exportGif } from '../export/gif';
-import { exportPng } from '../export/png';
-import { exportVideo } from '../export/video';
 import { canvasMeasure } from '../layout/measure';
 import { isEmptyBounds } from '../render/frame';
-import { renderSvg } from '../render/svg';
 import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
 
@@ -92,6 +88,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
 
     try {
       exportPngBtn.disabled = true;
+      const { exportPng } = await import('../export/png');
       const res = await exportPng(state.scene, theme, {
         mode,
         scale,
@@ -108,7 +105,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     }
   });
 
-  exportSvgBtn.addEventListener('click', () => {
+  exportSvgBtn.addEventListener('click', async () => {
     const state = getState();
     if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
 
@@ -122,6 +119,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     const filename = safeFilename(exportName.value, 'svg');
 
     try {
+      const { renderSvg } = await import('../render/svg');
       const svgText = renderSvg(
         state.scene,
         theme,
@@ -164,6 +162,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       exportMessage.textContent = '';
       abortCtrl = new AbortController();
 
+      const { exportGif } = await import('../export/gif');
       const res = await exportGif(
         state.scene,
         theme,
@@ -224,6 +223,10 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       exportMessage.textContent = '';
       abortCtrl = new AbortController();
 
+      const [{ exportVideo }, { exportGif }] = await Promise.all([
+        import('../export/video'),
+        import('../export/gif'),
+      ]);
       const res = await exportVideo(
         state.scene,
         theme,

@@ -23,3 +23,4 @@ Dependabot PRs: accepted PRs #2, #3, #4, #5, #6 to bump actions/upload-artifact,
 Task 43: chose to move setPinInternal and clearPinsInternal into positions.ts to keep ops.ts strictly under 300 lines.
 Task 45: axe checks passed at once across all six states with zero violations (WCAG 2.0 A/AA and WCAG 2.1 A/AA).
 Task 46: confirmed 146.39 KB initial JS gzip (level 9) with CodeMirror editor and dynamic gifenc import against the 150 KB budget.
+Task 47: chose to load mermaid language and lint extensions asynchronously into code editor compartments to keep initial JS at 146.84 KB gzip under the 150 KB budget.

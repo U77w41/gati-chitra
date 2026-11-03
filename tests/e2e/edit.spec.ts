@@ -486,4 +486,22 @@ test.describe('Editing, connecting and properties panel', () => {
     expect(text).toContain('flowchart TD');
     expect(text).toContain('Pasted');
   });
+
+  test('shows lint marker in gutter on error and diagnostic button focuses line', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await setEditorText(page, '%% line 1\n%% line 2\nnot a diagram');
+    await page.waitForTimeout(400);
+
+    const marker = page.locator('.cm-lint-marker-error');
+    await expect(marker).toBeVisible();
+
+    const diagBtn = page.locator('#diagnostics button').first();
+    await expect(diagBtn).toBeVisible();
+    await diagBtn.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(100);
+
+    const caret = await page.evaluate(() => (window as any).__studio.getCaret());
+    expect(caret.line).toBe(3);
+  });
 });

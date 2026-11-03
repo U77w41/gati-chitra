@@ -7,6 +7,7 @@ import { parseInlineMarkdown } from '../layout/rich-text';
 import { exportFrame } from './frame';
 import { edgeStyle, nodeStyle } from './style';
 import { documentPathData, ringRadii } from './shapes-extra';
+import { escapeXml } from './xml';
 
 export interface SvgOptions {
   mode: ExportMode;
@@ -23,14 +24,7 @@ export function fmt(n: number): string {
   return String(rounded);
 }
 
-export function escapeXml(s: string): string {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
+export { escapeXml } from './xml';
 
 export function renderSvg(
   scene: Scene,
