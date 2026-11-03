@@ -84,6 +84,8 @@ export const ANIM = {
   presentStepSeconds: 1.5,
 } as const;
 
+export const EDGE_ANIM = { fastFactor: 2, slowFactor: 0.5 } as const;
+
 export const EXPORT = {
   margin: 32,
   pngScales: [1, 2, 3],

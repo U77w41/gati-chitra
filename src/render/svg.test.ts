@@ -110,4 +110,10 @@ describe('SVG export', () => {
       }
     }
   });
+
+  it('two-ended kinds draw two markers', () => {
+    expect(svg('flowchart LR\nA o--o B').match(/class="marker-circle"/g)).toHaveLength(2);
+    expect(svg('flowchart LR\nA x--x B').match(/class="marker-cross"/g)).toHaveLength(2);
+    expect(svg('flowchart LR\nA <-.-> B').match(/class="marker-arrow"/g)).toHaveLength(2);
+  });
 });

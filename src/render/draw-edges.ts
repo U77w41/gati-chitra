@@ -74,7 +74,7 @@ export function drawEdges(
       ctx.stroke();
     }
 
-    if (st.startArrow) {
+    if (st.startMarker === 'arrow' || st.startArrow) {
       const t0 = tangentAt(path, 0);
       const n0 = { x: t0.y, y: -t0.x };
       const from = path.from;
@@ -93,6 +93,24 @@ export function drawEdges(
       ctx.closePath();
       ctx.fillStyle = st.stroke;
       ctx.fill();
+    } else if (st.startMarker === 'circle') {
+      const t0 = tangentAt(path, 0);
+      ctx.beginPath();
+      ctx.arc(path.from.x + t0.x * 5, path.from.y + t0.y * 5, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = st.stroke;
+      ctx.fill();
+    } else if (st.startMarker === 'cross') {
+      const t0 = tangentAt(path, 0);
+      const cx = path.from.x + t0.x * 6;
+      const cy = path.from.y + t0.y * 6;
+      ctx.beginPath();
+      ctx.moveTo(cx - 5, cy - 5);
+      ctx.lineTo(cx + 5, cy + 5);
+      ctx.moveTo(cx - 5, cy + 5);
+      ctx.lineTo(cx + 5, cy - 5);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = st.stroke;
+      ctx.stroke();
     }
 
     if (isDimmed) {

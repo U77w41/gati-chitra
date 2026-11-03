@@ -1,7 +1,9 @@
-import { ANIM } from '../core/constants';
+import { ANIM, EDGE_ANIM } from '../core/constants';
 import type {
   AnimSettings,
   FrameState,
+  GraphEdge,
+  ParsedDoc,
   Particle,
   Scene,
 } from '../core/types';
@@ -28,6 +30,14 @@ export function phaseAt(elapsedSeconds: number, settings: AnimSettings): number 
   return val === 1 ? 0 : val;
 }
 
+export function edgeSpeedFactor(edge: GraphEdge, doc: ParsedDoc): number {
+  if (edge.kind === 'invisible') return 0;
+  if (doc.explicitEdgeAnimation && edge.anim.animate !== true) return 0;
+  if (edge.anim.speed === 'fast') return EDGE_ANIM.fastFactor;
+  if (edge.anim.speed === 'slow') return EDGE_ANIM.slowFactor;
+  return 1;
+}
+
 export function frameState(
   scene: Scene,
   settings: AnimSettings,
@@ -40,13 +50,10 @@ export function frameState(
     return { particles: [], dashOffset: null, nodeGlow: {} };
   }
 
-  const validEdges = scene.doc.edges.filter((e) => e.kind !== 'invisible' && scene.layout.edges[e.id]);
+  const validEdges = scene.doc.edges.filter(
+    (e) => scene.layout.edges[e.id] && edgeSpeedFactor(e, scene.doc) > 0,
+  );
   if (validEdges.length === 0) {
-    if (settings.style === 'dash') {
-      const dashOffset =
-        0 - p * ANIM.dashCycles * (ANIM.dashPattern[0] + ANIM.dashPattern[1]);
-      return { particles: [], dashOffset, nodeGlow: {} };
-    }
     return { particles: [], dashOffset: null, nodeGlow: {} };
   }
 
@@ -68,11 +75,14 @@ export function frameState(
     const slots = maxD + 1;
 
     for (const edge of validEdges) {
+      const factor = edgeSpeedFactor(edge, scene.doc);
+      let edgeP = ((p * factor) % 1 + 1) % 1;
+      if (edgeP === 1) edgeP = 0;
       const d = nodeDepths[edge.from] ?? 0;
       const start = d / slots;
       const end = (d + 1) / slots;
-      if (p >= start && p < end) {
-        const u = (p - start) * slots;
+      if (edgeP >= start && edgeP < end) {
+        const u = (edgeP - start) * slots;
         particles.push({ edgeId: edge.id, u, alpha: 1 });
       }
     }
@@ -102,12 +112,15 @@ export function frameState(
 
     for (let idx = 0; idx < validEdges.length; idx++) {
       const edge = validEdges[idx];
+      const factor = edgeSpeedFactor(edge, scene.doc);
+      let edgeP = ((p * factor) % 1 + 1) % 1;
+      if (edgeP === 1) edgeP = 0;
       const k = rawK[idx];
       const offset = (hash32(edge.id) % 1000) / 1000;
       const fade = ANIM.particleFade;
 
       for (let i = 0; i < k; i++) {
-        const x = p + i / k + offset;
+        const x = edgeP + i / k + offset;
         const u = x - Math.floor(x);
         const alpha = Math.max(0, Math.min(1, u / fade, (1 - u) / fade));
         particles.push({ edgeId: edge.id, u, alpha });

@@ -72,7 +72,7 @@ export function renderSvg(
       st.dash && st.dash.length > 0 ? ` stroke-dasharray="${st.dash.map(fmt).join(' ')}"` : '';
     out += `<path d="${d}" fill="none" stroke="${st.stroke}" stroke-width="${fmt(st.width)}" stroke-linecap="round"${dash}/>`;
 
-    if (st.startArrow) {
+    if (st.startMarker === 'arrow' || st.startArrow) {
       const t0 = tangentAt(path, 0);
       const n0 = { x: -t0.y, y: t0.x };
       const from = path.from;
@@ -82,9 +82,17 @@ export function renderSvg(
       };
       const p2 = {
         x: from.x + t0.x * arrowSize - n0.x * arrowSize * 0.4,
-        y: from.y + t0.y * arrowSize - n0.y * arrowSize * 0.4,
+        y: from.y - t0.y * arrowSize - n0.y * arrowSize * 0.4,
       };
-      out += `<polygon points="${fmt(from.x)},${fmt(from.y)} ${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)}" fill="${st.stroke}"/>`;
+      out += `<polygon class="marker-arrow" points="${fmt(from.x)},${fmt(from.y)} ${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)}" fill="${st.stroke}"/>`;
+    } else if (st.startMarker === 'circle') {
+      const t0 = tangentAt(path, 0);
+      out += `<circle class="marker-circle" cx="${fmt(path.from.x + t0.x * 5)}" cy="${fmt(path.from.y + t0.y * 5)}" r="5" fill="${st.stroke}"/>`;
+    } else if (st.startMarker === 'cross') {
+      const t0 = tangentAt(path, 0);
+      const cx = path.from.x + t0.x * 6;
+      const cy = path.from.y + t0.y * 6;
+      out += `<path class="marker-cross" d="M ${fmt(cx - 5)} ${fmt(cy - 5)} L ${fmt(cx + 5)} ${fmt(cy + 5)} M ${fmt(cx - 5)} ${fmt(cy + 5)} L ${fmt(cx + 5)} ${fmt(cy - 5)}" stroke="${st.stroke}" stroke-width="2" fill="none"/>`;
     }
 
     if (st.endMarker === 'arrow') {
@@ -99,15 +107,15 @@ export function renderSvg(
         x: to.x - t.x * arrowSize - n.x * arrowSize * 0.4,
         y: to.y - t.y * arrowSize - n.y * arrowSize * 0.4,
       };
-      out += `<polygon points="${fmt(to.x)},${fmt(to.y)} ${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)}" fill="${st.stroke}"/>`;
+      out += `<polygon class="marker-arrow" points="${fmt(to.x)},${fmt(to.y)} ${fmt(p1.x)},${fmt(p1.y)} ${fmt(p2.x)},${fmt(p2.y)}" fill="${st.stroke}"/>`;
     } else if (st.endMarker === 'circle') {
       const t = tangentAt(path, 1);
-      out += `<circle cx="${fmt(path.to.x - t.x * 5)}" cy="${fmt(path.to.y - t.y * 5)}" r="5" fill="${st.stroke}"/>`;
+      out += `<circle class="marker-circle" cx="${fmt(path.to.x - t.x * 5)}" cy="${fmt(path.to.y - t.y * 5)}" r="5" fill="${st.stroke}"/>`;
     } else if (st.endMarker === 'cross') {
       const t = tangentAt(path, 1);
       const cx = path.to.x - t.x * 6;
       const cy = path.to.y - t.y * 6;
-      out += `<path d="M ${fmt(cx - 5)} ${fmt(cy - 5)} L ${fmt(cx + 5)} ${fmt(cy + 5)} M ${fmt(cx - 5)} ${fmt(cy + 5)} L ${fmt(cx + 5)} ${fmt(cy - 5)}" stroke="${st.stroke}" stroke-width="2" fill="none"/>`;
+      out += `<path class="marker-cross" d="M ${fmt(cx - 5)} ${fmt(cy - 5)} L ${fmt(cx + 5)} ${fmt(cy + 5)} M ${fmt(cx - 5)} ${fmt(cy + 5)} L ${fmt(cx + 5)} ${fmt(cy - 5)}" stroke="${st.stroke}" stroke-width="2" fill="none"/>`;
     }
   }
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { LAYOUT } from '../core/constants';
 import { parseMermaid } from '../mermaid/parse';
 import { dagreRunCount, layoutDoc } from './layout';
 import { testMeasure } from '../../tests/support/measure';
@@ -135,5 +136,12 @@ describe('layout', () => {
     const lb = layoutDoc(b, testMeasure);
     expect(dagreRunCount()).toBe(n);
     expect(lb.nodes.A.center).toEqual({ x: 10, y: 20 });
+  });
+
+  it('longer links span more ranks', () => {
+    const l = L('flowchart TD\nA --> B\nA ----> C');
+    expect(l.nodes.C.center.y - l.nodes.A.center.y).toBeGreaterThan(
+      l.nodes.B.center.y - l.nodes.A.center.y + LAYOUT.rankSep / 2,
+    );
   });
 });

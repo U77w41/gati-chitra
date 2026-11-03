@@ -25,6 +25,7 @@ export function buildSteps(doc: ParsedDoc): Step[] {
   }
 
   for (const edge of doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const fromDepth = depths[edge.from] ?? 0;
     const targetStep = Math.min(fromDepth + 1, maxD);
     steps[targetStep].edges.push(edge.id);

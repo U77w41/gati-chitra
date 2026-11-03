@@ -1113,7 +1113,7 @@ git add -A && git commit -m "feat: draw ten new node shapes on canvas and in SVG
   `frameState` makes no particles and no dash offset for factor-0 edges, and multiplies the phase by the factor.
 - The four two-ended kinds draw their marker at both ends. The dotted and thick variants use the dash pattern and width of `dotted` and `thick`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('longer links span more ranks', () => {
@@ -1144,10 +1144,10 @@ it('two-ended kinds draw two markers', () => {
 
 (If `svg.ts` does not already put a `class` on markers, add `marker-arrow`, `marker-circle` and `marker-cross` in this task.)
 
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block, replacing Task 34's fallbacks.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-gif.spec.ts`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block, replacing Task 34's fallbacks.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-gif.spec.ts`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: invisible links, two-ended markers, link length and per-edge animation"

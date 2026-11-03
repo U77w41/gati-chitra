@@ -5,14 +5,16 @@ import { testMeasure } from '../../tests/support/measure';
 import {
   DEFAULT_ANIM,
   computeDepths,
+  edgeSpeedFactor,
   frameState,
   loopSeconds,
   phaseAt,
 } from './anim';
-import type { AnimStyle } from '../core/types';
+import type { AnimStyle, ParsedDoc } from '../core/types';
 
-function scene(text: string) {
-  return buildScene(parseMermaid(text), testMeasure);
+function scene(docOrText: string | ParsedDoc) {
+  const doc = typeof docOrText === 'string' ? parseMermaid(docOrText) : docOrText;
+  return buildScene(doc, testMeasure);
 }
 
 describe('anim', () => {
@@ -112,5 +114,16 @@ describe('anim', () => {
     const bigScene = scene(chainLines.join('\n'));
     const state = frameState(bigScene, { ...DEFAULT_ANIM, style: 'traffic', density: 10 }, 0);
     expect(state.particles.length).toBeLessThanOrEqual(1500);
+  });
+
+  it('only animated edges move in explicit mode', () => {
+    const doc = parseMermaid('flowchart LR\nA e1@--> B\nB --> C\ne1@{ animate: true }');
+    const f = frameState(scene(doc), DEFAULT_ANIM, 0.25);
+    expect(new Set(f.particles.map((p) => p.edgeId))).toEqual(new Set(['e0']));
+  });
+
+  it('fast edges run at twice the speed', () => {
+    const doc = parseMermaid('flowchart LR\nA e1@--> B\ne1@{ animation: fast }');
+    expect(edgeSpeedFactor(doc.edges[0], doc)).toBe(2);
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseMermaid } from '../mermaid/parse';
+import { buildSteps } from '../anim/steps';
 import {
   borderPoint,
   handlePoint,
@@ -137,5 +138,12 @@ describe('geometry', () => {
     const ingestGroup = scenePipeline.layout.groups.ingest;
     const titlePoint = { x: ingestGroup.rect.x + 10, y: ingestGroup.rect.y + 5 };
     expect(hitTest(scenePipeline, titlePoint, null)).toEqual({ kind: 'group', id: 'ingest' });
+  });
+
+  it('invisible links place nodes but are not drawn or hit', () => {
+    const s = buildScene(parseMermaid('flowchart LR\nA ~~~ B'), testMeasure);
+    expect(s.layout.nodes.B.center.x).toBeGreaterThan(s.layout.nodes.A.center.x);
+    expect(s.layout.edges).toEqual({});
+    expect(buildSteps(s.doc).flatMap((st) => st.edges)).toEqual([]);
   });
 });

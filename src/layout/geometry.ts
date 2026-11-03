@@ -62,6 +62,7 @@ export function routeEdges(
 
   const groups = new Map<string, typeof doc.edges>();
   for (const edge of doc.edges) {
+    if (edge.kind === 'invisible') continue;
     const pair =
       edge.from < edge.to ? `${edge.from}|${edge.to}` : `${edge.to}|${edge.from}`;
     let list = groups.get(pair);

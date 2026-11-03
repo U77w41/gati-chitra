@@ -20,26 +20,25 @@ export function edgeStyle(
   width: number;
   dash: number[] | null;
   endMarker: 'arrow' | 'circle' | 'cross' | 'none';
+  startMarker: 'arrow' | 'circle' | 'cross' | 'none';
   startArrow: boolean;
 } {
   const style = edge.style;
   const stroke = style.stroke ?? theme.edge;
+  const kind = edge.kind;
 
-  let kind = edge.kind;
-  if (kind === 'dottedBidirectional') kind = 'dottedArrow';
-  else if (kind === 'thickBidirectional') kind = 'thickArrow';
-  else if (kind === 'circleBoth') kind = 'circleEnd';
-  else if (kind === 'crossBoth') kind = 'crossEnd';
+  const isThick = kind === 'thick' || kind === 'thickArrow' || kind === 'thickBidirectional';
+  const isDotted = kind === 'dotted' || kind === 'dottedArrow' || kind === 'dottedBidirectional';
 
   const width = style['stroke-width']
     ? parseFloat(style['stroke-width'])
-    : kind === 'thick' || kind === 'thickArrow'
+    : isThick
       ? LAYOUT.edgeWidthThick
       : LAYOUT.edgeWidth;
 
   const dash = style['stroke-dasharray']
     ? style['stroke-dasharray'].trim().split(/[\s,]+/).map(Number)
-    : kind === 'dotted' || kind === 'dottedArrow'
+    : isDotted
       ? [...LAYOUT.dottedDash]
       : null;
 
@@ -48,16 +47,31 @@ export function edgeStyle(
     kind === 'arrow' ||
     kind === 'dottedArrow' ||
     kind === 'thickArrow' ||
-    kind === 'bidirectional'
+    kind === 'bidirectional' ||
+    kind === 'dottedBidirectional' ||
+    kind === 'thickBidirectional'
   ) {
     endMarker = 'arrow';
-  } else if (kind === 'circleEnd') {
+  } else if (kind === 'circleEnd' || kind === 'circleBoth') {
     endMarker = 'circle';
-  } else if (kind === 'crossEnd') {
+  } else if (kind === 'crossEnd' || kind === 'crossBoth') {
     endMarker = 'cross';
   }
 
-  const startArrow = kind === 'bidirectional';
+  let startMarker: 'arrow' | 'circle' | 'cross' | 'none' = 'none';
+  if (
+    kind === 'bidirectional' ||
+    kind === 'dottedBidirectional' ||
+    kind === 'thickBidirectional'
+  ) {
+    startMarker = 'arrow';
+  } else if (kind === 'circleBoth') {
+    startMarker = 'circle';
+  } else if (kind === 'crossBoth') {
+    startMarker = 'cross';
+  }
 
-  return { stroke, width, dash, endMarker, startArrow };
+  const startArrow = startMarker === 'arrow';
+
+  return { stroke, width, dash, endMarker, startMarker, startArrow };
 }

@@ -212,12 +212,8 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
 
     const g = new dagre.graphlib.Graph({ compound: true, multigraph: true });
     g.setGraph({
-      rankdir: doc.direction,
-      nodesep: LAYOUT.nodeSep,
-      ranksep: LAYOUT.rankSep,
-      edgesep: LAYOUT.edgeSep,
-      marginx: LAYOUT.margin,
-      marginy: LAYOUT.margin,
+      rankdir: doc.direction, nodesep: LAYOUT.nodeSep, ranksep: LAYOUT.rankSep,
+      edgesep: LAYOUT.edgeSep, marginx: LAYOUT.margin, marginy: LAYOUT.margin,
     });
     g.setDefaultEdgeLabel(() => ({}));
 
@@ -240,13 +236,16 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
       if (edge.fromIsGroup || edge.toIsGroup) continue;
       if (edge.from !== edge.to) {
         const hasLabel = edge.label && edge.label.length > 0;
-        const labelObj = hasLabel
-          ? {
-              width: measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX,
-              height: LAYOUT.edgeLabelH,
-              labelpos: 'c',
-            }
-          : {};
+        const labelObj = {
+          minlen: edge.length,
+          ...(hasLabel
+            ? {
+                width: measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX,
+                height: LAYOUT.edgeLabelH,
+                labelpos: 'c',
+              }
+            : {}),
+        };
         g.setEdge(edge.from, edge.to, labelObj, edge.id);
       }
     }
