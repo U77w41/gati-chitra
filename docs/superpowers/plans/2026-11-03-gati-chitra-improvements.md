@@ -1371,17 +1371,17 @@ git add -A && git commit -m "chore: release v0.3.0" && git tag v0.3.0
 - Modify: `package.json` (`@axe-core/playwright` dev dependency), any file a violation points to
 - Create: `tests/e2e/axe.spec.ts`
 
-- [ ] **Step 1: Write the failing test.** For each state below, run `new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()` and expect `violations` to equal `[]`. On failure, print each violation's `id` and target.
+- [x] **Step 1: Write the failing test.** For each state below, run `new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()` and expect `violations` to equal `[]`. On failure, print each violation's `id` and target.
   - The page loaded in the light scheme.
   - The page loaded in the dark scheme (`page.emulateMedia({ colorScheme: 'dark' })` with no saved scheme).
   - The Export dialog open.
   - The Templates dialog open.
   - Present mode.
   - A parse error showing.
-- [ ] **Step 2: Run** `npm run test:e2e -- axe.spec.ts`. Expected: FAIL or PASS. If it passes at once, note that in `DECISIONS.md` and go to Step 4.
-- [ ] **Step 3: Fix each violation** at its source (colour tokens, names, landmarks, heading order). One line in `DECISIONS.md` per kind of fix.
-- [ ] **Step 4: Run** `npm run lint && npm test && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm run test:e2e -- axe.spec.ts`. Expected: FAIL or PASS. If it passes at once, note that in `DECISIONS.md` and go to Step 4.
+- [x] **Step 3: Fix each violation** at its source (colour tokens, names, landmarks, heading order). One line in `DECISIONS.md` per kind of fix.
+- [x] **Step 4: Run** `npm run lint && npm test && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "test: automated accessibility checks"

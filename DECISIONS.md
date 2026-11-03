@@ -21,3 +21,4 @@ UX refinements: chose 24px snap radius on connection drop, +8px handle hit radiu
 CI reliability: chose synchronous canvas size sync on render loop start and encoder configure check in probeEncoder because WebKit async resize observer could clear canvas between frames and headless Firefox reports codec supported without actual encoder capability.
 Dependabot PRs: accepted PRs #2, #3, #4, #5, #6 to bump actions/upload-artifact, actions/upload-pages-artifact, actions/checkout, actions/deploy-pages, and actions/setup-node to current major versions to resolve Node 20 runner deprecation warnings.
 Task 43: chose to move setPinInternal and clearPinsInternal into positions.ts to keep ops.ts strictly under 300 lines.
+Task 45: axe checks passed at once across all six states with zero violations (WCAG 2.0 A/AA and WCAG 2.1 A/AA).
