@@ -41,12 +41,21 @@ export function setupAnimControls(
     state.paused = true;
   }
 
+  const speedValEl = document.querySelector<HTMLElement>('#anim-speed-value');
+  const densityValEl = document.querySelector<HTMLElement>('#anim-density-value');
+
+  function updateSliderOutputs(): void {
+    if (speedValEl) speedValEl.textContent = `${state.settings.anim.speed}×`;
+    if (densityValEl) densityValEl.textContent = String(state.settings.anim.density);
+  }
+
   function updatePauseButton(): void {
-    animPauseEl.setAttribute('aria-pressed', String(state.paused));
+    animPauseEl.removeAttribute('aria-pressed');
     animPauseEl.textContent = state.paused ? 'Play' : 'Pause';
   }
 
   updatePauseButton();
+  updateSliderOutputs();
 
   animStyleEl.value = state.settings.anim.style;
   animSpeedEl.value = String(state.settings.anim.speed);
@@ -60,10 +69,12 @@ export function setupAnimControls(
   });
   animSpeedEl.addEventListener('input', () => {
     state.settings.anim.speed = parseFloat(animSpeedEl.value);
+    updateSliderOutputs();
     saveSettings(store, state.settings);
   });
   animDensityEl.addEventListener('input', () => {
     state.settings.anim.density = parseInt(animDensityEl.value, 10);
+    updateSliderOutputs();
     saveSettings(store, state.settings);
   });
   animGlowEl.addEventListener('change', () => {

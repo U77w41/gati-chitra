@@ -47,4 +47,12 @@ describe('shortcutFor', () => {
     expect(shortcutFor(k({ key: 'Escape', targetTag: 'TEXTAREA' }))).toBe('escape');
     expect(shortcutFor(k({ key: 'p', targetTag: 'INPUT' }))).toBeNull();
   });
+
+  it.each(['BUTTON', 'A', 'SUMMARY', 'SELECT'])('Enter on %s is left to the browser', (tag) => {
+    expect(shortcutFor({ key: 'Enter', ctrl: false, meta: false, shift: false, alt: false, targetTag: tag })).toBeNull();
+  });
+
+  it.each(['BODY', 'MAIN', 'CANVAS'])('Enter on %s renames', (tag) => {
+    expect(shortcutFor({ key: 'Enter', ctrl: false, meta: false, shift: false, alt: false, targetTag: tag })).toBe('rename');
+  });
 });

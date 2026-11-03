@@ -42,6 +42,7 @@
           <button id="btn-export" disabled>Export</button>
           <button id="btn-share" disabled>Share</button>
           <button id="btn-templates" disabled>Templates</button>
+          <label for="add-shape" class="visually-hidden">New node shape</label>
           <select id="add-shape">
             <option value="rect">Rectangle</option>
             <option value="round">Rounded</option>
@@ -65,7 +66,8 @@
         <div id="workspace">
           <section id="text-panel">
             <textarea id="source" spellcheck="false" aria-label="Mermaid text"></textarea>
-            <ul id="diagnostics" aria-live="polite"></ul>
+            <div id="diagnostics-summary" aria-live="polite"></div>
+            <ul id="diagnostics"></ul>
           </section>
           <section id="canvas-panel">
             <canvas id="canvas" role="img"></canvas>
@@ -111,18 +113,22 @@
               </div>
               <button id="prop-delete">Delete</button>
             </div>
-            <textarea id="inline-edit" style="display: none;"></textarea>
+            <textarea id="inline-edit" aria-label="Edit label" style="display: none;"></textarea>
             <div id="canvas-controls">
+              <label for="anim-style">Animation</label>
               <select id="anim-style">
                 <option value="pulse">pulse</option>
                 <option value="traffic">traffic</option>
                 <option value="dash">dash</option>
                 <option value="off">off</option>
               </select>
+              <label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1×</output></label>
               <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+              <label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label>
               <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
               <label><input id="anim-glow" type="checkbox" /> Glow</label>
-              <button id="anim-pause" aria-pressed="false">Pause</button>
+              <button id="anim-pause">Pause</button>
+              <label for="theme">Theme</label>
               <select id="theme">
                 <option value="auto">Match page</option>
                 <option value="daylight">Daylight</option>
@@ -175,7 +181,7 @@
 
             <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
 
-            <progress id="export-progress" hidden></progress>
+            <progress id="export-progress" aria-label="Export progress" hidden></progress>
             <div id="export-message" aria-live="polite"></div>
           </div>
           <div class="dialog-footer">

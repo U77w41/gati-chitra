@@ -59,7 +59,9 @@ export function shortcutFor(k: KeyInfo): ShortcutAction | null {
   if (keyLower === 'p') return 'present';
   if (keyLower === 'k') return 'togglePause';
   if (k.key === 'Delete' || k.key === 'Backspace') return 'delete';
-  if (k.key === 'Enter') return 'rename';
+  if (k.key === 'Enter') {
+    return tag === 'BODY' || tag === 'MAIN' || tag === 'CANVAS' ? 'rename' : null;
+  }
 
   return null;
 }
