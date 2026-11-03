@@ -1,0 +1,32 @@
+body.presenting #toolbar,
+body.presenting #text-panel,
+body.presenting #canvas-controls,
+body.presenting #share-box,
+body.presenting #props {
+  display: none !important;
+}
+
+body.presenting #canvas-panel {
+  flex: 1;
+  width: 100vw;
+  height: 100vh;
+}
+
+#present-step {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background-color: var(--card-background);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 6px 12px;
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-l2);
+  pointer-events: none;
+  z-index: 100;
+}
+
+#present-step[hidden] {
+  display: none;
+}

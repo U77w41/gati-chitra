@@ -10,6 +10,7 @@ export interface StudioEnv {
   sourceEl: HTMLTextAreaElement;
   applyNewText: (t: string) => void;
   dispatch?: (event: any) => void;
+  getPresentStep?: () => number | null;
 }
 
 export function setupStudioApi(env: StudioEnv): void {
@@ -26,6 +27,7 @@ export function setupStudioApi(env: StudioEnv): void {
       env.sourceEl.value = t;
       env.applyNewText(t);
     },
+    getPresentStep: () => (env.getPresentStep ? env.getPresentStep() : null),
     getSummary: () => {
       const state = env.getState();
       return {

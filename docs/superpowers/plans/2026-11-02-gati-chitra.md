@@ -3090,7 +3090,7 @@ export function shortcutFor(k: KeyInfo): ShortcutAction | null;
 
 **Accessibility basics:** every `<button>` has visible text or an `aria-label`; `<html lang="en">`; the canvas keeps `role="img"` and its `aria-label`; every dialog is a `<dialog>` with `aria-modal="true"` and an `aria-label`, moves focus to its first control when opened and returns focus to the button that opened it when closed; messages live in `aria-live="polite"` regions; keyboard focus is always visible; the tab order follows the page (toolbar, text, canvas controls); text and background colours come from `tokens.css` (the pairs `--text-body`, `--text-main` and `--text-muted` on `--card-background` have a contrast above 4.5:1 in both schemes).
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // steps.test.ts
@@ -3121,13 +3121,13 @@ focusAt(chainSteps, 99)                // everything (index clamped)
 
 `tests/e2e/a11y.spec.ts`: every `button` has a non-empty accessible name; the canvas has `role="img"` and an `aria-label` starting `Flowchart with`; `<html>` has `lang="en"`; opening the export dialog moves focus into it and closing it returns focus to `#btn-export`; with `page.emulateMedia({ reducedMotion: 'reduce' })` and a reload, `#anim-pause` has `aria-pressed="true"` and the text `Play`; `Tab` from the page start reaches `#btn-new` first.
 
-* \[ \] **Step 2: Run** `npx vitest run src/anim/steps.test.ts src/app/shortcuts.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/anim/steps.test.ts src/app/shortcuts.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the three modules and wire `shortcutFor` into the document `keydown` listener from Task 14 (replacing its ad-hoc key handling), and the actions: `undo`, `redo` (Task 13), `fit`, `zoomIn` and `zoomOut` (multiply the zoom by 1.25 or 0.8 about the canvas centre with `zoomAt`), `present`, `togglePause`, and the editor reducer actions from Task 14.
+* [x] **Step 3: Implement** the three modules and wire `shortcutFor` into the document `keydown` listener from Task 14 (replacing its ad-hoc key handling), and the actions: `undo`, `redo` (Task 13), `fit`, `zoomIn` and `zoomOut` (multiply the zoom by 1.25 or 0.8 about the canvas centre with `zoomAt`), `present`, `togglePause`, and the editor reducer actions from Task 14.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: present mode, shortcuts, reduced motion, accessibility"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: present mode, shortcuts, reduced motion, accessibility"`
 
 ### Task 20: Video export (MP4 and WebM)
 
@@ -3186,7 +3186,7 @@ export function exportVideo(
 
 **Panel:** add `#export-loops` (select 1 to 5, default 2) and `#export-video` ("Save as video"). Click: run `exportVideo`. A `{ fallback: 'gif' }` result: show `MESSAGES.videoUnsupported`, then run the GIF export at 20 fps and download the GIF. A thrown error other than `AbortError`: show `MESSAGES.videoFailed(error.message)`. Success: `downloadBlob(blob, safeFilename(name, container))` where the extension is `mp4` or `webm`. Use the same `AbortController` and progress element as the GIF export.
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // video.test.ts (Node: VideoEncoder does not exist)

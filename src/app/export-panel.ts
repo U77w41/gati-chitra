@@ -48,6 +48,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
 
     if (dialogEl.showModal) dialogEl.showModal();
     else dialogEl.setAttribute('open', '');
+    exportName.focus();
   }
 
   function close(): void {
@@ -56,7 +57,12 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     }
     if (dialogEl.close) dialogEl.close();
     else dialogEl.removeAttribute('open');
+    btnExport.focus();
   }
+
+  dialogEl.addEventListener('close', () => {
+    btnExport.focus();
+  });
 
   btnExport.addEventListener('click', open);
   exportClose.addEventListener('click', close);

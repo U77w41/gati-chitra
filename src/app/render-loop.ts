@@ -1,3 +1,4 @@
+import type { Focus } from '../core/types';
 import { frameState, phaseAt } from '../anim/anim';
 import { handlePoint } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
@@ -13,10 +14,11 @@ export interface RenderLoopEnv {
   measure: MeasureText;
   startTime: number;
   getPausedPhase: () => number;
+  getFocus?: () => Focus | null;
 }
 
 export function startRenderLoop(env: RenderLoopEnv): () => void {
-  const { canvasEl, ctx, getState, measure, startTime, getPausedPhase } = env;
+  const { canvasEl, ctx, getState, measure, startTime, getPausedPhase, getFocus } = env;
   let animId: number;
 
   function render(): void {
@@ -64,7 +66,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
             ? state.editor.selection.id
             : null,
         connectPreview,
-        focus: null,
+        focus: getFocus ? getFocus() : null,
         showGlow: state.settings.anim.glow,
       });
     }

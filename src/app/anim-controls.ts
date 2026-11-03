@@ -12,12 +12,16 @@ export interface AnimControlElements {
   themeEl: HTMLSelectElement;
 }
 
+export interface AnimControlsManager {
+  togglePause: () => void;
+}
+
 export function setupAnimControls(
   els: AnimControlElements,
   getState: () => AppState,
   store: KeyValueStore | null,
   onPauseToggle: (paused: boolean) => void,
-): void {
+): AnimControlsManager {
   const {
     animStyleEl,
     animSpeedEl,
@@ -27,6 +31,22 @@ export function setupAnimControls(
     themeEl,
   } = els;
   const state = getState();
+
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (prefersReduced) {
+    state.paused = true;
+  }
+
+  function updatePauseButton(): void {
+    animPauseEl.setAttribute('aria-pressed', String(state.paused));
+    animPauseEl.textContent = state.paused ? 'Play' : 'Pause';
+  }
+
+  updatePauseButton();
 
   animStyleEl.value = state.settings.anim.style;
   animSpeedEl.value = String(state.settings.anim.speed);
@@ -50,11 +70,15 @@ export function setupAnimControls(
     state.settings.anim.glow = animGlowEl.checked;
     saveSettings(store, state.settings);
   });
-  animPauseEl.addEventListener('click', () => {
+
+  function togglePause(): void {
     state.paused = !state.paused;
-    animPauseEl.setAttribute('aria-pressed', String(state.paused));
+    updatePauseButton();
     onPauseToggle(state.paused);
-  });
+  }
+
+  animPauseEl.addEventListener('click', togglePause);
+
   themeEl.addEventListener('change', () => {
     const choice = themeEl.value as ThemeChoice;
     state.settings.theme = choice;
@@ -63,4 +87,6 @@ export function setupAnimControls(
     animGlowEl.checked = state.settings.anim.glow;
     saveSettings(store, state.settings);
   });
+
+  return { togglePause };
 }

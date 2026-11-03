@@ -9,3 +9,4 @@ Task 14: chose to split inline editor, node creator, and toolbar wiring into hel
 Task 16: SVG root uses system-ui font stack with presentation attributes; browser verification and vector rendering confirmed text rendering and font metrics preserved without external font dependencies.
 Task 17: GIF export of default sample diagram took ~0.85s (well under 15s budget); verified that gifenc delays operate in milliseconds and parseGif validates centiseconds in GIF format.
 Task 18: chose to split editor event dispatching into dispatcher.ts, gallery into gallery.ts, and share handling into share-handler.ts to keep ui.ts under 300 lines.
+Task 19: chose to split present mode CSS into present.css to keep style.css under 300 lines.

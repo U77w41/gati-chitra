@@ -21,7 +21,12 @@ export function setupGallery(env: GalleryEnv): void {
   function close(): void {
     if (dialogEl.close) dialogEl.close();
     else dialogEl.removeAttribute('open');
+    btnTemplates.focus();
   }
+
+  dialogEl.addEventListener('close', () => {
+    btnTemplates.focus();
+  });
 
   closeBtn?.addEventListener('click', close);
 
@@ -55,5 +60,6 @@ export function setupGallery(env: GalleryEnv): void {
     await loadAndPopulate();
     if (dialogEl.showModal) dialogEl.showModal();
     else dialogEl.setAttribute('open', '');
+    closeBtn?.focus();
   });
 }

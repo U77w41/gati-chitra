@@ -8,6 +8,7 @@ export interface CanvasEventsEnv {
   getState: () => AppState;
   dispatch: (event: EditorEvent) => void;
   updateView: (fn: (v: AppState['view']) => AppState['view']) => void;
+  isPresenting?: () => boolean;
 }
 
 export function setupCanvasEvents(env: CanvasEventsEnv): void {
@@ -44,6 +45,18 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
     const rect = canvasEl.getBoundingClientRect();
     const screen = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     const world = screenToWorld(getState().view, screen);
+
+    if (env.isPresenting?.()) {
+      dispatch({
+        type: 'pointerDown',
+        world,
+        screen,
+        button: 1,
+        space: true,
+      });
+      return;
+    }
+
     dispatch({
       type: 'pointerDown',
       world,
@@ -82,6 +95,7 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
   canvasEl.addEventListener('pointercancel', onPointerUp);
 
   canvasEl.addEventListener('dblclick', (e) => {
+    if (env.isPresenting?.()) return;
     const rect = canvasEl.getBoundingClientRect();
     const screen = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     const world = screenToWorld(getState().view, screen);

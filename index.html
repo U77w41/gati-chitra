@@ -108,10 +108,11 @@
               <option value="ember">Ember</option>
             </select>
           </div>
+          <div id="present-step" hidden></div>
           <div id="message" aria-live="polite"></div>
         </section>
       </div>
-      <dialog id="export-panel">
+      <dialog id="export-panel" aria-modal="true" aria-label="Export diagram">
         <div class="dialog-header">
           <h2>Export</h2>
           <button id="export-close" aria-label="Close">✕</button>
@@ -152,7 +153,7 @@
           <button id="export-gif">Save as GIF</button>
         </div>
       </dialog>
-      <dialog id="gallery">
+      <dialog id="gallery" aria-modal="true" aria-label="Templates gallery">
         <div class="dialog-header">
           <h2>Templates</h2>
           <button id="gallery-close" aria-label="Close">✕</button>

@@ -1,44 +1,147 @@
+export type ShortcutAction =
+  | 'undo'
+  | 'redo'
+  | 'fit'
+  | 'present'
+  | 'togglePause'
+  | 'zoomIn'
+  | 'zoomOut'
+  | 'delete'
+  | 'rename'
+  | 'escape';
+
+export interface KeyInfo {
+  key: string;
+  ctrl: boolean;
+  meta: boolean;
+  shift: boolean;
+  alt: boolean;
+  targetTag: string;
+}
+
+export function shortcutFor(k: KeyInfo): ShortcutAction | null {
+  if (k.alt) return null;
+
+  const tag = k.targetTag.toUpperCase();
+  const isField = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+  if (k.key === 'Escape') {
+    return 'escape';
+  }
+
+  if (isField) {
+    return null;
+  }
+
+  const keyLower = k.key.toLowerCase();
+  const cmd = k.ctrl || k.meta;
+
+  if (cmd) {
+    if (keyLower === 'z') {
+      return k.shift ? 'redo' : 'undo';
+    }
+    if (k.ctrl && !k.meta && keyLower === 'y' && !k.shift) {
+      return 'redo';
+    }
+    if (k.key === '0' && !k.shift) {
+      return 'fit';
+    }
+    return null;
+  }
+
+  if (k.shift) {
+    if (k.key === '+') return 'zoomIn';
+    return null;
+  }
+
+  if (k.key === '+' || k.key === '=') return 'zoomIn';
+  if (k.key === '-') return 'zoomOut';
+  if (keyLower === 'p') return 'present';
+  if (keyLower === 'k') return 'togglePause';
+  if (k.key === 'Delete' || k.key === 'Backspace') return 'delete';
+  if (k.key === 'Enter') return 'rename';
+
+  return null;
+}
+
 export interface ShortcutsEnv {
-  triggerFit: () => void;
-  doUndo: () => void;
-  doRedo: () => void;
-  dispatch: (event: { type: 'keyDown'; key: string }) => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onFit: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onPresent: () => void;
+  onTogglePause: () => void;
+  onDelete: () => void;
+  onRename: () => void;
+  onEscape: () => void;
+  isPresenting?: () => boolean;
 }
 
 export function setupKeyboardShortcuts(env: ShortcutsEnv): () => void {
   const handler = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement | null;
-    const isField =
-      target?.tagName === 'INPUT' ||
-      target?.tagName === 'TEXTAREA' ||
-      target?.tagName === 'SELECT';
+    const info: KeyInfo = {
+      key: e.key,
+      ctrl: e.ctrlKey,
+      meta: e.metaKey,
+      shift: e.shiftKey,
+      alt: e.altKey,
+      targetTag: target?.tagName ?? '',
+    };
+    const action = shortcutFor(info);
+    if (!action) return;
 
-    if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+    if (action !== 'escape' || (target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA')) {
       e.preventDefault();
-      env.triggerFit();
+    }
+
+    if (env.isPresenting?.()) {
+      if (action === 'escape') {
+        env.onEscape();
+      } else if (action === 'fit') {
+        env.onFit();
+      } else if (action === 'zoomIn') {
+        env.onZoomIn();
+      } else if (action === 'zoomOut') {
+        env.onZoomOut();
+      } else if (action === 'togglePause') {
+        env.onTogglePause();
+      }
       return;
     }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-      if (!isField) {
-        e.preventDefault();
-        if (e.shiftKey) env.doRedo();
-        else env.doUndo();
-        return;
-      }
-    }
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      e.key.toLowerCase() === 'y' &&
-      !e.shiftKey
-    ) {
-      if (!isField) {
-        e.preventDefault();
-        env.doRedo();
-        return;
-      }
-    }
-    if (!isField || e.key === 'Escape') {
-      env.dispatch({ type: 'keyDown', key: e.key });
+
+    switch (action) {
+      case 'undo':
+        env.onUndo();
+        break;
+      case 'redo':
+        env.onRedo();
+        break;
+      case 'fit':
+        env.onFit();
+        break;
+      case 'zoomIn':
+        env.onZoomIn();
+        break;
+      case 'zoomOut':
+        env.onZoomOut();
+        break;
+      case 'present':
+        env.onPresent();
+        break;
+      case 'togglePause':
+        env.onTogglePause();
+        break;
+      case 'delete':
+        env.onDelete();
+        break;
+      case 'rename':
+        env.onRename();
+        break;
+      case 'escape':
+        env.onEscape();
+        break;
     }
   };
 

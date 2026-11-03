@@ -1,7 +1,7 @@
 import { MESSAGES, TIMING } from '../core/constants';
 import type { TextOp } from '../core/types';
 import { phaseAt } from '../anim/anim';
-import { fitView, screenToWorld } from '../editor/view';
+import { fitView, screenToWorld, zoomAt } from '../editor/view';
 import { canvasMeasure } from '../layout/measure';
 import { applyOp } from '../mermaid/ops';
 import { setupAnimControls } from './anim-controls';
@@ -11,6 +11,7 @@ import { createDispatcher } from './dispatcher';
 import { setupExportPanel } from './export-panel';
 import { setupGallery } from './gallery';
 import { setupInlineEditor } from './inline-edit';
+import { setupPresentMode } from './present';
 import { setupProperties } from './properties';
 import { startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
@@ -69,9 +70,7 @@ export async function initApp(): Promise<void> {
 
   function updateAriaLabel(): void {
     if (state.scene) {
-      const n = state.doc.nodes.length;
-      const m = state.doc.edges.length;
-      canvasEl.setAttribute('aria-label', `Flowchart with ${n} nodes and ${m} arrows`);
+      canvasEl.setAttribute('aria-label', `Flowchart with ${state.doc.nodes.length} nodes and ${state.doc.edges.length} arrows`);
     }
   }
 
@@ -104,11 +103,11 @@ export async function initApp(): Promise<void> {
     triggerFit,
     doUndo,
     doRedo,
-    onAddNode: (shape) => {
-      const rect = canvasEl.getBoundingClientRect();
-      const center = screenToWorld(state.view, { x: rect.width / 2, y: rect.height / 2 });
-      handleAddNodeAt(center, shape);
-    },
+    onAddNode: (shape) =>
+      handleAddNodeAt(
+        screenToWorld(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }),
+        shape,
+      ),
     sourceEl,
   });
 
@@ -117,11 +116,8 @@ export async function initApp(): Promise<void> {
   function updateAfterCommit(): void {
     if (state.editor.selection) {
       const { kind, id } = state.editor.selection;
-      let exists = false;
-      if (kind === 'node') exists = state.doc.nodes.some((n) => n.id === id);
-      else if (kind === 'edge') exists = state.doc.edges.some((e) => e.id === id);
-      else if (kind === 'group') exists = state.doc.groups.some((g) => g.id === id);
-      if (!exists) state.editor.selection = null;
+      const list = kind === 'node' ? state.doc.nodes : kind === 'edge' ? state.doc.edges : state.doc.groups;
+      if (!list.some((item) => item.id === id)) state.editor.selection = null;
     }
     updateDiagnostics(state.doc);
     updateAriaLabel();
@@ -191,7 +187,14 @@ export async function initApp(): Promise<void> {
     }, TIMING.parseDebounceMs);
   });
 
-  setupAnimControls(
+  const present = setupPresentMode({
+    btnPresent: document.querySelector('#btn-present')!,
+    canvasPanel: document.querySelector('#canvas-panel')!,
+    presentStepEl: document.querySelector('#present-step')!,
+    messageEl, getState: () => state, triggerFit,
+  });
+
+  const animControls = setupAnimControls(
     {
       animStyleEl: document.querySelector('#anim-style')!,
       animSpeedEl: document.querySelector('#anim-speed')!,
@@ -203,18 +206,29 @@ export async function initApp(): Promise<void> {
     () => state,
     store,
     (paused) => {
-      if (paused) {
-        const elapsed = (performance.now() - startTime) / 1000;
-        pausedPhase = phaseAt(elapsed, state.settings.anim);
-      }
+      if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
     },
   );
 
   setupKeyboardShortcuts({
-    triggerFit,
-    doUndo,
-    doRedo,
-    dispatch,
+    onUndo: doUndo,
+    onRedo: doRedo,
+    onFit: triggerFit,
+    onZoomIn: () => {
+      state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 1.25);
+    },
+    onZoomOut: () => {
+      state.view = zoomAt(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }, 0.8);
+    },
+    onPresent: () => present.start(),
+    onTogglePause: () => animControls.togglePause(),
+    onDelete: () => dispatch({ type: 'keyDown', key: 'Delete' }),
+    onRename: () => dispatch({ type: 'keyDown', key: 'Enter' }),
+    onEscape: () => {
+      if (present.isPresenting()) present.exit();
+      else dispatch({ type: 'keyDown', key: 'Escape' });
+    },
+    isPresenting: present.isPresenting,
   });
 
   setupCanvasEvents({
@@ -224,6 +238,7 @@ export async function initApp(): Promise<void> {
     updateView: (fn) => {
       state.view = fn(state.view);
     },
+    isPresenting: present.isPresenting,
   });
 
   const ro = new ResizeObserver(() => {
@@ -244,30 +259,29 @@ export async function initApp(): Promise<void> {
     measure,
     startTime,
     getPausedPhase: () => pausedPhase,
+    getFocus: present.getCurrentFocus,
   });
 
   setupExportPanel({
-    dialogEl: document.querySelector<HTMLDialogElement>('#export-panel')!,
+    dialogEl: document.querySelector('#export-panel')!,
     getState: () => state,
-    btnExport: document.querySelector<HTMLButtonElement>('#btn-export')!,
+    btnExport: document.querySelector('#btn-export')!,
   });
 
   setupShareHandler({
-    btnShare: document.querySelector<HTMLButtonElement>('#btn-share')!,
-    shareBox: document.querySelector<HTMLElement>('#share-box')!,
-    shareUrlInput: document.querySelector<HTMLInputElement>('#share-url')!,
-    shareBoxClose: document.querySelector<HTMLButtonElement>('#share-box-close'),
+    btnShare: document.querySelector('#btn-share')!,
+    shareBox: document.querySelector('#share-box')!,
+    shareUrlInput: document.querySelector('#share-url')!,
+    shareBoxClose: document.querySelector('#share-box-close'),
     messageEl,
     getState: () => state,
   });
 
   setupGallery({
-    dialogEl: document.querySelector<HTMLDialogElement>('#gallery')!,
-    btnTemplates: document.querySelector<HTMLButtonElement>('#btn-templates')!,
+    dialogEl: document.querySelector('#gallery')!,
+    btnTemplates: document.querySelector('#btn-templates')!,
     baseUrl: import.meta.env.BASE_URL,
-    commit,
-    triggerFit,
-    messageEl,
+    commit, triggerFit, messageEl,
   });
 
   setupStudioApi({
@@ -275,5 +289,6 @@ export async function initApp(): Promise<void> {
     sourceEl,
     applyNewText: (t: string) => commit(t, 'open'),
     dispatch,
+    getPresentStep: present.getPresentStep,
   });
 }
