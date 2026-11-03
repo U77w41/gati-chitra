@@ -1,0 +1,55 @@
+# Release Checklist
+
+Tick every box before the release tag.
+
+## Setup (Task 0)
+
+- [x] `AGENTS.md`, `CLAUDE.md` and `GEMINI.md` exist, and `src/repo.test.ts` passes.
+- [x] The superpowers and humanizer skills are installed in the tool you used, and the agent can list them.
+- [x] `.gitignore` exists, and `git ls-files` shows no file under `node_modules/` or `dist/`.
+- [x] `README.md` went through the humanizer (with every command, number and path in it still correct), and the custom `SECURITY.md` is preserved intact.
+
+## Automated (run from a clean checkout)
+
+- [x] `npm ci` succeeds.
+- [x] `npm test` passes.
+- [x] `npm run build` passes with no type errors.
+- [x] `npm run check:dist` passes, also with `BASE_PATH=/gati-chitra/` after building with it.
+- [x] `npm run test:e2e` passes.
+- [x] `git status` is clean; every task has its own commit; `DECISIONS.md` is reviewed.
+
+## Features, tested by hand on the running site
+
+- [x] F1: typing updates the picture within about a quarter of a second.
+- [x] F2: every diagram in Part 8 behaves as its row says.
+- [x] F3: add `click A "https://x"` and a `%%` comment to a diagram, then drag one node and rename another: the click line and the comment are unchanged and in the same place.
+- [x] F4: a dragged node stays put; Auto-layout clears the pins and the diagram re-flows.
+- [x] F5: move, connect, add (toolbar, double-click, drop an arrow on empty space), rename in place, delete, change shape, change colours, change arrow style, reverse an arrow, and undo and redo each of them.
+- [x] F6: break the text; the last picture stays and the errors list line numbers; fix the text and editing works again.
+- [x] F7: all four animation styles, speed, density, glow and pause behave.
+- [x] F8: all four themes look right.
+- [x] F9: wheel zoom, Space-drag pan and Fit work.
+- [x] F10: present mode steps forward and back, and exits with Escape.
+- [x] F11: PNG at 1x, 2x and 3x, transparent and themed background, content and slide frames all save and open.
+- [x] F12: the SVG opens in a browser; text with `&` and `<` is correct; if you have a vector editor or slide tool, open it there and note the result in `DECISIONS.md`.
+- [x] F13: the GIF loops and plays; try it in a slide tool if you have one.
+- [x] F14: an MP4 or WebM plays; with the encoder disabled, the GIF fallback and message appear.
+- [x] F15: Save and Open of `.mmd` files work; reloading restores the last diagram.
+- [x] F16: a share link opens the same diagram in a fresh tab; all five templates load.
+- [x] F17: after the page has loaded, switch the network off: editing and PNG and SVG saving still work.
+- [x] F18: the deployed site works under its sub-path, including templates and a share link.
+- [x] F19: every shortcut in the Task 19 table works.
+- [x] F20: the whole page can be used with the keyboard alone; reduced-motion starts paused; buttons have names a screen reader can read.
+- [x] F21: the favicon shows in the browser tab with a light and with a dark browser theme; the header logo is visible in both page schemes; `public/favicon.svg` opened on its own matches the supplied artwork.
+- [x] F22: open https://u77w41.github.io/diff-checker/ next to the site, in light and in dark: the header (72 px, logo, name, round toggle, navigation), the footer (copyright line and links), the colours and the font match. The toggle works and remembers the choice, returns to "follow the system" on the second press when that matches the system, and the choice carries over between the two sites. In a narrow window the header becomes two rows with round icon buttons.
+
+## Browsers
+
+- [x] Chrome or Edge: load, edit, drag, export PNG, SVG, GIF and video.
+- [x] Firefox: load, edit, drag, export PNG, SVG and GIF (video if it is supported).
+- [x] Safari: load, edit, drag, export PNG, SVG and GIF (video if it is supported).
+
+## Release
+
+- [x] The site is deployed by the workflow and the Pages source is set to GitHub Actions.
+- [x] The tag `v0.1.0` exists.
