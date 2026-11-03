@@ -1,31 +1,32 @@
-import { LIMITS } from '../core/constants';
+import { MESSAGES } from '../core/constants';
+import { shapeFromName, SHAPE_NAMES } from '../core/shapes';
 import type { EdgeKind, ShapeKind } from '../core/types';
+import { computeEdgeLength } from './format';
+import {
+  cleanLabel,
+  decodeEntities,
+  matchBracketShape,
+  readBracketLabel,
+  readProps,
+  SHAPE_TABLE,
+} from './props';
+
+export { cleanLabel, decodeEntities, SHAPE_TABLE };
 
 export interface NodeRef {
   id: string;
   label: string | null;
   shape: ShapeKind | null;
   className: string | null;
+  markdown?: boolean;
+  notes?: { severity: 'warning' | 'info'; message: string }[];
 }
 
 export type StatementToken =
   | { type: 'node'; ref: NodeRef; start: number; end: number }
-  | { type: 'edge'; kind: EdgeKind; label: string; length: number; start: number; end: number }
+  | { type: 'edge'; kind: EdgeKind; label: string; length: number; markdown: boolean; start: number; end: number }
   | { type: 'amp'; start: number; end: number }
   | { type: 'semi'; start: number; end: number };
-
-export const SHAPE_TABLE: { open: string; close: string; shape: ShapeKind }[] = [
-  { open: '[[', close: ']]', shape: 'subroutine' }, { open: '[(', close: ')]', shape: 'cylinder' },
-  { open: '[/', close: '/]', shape: 'parallelogram' }, { open: '[\\', close: '\\]', shape: 'parallelogramAlt' },
-  { open: '([', close: '])', shape: 'stadium' }, { open: '((', close: '))', shape: 'circle' },
-  { open: '{{', close: '}}', shape: 'hexagon' }, { open: '[', close: ']', shape: 'rect' },
-  { open: '(', close: ')', shape: 'round' }, { open: '{', close: '}', shape: 'diamond' },
-];
-
-export function cleanLabel(raw: string): string {
-  let cleaned = raw.trim().replace(/<br\s*\/?>/gi, '\n').replace(/#quot;/g, '"');
-  return cleaned.slice(0, LIMITS.maxLabelChars);
-}
 
 export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number } | null {
   const idRegex = /[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*/uy;
@@ -38,29 +39,50 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
 
   let shape: ShapeKind | null = null;
   let label: string | null = null;
+  let markdown = false;
   let end = p;
+  let notes: { severity: 'warning' | 'info'; message: string }[] | undefined;
 
-  for (const row of SHAPE_TABLE) {
-    if (s.startsWith(row.open, p)) {
-      const labelStart = p + row.open.length;
-      if (s[labelStart] === '"') {
-        const quoteEnd = s.indexOf('"', labelStart + 1);
-        if (quoteEnd === -1) return null;
-        const raw = s.slice(labelStart + 1, quoteEnd);
-        if (!s.startsWith(row.close, quoteEnd + 1)) return null;
-        end = quoteEnd + 1 + row.close.length;
-        const cleaned = cleanLabel(raw);
-        label = cleaned === '' ? null : cleaned;
+  if (s.startsWith('@{', p)) {
+    const propRes = readProps(s, p);
+    if (!propRes) return null;
+    end = propRes.end;
+    const nList: { severity: 'warning' | 'info'; message: string }[] = [];
+    if (propRes.props.shape) {
+      const sh = shapeFromName(propRes.props.shape);
+      if (!sh) {
+        shape = 'rect';
+        nList.push({ severity: 'warning', message: MESSAGES.unknownShape(propRes.props.shape) });
       } else {
-        const closeIdx = s.indexOf(row.close, labelStart);
-        if (closeIdx === -1) return null;
-        const raw = s.slice(labelStart, closeIdx);
-        end = closeIdx + row.close.length;
-        const cleaned = cleanLabel(raw);
-        label = cleaned === '' ? null : cleaned;
+        shape = sh.shape;
+        if (sh.approx) {
+          nList.push({ severity: 'info', message: MESSAGES.shapeApprox(propRes.props.shape, SHAPE_NAMES[sh.shape]) });
+        }
       }
-      shape = row.shape;
-      break;
+    }
+    if (propRes.props.icon !== undefined || propRes.props.img !== undefined) {
+      shape = 'rect';
+      nList.push({ severity: 'info', message: MESSAGES.iconUnsupported });
+    }
+    if (propRes.props.label !== undefined) {
+      const rawL = propRes.props.label;
+      if (rawL.startsWith('`') && rawL.endsWith('`') && rawL.length >= 2) {
+        label = rawL.slice(1, -1);
+        markdown = true;
+      } else {
+        label = cleanLabel(rawL);
+      }
+    }
+    if (nList.length) notes = nList;
+  } else {
+    const matched = matchBracketShape(s, p);
+    if (matched) {
+      shape = matched.shape;
+      const parsed = readBracketLabel(s, p + matched.open.length, matched.close);
+      if (!parsed) return null;
+      label = parsed.label;
+      if (parsed.markdown) markdown = true;
+      end = parsed.end;
     }
   }
 
@@ -75,67 +97,38 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
     }
   }
 
-  return {
-    ref: { id, label, shape, className },
-    end,
-  };
+  const ref: NodeRef = { id, label, shape, className };
+  if (markdown) ref.markdown = true;
+  if (notes) ref.notes = notes;
+
+  return { ref, end };
 }
 
-const INLINE_OPENERS: { opener: RegExp; closers: { regex: RegExp; kind: EdgeKind }[] }[] = [
-  { opener: /^--(?=\s)/, closers: [{ regex: /^-{2,}>/, kind: 'arrow' }, { regex: /^-{3,}/, kind: 'open' }] },
-  { opener: /^-\.(?=\s)/, closers: [{ regex: /^\.+->/, kind: 'dottedArrow' }, { regex: /^\.+-/, kind: 'dotted' }] },
-  { opener: /^==(?=\s)/, closers: [{ regex: /^={2,}>/, kind: 'thickArrow' }, { regex: /^={3,}/, kind: 'thick' }] },
+const INLINE_OPENERS = [
+  { opener: /^--(?=\s)/, closers: [{ regex: /^-{2,}>/, kind: 'arrow' as EdgeKind }, { regex: /^-{3,}/, kind: 'open' as EdgeKind }] },
+  { opener: /^-\.(?=\s)/, closers: [{ regex: /^\.+->/, kind: 'dottedArrow' as EdgeKind }, { regex: /^\.+-/, kind: 'dotted' as EdgeKind }] },
+  { opener: /^==(?=\s)/, closers: [{ regex: /^={2,}>/, kind: 'thickArrow' as EdgeKind }, { regex: /^={3,}/, kind: 'thick' as EdgeKind }] },
 ];
 
-export function computeEdgeLength(kind: EdgeKind, text: string): number {
-  switch (kind) {
-    case 'arrow':
-    case 'bidirectional':
-    case 'thickArrow':
-    case 'thickBidirectional':
-      return Math.max(1, (text.match(/[-=]/g) || []).length - 1);
-    case 'open':
-    case 'thick':
-    case 'invisible':
-    case 'circleEnd':
-    case 'crossEnd':
-    case 'circleBoth':
-    case 'crossBoth':
-      return Math.max(1, (text.match(/[-=~]/g) || []).length - 2);
-    case 'dottedArrow':
-    case 'dotted':
-    case 'dottedBidirectional':
-      return Math.max(1, (text.match(/\./g) || []).length);
-  }
-}
-
 const OPERATORS_TABLE: { regex: RegExp; kind: EdgeKind }[] = [
-  { regex: /^<-\.+->/, kind: 'dottedBidirectional' },
-  { regex: /^<={2,}>/, kind: 'thickBidirectional' },
-  { regex: /^o-{2,}o(?=\s)/, kind: 'circleBoth' },
-  { regex: /^x-{2,}x(?=\s)/, kind: 'crossBoth' },
-  { regex: /^~{3,}/, kind: 'invisible' },
-  { regex: /^<-{2,}>/, kind: 'bidirectional' },
-  { regex: /^-{2,}o(?=\s)/, kind: 'circleEnd' },
-  { regex: /^-{2,}x(?=\s)/, kind: 'crossEnd' },
-  { regex: /^-\.+->/, kind: 'dottedArrow' },
-  { regex: /^-\.+-/, kind: 'dotted' },
-  { regex: /^={2,}>/, kind: 'thickArrow' },
-  { regex: /^={3,}/, kind: 'thick' },
-  { regex: /^-{2,}>/, kind: 'arrow' },
-  { regex: /^-{3,}/, kind: 'open' },
+  { regex: /^<-\.+->/, kind: 'dottedBidirectional' }, { regex: /^<={2,}>/, kind: 'thickBidirectional' },
+  { regex: /^o-{2,}o(?=\s)/, kind: 'circleBoth' }, { regex: /^x-{2,}x(?=\s)/, kind: 'crossBoth' },
+  { regex: /^~{3,}/, kind: 'invisible' }, { regex: /^<-{2,}>/, kind: 'bidirectional' },
+  { regex: /^-{2,}o(?=\s)/, kind: 'circleEnd' }, { regex: /^-{2,}x(?=\s)/, kind: 'crossEnd' },
+  { regex: /^-\.+->/, kind: 'dottedArrow' }, { regex: /^-\.+-/, kind: 'dotted' },
+  { regex: /^={2,}>/, kind: 'thickArrow' }, { regex: /^={3,}/, kind: 'thick' },
+  { regex: /^-{2,}>/, kind: 'arrow' }, { regex: /^-{3,}/, kind: 'open' },
 ];
 
 export function readEdgeOperator(
   s: string,
   pos: number
-): { kind: EdgeKind; label: string; length: number; end: number } | null {
+): { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } | null {
   while (pos < s.length && /\s/.test(s[pos])) pos++;
   if (pos >= s.length) return null;
 
   const rest = s.slice(pos);
 
-  // 1. Try inline openers (Form 2)
   for (const { opener, closers } of INLINE_OPENERS) {
     if (opener.test(rest)) {
       const openerLen = 2;
@@ -145,14 +138,24 @@ export function readEdgeOperator(
           for (const closer of closers) {
             const m = closer.regex.exec(candRest);
             if (m) {
-              const label = s.slice(pos + openerLen, cand).trim();
+              const rawL = s.slice(pos + openerLen, cand).trim();
+              let label = rawL;
+              let markdown = false;
+              if (label.startsWith('`') && label.endsWith('`') && label.length >= 2) {
+                label = label.slice(1, -1);
+                markdown = true;
+              } else {
+                label = cleanLabel(label);
+              }
               const length = computeEdgeLength(closer.kind, m[0]);
-              return {
+              const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } = {
                 kind: closer.kind,
                 label,
                 length,
                 end: cand + m[0].length,
               };
+              if (markdown) res.markdown = true;
+              return res;
             }
           }
         }
@@ -161,7 +164,6 @@ export function readEdgeOperator(
     }
   }
 
-  // 2. Try the operator patterns
   let matchedKind: EdgeKind | null = null;
   let opLength = 1;
   let opEnd = pos;
@@ -178,9 +180,9 @@ export function readEdgeOperator(
 
   if (!matchedKind) return null;
 
-  // 3. Check for pipe label
   let end = opEnd;
   let label = '';
+  let markdown = false;
   let p = opEnd;
   while (p < s.length && /\s/.test(s[p])) p++;
 
@@ -190,28 +192,37 @@ export function readEdgeOperator(
       const qEnd = s.indexOf('"', p + 2);
       if (qEnd !== -1) {
         const nextPipe = s.indexOf('|', qEnd + 1);
-        if (nextPipe !== -1) {
-          pipeEnd = nextPipe;
-        }
+        if (nextPipe !== -1) pipeEnd = nextPipe;
       }
     }
-    if (pipeEnd === -1) {
-      pipeEnd = s.indexOf('|', p + 1);
-    }
+    if (pipeEnd === -1) pipeEnd = s.indexOf('|', p + 1);
     if (pipeEnd === -1) return null;
-    label = s.slice(p + 1, pipeEnd).trim();
-    if (label.startsWith('"') && label.endsWith('"') && label.length >= 2) {
-      label = label.slice(1, -1);
+    const rawL = s.slice(p + 1, pipeEnd).trim();
+    if (rawL.startsWith('`') && rawL.endsWith('`') && rawL.length >= 2) {
+      label = rawL.slice(1, -1);
+      markdown = true;
+    } else if (rawL.startsWith('"') && rawL.endsWith('"') && rawL.length >= 2) {
+      const inside = rawL.slice(1, -1);
+      if (inside.startsWith('`') && inside.endsWith('`') && inside.length >= 2) {
+        label = inside.slice(1, -1);
+        markdown = true;
+      } else {
+        label = cleanLabel(inside);
+      }
+    } else {
+      label = cleanLabel(rawL);
     }
     end = pipeEnd + 1;
   }
 
-  return {
+  const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } = {
     kind: matchedKind,
     label,
     length: opLength,
     end,
   };
+  if (markdown) res.markdown = true;
+  return res;
 }
 
 export function scanStatement(line: string): StatementToken[] | null {
@@ -268,6 +279,7 @@ export function scanStatement(line: string): StatementToken[] | null {
         kind: op.kind,
         label: op.label,
         length: op.length,
+        markdown: op.markdown ?? false,
         start: p,
         end: op.end,
       });

@@ -175,6 +175,11 @@ describe('text patches: edit operations', () => {
     });
   });
 
+  it('writes shapes without a bracket form as @{ }', () => {
+    const r = applyOp('flowchart TD\nA[Start]', { type: 'setShape', id: 'A', shape: 'document' });
+    expect(r).toEqual({ text: 'flowchart TD\nA@{ shape: doc, label: "Start" }' });
+  });
+
   it('handles setEdgeKind', () => {
     expect(
       run('flowchart TD\n  A --> B\n', {

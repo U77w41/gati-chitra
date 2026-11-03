@@ -18,7 +18,7 @@ describe('measure', () => {
   it('sizes nodes according to shape and content', () => {
     const n = (label: string, shape: ShapeKind) =>
       sizeNode(
-        { id: 'A', label, shape, classNames: [], style: {}, group: null, line: 0 },
+        { id: 'A', label, shape, classNames: [], style: {}, group: null, line: 0, markdown: false },
         testMeasure,
       );
 

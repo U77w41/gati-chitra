@@ -95,13 +95,13 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
   for (const tokens of allTokens) {
     if (!tokens) continue;
     const nodeGroups: NodeRef[][] = [[]];
-    const ops: { kind: EdgeKind; label: string; length: number }[] = [];
+    const ops: { kind: EdgeKind; label: string; length: number; markdown: boolean }[] = [];
 
     for (const tok of tokens) {
       if (tok.type === 'node') {
         nodeGroups[nodeGroups.length - 1].push(tok.ref);
       } else if (tok.type === 'edge') {
-        ops.push({ kind: tok.kind, label: tok.label, length: tok.length });
+        ops.push({ kind: tok.kind, label: tok.label, length: tok.length, markdown: tok.markdown });
         nodeGroups.push([]);
       }
     }
@@ -110,6 +110,12 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
 
     for (const group of nodeGroups) {
       for (const ref of group) {
+        if (ref.notes) {
+          for (const note of ref.notes) {
+            ctx.diagnostics.push({ line: lineIndex + 1, severity: note.severity, message: note.message });
+          }
+        }
+
         if (!seenOnLine.has(ref.id)) {
           seenOnLine.add(ref.id);
           ctx.lines[lineIndex].nodeIds.push(ref.id);
@@ -131,11 +137,16 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
               style: {},
               group: currentGroupId,
               line: lineIndex,
+              markdown: ref.markdown ?? false,
             });
           }
         } else {
           if (ref.shape !== null) existing.shape = ref.shape;
-          if (ref.label !== null) existing.label = ref.label;
+          if (ref.label !== null) {
+            existing.label = ref.label;
+            existing.markdown = ref.markdown ?? false;
+          }
+          if (ref.markdown) existing.markdown = true;
           if (ref.className && !existing.classNames.includes(ref.className)) {
             existing.classNames.push(ref.className);
           }
@@ -171,6 +182,7 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
                 length: ops[opIdx].length,
                 style: {},
                 line: lineIndex,
+                markdown: ops[opIdx].markdown,
               });
               ctx.lines[lineIndex].edgeIndexes.push(edgeIndex);
             }

@@ -52,6 +52,7 @@ export function nodeOf(shape: ShapeKind, label = 'x'): GraphNode {
     style: {},
     group: null,
     line: 0,
+    markdown: false,
   };
 }
 

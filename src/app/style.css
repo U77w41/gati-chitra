@@ -28,6 +28,7 @@
 }
 #diagnostics li.error, #diagnostics button.error { color: var(--danger); }
 #diagnostics li.warning, #diagnostics button.warning { color: var(--text-muted); }
+#diagnostics li.info, #diagnostics button.info { color: var(--text-muted); }
 #canvas { flex: 1; width: 100%; min-height: 360px; border-radius: var(--radius-control); touch-action: none; }
 #canvas-controls,
 #props { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

@@ -855,7 +855,7 @@ git add -A && git commit -m "feat: parse more arrow forms, link length and sever
   - `setShape` to a shape whose tokens are `null` writes `id@{ shape: <SHAPE_SHORT>, label: "<label>" }` (Part 4.8).
   - Until Task 38, the 10 new shapes are sized and drawn as `rect`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it.each([
@@ -911,10 +911,10 @@ it('maps every alias to a shape', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement** Part 4.4 and 4.5 and the Interfaces block. Every `switch` over `ShapeKind` must stay exhaustive; the compiler lists them.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test`. Expected: FAIL.
+- [x] **Step 3: Implement** Part 4.4 and 4.5 and the Interfaces block. Every `switch` over `ShapeKind` must stay exhaustive; the compiler lists them.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: parse new node shapes, @{} syntax, entities and markdown labels"

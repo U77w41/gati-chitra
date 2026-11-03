@@ -1,7 +1,9 @@
 export type Direction = 'TB' | 'BT' | 'LR' | 'RL'; // "TD" in the text is read as 'TB'
 export type ShapeKind =
   | 'rect' | 'round' | 'stadium' | 'circle' | 'diamond'
-  | 'hexagon' | 'parallelogram' | 'parallelogramAlt' | 'cylinder' | 'subroutine';
+  | 'hexagon' | 'parallelogram' | 'parallelogramAlt' | 'cylinder' | 'subroutine'
+  | 'trapezoid' | 'trapezoidAlt' | 'doubleCircle' | 'asymmetric' | 'document'
+  | 'smallCircle' | 'filledCircle' | 'framedCircle' | 'forkBar' | 'text';
 export type EdgeKind =
   | 'arrow' | 'open' | 'dottedArrow' | 'dotted' | 'thickArrow'
   | 'thick' | 'circleEnd' | 'crossEnd' | 'bidirectional'
@@ -13,17 +15,19 @@ export interface Rect { x: number; y: number; width: number; height: number }
 
 export interface GraphNode {
   id: string; label: string; shape: ShapeKind; classNames: string[];
-  style: StyleMap; group: string | null;
+  style: StyleMap; group: string | null; markdown: boolean;
   line: number; // 0-based index of the line where the node is first referenced
 }
 export interface GraphEdge {
   id: string;    // `e${index}`
   index: number; // 0-based order of creation; matches linkStyle numbers
   from: string; to: string; kind: EdgeKind; label: string; length: number; style: StyleMap;
+  markdown: boolean;
   line: number;  // 0-based index of the line that defines the edge
 }
 export interface GraphGroup {
   id: string; title: string; parent: string | null; direction: Direction | null;
+  markdown: boolean;
   line: number; // 0-based index of the `subgraph` line
 }
 export type LineKind =
@@ -34,7 +38,7 @@ export interface SourceLine {
   nodeIds: string[];     // nodes referenced on this line, in order, without duplicates
   edgeIndexes: number[]; // edges created on this line, in order
 }
-export interface Diagnostic { line: number; severity: 'error' | 'warning'; message: string } // line is 1-based
+export interface Diagnostic { line: number; severity: 'error' | 'warning' | 'info'; message: string } // line is 1-based
 export interface ParsedDoc {
   direction: Direction;
   nodes: GraphNode[]; edges: GraphEdge[]; groups: GraphGroup[];

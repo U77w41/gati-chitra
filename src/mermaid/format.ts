@@ -1,6 +1,6 @@
 import type { EdgeKind, ShapeKind } from '../core/types';
 
-export function shapeTokens(shape: ShapeKind): { open: string; close: string } {
+export function shapeTokens(shape: ShapeKind): { open: string; close: string } | null {
   switch (shape) {
     case 'subroutine':
       return { open: '[[', close: ']]' };
@@ -22,6 +22,43 @@ export function shapeTokens(shape: ShapeKind): { open: string; close: string } {
       return { open: '(', close: ')' };
     case 'diamond':
       return { open: '{', close: '}' };
+    case 'trapezoid':
+      return { open: '[/', close: '\\]' };
+    case 'trapezoidAlt':
+      return { open: '[\\', close: '/]' };
+    case 'doubleCircle':
+      return { open: '(((', close: ')))' };
+    case 'asymmetric':
+      return { open: '>', close: ']' };
+    case 'document':
+    case 'smallCircle':
+    case 'filledCircle':
+    case 'framedCircle':
+    case 'forkBar':
+    case 'text':
+      return null;
+  }
+}
+
+export function computeEdgeLength(kind: EdgeKind, text: string): number {
+  switch (kind) {
+    case 'arrow':
+    case 'bidirectional':
+    case 'thickArrow':
+    case 'thickBidirectional':
+      return Math.max(1, (text.match(/[-=]/g) || []).length - 1);
+    case 'open':
+    case 'thick':
+    case 'invisible':
+    case 'circleEnd':
+    case 'crossEnd':
+    case 'circleBoth':
+    case 'crossBoth':
+      return Math.max(1, (text.match(/[-=~]/g) || []).length - 2);
+    case 'dottedArrow':
+    case 'dotted':
+    case 'dottedBidirectional':
+      return Math.max(1, (text.match(/\./g) || []).length);
   }
 }
 

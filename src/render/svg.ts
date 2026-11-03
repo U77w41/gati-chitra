@@ -175,6 +175,9 @@ export function renderSvg(
         out += `<line x1="${fmt(l + 8)}" y1="${fmt(t)}" x2="${fmt(l + 8)}" y2="${fmt(b)}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
         out += `<line x1="${fmt(r - 8)}" y1="${fmt(t)}" x2="${fmt(r - 8)}" y2="${fmt(b)}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
         break;
+      default:
+        out += `<rect x="${fmt(l)}" y="${fmt(t)}" width="${fmt(w)}" height="${fmt(h)}" rx="4" ${strokeAttr}/>`;
+        break;
     }
 
     const nLines = box.lines.length;

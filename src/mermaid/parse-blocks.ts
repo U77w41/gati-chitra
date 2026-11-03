@@ -98,7 +98,7 @@ export function parseBlockLine(raw: string, lineIndex: number, ctx: BlockContext
 
       ctx.lines[lineIndex].kind = 'subgraph';
       const parent = ctx.groupStack.length > 0 ? ctx.groupStack[ctx.groupStack.length - 1] : null;
-      ctx.groups.push({ id: gId, title: gTitle, parent, direction: null, line: lineIndex });
+      ctx.groups.push({ id: gId, title: gTitle, parent, direction: null, markdown: false, line: lineIndex });
       ctx.groupStack.push(gId);
       if (ctx.groupStack.length > LIMITS.maxGroupDepth && !ctx.hasReportedMaxGroupDepth) {
         ctx.diagnostics.push({ line: lineIndex + 1, severity: 'error', message: MESSAGES.groupTooDeep });

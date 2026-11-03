@@ -1,11 +1,6 @@
 import { MESSAGES } from '../core/constants';
-import type {
-  Direction,
-  ParsedDoc,
-  StyleMap,
-  TextOp,
-  TextOpResult,
-} from '../core/types';
+import { SHAPE_SHORT } from '../core/shapes';
+import type { Direction, ParsedDoc, StyleMap, TextOp, TextOpResult } from '../core/types';
 import {
   edgeOperatorText,
   formatLabel,
@@ -217,9 +212,12 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
 
   if (op.type === 'addNode') {
     const id = nextNodeId(doc);
-    const { open, close } = shapeTokens(op.shape);
+    const tok = shapeTokens(op.shape);
     const { index, indent } = getInsertionInfo(doc);
-    const nodeLine = `${indent}${id}${open}${formatLabel(op.label)}${close}`;
+    const nodeLine =
+      tok === null
+        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[op.shape]}, label: "${formatLabel(op.label)}" }`
+        : `${indent}${id}${tok.open}${formatLabel(op.label)}${tok.close}`;
     lines.splice(index + 1, 0, nodeLine);
     const newText = lines.join('\n') + '\n';
     if (op.pin) {

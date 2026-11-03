@@ -1,4 +1,5 @@
 import { MESSAGES } from '../core/constants';
+import { SHAPE_SHORT } from '../core/shapes';
 import type { ShapeKind, TextOpResult } from '../core/types';
 import { formatLabel, shapeTokens } from './format';
 import { deleteEdgeInternal } from './ops-edge';
@@ -111,7 +112,8 @@ export function deleteNodeInternal(text: string, id: string): TextOpResult {
   }
 
   while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 export function renameNodeInternal(
@@ -142,12 +144,16 @@ export function renameNodeInternal(
           const edits: { start: number; end: number; text: string }[] = [];
           for (const tok of toks) {
             if (tok.type === 'node' && tok.ref.id === id && tok.ref.shape !== null) {
-              const { open, close } = shapeTokens(tok.ref.shape);
+              const tokens = shapeTokens(tok.ref.shape);
               const classSuffix = tok.ref.className ? ':::' + tok.ref.className : '';
+              const replacement =
+                tokens === null
+                  ? `${id}@{ shape: ${SHAPE_SHORT[tok.ref.shape]}, label: "${newLabel}" }${classSuffix}`
+                  : `${id}${tokens.open}${newLabel}${tokens.close}${classSuffix}`;
               edits.push({
                 start: tok.start,
                 end: tok.end,
-                text: `${id}${open}${newLabel}${close}${classSuffix}`,
+                text: replacement,
               });
             }
           }
@@ -161,12 +167,17 @@ export function renameNodeInternal(
   }
 
   if (replacedCount === 0 && firstRefLineIndex !== -1) {
-    const { open, close } = shapeTokens(targetNode.shape);
+    const tokens = shapeTokens(targetNode.shape);
     const indent = indentOf(lines[firstRefLineIndex]);
-    lines.splice(firstRefLineIndex + 1, 0, `${indent}${id}${open}${newLabel}${close}`);
+    const newLine =
+      tokens === null
+        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[targetNode.shape]}, label: "${newLabel}" }`
+        : `${indent}${id}${tokens.open}${newLabel}${tokens.close}`;
+    lines.splice(firstRefLineIndex + 1, 0, newLine);
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }
 
 export function setShapeInternal(
@@ -179,7 +190,7 @@ export function setShapeInternal(
   const targetNode = doc.nodes.find(n => n.id === id);
   if (!targetNode) return { error: MESSAGES.unknownNode(id) };
 
-  const { open: newOpen, close: newClose } = shapeTokens(shape);
+  const newTokens = shapeTokens(shape);
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
@@ -197,11 +208,15 @@ export function setShapeInternal(
           for (const tok of toks) {
             if (tok.type === 'node' && tok.ref.id === id && tok.ref.shape !== null) {
               const classSuffix = tok.ref.className ? ':::' + tok.ref.className : '';
-              const labelStr = formatLabel(tok.ref.label ?? id);
+              const rawLabel = tok.ref.label ?? id;
+              const replacement =
+                newTokens === null
+                  ? `${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${rawLabel}" }${classSuffix}`
+                  : `${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}${classSuffix}`;
               edits.push({
                 start: tok.start,
                 end: tok.end,
-                text: `${id}${newOpen}${labelStr}${newClose}${classSuffix}`,
+                text: replacement,
               });
             }
           }
@@ -216,9 +231,14 @@ export function setShapeInternal(
 
   if (replacedCount === 0 && firstRefLineIndex !== -1) {
     const indent = indentOf(lines[firstRefLineIndex]);
-    const labelStr = formatLabel(targetNode.label);
-    lines.splice(firstRefLineIndex + 1, 0, `${indent}${id}${newOpen}${labelStr}${newClose}`);
+    const rawLabel = targetNode.label;
+    const newLine =
+      newTokens === null
+        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${rawLabel}" }`
+        : `${indent}${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}`;
+    lines.splice(firstRefLineIndex + 1, 0, newLine);
   }
 
-  return { text: lines.join('\n') + '\n' };
+  const trailing = text.endsWith('\n') ? '\n' : '';
+  return { text: lines.join('\n') + trailing };
 }

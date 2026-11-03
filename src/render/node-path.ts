@@ -54,6 +54,7 @@ export function traceNodePath(
       break;
     }
     case 'subroutine':
+    default:
       ctx.roundRect(l, t, w, h, LAYOUT.rectRadius);
       break;
   }
