@@ -7,28 +7,30 @@ test.describe('Live preview and app shell', () => {
     const source = page.locator('#source');
     await expect(source).not.toBeEmpty();
 
-    const nonBgPixels = await page.evaluate(() => {
-      const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
-      if (!canvas) return 0;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return 0;
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-      let nonBg = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const a = data[i + 3];
-        // Background is white #ffffff
-        if (a > 0 && (r < 250 || g < 250 || b < 250)) {
-          nonBg++;
-        }
-      }
-      return nonBg;
-    });
-
-    expect(nonBgPixels).toBeGreaterThan(100);
+    await expect
+      .poll(async () => {
+        return page.evaluate(() => {
+          const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
+          if (!canvas) return 0;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return 0;
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imgData.data;
+          let nonBg = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            // Background is white #ffffff
+            if (a > 0 && (r < 250 || g < 250 || b < 250)) {
+              nonBg++;
+            }
+          }
+          return nonBg;
+        });
+      })
+      .toBeGreaterThan(100);
   });
 
   test('updates summary and diagram when text is set via studio API', async ({ page }) => {

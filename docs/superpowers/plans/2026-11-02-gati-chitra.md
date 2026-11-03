@@ -2867,7 +2867,7 @@ export function parseGif(bytes: Uint8Array): { width: number; height: number; fr
 
 3. Return `{ width, height, frames, delays, loop }`.
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // gif.test.ts (plans use bounds { x: 0, y: 0, width: 400, height: 200 }, so the content frame is 464 by 264)
@@ -2902,13 +2902,13 @@ If that last assertion shows delays of `50` instead of `5`, gifenc takes centise
 
 * Record in `DECISIONS.md` how long the default sample took to export; it should be under 15 seconds.
 
-* \[ \] **Step 2: Run** `npx vitest run src/export/gif.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/export/gif.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `gif.ts` and `parse-gif.ts`; add the GIF controls to the export panel (`#export-fps`, `#export-gif`); the panel owns an `AbortController` that `#export-cancel` aborts, and shows `MESSAGES.gifReduced` when the plan says `reduced`.
+* [x] **Step 3: Implement** `gif.ts` and `parse-gif.ts`; add the GIF controls to the export panel (`#export-fps`, `#export-gif`); the panel owns an `AbortController` that `#export-cancel` aborts, and shows `MESSAGES.gifReduced` when the plan says `reduced`.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: GIF export"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: GIF export"`
 
 ### Task 18: Share links and templates
 

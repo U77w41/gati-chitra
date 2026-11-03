@@ -128,6 +128,13 @@
             <option value="3">3x</option>
           </select>
 
+          <label for="export-fps">FPS</label>
+          <select id="export-fps">
+            <option value="10">10 fps</option>
+            <option value="20" selected>20 fps</option>
+            <option value="25">25 fps</option>
+          </select>
+
           <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
 
           <progress id="export-progress" hidden></progress>
@@ -137,6 +144,7 @@
           <button id="export-cancel">Cancel</button>
           <button id="export-png">Save as PNG</button>
           <button id="export-svg">Save as SVG</button>
+          <button id="export-gif">Save as GIF</button>
         </div>
       </dialog>
     </div>
