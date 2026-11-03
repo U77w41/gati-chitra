@@ -68,7 +68,9 @@ export function parseBlockLine(raw: string, lineIndex: number, ctx: BlockContext
     } else {
       const m2 = /^subgraph\s+"(.*)"\s*;?$/.exec(trimmed);
       if (m2) {
-        gId = `group${ctx.groups.length + 1}`;
+        let n = 1;
+        while (ctx.groups.some(g => g.id === `group${n}`)) n++;
+        gId = `group${n}`;
         gTitle = m2[1];
       } else {
         const m3 = /^subgraph\s+(.+?)\s*;?$/.exec(trimmed);
@@ -80,6 +82,20 @@ export function parseBlockLine(raw: string, lineIndex: number, ctx: BlockContext
     }
 
     if (gId) {
+      if (ctx.groups.some(g => g.id === gId)) {
+        const originalId = gId;
+        let suffix = 2;
+        while (ctx.groups.some(g => g.id === `${originalId}_${suffix}`)) {
+          suffix++;
+        }
+        gId = `${originalId}_${suffix}`;
+        ctx.diagnostics.push({
+          line: lineIndex + 1,
+          severity: 'warning',
+          message: MESSAGES.duplicateGroupId(originalId, gId),
+        });
+      }
+
       ctx.lines[lineIndex].kind = 'subgraph';
       const parent = ctx.groupStack.length > 0 ? ctx.groupStack[ctx.groupStack.length - 1] : null;
       ctx.groups.push({ id: gId, title: gTitle, parent, direction: null, line: lineIndex });
@@ -95,7 +111,7 @@ export function parseBlockLine(raw: string, lineIndex: number, ctx: BlockContext
   if (END_REGEX.test(trimmed)) {
     ctx.lines[lineIndex].kind = 'end';
     if (ctx.groupStack.length === 0) {
-      ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.strayEnd(lineIndex + 1) });
+      ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.strayEnd });
     } else {
       ctx.groupStack.pop();
     }

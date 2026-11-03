@@ -35,11 +35,15 @@ export async function initApp(): Promise<void> {
   let initialShareError: string | null = null;
   const hash = window.location.hash;
   if (hash.startsWith('#v1')) {
-    const sharedText = await decodeShare(hash);
-    if (sharedText !== null) {
-      initialText = sharedText;
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
-    } else {
+    try {
+      const sharedText = await decodeShare(hash);
+      if (sharedText !== null) {
+        initialText = sharedText;
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } else {
+        initialShareError = MESSAGES.shareInvalid;
+      }
+    } catch {
       initialShareError = MESSAGES.shareInvalid;
     }
   }

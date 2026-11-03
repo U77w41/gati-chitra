@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { encodeShare } from '../../src/share/share';
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -167,5 +168,14 @@ test.describe('Share links and templates', () => {
     await expect(page.locator('#message')).toContainText(
       'This diagram is too large for a link. Save it as a .mmd file instead.',
     );
+  });
+
+  test('duplicate subgraph ids in share link do not break the app', async ({ page }) => {
+    const hash = await encodeShare('flowchart TD\nsubgraph X\nsubgraph X\nA\nend\nend');
+    await page.goto(`/?e2e=1${hash}`);
+    await page.waitForTimeout(300);
+    const summary = await page.evaluate(() => (window as any).__studio.getSummary());
+    expect(summary.nodes).toContain('A');
+    expect(await page.locator('#btn-share').isEnabled()).toBe(true);
   });
 });

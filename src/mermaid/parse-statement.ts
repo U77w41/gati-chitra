@@ -108,6 +108,6 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
     }
   } else {
     ctx.lines[lineIndex].kind = 'unknown';
-    ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.unknownLine(lineIndex + 1) });
+    ctx.diagnostics.push({ line: lineIndex + 1, severity: 'warning', message: MESSAGES.unknownLine });
   }
 }

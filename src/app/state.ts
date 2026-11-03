@@ -1,9 +1,10 @@
 import type { ParsedDoc, Scene, ViewState } from '../core/types';
 import type { Settings } from './storage';
 import { parseMermaid } from '../mermaid/parse';
-import { buildScene } from '../layout/scene';
+import { tryBuildScene } from '../layout/scene';
 import type { MeasureText } from '../layout/measure';
 import { canvasMeasure } from '../layout/measure';
+import { MESSAGES } from '../core/constants';
 import {
   createHistory,
   pushText,
@@ -42,7 +43,14 @@ export interface AppState {
 export function createState(text: string, settings: Settings): AppState {
   const doc = parseMermaid(text);
   const measure = canvasMeasure();
-  const scene = doc.ok ? buildScene(doc, measure) : null;
+  let scene: Scene | null = null;
+  if (doc.ok) {
+    scene = tryBuildScene(doc, measure);
+    if (!scene) {
+      doc.diagnostics.push({ line: 1, severity: 'error', message: MESSAGES.layoutFailed });
+      doc.ok = false;
+    }
+  }
   const view: ViewState = { zoom: 1, panX: 0, panY: 0 };
   const history = createHistory(text);
   const editor = createEditorState();
@@ -66,7 +74,16 @@ export function applyText(
   measure: MeasureText,
 ): AppState {
   const doc = parseMermaid(text);
-  const scene = doc.ok ? buildScene(doc, measure) : state.scene;
+  let scene = state.scene;
+  if (doc.ok) {
+    const nextScene = tryBuildScene(doc, measure);
+    if (nextScene) {
+      scene = nextScene;
+    } else {
+      doc.diagnostics.push({ line: 1, severity: 'error', message: MESSAGES.layoutFailed });
+      doc.ok = false;
+    }
+  }
 
   return {
     ...state,

@@ -3,6 +3,14 @@ import { computeBounds, computeGroups, layoutDoc } from './layout';
 import { routeEdges } from './geometry';
 import type { MeasureText } from './measure';
 
+export function tryBuildScene(doc: ParsedDoc, measure: MeasureText): Scene | null {
+  try {
+    return buildScene(doc, measure);
+  } catch {
+    return null;
+  }
+}
+
 export function buildScene(doc: ParsedDoc, measure: MeasureText): Scene {
   if (doc.nodes.length === 0) {
     const layout = layoutDoc(doc, measure);

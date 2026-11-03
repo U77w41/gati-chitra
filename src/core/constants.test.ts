@@ -18,7 +18,10 @@ it('pins export values', () => {
   expect(EXPORT.pngScales).toEqual([1, 2, 3]);
 });
 it('builds messages', () => {
-  expect(MESSAGES.unknownLine(7)).toBe('Line 7 is not understood and is kept as written.');
+  expect(MESSAGES.unknownLine).toBe('Not understood; kept as written.');
+  expect(MESSAGES.strayEnd).toBe('`end` without a matching subgraph.');
+  expect(MESSAGES.duplicateGroupId('A', 'A_2')).toBe('Subgraph id "A" is already used, so this one is "A_2".');
+  expect(MESSAGES.layoutFailed).toBe('The diagram could not be laid out. The last picture is kept.');
   expect(MESSAGES.unknownNode('Z')).toBe('Unknown node "Z".');
   expect(MESSAGES.groupTooDeep).toBe('Subgraph nesting is too deep (limit 4).');
   expect(MESSAGES.unknownEdge(5)).toBe('Unknown arrow 5.');

@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { parseMermaid } from '../mermaid/parse';
-import { buildScene, withNodeAt } from './scene';
+import { buildScene, tryBuildScene, withNodeAt } from './scene';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
 import { LAYOUT } from '../core/constants';
 
 describe('scene', () => {
+  it('returns null instead of throwing', () => {
+    const doc = parseMermaid('flowchart TD\nA');
+    expect(tryBuildScene(doc, () => { throw new Error('boom'); })).toBeNull();
+  });
+
   it('buildScene bounds contain every node rectangle, edge label chip and edge end point', () => {
     const scene = buildScene(parseMermaid(CORPUS[0].text), testMeasure);
     const b = scene.layout.bounds;

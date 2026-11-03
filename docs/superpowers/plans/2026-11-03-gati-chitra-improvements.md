@@ -459,7 +459,7 @@ git add -A && git commit -m "refactor: split the parser into header, block and s
 **Interfaces:**
 - Produces: `tryBuildScene(doc: ParsedDoc, measure: MeasureText): Scene | null` in `src/layout/scene.ts` (returns `null` when layout throws). `applyText` uses it; on `null` it returns a `doc` with the extra diagnostic `{ line: 1, severity: 'error', message: MESSAGES.layoutFailed }`, `ok: false`, and keeps `state.scene`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // parse.groups.test.ts
@@ -489,14 +489,14 @@ it('keeps the last picture when layout fails', () => {
 
 e2e in `share.spec.ts`: open a share link whose text has `subgraph X` nested in `subgraph X`; expect the canvas to show node `A` (`__studio.getSummary().nodes` contains `'A'`) and the Share button to be enabled.
 
-- [ ] **Step 2: Run** `npm test`. Expected: the four new tests FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2: Run** `npm test`. Expected: the four new tests FAIL.
+- [x] **Step 3: Implement.**
   - The parser makes a group id unique by appending `_2`, `_3` and so on (the smallest unused suffix).
   - `tryBuildScene` wraps `buildScene` in try/catch.
   - `ui.ts` start-up decodes the share link inside try/catch and falls back to the sample with `MESSAGES.shareInvalid`.
   - Change `unknownLine` and `strayEnd` to plain strings. `diagnostics.ts` already prefixes `Line n:`, so the text no longer says the line twice. Update the tests that called them as functions.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- share.spec.ts`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- share.spec.ts`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "fix: duplicate subgraph ids and layout errors no longer break the app"

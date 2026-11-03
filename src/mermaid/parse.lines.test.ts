@@ -17,7 +17,7 @@ describe('lines and corpus', () => {
       'pos',
     ]);
     expect(d.pins).toEqual({ A: { x: 100, y: 40 }, B: { x: 100, y: 200 } });
-    expect(d.diagnostics).toEqual([{ line: 5, severity: 'warning', message: MESSAGES.unknownLine(5) }]);
+    expect(d.diagnostics).toEqual([{ line: 5, severity: 'warning', message: MESSAGES.unknownLine }]);
     expect(d.lines[3]).toMatchObject({ nodeIds: ['A', 'B'], edgeIndexes: [0] });
     expect(parseMermaid('flowchart TD\n%% studio:pos A 1.5 -2').pins.A).toEqual({ x: 1.5, y: -2 });
     expect(parseMermaid('flowchart TD\r\n\tA[Hi] --> B\t\r\n').edges.length).toBe(1); // tabs, CRLF (Review Focus 1)

@@ -2,11 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { applyText, createState } from './state';
 import { testMeasure } from '../../tests/support/measure';
 import { DEFAULT_ANIM } from '../anim/anim';
+import { MESSAGES } from '../core/constants';
 import type { Settings } from './storage';
 
 describe('state', () => {
+  const settings: Settings = { theme: 'auto', anim: DEFAULT_ANIM };
+
+  it('keeps the last picture when layout fails', () => {
+    const s = createState('flowchart TD\nA', settings);
+    const next = applyText(s, 'flowchart TD\nB', () => { throw new Error('boom'); });
+    expect(next.scene).toBe(s.scene);
+    expect(next.doc.ok).toBe(false);
+    expect(next.doc.diagnostics.at(-1)?.message).toBe(MESSAGES.layoutFailed);
+  });
+
   it('creates and updates AppState, preserving last good scene on error', () => {
-    const defaults: Settings = { theme: 'auto', anim: DEFAULT_ANIM };
+    const defaults = settings;
     const s1 = applyText(
       createState('flowchart TD\nA-->B', defaults),
       'flowchart TD\nA-->B',

@@ -63,7 +63,7 @@ describe('edges', () => {
         expect(doc.edges.length).toBe(0);
         expect(doc.nodes.length).toBe(0);
         expect(doc.lines[1].kind).toBe('unknown');
-        expect(doc.diagnostics.map(d => d.message)).toContain(MESSAGES.unknownLine(2));
+        expect(doc.diagnostics.map(d => d.message)).toContain(MESSAGES.unknownLine);
       } else {
         expect(doc.nodes.length).toBe(nodeCount);
         expect(doc.edges.length).toBe(expectedEdges.length);

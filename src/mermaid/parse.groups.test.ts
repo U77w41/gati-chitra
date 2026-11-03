@@ -26,7 +26,7 @@ describe('groups', () => {
     });
     expect(parseMermaid('flowchart TD\nsubgraph g1 ["Quoted"]\nA\nend').groups[0].title).toBe('Quoted');
     expect(parseMermaid('flowchart TD\nend').diagnostics).toEqual([
-      { line: 2, severity: 'warning', message: MESSAGES.strayEnd(2) },
+      { line: 2, severity: 'warning', message: MESSAGES.strayEnd },
     ]);
     expect(parseMermaid('flowchart TD\nsubgraph g\nA').diagnostics).toEqual([
       { line: 2, severity: 'warning', message: MESSAGES.unclosedGroup('g') },
@@ -35,5 +35,16 @@ describe('groups', () => {
     const deep = 'flowchart TD\n' + 'subgraph a\n'.repeat(5) + 'X\n' + 'end\n'.repeat(5);
     expect(parseMermaid(deep)).toMatchObject({ ok: false });
     expect(parseMermaid(deep).diagnostics.map(d => d.message)).toContain(MESSAGES.groupTooDeep);
+  });
+
+  it('renames a repeated subgraph id', () => {
+    const d = parseMermaid('flowchart TD\nsubgraph X\nsubgraph X\nA\nend\nend');
+    expect(d.groups.map(g => g.id)).toEqual(['X', 'X_2']);
+    expect(d.diagnostics).toContainEqual({ line: 3, severity: 'warning', message: MESSAGES.duplicateGroupId('X', 'X_2') });
+  });
+
+  it('does not let a quoted title reuse an id', () => {
+    const d = parseMermaid('flowchart TD\nsubgraph group2\nA\nend\nsubgraph "T"\nB\nend');
+    expect(new Set(d.groups.map(g => g.id)).size).toBe(2);
   });
 });
