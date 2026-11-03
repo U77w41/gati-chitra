@@ -1,4 +1,4 @@
-import type { ThemeChoice } from '../core/types';
+import type { AnimStyle, ThemeChoice } from '../core/types';
 import { THEMES } from '../render/themes';
 import type { AppState } from './state';
 import { saveSettings, type KeyValueStore } from './storage';
@@ -55,7 +55,7 @@ export function setupAnimControls(
   themeEl.value = state.settings.theme;
 
   animStyleEl.addEventListener('change', () => {
-    state.settings.anim.style = animStyleEl.value as any;
+    state.settings.anim.style = animStyleEl.value as AnimStyle;
     saveSettings(store, state.settings);
   });
   animSpeedEl.addEventListener('input', () => {

@@ -22,7 +22,7 @@ export function loopSeconds(settings: AnimSettings): number {
 export function phaseAt(elapsedSeconds: number, settings: AnimSettings): number {
   const ls = loopSeconds(settings);
   const raw = (elapsedSeconds / ls) % 1;
-  const val = raw < 0 ? raw + 1 : raw === -0 ? 0 : raw;
+  const val = raw < 0 ? raw + 1 : Object.is(raw, -0) ? 0 : raw;
   return val === 1 ? 0 : val;
 }
 

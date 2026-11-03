@@ -124,19 +124,19 @@ describe('controller connect and edit', () => {
     const s = createEditorState();
 
     // dblClick on A
-    const resA = reduce(s as any, { type: 'dblClick', world: aCenter } as any, env);
+    const resA = reduce(s, { type: 'dblClick', world: aCenter }, env);
     expect(resA.state.editing).toEqual({ kind: 'node', id: 'A', initial: 'A' });
     expect(resA.effects).toEqual([
       { type: 'startEdit', kind: 'node', id: 'A', initial: 'A' },
     ]);
 
     // dblClick on edge
-    const resEdge = reduce(s as any, { type: 'dblClick', world: edgeMid } as any, env);
+    const resEdge = reduce(s, { type: 'dblClick', world: edgeMid }, env);
     expect(resEdge.state.editing).toEqual({ kind: 'edge', id: 'e0', initial: '' });
 
     // dblClick on empty space
     const empty = { x: 600, y: 600 };
-    const resEmpty = reduce(s as any, { type: 'dblClick', world: empty } as any, env);
+    const resEmpty = reduce(s, { type: 'dblClick', world: empty }, env);
     expect(resEmpty.effects).toEqual([
       { type: 'addNodeAt', at: empty, shape: 'rect' },
     ]);
@@ -176,8 +176,8 @@ describe('controller connect and edit', () => {
 
     // commitEdit with new text
     const commitRes = reduce(
-      enterRes.state as any,
-      { type: 'commitEdit', text: 'Beta' } as any,
+      enterRes.state,
+      { type: 'commitEdit', text: 'Beta' },
       env,
     );
     expect(commitRes.state.editing).toBeNull();
@@ -187,16 +187,16 @@ describe('controller connect and edit', () => {
 
     // commitEdit with unchanged text
     const noopCommit = reduce(
-      enterRes.state as any,
-      { type: 'commitEdit', text: 'A' } as any,
+      enterRes.state,
+      { type: 'commitEdit', text: 'A' },
       env,
     );
     expect(noopCommit.effects).toEqual([]);
 
     // cancelEdit
     const cancelRes = reduce(
-      enterRes.state as any,
-      { type: 'cancelEdit' } as any,
+      enterRes.state,
+      { type: 'cancelEdit' },
       env,
     );
     expect(cancelRes.state.editing).toBeNull();
@@ -213,7 +213,7 @@ describe('controller connect and edit', () => {
     const delRes = reduce(s, { type: 'keyDown', key: 'Delete' }, brokenEnv);
     expect(delRes.effects).toEqual([{ type: 'message', text: MESSAGES.fixTextFirst }]);
 
-    const dblRes = reduce(s as any, { type: 'dblClick', world: aCenter } as any, brokenEnv);
+    const dblRes = reduce(s, { type: 'dblClick', world: aCenter }, brokenEnv);
     expect(dblRes.effects).toEqual([{ type: 'message', text: MESSAGES.fixTextFirst }]);
 
     const handleRes = reduce(

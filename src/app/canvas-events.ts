@@ -1,5 +1,5 @@
 import { wheelFactor, zoomAt } from '../editor/view';
-import type { EditorEvent, EditorState } from '../editor/controller';
+import type { EditorEvent } from '../editor/controller';
 import { screenToWorld } from '../editor/view';
 import type { AppState } from './state';
 

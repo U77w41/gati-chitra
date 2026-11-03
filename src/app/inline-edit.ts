@@ -15,7 +15,7 @@ export interface InlineEditManager {
 export function setupInlineEditor(
   textarea: HTMLTextAreaElement,
   getState: () => AppState,
-  canvasEl: HTMLCanvasElement,
+  _canvasEl: HTMLCanvasElement,
 ): InlineEditManager {
   let active = false;
   let currentKind: 'node' | 'edge' | 'group' = 'node';
@@ -67,7 +67,6 @@ export function setupInlineEditor(
       cancelCallback = onCancel;
 
       const state = getState();
-      const canvasRect = canvasEl.getBoundingClientRect();
       const view = state.view;
 
       if (kind === 'node') {

@@ -3,7 +3,7 @@ import { parseMermaid } from '../mermaid/parse';
 import { layoutDoc } from './layout';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
-import type { NodeBox, SceneLayout } from '../core/types';
+import type { SceneLayout } from '../core/types';
 
 function L(text: string): SceneLayout {
   return layoutDoc(parseMermaid(text), testMeasure);

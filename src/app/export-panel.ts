@@ -96,8 +96,8 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         exportMessage.textContent = MESSAGES.pngReduced(res.scaleUsed);
       }
       downloadBlob(res.blob, filename);
-    } catch (err: any) {
-      exportMessage.textContent = err?.message ?? 'Export failed';
+    } catch (err: unknown) {
+      exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
     } finally {
       exportPngBtn.disabled = false;
     }
@@ -127,8 +127,8 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         type: 'image/svg+xml;charset=utf-8',
       });
       downloadBlob(blob, filename);
-    } catch (err: any) {
-      exportMessage.textContent = err?.message ?? 'Export failed';
+    } catch (err: unknown) {
+      exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
     }
   });
 
@@ -177,11 +177,11 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         exportMessage.textContent = MESSAGES.gifReduced;
       }
       downloadBlob(res.blob, filename);
-    } catch (err: any) {
-      if (err?.name === 'AbortError' || abortCtrl?.signal.aborted) {
+    } catch (err: unknown) {
+      if ((err instanceof Error && err.name === 'AbortError') || abortCtrl?.signal.aborted) {
         exportMessage.textContent = MESSAGES.exportCancelled;
       } else {
-        exportMessage.textContent = err?.message ?? 'Export failed';
+        exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
       }
     } finally {
       abortCtrl = null;
@@ -252,11 +252,11 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       } else {
         downloadBlob(res.blob, safeFilename(name, res.container));
       }
-    } catch (err: any) {
-      if (err?.name === 'AbortError' || abortCtrl?.signal.aborted) {
+    } catch (err: unknown) {
+      if ((err instanceof Error && err.name === 'AbortError') || abortCtrl?.signal.aborted) {
         exportMessage.textContent = MESSAGES.exportCancelled;
       } else {
-        exportMessage.textContent = MESSAGES.videoFailed(err?.message ?? 'Export failed');
+        exportMessage.textContent = MESSAGES.videoFailed(err instanceof Error ? err.message : 'Export failed');
       }
     } finally {
       abortCtrl = null;

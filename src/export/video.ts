@@ -94,14 +94,14 @@ export function videoBitrate(width: number, height: number, fps: number): number
 export async function probeEncoder(
   width: number,
   height: number,
-  isConfigSupported?: (c: any) => Promise<{ supported?: boolean }>,
+  isConfigSupported?: (c: VideoEncoderConfig) => Promise<{ supported?: boolean }>,
 ): Promise<EncoderSupport | null> {
   if (typeof VideoEncoder === 'undefined' && !isConfigSupported) {
     return null;
   }
 
   const checkFn =
-    isConfigSupported ?? ((c: any) => VideoEncoder.isConfigSupported(c));
+    isConfigSupported ?? ((c: VideoEncoderConfig) => VideoEncoder.isConfigSupported(c));
 
   const h264Codecs = ['avc1.640028', 'avc1.4d0028', 'avc1.42001f'];
   for (const codec of h264Codecs) {
@@ -170,12 +170,13 @@ export async function exportVideo(
   };
 
   const m = await import('mediabunny');
+  const target = new m.BufferTarget();
   const output = new m.Output({
     format:
       support.container === 'mp4'
         ? new m.Mp4OutputFormat()
         : new m.WebMOutputFormat(),
-    target: new m.BufferTarget(),
+    target,
   });
 
   const source = new m.CanvasSource(canvas, {
@@ -207,7 +208,10 @@ export async function exportVideo(
   }
 
   await output.finalize();
-  const buffer = (output.target as any).buffer;
+  const buffer = target.buffer;
+  if (!buffer) {
+    throw new Error('Failed to produce video buffer');
+  }
   const blob = new Blob([buffer], {
     type: support.container === 'mp4' ? 'video/mp4' : 'video/webm',
   });

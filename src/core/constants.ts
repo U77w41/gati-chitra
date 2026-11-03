@@ -124,10 +124,6 @@ export const MESSAGES = {
   videoFailed: (m: string) => `Video export failed: ${m}`,
 } as const;
 
-// The page (not the diagram) uses Lato; the diagram keeps FONT_STACK_SANS so measurements and exports never depend on a web font.
-export const FONT_STACK_UI =
-  '"Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", "Droid Sans", "Helvetica Neue", Arial, sans-serif';
-
 export const SCHEME = {
   storageKey: 'StackColorScheme', // the key the author's other sites use, so one choice applies to all of them
   lightThemeColor: '#f5f5fa',

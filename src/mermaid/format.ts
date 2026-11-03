@@ -50,7 +50,7 @@ export function edgeOperatorText(kind: EdgeKind): string {
 
 export function formatLabel(label: string): string {
   let s = label.replace(/\r\n|\r|\n/g, '<br/>');
-  if (/[\[\]\(\)\{\}"|;]/.test(s)) {
+  if (/[()[\]{}"|;]/.test(s)) {
     s = s.replace(/"/g, '#quot;');
     return `"${s}"`;
   }

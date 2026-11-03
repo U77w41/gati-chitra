@@ -12,3 +12,4 @@ Task 18: chose to split editor event dispatching into dispatcher.ts, gallery int
 Task 19: chose to split present mode CSS into present.css because style.css had to stay under 300 lines.
 Task 20: chose to cap video maximum side to 8192 (matching EXPORT.pngMaxSide) because platform encoders reject frames with dimensions exceeding 8192.
 Task 22: chose automated DOM and computed style assertions because human visual comparison with the reference site was not done.
+Task 24: chose oxlint 1.90.0 because it is the current release.

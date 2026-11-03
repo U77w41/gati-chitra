@@ -145,6 +145,6 @@ export async function exportGif(
   }
 
   encoder.finish();
-  const blob = new Blob([encoder.bytes() as any], { type: 'image/gif' });
+  const blob = new Blob([encoder.bytes() as BlobPart], { type: 'image/gif' });
   return { blob, reduced: plan.reduced };
 }

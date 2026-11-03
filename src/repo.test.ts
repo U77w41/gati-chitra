@@ -26,3 +26,14 @@ it('.gitignore keeps generated and local files out, and keeps the shared files i
   for (const need of ['node_modules/', 'dist/', 'playwright-report/', 'test-results/', '.env.local', '.DS_Store', '.worktrees/']) expect(lines).toContain(need);
   for (const never of ['.env', 'docs/', 'public/', 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', 'SECURITY.md', 'README.md']) expect(lines).not.toContain(never);
 });
+it('has a lint script, an engines field and a Node version file', () => {
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+  expect(pkg.version).toBe('0.1.0');
+  expect(pkg.engines.node).toBe('>=22');
+  expect(pkg.scripts.lint).toContain('oxlint');
+  expect(readFileSync('.nvmrc', 'utf8').trim()).toMatch(/^\d+$/);
+});
+it('points agents at the improvements plan', () => {
+  expect(readFileSync('AGENTS.md', 'utf8')).toContain('docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md');
+});
+

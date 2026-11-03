@@ -5,8 +5,6 @@ import { buildScene } from '../layout/scene';
 import type { MeasureText } from '../layout/measure';
 import { canvasMeasure } from '../layout/measure';
 import {
-  canRedo,
-  canUndo,
   createHistory,
   pushText,
   redo,

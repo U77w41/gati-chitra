@@ -121,7 +121,7 @@ function setNodeStyleInternal(text: string, id: string, style: StyleMap): TextOp
     }
   } else {
     const pairs = Object.entries(style)
-      .filter(([_, v]) => v !== '')
+      .filter(([, v]) => v !== '')
       .map(([k, v]) => `${k}:${v}`);
     if (pairs.length > 0) {
       const { index, indent } = getInsertionInfo(doc);

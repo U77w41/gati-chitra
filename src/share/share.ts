@@ -67,7 +67,7 @@ export async function decodeShare(hash: string): Promise<string | null> {
       return null;
     }
     try {
-      const stream = new Blob([bytes as any])
+      const stream = new Blob([bytes as BlobPart])
         .stream()
         .pipeThrough(new DecompressionStream('deflate-raw'));
       const decompressed = new Uint8Array(await new Response(stream).arrayBuffer());

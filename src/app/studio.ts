@@ -3,6 +3,7 @@ import { handlePoint } from '../layout/geometry';
 import { drawBackground, drawScene } from '../render/draw';
 import { exportFrame } from '../render/frame';
 import type { ExportMode } from '../core/types';
+import type { EditorEvent } from '../editor/controller';
 import { worldToScreen } from '../editor/view';
 import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
@@ -11,7 +12,7 @@ export interface StudioEnv {
   getState: () => AppState;
   sourceEl: HTMLTextAreaElement;
   applyNewText: (t: string) => void;
-  dispatch?: (event: any) => void;
+  dispatch?: (event: EditorEvent) => void;
   getPresentStep?: () => number | null;
 }
 
@@ -23,7 +24,7 @@ export function setupStudioApi(env: StudioEnv): void {
     return;
   }
 
-  (window as any).__studio = {
+  window.__studio = {
     getText: () => env.sourceEl.value,
     setText: (t: string) => {
       env.sourceEl.value = t;
@@ -76,7 +77,7 @@ export function setupStudioApi(env: StudioEnv): void {
       const rect = document.querySelector('#canvas')?.getBoundingClientRect();
       return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
     },
-    dispatch: (event: any) => {
+    dispatch: (event: EditorEvent) => {
       env.dispatch?.(event);
     },
     getSelection: () => env.getState().editor.selection,
