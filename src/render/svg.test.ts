@@ -116,4 +116,10 @@ describe('SVG export', () => {
     expect(svg('flowchart LR\nA x--x B').match(/class="marker-cross"/g)).toHaveLength(2);
     expect(svg('flowchart LR\nA <-.-> B').match(/class="marker-arrow"/g)).toHaveLength(2);
   });
+
+  it('writes tspans in SVG', () => {
+    expect(svg('flowchart TD\nA["`**Hi** there`"]')).toContain(
+      '<tspan font-weight="bold">Hi</tspan><tspan> there</tspan>',
+    );
+  });
 });

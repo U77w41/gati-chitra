@@ -1,6 +1,8 @@
 import { ANIM, FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import type { DrawOptions, Scene, Theme } from '../core/types';
 import { tangentAt } from '../layout/geometry';
+import { fontString } from '../layout/measure';
+import { parseInlineMarkdown } from '../layout/rich-text';
 import { edgeStyle } from './style';
 
 export function drawEdges(
@@ -128,18 +130,41 @@ export function drawEdgeLabels(
     if (edge.label && edge.label.length > 0) {
       const path = scene.layout.edges[edge.id];
       if (!path) continue;
-      const w = ctx.measureText(edge.label).width + 2 * LAYOUT.edgeLabelPadX;
+      let w = 0;
+      if (edge.markdown) {
+        const runs = parseInlineMarkdown(edge.label);
+        for (const r of runs) {
+          ctx.font = fontString(13, r);
+          w += ctx.measureText(r.text).width;
+        }
+        w += 2 * LAYOUT.edgeLabelPadX;
+      } else {
+        ctx.font = `13px ${FONT_STACK_SANS}`;
+        w = ctx.measureText(edge.label).width + 2 * LAYOUT.edgeLabelPadX;
+      }
       const h = LAYOUT.edgeLabelH;
       ctx.beginPath();
       ctx.roundRect(path.labelPoint.x - w / 2, path.labelPoint.y - h / 2, w, h, 4);
       ctx.fillStyle = theme.edgeLabelBg;
       ctx.fill();
 
-      ctx.font = `13px ${FONT_STACK_SANS}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
       ctx.fillStyle = theme.edgeLabelText;
-      ctx.fillText(edge.label, path.labelPoint.x, path.labelPoint.y);
+      if (edge.markdown) {
+        const runs = parseInlineMarkdown(edge.label);
+        let curX = path.labelPoint.x - (w - 2 * LAYOUT.edgeLabelPadX) / 2;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        for (const r of runs) {
+          ctx.font = fontString(13, r);
+          ctx.fillText(r.text, curX, path.labelPoint.y);
+          curX += ctx.measureText(r.text).width;
+        }
+      } else {
+        ctx.font = `13px ${FONT_STACK_SANS}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(edge.label, path.labelPoint.x, path.labelPoint.y);
+      }
     }
   }
 }

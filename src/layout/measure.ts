@@ -1,7 +1,16 @@
 import { FONT_STACK_SANS, LAYOUT } from '../core/constants';
-import type { Direction, GraphNode } from '../core/types';
+import type { Direction, FontStyle, GraphNode, MeasureText, TextRun } from '../core/types';
+import { parseInlineMarkdown, wrapRuns } from './rich-text';
 
-export type MeasureText = (text: string, fontSize: number) => number;
+export type { MeasureText };
+
+export function fontString(fontSize: number, style?: FontStyle): string {
+  const parts: string[] = [];
+  if (style?.italic) parts.push('italic');
+  if (style?.bold) parts.push('bold');
+  parts.push(`${fontSize}px`, FONT_STACK_SANS);
+  return parts.join(' ');
+}
 
 export function wrapLabel(label: string, maxWidth: number, measure: MeasureText): string[] {
   const paragraphs = label.split('\n');
@@ -36,7 +45,7 @@ export function sizeNode(
   node: GraphNode,
   measure: MeasureText,
   direction: Direction = 'TB',
-): { width: number; height: number; lines: string[] } {
+): { width: number; height: number; lines: string[]; runs?: TextRun[][] } {
   if (node.shape === 'smallCircle' || node.shape === 'filledCircle') {
     return { width: LAYOUT.smallCircleD, height: LAYOUT.smallCircleD, lines: [] };
   }
@@ -49,11 +58,27 @@ export function sizeNode(
     };
   }
 
-  const lines = wrapLabel(node.label, LAYOUT.labelWrapWidth, measure);
+  let lines: string[];
+  let runs: TextRun[][] | undefined;
   let textW = 0;
-  for (const line of lines) {
-    const w = measure(line, LAYOUT.fontSize);
-    if (w > textW) textW = w;
+
+  if (node.markdown) {
+    const parsedRuns = parseInlineMarkdown(node.label);
+    runs = wrapRuns(parsedRuns, LAYOUT.labelWrapWidth, LAYOUT.fontSize, measure);
+    lines = runs.map((line) => line.map((r) => r.text).join(''));
+    for (const line of runs) {
+      let w = 0;
+      for (const r of line) {
+        w += measure(r.text, LAYOUT.fontSize, { bold: r.bold, italic: r.italic });
+      }
+      if (w > textW) textW = w;
+    }
+  } else {
+    lines = wrapLabel(node.label, LAYOUT.labelWrapWidth, measure);
+    for (const line of lines) {
+      const w = measure(line, LAYOUT.fontSize);
+      if (w > textW) textW = w;
+    }
   }
 
   let width = Math.max(LAYOUT.minNodeW, textW + 2 * LAYOUT.nodePadX);
@@ -105,6 +130,7 @@ export function sizeNode(
     width: Math.ceil(width),
     height: Math.ceil(height),
     lines,
+    ...(runs ? { runs } : {}),
   };
 }
 
@@ -118,9 +144,9 @@ export function canvasMeasure(): MeasureText {
     ctx = canvas.getContext('2d');
   }
 
-  return (text: string, fontSize: number): number => {
+  return (text: string, fontSize: number, style?: FontStyle): number => {
     if (ctx) {
-      ctx.font = `${fontSize}px ${FONT_STACK_SANS}`;
+      ctx.font = fontString(fontSize, style);
       return ctx.measureText(text).width;
     }
     return text.length * 8;

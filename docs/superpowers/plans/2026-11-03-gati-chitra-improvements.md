@@ -1169,7 +1169,7 @@ git add -A && git commit -m "feat: invisible links, two-ended markers, link leng
   - SVG: one `<text>` per line, with `<tspan font-weight="bold">` and/or `font-style="italic"` per run.
   - Plain labels leave `runs` undefined and keep the v0.1 drawing path.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 const R = (text: string, bold = false, italic = false) => ({ text, bold, italic });
@@ -1192,10 +1192,10 @@ it('builds the canvas font with weight and style', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-png.spec.ts`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-png.spec.ts`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: bold and italic markdown labels"

@@ -61,7 +61,13 @@ export interface ParsedDoc {
   ok: boolean; // true when there is no diagnostic with severity 'error'
 }
 
-export interface NodeBox { id: string; center: Point; width: number; height: number; lines: string[] }
+export interface FontStyle { bold?: boolean; italic?: boolean }
+export interface TextRun { text: string; bold: boolean; italic: boolean }
+export type MeasureText = (text: string, fontSize: number, style?: FontStyle) => number;
+export interface NodeBox {
+  id: string; center: Point; width: number; height: number; lines: string[];
+  runs?: TextRun[][];
+}
 export interface GroupBox { id: string; rect: Rect; title: string; depth: number } // depth 0 = outermost
 export interface EdgePath {
   id: string; kind: 'straight' | 'quad' | 'loop';

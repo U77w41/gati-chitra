@@ -2,6 +2,7 @@ import { EXPORT, FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import type { ExportMode, Scene, Theme } from '../core/types';
 import { shapePolygon, tangentAt } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
+import { parseInlineMarkdown } from '../layout/rich-text';
 import { exportFrame } from './frame';
 import { edgeStyle, nodeStyle } from './style';
 import { documentPathData, ringRadii } from './shapes-extra';
@@ -123,12 +124,30 @@ export function renderSvg(
     if (edge.label && edge.label.length > 0) {
       const path = scene.layout.edges[edge.id];
       if (!path) continue;
-      const w = measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX;
+      let w = 0;
+      if (edge.markdown) {
+        const runs = parseInlineMarkdown(edge.label);
+        w = runs.reduce((sum, r) => sum + measure(r.text, LAYOUT.edgeLabelFontSize, r), 0) + 2 * LAYOUT.edgeLabelPadX;
+      } else {
+        w = measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX;
+      }
       const h = LAYOUT.edgeLabelH;
       const x = path.labelPoint.x - w / 2;
       const y = path.labelPoint.y - h / 2;
       out += `<rect x="${fmt(x)}" y="${fmt(y)}" width="${fmt(w)}" height="${fmt(h)}" rx="4" fill="${theme.edgeLabelBg}"/>`;
-      out += `<text x="${fmt(path.labelPoint.x)}" y="${fmt(path.labelPoint.y)}" dy="0.35em" text-anchor="middle" font-size="13" fill="${theme.edgeLabelText}">${escapeXml(edge.label)}</text>`;
+      if (edge.markdown) {
+        const runs = parseInlineMarkdown(edge.label);
+        out += `<text x="${fmt(path.labelPoint.x)}" y="${fmt(path.labelPoint.y)}" dy="0.35em" text-anchor="middle" font-size="13" fill="${theme.edgeLabelText}">`;
+        for (const run of runs) {
+          let attrs = '';
+          if (run.bold) attrs += ' font-weight="bold"';
+          if (run.italic) attrs += ' font-style="italic"';
+          out += `<tspan${attrs}>${escapeXml(run.text)}</tspan>`;
+        }
+        out += '</text>';
+      } else {
+        out += `<text x="${fmt(path.labelPoint.x)}" y="${fmt(path.labelPoint.y)}" dy="0.35em" text-anchor="middle" font-size="13" fill="${theme.edgeLabelText}">${escapeXml(edge.label)}</text>`;
+      }
     }
   }
 
@@ -219,10 +238,25 @@ export function renderSvg(
       node.shape !== 'filledCircle' &&
       node.shape !== 'forkBar'
     ) {
-      const nLines = box.lines.length;
-      for (let k = 0; k < nLines; k++) {
-        const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
-        out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+      if (box.runs) {
+        const nLines = box.runs.length;
+        for (let k = 0; k < nLines; k++) {
+          const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+          out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">`;
+          for (const run of box.runs[k]) {
+            let attrs = '';
+            if (run.bold) attrs += ' font-weight="bold"';
+            if (run.italic) attrs += ' font-style="italic"';
+            out += `<tspan${attrs}>${escapeXml(run.text)}</tspan>`;
+          }
+          out += '</text>';
+        }
+      } else {
+        const nLines = box.lines.length;
+        for (let k = 0; k < nLines; k++) {
+          const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+          out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+        }
       }
     }
   }

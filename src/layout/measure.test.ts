@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { wrapLabel, sizeNode } from './measure';
+import { fontString, wrapLabel, sizeNode } from './measure';
+import { FONT_STACK_SANS } from '../core/constants';
 import { testMeasure } from '../../tests/support/measure';
 import type { ShapeKind } from '../core/types';
 
@@ -40,5 +41,10 @@ describe('measure', () => {
     expect(sizeNode(nodeOf('smallCircle'), testMeasure, 'TB')).toMatchObject({ width: 20, height: 20 });
     expect(sizeNode(nodeOf('forkBar'), testMeasure, 'TB')).toMatchObject({ width: 72, height: 10 });
     expect(sizeNode(nodeOf('forkBar'), testMeasure, 'LR')).toMatchObject({ width: 10, height: 72 });
+  });
+
+  it('builds the canvas font with weight and style', () => {
+    expect(fontString(16)).toBe(`16px ${FONT_STACK_SANS}`);
+    expect(fontString(16, { bold: true, italic: true })).toBe(`italic bold 16px ${FONT_STACK_SANS}`);
   });
 });

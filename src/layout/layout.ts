@@ -1,7 +1,8 @@
 import dagre from '@dagrejs/dagre';
 import { LAYOUT } from '../core/constants';
-import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout } from '../core/types';
+import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout, TextRun } from '../core/types';
 import { sizeNode, type MeasureText } from './measure';
+import { parseInlineMarkdown } from './rich-text';
 
 let dagreRuns = 0;
 
@@ -13,18 +14,11 @@ export function computeGroups(
   doc: ParsedDoc,
   nodes: Record<string, NodeBox>,
 ): Record<string, GroupBox> {
-  const groupMap = new Map<string, GraphGroup>();
-  for (const group of doc.groups) {
-    groupMap.set(group.id, group);
-  }
+  const groupMap = new Map<string, GraphGroup>(doc.groups.map((g) => [g.id, g]));
 
   function getDepth(groupId: string): number {
-    let depth = 0;
-    let curr = groupMap.get(groupId);
-    while (curr && curr.parent) {
-      depth++;
-      curr = groupMap.get(curr.parent);
-    }
+    let depth = 0, curr = groupMap.get(groupId);
+    while (curr?.parent) { depth++; curr = groupMap.get(curr.parent); }
     return depth;
   }
 
@@ -38,10 +32,7 @@ export function computeGroups(
   const groupBoxes: Record<string, GroupBox> = {};
 
   for (const { group, depth } of groupsWithDepth) {
-    let minX = Infinity;
-    let maxX = -Infinity;
-    let minY = Infinity;
-    let maxY = -Infinity;
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     let count = 0;
 
     for (const node of doc.nodes) {
@@ -107,10 +98,7 @@ export function computeBounds(
     return { x: 0, y: 0, width: 0, height: 0 };
   }
 
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
 
   for (const box of Object.values(layout.nodes)) {
     const left = box.center.x - box.width / 2;
@@ -182,7 +170,7 @@ export function structureKey(doc: ParsedDoc, measure: MeasureText): string {
 interface LayoutCacheEntry {
   key: string;
   dagrePositions: Record<string, { x: number; y: number }>;
-  sizedNodes: Record<string, { width: number; height: number; lines: string[] }>;
+  sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][] }>;
 }
 
 let lastEntry: LayoutCacheEntry | null = null;
@@ -199,7 +187,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
 
   const key = structureKey(doc, measure);
   let dagrePositions: Record<string, { x: number; y: number }>;
-  let sizedNodes: Record<string, { width: number; height: number; lines: string[] }>;
+  let sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][] }>;
 
   if (lastEntry && lastEntry.key === key) {
     dagrePositions = lastEntry.dagrePositions;
@@ -236,15 +224,21 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
       if (edge.fromIsGroup || edge.toIsGroup) continue;
       if (edge.from !== edge.to) {
         const hasLabel = edge.label && edge.label.length > 0;
+        let labelW = 0;
+        if (hasLabel) {
+          if (edge.markdown) {
+            const runs = parseInlineMarkdown(edge.label);
+            labelW = runs.reduce(
+              (sum, r) => sum + measure(r.text, LAYOUT.edgeLabelFontSize, { bold: r.bold, italic: r.italic }),
+              0,
+            );
+          } else {
+            labelW = measure(edge.label, LAYOUT.edgeLabelFontSize);
+          }
+        }
         const labelObj = {
           minlen: edge.length,
-          ...(hasLabel
-            ? {
-                width: measure(edge.label, LAYOUT.edgeLabelFontSize) + 2 * LAYOUT.edgeLabelPadX,
-                height: LAYOUT.edgeLabelH,
-                labelpos: 'c',
-              }
-            : {}),
+          ...(hasLabel ? { width: labelW + 2 * LAYOUT.edgeLabelPadX, height: LAYOUT.edgeLabelH, labelpos: 'c' } : {}),
         };
         g.setEdge(edge.from, edge.to, labelObj, edge.id);
       }
@@ -275,6 +269,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
       width: sized.width,
       height: sized.height,
       lines: sized.lines,
+      ...(sized.runs ? { runs: sized.runs } : {}),
     };
   }
 

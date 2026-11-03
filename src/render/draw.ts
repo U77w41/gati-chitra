@@ -2,11 +2,14 @@ import { ANIM, FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import type {
   DrawOptions,
   FrameState,
+  Point,
   Scene,
+  TextRun,
   Theme,
   ViewState,
 } from '../core/types';
 import { handlePoint, pointOnPath } from '../layout/geometry';
+import { fontString } from '../layout/measure';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
 import { traceNodePath } from './node-path';
 import { prepare } from './prepared';
@@ -15,6 +18,32 @@ import { edgeStyle, nodeStyle } from './style';
 export type Ctx2D = CanvasRenderingContext2D;
 
 export { edgeStyle, nodeStyle };
+
+export function drawRuns(
+  ctx: Ctx2D,
+  lines: TextRun[][],
+  center: Point,
+  fontSize: number,
+  lineHeight: number,
+): void {
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  for (let k = 0; k < lines.length; k++) {
+    const line = lines[k];
+    let totalW = 0;
+    for (const r of line) {
+      ctx.font = fontString(fontSize, r);
+      totalW += ctx.measureText(r.text).width;
+    }
+    let curX = center.x - totalW / 2;
+    const y = center.y + (k - (lines.length - 1) / 2) * lineHeight;
+    for (const r of line) {
+      ctx.font = fontString(fontSize, r);
+      ctx.fillText(r.text, curX, y);
+      curX += ctx.measureText(r.text).width;
+    }
+  }
+}
 
 export function emptyFrame(): FrameState {
   return { particles: [], dashOffset: null, nodeGlow: {} };
@@ -166,14 +195,18 @@ export function drawScene(
       node.shape !== 'filledCircle' &&
       node.shape !== 'forkBar'
     ) {
-      ctx.font = `16px ${FONT_STACK_SANS}`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
       ctx.fillStyle = st.text;
-      for (let k = 0; k < box.lines.length; k++) {
-        const y =
-          box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
-        ctx.fillText(box.lines[k], box.center.x, y);
+      if (box.runs) {
+        drawRuns(ctx, box.runs, box.center, LAYOUT.fontSize, LAYOUT.lineHeight);
+      } else {
+        ctx.font = `16px ${FONT_STACK_SANS}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (let k = 0; k < box.lines.length; k++) {
+          const y =
+            box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
+          ctx.fillText(box.lines[k], box.center.x, y);
+        }
       }
     }
 
