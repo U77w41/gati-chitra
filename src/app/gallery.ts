@@ -1,4 +1,5 @@
 import { MESSAGES } from '../core/constants';
+import { showMessage } from './message';
 import { loadTemplate, loadTemplateIndex } from '../share/templates';
 import type { CommitSource } from './state';
 
@@ -12,7 +13,7 @@ export interface GalleryEnv {
 }
 
 export function setupGallery(env: GalleryEnv): void {
-  const { dialogEl, btnTemplates, baseUrl, commit, triggerFit, messageEl } = env;
+  const { dialogEl, btnTemplates, baseUrl, commit, triggerFit } = env;
   btnTemplates.disabled = false;
 
   const closeBtn = dialogEl.querySelector<HTMLButtonElement>('#gallery-close');
@@ -42,7 +43,7 @@ export function setupGallery(env: GalleryEnv): void {
       btn.addEventListener('click', async () => {
         const text = await loadTemplate(baseUrl, item);
         if (!text) {
-          messageEl.textContent = MESSAGES.templateFailed;
+          showMessage(MESSAGES.templateFailed);
           close();
           return;
         }

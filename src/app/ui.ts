@@ -15,13 +15,17 @@ import { setupPresentMode } from './present';
 import { setupProperties } from './properties';
 import { startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
-import { setupShareHandler } from './share-handler';
 import { setupKeyboardShortcuts } from './shortcuts';
 import { commitText, createState, type AppState, type CommitSource } from './state';
-import { loadDoc, loadSettings, safeStore, saveDoc } from './storage';
+import { loadDoc, loadSettings, safeStore, setupAutosave, setupDocSync } from './storage';
+import { setMessageElement, showMessage } from './message';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
-import { decodeShare } from '../share/share';
+import {
+  checkInitialShare,
+  setupHashChangeListener,
+  setupShareHandler,
+} from './share-handler';
 import { mountChrome } from './chrome';
 
 export async function initApp(): Promise<void> {
@@ -29,39 +33,24 @@ export async function initApp(): Promise<void> {
   mountChrome(document, store, import.meta.env.VITE_SOURCE_URL ?? '');
   document.getElementById('main')?.focus();
 
-  let initialText = loadDoc(store) ?? SAMPLE_TEXT;
+  const initialText = loadDoc(store) ?? SAMPLE_TEXT;
   const initialSettings = loadSettings(store);
-
-  let initialShareError: string | null = null;
-  const hash = window.location.hash;
-  if (hash.startsWith('#v1')) {
-    try {
-      const sharedText = await decodeShare(hash);
-      if (sharedText !== null) {
-        initialText = sharedText;
-        window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      } else {
-        initialShareError = MESSAGES.shareInvalid;
-      }
-    } catch {
-      initialShareError = MESSAGES.shareInvalid;
-    }
-  }
+  const { text: sharedToLoad, error: initialShareError } = await checkInitialShare();
 
   let state: AppState = createState(initialText, initialSettings);
+  let dirty = false;
   const measure = canvasMeasure();
 
   const sourceEl = document.querySelector<HTMLTextAreaElement>('#source')!;
   const diagnosticsEl = document.querySelector<HTMLUListElement>('#diagnostics')!;
   const canvasEl = document.querySelector<HTMLCanvasElement>('#canvas')!;
   const messageEl = document.querySelector<HTMLDivElement>('#message')!;
+  setMessageElement(messageEl);
   const ctx = canvasEl.getContext('2d')!;
 
   sourceEl.value = state.text;
   let hasFitted = false;
-  let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
   let parseTimer: ReturnType<typeof setTimeout> | null = null;
-  let storageUnavailableShown = false;
   let pausedPhase = 0;
   const startTime = performance.now();
 
@@ -82,15 +71,12 @@ export async function initApp(): Promise<void> {
     }
   }
 
-  function scheduleAutosave(): void {
-    if (autosaveTimer) clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(() => {
-      if (!saveDoc(store, state.text) && !storageUnavailableShown) {
-        messageEl.textContent = MESSAGES.storageUnavailable;
-        storageUnavailableShown = true;
-      }
-    }, TIMING.autosaveDebounceMs);
-  }
+  const autosave = setupAutosave({
+    store,
+    getText: () => sourceEl.value || state.text,
+    onUnavailable: () => showMessage(MESSAGES.storageUnavailable),
+    debounceMs: TIMING.autosaveDebounceMs,
+  });
 
   const inlineEditor = setupInlineEditor(
     document.querySelector<HTMLTextAreaElement>('#inline-edit')!,
@@ -125,7 +111,7 @@ export async function initApp(): Promise<void> {
     updateAriaLabel();
     updateButtons();
     updateProps();
-    scheduleAutosave();
+    autosave.schedule();
     if (!hasFitted && state.scene) { triggerFit(); hasFitted = true; }
   }
 
@@ -138,6 +124,7 @@ export async function initApp(): Promise<void> {
       }
     }
     state = commitText(state, text, source, measure, opts);
+    if (source === 'typing' || source === 'op') dirty = true;
     sourceEl.value = state.text;
     updateAfterCommit();
   }
@@ -145,9 +132,9 @@ export async function initApp(): Promise<void> {
   function executeOp(op: TextOp): void {
     const res = applyOp(state.text, op);
     if ('error' in res) {
-      messageEl.textContent = res.error;
+      showMessage(res.error);
     } else {
-      messageEl.textContent = '';
+      showMessage('');
       const coalesce = op.type === 'renameNode' && freshlyCreatedNodeId === op.id;
       freshlyCreatedNodeId = null;
       commit(res.text, 'op', { coalesce });
@@ -167,7 +154,39 @@ export async function initApp(): Promise<void> {
   updateButtons();
   updateProps();
   if (state.scene) { triggerFit(); hasFitted = true; }
-  if (initialShareError) messageEl.textContent = initialShareError;
+
+  if (sharedToLoad !== null) {
+    commit(sharedToLoad, 'share');
+    showMessage(MESSAGES.shareOpened);
+  } else if (initialShareError) {
+    showMessage(initialShareError);
+  }
+
+  setupHashChangeListener(
+    (shared) => {
+      commit(shared, 'share');
+      showMessage(MESSAGES.shareOpened);
+    },
+    (err) => showMessage(err),
+  );
+
+  function applySync(t: string): void {
+    commit(t, 'open');
+    dirty = false;
+  }
+
+  setupDocSync({
+    store,
+    getText: () => state.text,
+    isDirty: () => dirty,
+    apply: applySync,
+    ask: (t) => {
+      showMessage(MESSAGES.changedInOtherTab, {
+        label: 'Load it',
+        run: () => applySync(t),
+      });
+    },
+  });
 
   sourceEl.addEventListener('input', () => {
     if (parseTimer) clearTimeout(parseTimer);

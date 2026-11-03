@@ -59,6 +59,9 @@ export async function encodeShare(
 }
 
 export async function decodeShare(hash: string): Promise<string | null> {
+  if (hash.length > SHARE.maxUrlChars) {
+    return null;
+  }
   const h = hash.startsWith('#') ? hash.slice(1) : hash;
   if (h.startsWith(SHARE.prefix)) {
     const rest = h.slice(SHARE.prefix.length);
@@ -70,7 +73,27 @@ export async function decodeShare(hash: string): Promise<string | null> {
       const stream = new Blob([bytes as BlobPart])
         .stream()
         .pipeThrough(new DecompressionStream('deflate-raw'));
-      const decompressed = new Uint8Array(await new Response(stream).arrayBuffer());
+      const reader = stream.getReader();
+      const chunks: Uint8Array[] = [];
+      let totalBytes = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          totalBytes += value.length;
+          if (totalBytes > SHARE.maxDecodedBytes) {
+            await reader.cancel();
+            return null;
+          }
+          chunks.push(value);
+        }
+      }
+      const decompressed = new Uint8Array(totalBytes);
+      let offset = 0;
+      for (const chunk of chunks) {
+        decompressed.set(chunk, offset);
+        offset += chunk.length;
+      }
       const text = new TextDecoder('utf-8', { fatal: true }).decode(decompressed);
       if (text.length > LIMITS.maxTextChars) {
         return null;
@@ -82,7 +105,7 @@ export async function decodeShare(hash: string): Promise<string | null> {
   } else if (h.startsWith(SHARE.plainPrefix)) {
     const rest = h.slice(SHARE.plainPrefix.length);
     const bytes = fromBase64Url(rest);
-    if (!bytes) {
+    if (!bytes || bytes.length > SHARE.maxDecodedBytes) {
       return null;
     }
     try {

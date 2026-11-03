@@ -1,5 +1,6 @@
+import { deflateRawSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
-import { MESSAGES } from '../core/constants';
+import { MESSAGES, SHARE } from '../core/constants';
 import {
   buildShareUrl,
   decodeShare,
@@ -82,5 +83,10 @@ describe('share', () => {
     expect(buildShareUrl('https://x.test/app/?e2e=1#old', 'v1=abc')).toBe(
       'https://x.test/app/?e2e=1#v1=abc',
     );
+  });
+
+  it('rejects a share link that inflates past the limit', async () => {
+    const bytes = deflateRawSync(Buffer.from('A'.repeat(1_000_000)));
+    expect(await decodeShare(SHARE.prefix + toBase64Url(new Uint8Array(bytes)))).toBeNull();
   });
 });

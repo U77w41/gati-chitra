@@ -1,4 +1,5 @@
 import { ANIM, MESSAGES } from '../core/constants';
+import { showMessage } from './message';
 import type { Focus } from '../core/types';
 import { buildSteps, focusAt, type Step } from '../anim/steps';
 import type { AppState } from './state';
@@ -25,7 +26,6 @@ export function setupPresentMode(env: PresentEnv): PresentController {
     btnPresent,
     canvasPanel,
     presentStepEl,
-    messageEl,
     getState,
     triggerFit,
   } = env;
@@ -70,17 +70,17 @@ export function setupPresentMode(env: PresentEnv): PresentController {
   function start(): void {
     const state = getState();
     if (!state.scene || state.doc.nodes.length === 0) {
-      messageEl.textContent = MESSAGES.nothingToPresent;
+      showMessage(MESSAGES.nothingToPresent);
       return;
     }
 
     steps = buildSteps(state.doc);
     if (steps.length === 0) {
-      messageEl.textContent = MESSAGES.nothingToPresent;
+      showMessage(MESSAGES.nothingToPresent);
       return;
     }
 
-    messageEl.textContent = '';
+    showMessage('');
     currentIndex = 0;
     currentFocus = focusAt(steps, 0);
 

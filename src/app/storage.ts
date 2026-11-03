@@ -104,3 +104,90 @@ export function saveSettings(
     return false;
   }
 }
+
+let autosaveFlusher: (() => void) | null = null;
+
+export function registerAutosaveFlush(fn: () => void): void {
+  autosaveFlusher = fn;
+}
+
+export function flushAutosave(): void {
+  autosaveFlusher?.();
+}
+
+export interface AutosaveEnv {
+  store: KeyValueStore | null;
+  getText: () => string;
+  onUnavailable: () => void;
+  debounceMs?: number;
+}
+
+export function setupAutosave(env: AutosaveEnv): {
+  schedule: () => void;
+  flush: () => void;
+} {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  let unavailableShown = false;
+
+  function flush(): void {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    const text = env.getText();
+    if (!saveDoc(env.store, text) && !unavailableShown) {
+      unavailableShown = true;
+      env.onUnavailable();
+    }
+  }
+
+  registerAutosaveFlush(flush);
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', () => flushAutosave());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushAutosave();
+    });
+  }
+
+  function schedule(): void {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(flush, env.debounceMs ?? 800);
+  }
+
+  return { schedule, flush };
+}
+
+export interface DocSyncEnv {
+  store: KeyValueStore | null;
+  getText(): string;
+  isDirty(): boolean;
+  apply(text: string): void;
+  ask(text: string): void;
+}
+
+export function setupDocSync(env: DocSyncEnv): () => void {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+
+  const onStorage = (e: StorageEvent) => {
+    if (e.key !== STORAGE.docKey || e.newValue === null) {
+      return;
+    }
+    const newText = e.newValue;
+    if (newText === env.getText()) {
+      return;
+    }
+    if (!env.isDirty()) {
+      env.apply(newText);
+    } else {
+      env.ask(newText);
+    }
+  };
+
+  window.addEventListener('storage', onStorage);
+  return () => {
+    window.removeEventListener('storage', onStorage);
+  };
+}

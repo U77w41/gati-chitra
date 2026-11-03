@@ -8,6 +8,7 @@ import {
 } from '../editor/controller';
 import type { MeasureText } from '../layout/measure';
 import type { AppState, CommitSource } from './state';
+import { showMessage } from './message';
 import { createConnectedNode, createNodeAt } from './node-creator';
 import type { InlineEditManager } from './inline-edit';
 
@@ -31,7 +32,7 @@ export function createDispatcher(env: DispatcherEnv): {
     measure,
     commit,
     executeOp,
-    messageEl,
+    messageEl: _messageEl,
     inlineEditor,
     updateProps,
     setFreshlyCreatedNodeId,
@@ -41,7 +42,7 @@ export function createDispatcher(env: DispatcherEnv): {
     const state = getState();
     const { newId, error } = createNodeAt(state, at, shape, commit);
     if (error) {
-      messageEl.textContent = error;
+      showMessage(error);
       return;
     }
     if (newId) {
@@ -66,7 +67,7 @@ export function createDispatcher(env: DispatcherEnv): {
     const state = getState();
     const { newId, error } = createConnectedNode(state, fromId, at, commit);
     if (error) {
-      messageEl.textContent = error;
+      showMessage(error);
       return;
     }
     if (newId) {
@@ -92,7 +93,7 @@ export function createDispatcher(env: DispatcherEnv): {
     for (const eff of effects) {
       if (eff.type === 'applyOp') executeOp(eff.op);
       else if (eff.type === 'panBy') state.view = panBy(state.view, eff.dx, eff.dy);
-      else if (eff.type === 'message') messageEl.textContent = eff.text;
+      else if (eff.type === 'message') showMessage(eff.text);
       else if (eff.type === 'addNodeAt') handleAddNodeAt(eff.at, eff.shape);
       else if (eff.type === 'addConnectedNode') handleAddConnectedNode(eff.fromId, eff.at);
       else if (eff.type === 'startEdit') {

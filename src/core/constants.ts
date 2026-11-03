@@ -96,7 +96,12 @@ export const EXPORT = {
   svgDecimals: 2,
 } as const;
 
-export const SHARE = { prefix: 'v1=', plainPrefix: 'v1p=', maxUrlChars: 8000 } as const;
+export const SHARE = {
+  prefix: 'v1=',
+  plainPrefix: 'v1p=',
+  maxUrlChars: 8000,
+  maxDecodedBytes: 80_000,
+} as const;
 
 export const MESSAGES = {
   notFlowchart: "Only flowchart diagrams are supported. Start with 'flowchart TD' or 'graph LR'.",
@@ -119,6 +124,8 @@ export const MESSAGES = {
   shareTooLong: 'This diagram is too large for a link. Save it as a .mmd file instead.',
   shareInvalid: 'The share link could not be read. Showing the sample diagram.',
   templateFailed: 'The template could not be loaded.',
+  shareOpened: 'Opened a shared diagram. Press Ctrl+Z to get your previous diagram back.',
+  changedInOtherTab: 'This diagram was changed in another tab.',
   storageUnavailable: 'Browser storage is unavailable, so autosave is off.',
   groupsInText: 'Groups are edited in the text.',
   linkCopied: 'Link copied.',

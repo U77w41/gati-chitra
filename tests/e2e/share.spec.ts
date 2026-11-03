@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { encodeShare } from '../../src/share/share';
+import { MESSAGES } from '../../src/core/constants';
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -171,11 +172,93 @@ test.describe('Share links and templates', () => {
   });
 
   test('duplicate subgraph ids in share link do not break the app', async ({ page }) => {
-    const hash = await encodeShare('flowchart TD\nsubgraph X\nsubgraph X\nA\nend\nend');
-    await page.goto(`/?e2e=1${hash}`);
+    const enc = (await encodeShare('flowchart TD\nsubgraph X\nsubgraph X\nA\nend\nend')) as { hash: string };
+    await page.goto(`/?e2e=1#${enc.hash}`);
     await page.waitForTimeout(300);
     const summary = await page.evaluate(() => (window as any).__studio.getSummary());
     expect(summary.nodes).toContain('A');
     expect(await page.locator('#btn-share').isEnabled()).toBe(true);
+  });
+
+  test('share link keeps the autosave undoable', async ({ page, context }) => {
+    const enc = (await encodeShare('flowchart TD\nSharedDiagram')) as { hash: string };
+
+    await page.addInitScript(() => {
+      localStorage.setItem('gati-chitra:v1:doc', 'flowchart TD\nSavedDiagram');
+    });
+
+    await page.goto(`/?e2e=1#${enc.hash}`);
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('#message')).toHaveText(MESSAGES.shareOpened);
+    expect(await page.locator('#source').inputValue()).toContain('SharedDiagram');
+
+    await page.locator('body').focus();
+    await page.keyboard.press('ControlOrMeta+z');
+    await page.waitForTimeout(200);
+
+    expect(await page.locator('#source').inputValue()).toBe('flowchart TD\nSavedDiagram');
+  });
+
+  test('a new hash loads', async ({ page }) => {
+    const enc1 = (await encodeShare('flowchart TD\nDiagramOne')) as { hash: string };
+    const enc2 = (await encodeShare('flowchart TD\nDiagramTwo')) as { hash: string };
+
+    await page.goto(`/?e2e=1#${enc1.hash}`);
+    await page.waitForTimeout(300);
+    expect(await page.locator('#source').inputValue()).toContain('DiagramOne');
+
+    await page.evaluate((h) => {
+      location.hash = h;
+    }, enc2.hash);
+    await page.waitForTimeout(300);
+    expect(await page.locator('#source').inputValue()).toContain('DiagramTwo');
+  });
+
+  test('typing right before a reload is kept', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(300);
+
+    const source = page.locator('#source');
+    await source.focus();
+    await source.fill('flowchart TD\nKeptOnReload');
+    await page.reload();
+    await page.waitForTimeout(300);
+
+    expect(await page.locator('#source').inputValue()).toContain('KeptOnReload');
+  });
+
+  test('a second tab follows', async ({ context }) => {
+    const page1 = await context.newPage();
+    const page2 = await context.newPage();
+
+    await page1.goto('/?e2e=1');
+    await page2.goto('/?e2e=1');
+    await page1.waitForTimeout(300);
+    await page2.waitForTimeout(300);
+
+    const source2 = page2.locator('#source');
+    await source2.focus();
+    await source2.fill('flowchart TD\nSyncedToTab1');
+    await page1.waitForTimeout(1200);
+    expect(await page1.locator('#source').inputValue()).toContain('SyncedToTab1');
+
+    const source1 = page1.locator('#source');
+    await source1.focus();
+    await source1.fill('flowchart TD\nTab1Edits');
+    await page1.waitForTimeout(500);
+
+    await source2.focus();
+    await source2.fill('flowchart TD\nTab2SecondChange');
+    await page1.waitForTimeout(1200);
+
+    const msg = page1.locator('#message');
+    await expect(msg).toContainText(MESSAGES.changedInOtherTab);
+    const loadBtn = msg.locator('button', { hasText: 'Load it' });
+    await expect(loadBtn).toBeVisible();
+
+    await loadBtn.click();
+    await page1.waitForTimeout(200);
+    expect(await source1.inputValue()).toContain('Tab2SecondChange');
   });
 });
