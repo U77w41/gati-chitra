@@ -67,4 +67,23 @@ describe('video export planning', () => {
       }),
     ).toBeNull();
   });
+
+  it('rejects codec if VideoEncoder configure throws unsupported error', async () => {
+    const scope = globalThis as unknown as Record<string, unknown>;
+    const originalVideoEncoder = scope.VideoEncoder;
+    try {
+      scope.VideoEncoder = class MockVideoEncoder {
+        static async isConfigSupported() {
+          return { supported: true };
+        }
+        configure() {
+          throw new Error('The given encoding is not supported.');
+        }
+        close() {}
+      };
+      expect(await probeEncoder(100, 100)).toBeNull();
+    } finally {
+      scope.VideoEncoder = originalVideoEncoder;
+    }
+  });
 });

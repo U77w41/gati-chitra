@@ -28,7 +28,14 @@ test.describe('Video export', () => {
             width: 100,
             height: 100,
           });
-          if (res?.supported) return true;
+          if (res?.supported) {
+            try {
+              const enc = new (window as any).VideoEncoder({ output: () => {}, error: () => {} });
+              enc.configure({ codec, width: 100, height: 100 });
+              enc.close();
+              return true;
+            } catch {}
+          }
         } catch {}
       }
       return false;
@@ -108,7 +115,14 @@ test.describe('Video export', () => {
             width: 100,
             height: 100,
           });
-          if (res?.supported) return true;
+          if (res?.supported) {
+            try {
+              const enc = new (window as any).VideoEncoder({ output: () => {}, error: () => {} });
+              enc.configure({ codec, width: 100, height: 100 });
+              enc.close();
+              return true;
+            } catch {}
+          }
         } catch {}
       }
       return false;

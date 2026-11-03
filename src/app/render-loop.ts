@@ -55,6 +55,32 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
   } = env;
   let animId: number;
 
+  function syncCanvasSize(): boolean {
+    const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+    const w = Math.round((canvasEl.clientWidth || 0) * dpr);
+    const h = Math.round((canvasEl.clientHeight || 0) * dpr);
+    if (w > 0 && h > 0 && (canvasEl.width !== w || canvasEl.height !== h)) {
+      canvasEl.width = w;
+      canvasEl.height = h;
+      return true;
+    }
+    return false;
+  }
+
+  syncCanvasSize();
+
+  const ro =
+    typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(() => {
+          if (syncCanvasSize()) {
+            requestRedraw();
+          }
+        })
+      : null;
+  if (ro && typeof canvasEl.addEventListener === 'function') {
+    ro.observe(canvasEl);
+  }
+
   function render(): void {
     const state = getState();
     const presenting = isPresenting ? isPresenting() : false;
@@ -67,6 +93,8 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
     }
     dirty = false;
     drawCount++;
+
+    syncCanvasSize();
 
     const scheme =
       document.documentElement.getAttribute('data-scheme') === 'dark'
@@ -120,5 +148,8 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
   }
 
   animId = requestAnimationFrame(render);
-  return () => cancelAnimationFrame(animId);
+  return () => {
+    if (ro) ro.disconnect();
+    cancelAnimationFrame(animId);
+  };
 }

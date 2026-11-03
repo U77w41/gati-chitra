@@ -248,13 +248,6 @@ export async function initApp(): Promise<void> {
     isPresenting: present.isPresenting,
   });
 
-  const ro = new ResizeObserver(() => {
-    const dpr = window.devicePixelRatio || 1;
-    const w = Math.round(canvasEl.clientWidth * dpr), h = Math.round(canvasEl.clientHeight * dpr);
-    if (canvasEl.width !== w || canvasEl.height !== h) { canvasEl.width = w; canvasEl.height = h; requestRedraw(); }
-  });
-  ro.observe(canvasEl);
-
   startRenderLoop({
     canvasEl, ctx, getState: () => state, measure, startTime,
     getPausedPhase: () => pausedPhase,

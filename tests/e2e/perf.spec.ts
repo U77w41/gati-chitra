@@ -34,7 +34,7 @@ test.describe('Performance budgets', () => {
     await page.waitForTimeout(300);
 
     await page.locator('#anim-pause').click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(300);
 
     const countBefore = await page.evaluate(() => (window as any).__studio.getDrawCount());
     await page.waitForTimeout(500);

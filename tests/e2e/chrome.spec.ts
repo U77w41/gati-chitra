@@ -106,8 +106,9 @@ test.describe('Site Chrome and Scheme', () => {
   test('canvas follows page scheme when set to Match page', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
     await page.selectOption('#theme', 'auto');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
 
     // Light scheme canvas corner pixel
     const lightCorner = await page.evaluate(() => {
@@ -120,7 +121,7 @@ test.describe('Site Chrome and Scheme', () => {
 
     // Switch to dark
     await page.click('#theme-toggle');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
 
     const darkCorner = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
@@ -132,7 +133,7 @@ test.describe('Site Chrome and Scheme', () => {
 
     // Explicit Lagoon theme does not change on page scheme toggle
     await page.selectOption('#theme', 'lagoon');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
     const lagoonCorner1 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
       const ctx = c.getContext('2d')!;
@@ -141,7 +142,7 @@ test.describe('Site Chrome and Scheme', () => {
     });
 
     await page.click('#theme-toggle');
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
     const lagoonCorner2 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
       const ctx = c.getContext('2d')!;

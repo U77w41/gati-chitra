@@ -91,6 +91,18 @@ export function videoBitrate(width: number, height: number, fps: number): number
   );
 }
 
+function canConfigureCodec(config: VideoEncoderConfig): boolean {
+  if (typeof VideoEncoder === 'undefined') return true;
+  try {
+    const enc = new VideoEncoder({ output: () => {}, error: () => {} });
+    enc.configure(config);
+    enc.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function probeEncoder(
   width: number,
   height: number,
@@ -106,14 +118,15 @@ export async function probeEncoder(
   const h264Codecs = ['avc1.640028', 'avc1.4d0028', 'avc1.42001f'];
   for (const codec of h264Codecs) {
     try {
-      const res = await checkFn({
+      const cfg: VideoEncoderConfig = {
         codec,
         width,
         height,
         bitrate: videoBitrate(width, height, 30),
         framerate: 30,
-      });
-      if (res?.supported === true) {
+      };
+      const res = await checkFn(cfg);
+      if (res?.supported === true && canConfigureCodec(cfg)) {
         return { codec: 'avc', container: 'mp4' };
       }
     } catch {
@@ -122,14 +135,15 @@ export async function probeEncoder(
   }
 
   try {
-    const res = await checkFn({
+    const vp9Cfg: VideoEncoderConfig = {
       codec: 'vp09.00.40.08',
       width,
       height,
       bitrate: videoBitrate(width, height, 30),
       framerate: 30,
-    });
-    if (res?.supported === true) {
+    };
+    const res = await checkFn(vp9Cfg);
+    if (res?.supported === true && canConfigureCodec(vp9Cfg)) {
       return { codec: 'vp9', container: 'webm' };
     }
   } catch {
@@ -213,7 +227,21 @@ export async function exportVideo(
     bitrate: videoBitrate(plan.width, plan.height, plan.fps),
   });
   output.addVideoTrack(source, { frameRate: plan.fps });
-  await abortable(output.start(), signal);
+  try {
+    await abortable(output.start(), signal);
+  } catch (err: unknown) {
+    if (signal.aborted || (err instanceof Error && err.name === 'AbortError')) {
+      throw err;
+    }
+    const msg = err instanceof Error ? err.message : String(err);
+    if (
+      msg.includes('not supported') ||
+      (err instanceof Error && err.name === 'NotSupportedError')
+    ) {
+      return { fallback: 'gif' };
+    }
+    throw err;
+  }
 
   const loopSec = loopSeconds(anim);
   for (let i = 0; i < plan.totalFrames; i++) {

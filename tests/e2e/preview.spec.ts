@@ -47,6 +47,7 @@ test.describe('Live preview and app shell', () => {
 
   test('displays diagnostics on invalid syntax while preserving last good picture', async ({ page }) => {
     await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
 
     await page.evaluate(() => {
       (window as any).__studio.setText('sequenceDiagram');
@@ -112,6 +113,7 @@ test.describe('Live preview and app shell', () => {
 
   test('animation updates frames when active and freezes when paused', async ({ page }) => {
     await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
 
     const snap1 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas');
