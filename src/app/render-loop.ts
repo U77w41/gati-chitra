@@ -40,6 +40,7 @@ export interface RenderLoopEnv {
   getPausedPhase: () => number;
   getFocus?: () => Focus | null;
   isPresenting?: () => boolean;
+  onResize?: () => void;
 }
 
 export function startRenderLoop(env: RenderLoopEnv): () => void {
@@ -52,6 +53,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
     getPausedPhase,
     getFocus,
     isPresenting,
+    onResize,
   } = env;
   let animId: number;
 
@@ -72,6 +74,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
   const ro =
     typeof ResizeObserver !== 'undefined'
       ? new ResizeObserver(() => {
+          onResize?.();
           requestRedraw();
         })
       : null;

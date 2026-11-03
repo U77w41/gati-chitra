@@ -147,7 +147,13 @@ test.describe('Site Chrome and Scheme', () => {
 
     // Explicit Lagoon theme does not change on page scheme toggle
     await page.selectOption('#theme', 'lagoon');
-    await page.waitForTimeout(200);
+    await page.waitForFunction(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#canvas');
+      const ctx = c?.getContext('2d');
+      if (!ctx || !c || c.width === 0) return false;
+      const p = ctx.getImageData(0, 0, 1, 1).data;
+      return !(p[0] === 48 && p[1] === 48 && p[2] === 48);
+    });
     const lagoonCorner1 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
       const ctx = c.getContext('2d')!;

@@ -57,11 +57,13 @@ export async function initApp(): Promise<void> {
   const updateDiagnostics = setupDiagnostics(diagnosticsEl, sourceEl);
 
   function triggerFit(): void {
-    if (state.scene) {
-      state.view = fitView(state.scene.layout.bounds, {
-        width: canvasEl.clientWidth,
-        height: canvasEl.clientHeight,
-      });
+    const w = canvasEl.clientWidth || canvasEl.width;
+    const h = canvasEl.clientHeight || canvasEl.height;
+    if (state.scene && w > 0 && h > 0) {
+      state.view = fitView(state.scene.layout.bounds, { width: w, height: h });
+      if (canvasEl.clientWidth > 0 && canvasEl.clientHeight > 0) {
+        hasFitted = true;
+      }
       requestRedraw();
     }
   }
@@ -253,6 +255,7 @@ export async function initApp(): Promise<void> {
     getPausedPhase: () => pausedPhase,
     getFocus: present.getCurrentFocus,
     isPresenting: present.isPresenting,
+    onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });
 
   setupExportPanel({
