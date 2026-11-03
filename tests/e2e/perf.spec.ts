@@ -4,7 +4,7 @@ test.describe('Performance budgets', () => {
   test('renders 100-node binary tree under 33ms per frame in traffic style', async ({
     page,
   }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const treeLines = ['flowchart TD'];
@@ -30,7 +30,7 @@ test.describe('Performance budgets', () => {
   });
 
   test('idle canvas does not repaint', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     await page.locator('#anim-pause').click();
@@ -46,7 +46,7 @@ test.describe('Performance budgets', () => {
   test('parses and lays out 300-node chain in under 3 seconds', async ({
     page,
   }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const chainLines = ['flowchart TD'];

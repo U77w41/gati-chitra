@@ -59,4 +59,17 @@ it('every source file in src/ has fewer than 300 lines', () => {
   }
 });
 
+it('CI tests three browsers on the real base path and ships what it tested', () => {
+  const wf = readFileSync('.github/workflows/deploy.yml', 'utf8');
+  expect(wf).toContain('concurrency:');
+  expect(wf).toContain('node-version-file: .nvmrc');
+  expect(wf).toContain('npm run lint');
+  expect(wf).toMatch(/BASE_PATH.*\/gati-chitra\//s);
+  expect(wf).toContain('upload-pages-artifact');
+  const pw = readFileSync('playwright.config.ts', 'utf8');
+  for (const p of ['chromium', 'firefox', 'webkit']) expect(pw).toContain(p);
+  const dep = readFileSync('.github/dependabot.yml', 'utf8');
+  expect(dep).toContain('npm'); expect(dep).toContain('github-actions');
+});
+
 

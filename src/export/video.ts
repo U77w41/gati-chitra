@@ -139,6 +139,28 @@ export async function probeEncoder(
   return null;
 }
 
+function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(new DOMException('Cancelled', 'AbortError'));
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => {
+      reject(new DOMException('Cancelled', 'AbortError'));
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (res) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(res);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      },
+    );
+  });
+}
+
 export async function exportVideo(
   scene: Scene,
   theme: Theme,
@@ -148,7 +170,7 @@ export async function exportVideo(
   signal: AbortSignal,
 ): Promise<{ blob: Blob; container: 'mp4' | 'webm' } | { fallback: 'gif' }> {
   const plan = videoPlan(scene.layout.bounds, opts.mode, anim, opts.loops);
-  const support = await probeEncoder(plan.width, plan.height);
+  const support = await abortable(probeEncoder(plan.width, plan.height), signal);
   if (!support) {
     return { fallback: 'gif' };
   }
@@ -169,8 +191,14 @@ export async function exportVideo(
     panY: -baseFrame.world.y * zoom,
   };
 
+  if (signal.aborted) {
+    throw new DOMException('Cancelled', 'AbortError');
+  }
   const { BufferTarget, CanvasSource, Mp4OutputFormat, Output, WebMOutputFormat } =
     await import('mediabunny');
+  if (signal.aborted) {
+    throw new DOMException('Cancelled', 'AbortError');
+  }
   const target = new BufferTarget();
   const output = new Output({
     format:
@@ -185,7 +213,7 @@ export async function exportVideo(
     bitrate: videoBitrate(plan.width, plan.height, plan.fps),
   });
   output.addVideoTrack(source, { frameRate: plan.fps });
-  await output.start();
+  await abortable(output.start(), signal);
 
   const loopSec = loopSeconds(anim);
   for (let i = 0; i < plan.totalFrames; i++) {
@@ -203,12 +231,12 @@ export async function exportVideo(
       plan.width,
       plan.height,
     );
-    await source.add(i / plan.fps, 1 / plan.fps);
+    await abortable(source.add(i / plan.fps, 1 / plan.fps), signal);
     onProgress(i + 1, plan.totalFrames);
     await yieldToEventLoop();
   }
 
-  await output.finalize();
+  await abortable(output.finalize(), signal);
   const buffer = target.buffer;
   if (!buffer) {
     throw new Error('Failed to produce video buffer');

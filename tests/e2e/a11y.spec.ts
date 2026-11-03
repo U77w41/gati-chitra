@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { contrastRatio } from '../support/contrast';
 
 test.describe('Accessibility and reduced motion', () => {
-  test('satisfies basic accessibility requirements', async ({ page }) => {
-    await page.goto('/?e2e=1');
+  test('satisfies basic accessibility requirements', async ({ page, browserName }) => {
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     // html lang="en"
@@ -31,7 +31,7 @@ test.describe('Accessibility and reduced motion', () => {
     }
 
     // Tab from page start reaches #btn-new first
-    await page.keyboard.press('Tab');
+    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
     const focusedId = await page.evaluate(() => document.activeElement?.id);
     expect(focusedId).toBe('btn-new');
   });
@@ -39,7 +39,7 @@ test.describe('Accessibility and reduced motion', () => {
   test('dialog focus management: moves focus inside on open and returns on close', async ({
     page,
   }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const btnExport = page.locator('#btn-export');
@@ -67,7 +67,7 @@ test.describe('Accessibility and reduced motion', () => {
 
   test('respects prefers-reduced-motion media query', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const pauseBtn = page.locator('#anim-pause');
@@ -75,7 +75,7 @@ test.describe('Accessibility and reduced motion', () => {
   });
 
   test('every form control has a name', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const checkControls = async () => {
@@ -104,7 +104,7 @@ test.describe('Accessibility and reduced motion', () => {
   });
 
   test('Enter opens Templates', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     const btnTemplates = page.locator('#btn-templates');
     await btnTemplates.focus();
@@ -114,7 +114,7 @@ test.describe('Accessibility and reduced motion', () => {
   });
 
   test('sliders show their value', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     const speedVal = page.locator('#anim-speed-value');
     await expect(speedVal).toHaveText('1×');
@@ -125,7 +125,7 @@ test.describe('Accessibility and reduced motion', () => {
   });
 
   test('diagnostics are buttons', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     const source = page.locator('#source');
     await source.fill('flowchart TD\nBROKEN LINE ???\nC --> D');
@@ -143,7 +143,7 @@ test.describe('Accessibility and reduced motion', () => {
   });
 
   test('control borders meet 3:1', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const getColors = async () => {

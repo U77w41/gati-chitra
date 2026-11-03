@@ -5,7 +5,7 @@ test.describe('GIF export', () => {
   test('exports animated GIF at 10 fps with correct frame count, delay, loop and dimensions', async ({
     page,
   }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     await page.click('#btn-export');
@@ -45,7 +45,7 @@ test.describe('GIF export', () => {
   });
 
   test('shows and hides progress indicator during export', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     await page.click('#btn-export');
@@ -64,7 +64,7 @@ test.describe('GIF export', () => {
   });
 
   test('cancels export on cancel button click (Review Focus 4)', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     const chainLines = ['flowchart TD'];
     for (let i = 0; i < 100; i++) {
       chainLines.push(`N${i} --> N${i + 1}`);
@@ -93,7 +93,7 @@ test.describe('GIF export', () => {
   });
 
   test('disables GIF export button when diagram is empty', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD');
     });

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('PNG export', () => {
   test('exports PNG with correct filename, IHDR dimensions, scale and mode', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -81,7 +81,7 @@ test.describe('PNG export', () => {
   });
 
   test('supports transparent background and custom filename', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -149,7 +149,7 @@ test.describe('PNG export', () => {
   });
 
   test('disables export when diagram is empty (Review Focus 4)', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD');
     });

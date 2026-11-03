@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Branding and Meta Tags', () => {
   test('page head contains correct title, meta, canonical, and favicon links', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await expect(page).toHaveTitle('Gati-chitra · Ujjwal Chowdhury');
 

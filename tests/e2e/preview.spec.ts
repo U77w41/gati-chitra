@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Live preview and app shell', () => {
   test('loads page with sample text and rendered canvas', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const source = page.locator('#source');
     await expect(source).not.toBeEmpty();
@@ -34,7 +34,7 @@ test.describe('Live preview and app shell', () => {
   });
 
   test('updates summary and diagram when text is set via studio API', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart LR\nX-->Y');
@@ -46,7 +46,7 @@ test.describe('Live preview and app shell', () => {
   });
 
   test('displays diagnostics on invalid syntax while preserving last good picture', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await page.evaluate(() => {
       (window as any).__studio.setText('sequenceDiagram');
@@ -80,7 +80,7 @@ test.describe('Live preview and app shell', () => {
   });
 
   test('autosaves text after 800ms and restores on reload', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const testText = 'flowchart TD\nSavedNode-->B';
     await page.evaluate((t) => {
@@ -101,7 +101,7 @@ test.describe('Live preview and app shell', () => {
       };
     });
 
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     const source = page.locator('#source');
     await source.fill('flowchart TD\nUnsaved-->Test');
 
@@ -111,7 +111,7 @@ test.describe('Live preview and app shell', () => {
   });
 
   test('animation updates frames when active and freezes when paused', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const snap1 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas');
@@ -139,7 +139,7 @@ test.describe('Live preview and app shell', () => {
   });
 
   test('wheel zoom over canvas changes view zoom', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const initialZoom = await page.evaluate(() => (window as any).__studio.getView().zoom);
 
@@ -154,7 +154,7 @@ test.describe('Live preview and app shell', () => {
     const errors: string[] = [];
     page.on('pageerror', (err) => errors.push(err.message));
 
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     const longChain = ['flowchart TD'];
     for (let i = 0; i < 40; i++) {
       longChain.push(`  Node${i} --> Node${i + 1}`);

@@ -4,7 +4,7 @@ import { MESSAGES } from '../../src/core/constants';
 test.describe('Site Chrome and Scheme', () => {
   test('header renders brand, theme toggle, and nav links', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const header = page.locator('.site-header');
     await expect(header).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('Site Chrome and Scheme', () => {
   });
 
   test('footer renders copyright, meta, and navigation links', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const copyright = page.locator('.copyright');
     await expect(copyright).toHaveText(/^© 2026( – \d{4})? Ujjwal Chowdhury$/);
@@ -62,14 +62,14 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('scheme follows system preference', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await expect(page.locator('html')).toHaveAttribute('data-scheme', 'dark');
     const bgDark = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     expect(bgDark).toBe('rgb(48, 48, 48)');
 
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await expect(page.locator('html')).toHaveAttribute('data-scheme', 'light');
     const bgLight = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
@@ -78,7 +78,7 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('theme toggle switches scheme and persists', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await expect(page.locator('html')).toHaveAttribute('data-scheme', 'light');
 
@@ -105,7 +105,7 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('canvas follows page scheme when set to Match page', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.selectOption('#theme', 'auto');
     await page.waitForTimeout(100);
 
@@ -162,7 +162,7 @@ test.describe('Site Chrome and Scheme', () => {
     });
 
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await expect(page.locator('html')).toHaveAttribute('data-scheme', 'light');
 
     await page.click('#theme-toggle');
@@ -171,7 +171,7 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('responsive layout on narrow screens', async ({ page }) => {
     await page.setViewportSize({ width: 600, height: 800 });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const brandBox = await page.locator('.brand').boundingBox();
     const navBox = await page.locator('.site-nav').boundingBox();
@@ -187,7 +187,7 @@ test.describe('Site Chrome and Scheme', () => {
   });
 
   test('tools dropdown menu interactions', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     const toggle = page.locator('#tools-toggle');
     const panel = page.locator('#menu-social-dropdown-tools');
@@ -216,7 +216,7 @@ test.describe('Site Chrome and Scheme', () => {
   });
 
   test('present mode hides site header and footer', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -234,7 +234,7 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('a failed template says so', async ({ page }) => {
     await page.route('**/templates/checkout.mmd', (route) => route.abort());
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(200);
 
     await page.click('#btn-templates');
@@ -244,7 +244,7 @@ test.describe('Site Chrome and Scheme', () => {
 
   test('export footer fits a phone', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(200);
 
     await page.click('#btn-export');

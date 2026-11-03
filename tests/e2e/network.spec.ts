@@ -10,7 +10,7 @@ test.describe('Network privacy and offline functionality', () => {
       requests.push(req.url());
     });
 
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const origin = new URL(page.url()).origin;

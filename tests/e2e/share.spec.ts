@@ -17,9 +17,12 @@ test.describe('Share links and templates', () => {
   test('shares diagram and loads it via URL hash without overwriting storage until edited', async ({
     page,
     context,
+    browserName,
   }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.goto('/?e2e=1');
+    if (browserName === 'chromium') {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    }
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     // Initial state: autosave will save sample
@@ -37,21 +40,9 @@ test.describe('Share links and templates', () => {
 
     await page.click('#btn-share');
 
-    const shareUrl = await expect
-      .poll(async () => {
-        const shareInput = page.locator('#share-url');
-        if (await shareInput.isVisible()) {
-          return shareInput.inputValue();
-        }
-        return page.evaluate(() => navigator.clipboard.readText().catch(() => ''));
-      })
-      .toContain('#v1=');
-
-    const resolvedUrl = await page.evaluate(async () => {
-      const input = document.querySelector<HTMLInputElement>('#share-url');
-      if (input && input.value) return input.value;
-      return navigator.clipboard.readText();
-    });
+    const shareInput = page.locator('#share-url');
+    await expect(shareInput).toHaveValue(/#v1=/);
+    const resolvedUrl = await shareInput.inputValue();
 
     // Open shared URL in a new page with previously autosaved diagram A-->B
     const page2 = await context.newPage();
@@ -71,7 +62,7 @@ test.describe('Share links and templates', () => {
   });
 
   test('shows error message on invalid share link and falls back to default', async ({ page }) => {
-    await page.goto('/?e2e=1#v1=!!!');
+    await page.goto('./?e2e=1#v1=!!!');
     await page.waitForTimeout(300);
 
     await expect(page.locator('#message')).toContainText(
@@ -81,7 +72,7 @@ test.describe('Share links and templates', () => {
   });
 
   test('opens template gallery and loads selected template', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     await page.click('#btn-templates');
@@ -101,8 +92,11 @@ test.describe('Share links and templates', () => {
   test('supports uncompressed fallback when CompressionStream is unavailable (Review Focus 5)', async ({
     page,
     context,
+    browserName,
   }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    if (browserName === 'chromium') {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    }
     await page.addInitScript(() => {
       // @ts-ignore
       delete window.CompressionStream;
@@ -110,7 +104,7 @@ test.describe('Share links and templates', () => {
       delete window.DecompressionStream;
     });
 
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -120,21 +114,9 @@ test.describe('Share links and templates', () => {
 
     await page.click('#btn-share');
 
-    await expect
-      .poll(async () => {
-        const shareInput = page.locator('#share-url');
-        if (await shareInput.isVisible()) {
-          return shareInput.inputValue();
-        }
-        return page.evaluate(() => navigator.clipboard.readText().catch(() => ''));
-      })
-      .toContain('#v1p=');
-
-    const shareUrl = await page.evaluate(async () => {
-      const input = document.querySelector<HTMLInputElement>('#share-url');
-      if (input && input.value) return input.value;
-      return navigator.clipboard.readText();
-    });
+    const shareInput = page.locator('#share-url');
+    await expect(shareInput).toHaveValue(/#v1p=/);
+    const shareUrl = await shareInput.inputValue();
 
     const page2 = await context.newPage();
     await page2.addInitScript(() => {
@@ -150,7 +132,7 @@ test.describe('Share links and templates', () => {
   });
 
   test('shows error when diagram is too large for share link', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     // 15000 random characters using seeded PRNG so it cannot compress under SHARE.maxUrlChars
@@ -173,7 +155,7 @@ test.describe('Share links and templates', () => {
 
   test('duplicate subgraph ids in share link do not break the app', async ({ page }) => {
     const enc = (await encodeShare('flowchart TD\nsubgraph X\nsubgraph X\nA\nend\nend')) as { hash: string };
-    await page.goto(`/?e2e=1#${enc.hash}`);
+    await page.goto(`./?e2e=1#${enc.hash}`);
     await page.waitForTimeout(300);
     const summary = await page.evaluate(() => (window as any).__studio.getSummary());
     expect(summary.nodes).toContain('A');
@@ -187,7 +169,7 @@ test.describe('Share links and templates', () => {
       localStorage.setItem('gati-chitra:v1:doc', 'flowchart TD\nSavedDiagram');
     });
 
-    await page.goto(`/?e2e=1#${enc.hash}`);
+    await page.goto(`./?e2e=1#${enc.hash}`);
     await page.waitForTimeout(300);
 
     await expect(page.locator('#message')).toHaveText(MESSAGES.shareOpened);
@@ -204,7 +186,7 @@ test.describe('Share links and templates', () => {
     const enc1 = (await encodeShare('flowchart TD\nDiagramOne')) as { hash: string };
     const enc2 = (await encodeShare('flowchart TD\nDiagramTwo')) as { hash: string };
 
-    await page.goto(`/?e2e=1#${enc1.hash}`);
+    await page.goto(`./?e2e=1#${enc1.hash}`);
     await page.waitForTimeout(300);
     expect(await page.locator('#source').inputValue()).toContain('DiagramOne');
 
@@ -216,7 +198,7 @@ test.describe('Share links and templates', () => {
   });
 
   test('typing right before a reload is kept', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const source = page.locator('#source');

@@ -146,6 +146,7 @@ export function mountChrome(
     if (!toolsPanel || !toolsToggle) return;
     const isHidden = toolsPanel.hasAttribute('hidden');
     if (isHidden) {
+      toolsToggle.focus();
       toolsPanel.removeAttribute('hidden');
       toolsToggle.setAttribute('aria-expanded', 'true');
     } else {
@@ -156,9 +157,7 @@ export function mountChrome(
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && toolsPanel && !toolsPanel.hasAttribute('hidden')) {
-      const active = doc.activeElement;
-      const shouldRestore = toolsToggle?.contains(active) || toolsPanel.contains(active);
-      closeTools(shouldRestore);
+      closeTools(true);
     }
   };
   doc.addEventListener('keydown', onKeyDown);

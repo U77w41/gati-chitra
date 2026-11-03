@@ -3,7 +3,7 @@ import { CORPUS } from '../support/corpus';
 
 test.describe('Editing, connecting and properties panel', () => {
   test('connects nodes by dragging from handle to node', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA\nB');
     });
@@ -33,7 +33,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('drags from handle to empty space to add connected node and renames in place', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });
@@ -77,7 +77,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('double-clicks empty canvas to add node and opens editor', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\n');
     });
@@ -96,7 +96,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('double-clicks node to rename in place', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });
@@ -117,7 +117,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('selects node and presses Delete to remove it', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -135,7 +135,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('changes node shape via properties panel', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });
@@ -153,7 +153,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('changes node fill colour via properties panel', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });
@@ -172,7 +172,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('edits edge properties: kind, reverse, delete', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA --> B');
     });
@@ -205,7 +205,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('undo restores text after any edit operation (Review Focus 3)', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     const initial = 'flowchart TD\nA-->B';
     await page.evaluate((t) => {
       (window as any).__studio.setText(t);
@@ -226,7 +226,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('handles invalid text safely: disables props or shows error message', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('nonsense');
     });
@@ -243,7 +243,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('refuses group deletion with message (Review Focus 3)', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate((corpusText) => {
       (window as any).__studio.setText(corpusText);
     }, CORPUS[1].text);
@@ -262,7 +262,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('typed label survives a mouse move', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });
@@ -281,7 +281,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('New is undoable', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     const source = page.locator('#source');
     await source.focus();
@@ -294,7 +294,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('the same file opens twice', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     const file = {
       name: 'diagram.mmd',
@@ -312,7 +312,7 @@ test.describe('Editing, connecting and properties panel', () => {
   });
 
   test('inline editor sits on the node', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA');
     });

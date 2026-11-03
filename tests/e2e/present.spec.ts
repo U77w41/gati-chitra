@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Present mode', () => {
   test('navigates through presentation steps and exits on Escape', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B\nB-->C');
     });
@@ -41,7 +41,7 @@ test.describe('Present mode', () => {
   });
 
   test('refuses to start present mode on empty diagram', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD');
     });
@@ -55,7 +55,7 @@ test.describe('Present mode', () => {
   });
 
   test('does not trigger present shortcut when typing in source textarea', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
     const source = page.locator('#source');

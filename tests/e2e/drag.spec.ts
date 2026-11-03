@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Selection, drag and history', () => {
   test('drags node to create pin, supports undo and redo, autolayout', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
@@ -61,7 +61,7 @@ test.describe('Selection, drag and history', () => {
   });
 
   test('cancels drag on mid-drag text change (Review Focus 3)', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
@@ -91,7 +91,7 @@ test.describe('Selection, drag and history', () => {
   });
 
   test('shows error message when dragging with invalid text', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
 
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');

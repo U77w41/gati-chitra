@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('SVG export', () => {
   test('downloads diagram.svg and parses as valid XML matching export size', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -48,7 +48,7 @@ test.describe('SVG export', () => {
   });
 
   test('renders SVG visually with >100 non-background pixels', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -100,7 +100,7 @@ test.describe('SVG export', () => {
   });
 
   test('supports slide mode and transparent background', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
     });
@@ -124,7 +124,7 @@ test.describe('SVG export', () => {
   });
 
   test('escapes special characters in XML', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA["x & y < z"]');
     });
@@ -151,7 +151,7 @@ test.describe('SVG export', () => {
   });
 
   test('disables SVG export when diagram is empty', async ({ page }) => {
-    await page.goto('/?e2e=1');
+    await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD');
     });
