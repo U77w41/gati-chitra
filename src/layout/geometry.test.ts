@@ -37,6 +37,20 @@ describe('geometry', () => {
     expect(shapePolygon(box('A', 0, 0), 'rect')).toBeNull();
   });
 
+  it.each(['trapezoid', 'trapezoidAlt', 'asymmetric'] as const)('%s polygon stays inside its box', (shape) => {
+    const b = { id: 'A', center: { x: 0, y: 0 }, width: 100, height: 40, lines: ['x'] };
+    for (const p of shapePolygon(b, shape)!) {
+      expect(Math.abs(p.x)).toBeLessThanOrEqual(50);
+      expect(Math.abs(p.y)).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it.each(['doubleCircle', 'smallCircle', 'filledCircle', 'framedCircle'] as const)('%s border point is on the outer circle', (shape) => {
+    const b = { id: 'A', center: { x: 0, y: 0 }, width: 40, height: 40, lines: [] };
+    const p = borderPoint(b, shape, { x: 100, y: 0 });
+    expect(Math.hypot(p.x, p.y)).toBeCloseTo(20, 1);
+  });
+
   it('routes straight, quad and loop edges correctly', () => {
     const nodes = { A: box('A', 0, 0), B: box('B', 0, 200) };
     const one = routeEdges(parseMermaid('flowchart TD\nA-->B'), nodes).e0;

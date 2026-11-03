@@ -207,7 +207,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
   } else {
     sizedNodes = {};
     for (const node of doc.nodes) {
-      sizedNodes[node.id] = sizeNode(node, measure);
+      sizedNodes[node.id] = sizeNode(node, measure, doc.direction);
     }
 
     const g = new dagre.graphlib.Graph({ compound: true, multigraph: true });

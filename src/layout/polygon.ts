@@ -44,6 +44,34 @@ export function shapePolygon(box: NodeBox, shape: ShapeKind): Point[] | null {
         { x: cx + w / 2, y: cy + h / 2 },
         { x: cx - w / 2 + s, y: cy + h / 2 },
       ];
+    case 'trapezoid': {
+      const ti = LAYOUT.trapezoidInset;
+      return [
+        { x: cx - w / 2 + ti, y: cy - h / 2 },
+        { x: cx + w / 2 - ti, y: cy - h / 2 },
+        { x: cx + w / 2, y: cy + h / 2 },
+        { x: cx - w / 2, y: cy + h / 2 },
+      ];
+    }
+    case 'trapezoidAlt': {
+      const ti = LAYOUT.trapezoidInset;
+      return [
+        { x: cx - w / 2, y: cy - h / 2 },
+        { x: cx + w / 2, y: cy - h / 2 },
+        { x: cx + w / 2 - ti, y: cy + h / 2 },
+        { x: cx - w / 2 + ti, y: cy + h / 2 },
+      ];
+    }
+    case 'asymmetric': {
+      const notch = LAYOUT.asymmetricNotch;
+      return [
+        { x: cx - w / 2, y: cy - h / 2 },
+        { x: cx + w / 2, y: cy - h / 2 },
+        { x: cx + w / 2, y: cy + h / 2 },
+        { x: cx - w / 2, y: cy + h / 2 },
+        { x: cx - w / 2 + notch, y: cy },
+      ];
+    }
     default:
       return null;
   }
@@ -56,7 +84,13 @@ export function borderPoint(box: NodeBox, shape: ShapeKind, toward: Point): Poin
     return { x: c.x, y: c.y };
   }
 
-  if (shape === 'circle') {
+  if (
+    shape === 'circle' ||
+    shape === 'doubleCircle' ||
+    shape === 'smallCircle' ||
+    shape === 'filledCircle' ||
+    shape === 'framedCircle'
+  ) {
     const len = Math.hypot(d.x, d.y);
     return {
       x: c.x + (d.x / len) * (box.width / 2),

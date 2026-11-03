@@ -32,4 +32,13 @@ describe('measure', () => {
     expect(n('hello world', 'rect')).toMatchObject({ width: 124, height: 44 });
     expect(n('a\nb', 'rect')).toMatchObject({ width: 72, height: 64 });
   });
+
+  it('sizes point shapes and the fork bar', () => {
+    const nodeOf = (shape: ShapeKind) => ({
+      id: 'A', label: 'x', shape, classNames: [], style: {}, group: null, line: 0, markdown: false,
+    });
+    expect(sizeNode(nodeOf('smallCircle'), testMeasure, 'TB')).toMatchObject({ width: 20, height: 20 });
+    expect(sizeNode(nodeOf('forkBar'), testMeasure, 'TB')).toMatchObject({ width: 72, height: 10 });
+    expect(sizeNode(nodeOf('forkBar'), testMeasure, 'LR')).toMatchObject({ width: 10, height: 72 });
+  });
 });

@@ -207,4 +207,9 @@ describe('draw', () => {
     const s = sceneOf('flowchart TD\nA --> B');
     expect(prepare(s)).toBe(prepare(s));
   });
+
+  it('canvas draws no label for a start point and no outline for text', () => {
+    const calls = draw('flowchart TD\nA@{ shape: sm-circ, label: "S" }\nB@{ shape: text, label: "T" }');
+    expect(calls.filter(c => c.name === 'fillText').map(c => c.args[0])).toEqual(['T']);
+  });
 });

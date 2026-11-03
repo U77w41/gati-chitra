@@ -112,52 +112,69 @@ export function drawScene(
     const glow = frame.nodeGlow[node.id] ?? 0;
     const hasGlow = options.showGlow && glow > 0;
 
-    ctx.beginPath();
-    traceNodePath(ctx, box, node.shape);
-
-    if (hasGlow) {
-      ctx.shadowColor = theme.glow;
-      ctx.shadowBlur = ANIM.glowBlur * glow;
-    }
-
-    ctx.fillStyle = st.fill;
-    ctx.fill();
-
-    if (hasGlow) {
-      ctx.shadowBlur = 0;
-    }
-
-    ctx.lineWidth = st.strokeWidth;
-    ctx.strokeStyle = st.stroke;
-    ctx.stroke();
-
-    if (node.shape === 'cylinder') {
-      const rx = box.width / 2;
-      const ry = 8;
-      const t = box.center.y - box.height / 2;
+    if (node.shape !== 'text') {
       ctx.beginPath();
-      ctx.ellipse(box.center.x, t + ry, rx, ry, 0, 0, Math.PI);
+      traceNodePath(ctx, box, node.shape);
+
+      if (hasGlow) {
+        ctx.shadowColor = theme.glow;
+        ctx.shadowBlur = ANIM.glowBlur * glow;
+      }
+
+      ctx.fillStyle =
+        node.shape === 'filledCircle' || node.shape === 'forkBar'
+          ? st.stroke
+          : st.fill;
+      ctx.fill();
+
+      if (hasGlow) {
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.lineWidth = st.strokeWidth;
+      ctx.strokeStyle = st.stroke;
       ctx.stroke();
-    } else if (node.shape === 'subroutine') {
-      const l = box.center.x - box.width / 2;
-      const r = box.center.x + box.width / 2;
-      const t = box.center.y - box.height / 2;
-      const b = box.center.y + box.height / 2;
-      ctx.beginPath();
-      ctx.moveTo(l + 8, t);
-      ctx.lineTo(l + 8, b);
-      ctx.moveTo(r - 8, t);
-      ctx.lineTo(r - 8, b);
-      ctx.stroke();
+
+      if (node.shape === 'cylinder') {
+        const rx = box.width / 2;
+        const ry = 8;
+        const t = box.center.y - box.height / 2;
+        ctx.beginPath();
+        ctx.ellipse(box.center.x, t + ry, rx, ry, 0, 0, Math.PI);
+        ctx.stroke();
+      } else if (node.shape === 'subroutine') {
+        const l = box.center.x - box.width / 2;
+        const r = box.center.x + box.width / 2;
+        const t = box.center.y - box.height / 2;
+        const b = box.center.y + box.height / 2;
+        ctx.beginPath();
+        ctx.moveTo(l + 8, t);
+        ctx.lineTo(l + 8, b);
+        ctx.moveTo(r - 8, t);
+        ctx.lineTo(r - 8, b);
+        ctx.stroke();
+      } else if (node.shape === 'doubleCircle' || node.shape === 'framedCircle') {
+        const rInner = Math.max(0, box.width / 2 - LAYOUT.doubleCircleGap);
+        ctx.beginPath();
+        ctx.arc(box.center.x, box.center.y, rInner, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
     }
 
-    ctx.font = `16px ${FONT_STACK_SANS}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = st.text;
-    for (let k = 0; k < box.lines.length; k++) {
-      const y = box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
-      ctx.fillText(box.lines[k], box.center.x, y);
+    if (
+      node.shape !== 'smallCircle' &&
+      node.shape !== 'filledCircle' &&
+      node.shape !== 'forkBar'
+    ) {
+      ctx.font = `16px ${FONT_STACK_SANS}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = st.text;
+      for (let k = 0; k < box.lines.length; k++) {
+        const y =
+          box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
+        ctx.fillText(box.lines[k], box.center.x, y);
+      }
     }
 
     if (options.selection?.kind === 'node' && options.selection.id === node.id) {

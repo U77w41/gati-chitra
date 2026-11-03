@@ -51,6 +51,13 @@ export const LAYOUT = {
   rectRadius: 4,
   hexagonInset: 14,
   parallelogramSkew: 14,
+  smallCircleD: 20,
+  forkBarW: 72,
+  forkBarH: 10,
+  documentWave: 8,
+  doubleCircleGap: 5,
+  trapezoidInset: 14,
+  asymmetricNotch: 14,
 } as const;
 
 export const VIEW = { zoomMin: 0.1, zoomMax: 4, wheelSensitivity: 0.002, fitMargin: 48 } as const;

@@ -1,5 +1,5 @@
 import { FONT_STACK_SANS, LAYOUT } from '../core/constants';
-import type { GraphNode } from '../core/types';
+import type { Direction, GraphNode } from '../core/types';
 
 export type MeasureText = (text: string, fontSize: number) => number;
 
@@ -35,7 +35,20 @@ export function wrapLabel(label: string, maxWidth: number, measure: MeasureText)
 export function sizeNode(
   node: GraphNode,
   measure: MeasureText,
+  direction: Direction = 'TB',
 ): { width: number; height: number; lines: string[] } {
+  if (node.shape === 'smallCircle' || node.shape === 'filledCircle') {
+    return { width: LAYOUT.smallCircleD, height: LAYOUT.smallCircleD, lines: [] };
+  }
+  if (node.shape === 'forkBar') {
+    const isVertical = direction === 'TB' || direction === 'BT';
+    return {
+      width: isVertical ? LAYOUT.forkBarW : LAYOUT.forkBarH,
+      height: isVertical ? LAYOUT.forkBarH : LAYOUT.forkBarW,
+      lines: [],
+    };
+  }
+
   const lines = wrapLabel(node.label, LAYOUT.labelWrapWidth, measure);
   let textW = 0;
   for (const line of lines) {
@@ -67,6 +80,23 @@ export function sizeNode(
       height = d;
       break;
     }
+    case 'doubleCircle':
+    case 'framedCircle': {
+      const d = Math.max(width, height) + LAYOUT.circleExtra + 2 * LAYOUT.doubleCircleGap;
+      width = d;
+      height = d;
+      break;
+    }
+    case 'trapezoid':
+    case 'trapezoidAlt':
+      width += 2 * LAYOUT.trapezoidInset;
+      break;
+    case 'asymmetric':
+      width += LAYOUT.asymmetricNotch;
+      break;
+    case 'document':
+      height += LAYOUT.documentWave;
+      break;
     default:
       break;
   }

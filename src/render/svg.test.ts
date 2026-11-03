@@ -53,6 +53,12 @@ describe('SVG export', () => {
     expect(sXml).not.toContain('a & b');
   });
 
+  it('SVG draws two rings for a double circle and fills a junction', () => {
+    const s = svg('flowchart TD\nA(((x)))\nB@{ shape: f-circ }');
+    expect(s.match(/<circle/g)!.length).toBeGreaterThanOrEqual(3);
+    expect(s).toMatch(/<circle[^>]*fill="(?!none)/);
+  });
+
   it('renders dashed and thick edge strokes', () => {
     expect(svg('flowchart TD\nA -.-> B')).toContain('stroke-dasharray="3 5"');
     expect(svg('flowchart TD\nA ==> B')).toContain('stroke-width="4"');

@@ -1061,7 +1061,7 @@ git add -A && git commit -m "test: Mermaid compatibility corpus and fence stripp
     - `document`: the bottom edge is a wave of height `documentWave`.
     - `framedCircle`: an outer circle and an inner circle `doubleCircleGap` smaller.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('sizes point shapes and the fork bar', () => {
@@ -1089,10 +1089,10 @@ it('canvas draws no label for a start point and no outline for text', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block, sharing one path builder per shape between `node-path.ts` (canvas) and `svg.ts`.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-svg.spec.ts`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block, sharing one path builder per shape between `node-path.ts` (canvas) and `svg.ts`.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- preview.spec.ts export-svg.spec.ts`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: draw ten new node shapes on canvas and in SVG"

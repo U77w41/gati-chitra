@@ -4,6 +4,7 @@ import { shapePolygon, tangentAt } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { exportFrame } from './frame';
 import { edgeStyle, nodeStyle } from './style';
+import { documentPathData, ringRadii } from './shapes-extra';
 
 export interface SvgOptions {
   mode: ExportMode;
@@ -148,12 +149,37 @@ export function renderSvg(
         out += `<rect x="${fmt(l)}" y="${fmt(t)}" width="${fmt(w)}" height="${fmt(h)}" rx="${fmt(h / 2)}" ${strokeAttr}/>`;
         break;
       case 'circle':
-        out += `<ellipse cx="${fmt(cx)}" cy="${fmt(cy)}" rx="${fmt(w / 2)}" ry="${fmt(h / 2)}" ${strokeAttr}/>`;
+      case 'smallCircle':
+        out += `<circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${fmt(w / 2)}" ${strokeAttr}/>`;
+        break;
+      case 'filledCircle':
+        out += `<circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${fmt(w / 2)}" fill="${st.stroke}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
+        break;
+      case 'doubleCircle':
+      case 'framedCircle': {
+        const { outer, inner } = ringRadii(box);
+        out += `<circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${fmt(outer)}" ${strokeAttr}/>`;
+        out += `<circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${fmt(inner)}" fill="none" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
+        break;
+      }
+      case 'forkBar':
+        out += `<rect x="${fmt(l)}" y="${fmt(t)}" width="${fmt(w)}" height="${fmt(h)}" fill="${st.stroke}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
+        break;
+      case 'document': {
+        const d = documentPathData(box);
+        const pathStr = `M ${fmt(d.start.x)} ${fmt(d.start.y)} L ${fmt(d.topRight.x)} ${fmt(d.topRight.y)} L ${fmt(d.rightBottom.x)} ${fmt(d.rightBottom.y)} C ${fmt(d.curve1.cp1.x)} ${fmt(d.curve1.cp1.y)}, ${fmt(d.curve1.cp2.x)} ${fmt(d.curve1.cp2.y)}, ${fmt(d.curve1.to.x)} ${fmt(d.curve1.to.y)} C ${fmt(d.curve2.cp1.x)} ${fmt(d.curve2.cp1.y)}, ${fmt(d.curve2.cp2.x)} ${fmt(d.curve2.cp2.y)}, ${fmt(d.curve2.to.x)} ${fmt(d.curve2.to.y)} Z`;
+        out += `<path d="${pathStr}" ${strokeAttr}/>`;
+        break;
+      }
+      case 'text':
         break;
       case 'diamond':
       case 'hexagon':
       case 'parallelogram':
-      case 'parallelogramAlt': {
+      case 'parallelogramAlt':
+      case 'trapezoid':
+      case 'trapezoidAlt':
+      case 'asymmetric': {
         const poly = shapePolygon(box, node.shape);
         if (poly && poly.length > 0) {
           const pts = poly.map((p) => `${fmt(p.x)},${fmt(p.y)}`).join(' ');
@@ -180,10 +206,16 @@ export function renderSvg(
         break;
     }
 
-    const nLines = box.lines.length;
-    for (let k = 0; k < nLines; k++) {
-      const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
-      out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+    if (
+      node.shape !== 'smallCircle' &&
+      node.shape !== 'filledCircle' &&
+      node.shape !== 'forkBar'
+    ) {
+      const nLines = box.lines.length;
+      for (let k = 0; k < nLines; k++) {
+        const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+        out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+      }
     }
   }
 

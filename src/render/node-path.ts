@@ -1,6 +1,7 @@
 import { LAYOUT } from '../core/constants';
 import type { NodeBox, ShapeKind } from '../core/types';
 import { shapePolygon } from '../layout/geometry';
+import { traceDocument } from './shapes-extra';
 
 export function traceNodePath(
   ctx: CanvasPath,
@@ -27,12 +28,27 @@ export function traceNodePath(
       ctx.roundRect(l, t, w, h, h / 2);
       break;
     case 'circle':
+    case 'doubleCircle':
+    case 'framedCircle':
+    case 'smallCircle':
+    case 'filledCircle':
       ctx.arc(cx, cy, w / 2, 0, 2 * Math.PI);
+      break;
+    case 'forkBar':
+      ctx.rect(l, t, w, h);
+      break;
+    case 'document':
+      traceDocument(ctx, box);
+      break;
+    case 'text':
       break;
     case 'diamond':
     case 'hexagon':
     case 'parallelogram':
-    case 'parallelogramAlt': {
+    case 'parallelogramAlt':
+    case 'trapezoid':
+    case 'trapezoidAlt':
+    case 'asymmetric': {
       const poly = shapePolygon(box, shape);
       if (poly && poly.length > 0) {
         ctx.moveTo(poly[0].x, poly[0].y);
