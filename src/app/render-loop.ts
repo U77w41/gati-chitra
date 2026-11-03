@@ -72,9 +72,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
   const ro =
     typeof ResizeObserver !== 'undefined'
       ? new ResizeObserver(() => {
-          if (syncCanvasSize()) {
-            requestRedraw();
-          }
+          requestRedraw();
         })
       : null;
   if (ro && typeof canvasEl.addEventListener === 'function') {

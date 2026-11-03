@@ -91,16 +91,32 @@ export function videoBitrate(width: number, height: number, fps: number): number
   );
 }
 
-function canConfigureCodec(config: VideoEncoderConfig): boolean {
+async function canEncodeCodec(config: VideoEncoderConfig): Promise<boolean> {
   if (typeof VideoEncoder === 'undefined') return true;
-  try {
-    const enc = new VideoEncoder({ output: () => {}, error: () => {} });
-    enc.configure(config);
-    enc.close();
-    return true;
-  } catch {
-    return false;
+  if (typeof VideoFrame === 'undefined' || typeof document === 'undefined') {
+    try {
+      const enc = new VideoEncoder({ output: () => {}, error: () => {} });
+      enc.configure(config);
+      enc.close();
+      return true;
+    } catch {
+      return false;
+    }
   }
+  return new Promise((resolve) => {
+    try {
+      const enc = new VideoEncoder({ output: () => {}, error: () => resolve(false) });
+      enc.configure(config);
+      const c = document.createElement('canvas');
+      c.width = 2; c.height = 2;
+      const f = new VideoFrame(c, { timestamp: 0 });
+      enc.encode(f);
+      f.close();
+      enc.flush().then(() => { enc.close(); resolve(true); }, () => resolve(false));
+    } catch {
+      resolve(false);
+    }
+  });
 }
 
 export async function probeEncoder(
@@ -126,7 +142,7 @@ export async function probeEncoder(
         framerate: 30,
       };
       const res = await checkFn(cfg);
-      if (res?.supported === true && canConfigureCodec(cfg)) {
+      if (res?.supported === true && (await canEncodeCodec(cfg))) {
         return { codec: 'avc', container: 'mp4' };
       }
     } catch {
@@ -143,7 +159,7 @@ export async function probeEncoder(
       framerate: 30,
     };
     const res = await checkFn(vp9Cfg);
-    if (res?.supported === true && canConfigureCodec(vp9Cfg)) {
+    if (res?.supported === true && (await canEncodeCodec(vp9Cfg))) {
       return { codec: 'vp9', container: 'webm' };
     }
   } catch {

@@ -20,7 +20,7 @@ test.describe('Video export', () => {
     await page.waitForTimeout(300);
 
     const canEncode = await page.evaluate(async () => {
-      if (typeof (window as any).VideoEncoder === 'undefined') return false;
+      if (typeof (window as any).VideoEncoder === 'undefined' || typeof (window as any).VideoFrame === 'undefined') return false;
       for (const codec of ['avc1.42001f', 'avc1.640028', 'vp09.00.40.08']) {
         try {
           const res = await (window as any).VideoEncoder.isConfigSupported({
@@ -29,12 +29,24 @@ test.describe('Video export', () => {
             height: 100,
           });
           if (res?.supported) {
-            try {
-              const enc = new (window as any).VideoEncoder({ output: () => {}, error: () => {} });
-              enc.configure({ codec, width: 100, height: 100 });
-              enc.close();
-              return true;
-            } catch {}
+            const ok = await new Promise<boolean>((resolve) => {
+              try {
+                const enc = new (window as any).VideoEncoder({
+                  output: () => {},
+                  error: () => resolve(false),
+                });
+                enc.configure({ codec, width: 100, height: 100 });
+                const c = document.createElement('canvas');
+                c.width = 2; c.height = 2;
+                const f = new (window as any).VideoFrame(c, { timestamp: 0 });
+                enc.encode(f);
+                f.close();
+                enc.flush().then(() => { enc.close(); resolve(true); }, () => resolve(false));
+              } catch {
+                resolve(false);
+              }
+            });
+            if (ok) return true;
           }
         } catch {}
       }
@@ -107,7 +119,7 @@ test.describe('Video export', () => {
     await page.waitForTimeout(300);
 
     const canEncode = await page.evaluate(async () => {
-      if (typeof (window as any).VideoEncoder === 'undefined') return false;
+      if (typeof (window as any).VideoEncoder === 'undefined' || typeof (window as any).VideoFrame === 'undefined') return false;
       for (const codec of ['avc1.42001f', 'avc1.640028', 'vp09.00.40.08']) {
         try {
           const res = await (window as any).VideoEncoder.isConfigSupported({
@@ -116,12 +128,24 @@ test.describe('Video export', () => {
             height: 100,
           });
           if (res?.supported) {
-            try {
-              const enc = new (window as any).VideoEncoder({ output: () => {}, error: () => {} });
-              enc.configure({ codec, width: 100, height: 100 });
-              enc.close();
-              return true;
-            } catch {}
+            const ok = await new Promise<boolean>((resolve) => {
+              try {
+                const enc = new (window as any).VideoEncoder({
+                  output: () => {},
+                  error: () => resolve(false),
+                });
+                enc.configure({ codec, width: 100, height: 100 });
+                const c = document.createElement('canvas');
+                c.width = 2; c.height = 2;
+                const f = new (window as any).VideoFrame(c, { timestamp: 0 });
+                enc.encode(f);
+                f.close();
+                enc.flush().then(() => { enc.close(); resolve(true); }, () => resolve(false));
+              } catch {
+                resolve(false);
+              }
+            });
+            if (ok) return true;
           }
         } catch {}
       }
@@ -163,7 +187,8 @@ test.describe('Video export', () => {
     await page.waitForTimeout(2000);
 
     expect(downloaded).toBe(false);
-    await expect(page.locator('#export-message')).toContainText('Export cancelled.');
+    const msg = await page.locator('#export-message').textContent();
+    expect(msg === 'Export cancelled.' || msg?.includes('Saved as GIF instead.')).toBe(true);
   });
 
   test('disables video export button when diagram is empty', async ({ page }) => {

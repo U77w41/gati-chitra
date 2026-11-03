@@ -108,7 +108,15 @@ test.describe('Site Chrome and Scheme', () => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
     await page.selectOption('#theme', 'auto');
-    await page.waitForTimeout(200);
+
+    // Wait until canvas has drawn with light background (255, 255, 255)
+    await page.waitForFunction(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#canvas');
+      const ctx = c?.getContext('2d');
+      if (!ctx || !c || c.width === 0) return false;
+      const p = ctx.getImageData(0, 0, 1, 1).data;
+      return p[0] === 255 && p[1] === 255 && p[2] === 255 && p[3] === 255;
+    });
 
     // Light scheme canvas corner pixel
     const lightCorner = await page.evaluate(() => {
@@ -121,7 +129,13 @@ test.describe('Site Chrome and Scheme', () => {
 
     // Switch to dark
     await page.click('#theme-toggle');
-    await page.waitForTimeout(200);
+    await page.waitForFunction(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#canvas');
+      const ctx = c?.getContext('2d');
+      if (!ctx || !c || c.width === 0) return false;
+      const p = ctx.getImageData(0, 0, 1, 1).data;
+      return p[0] === 48 && p[1] === 48 && p[2] === 48;
+    });
 
     const darkCorner = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
