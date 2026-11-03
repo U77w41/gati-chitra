@@ -237,6 +237,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
     }
 
     for (const edge of doc.edges) {
+      if (edge.fromIsGroup || edge.toIsGroup) continue;
       if (edge.from !== edge.to) {
         const hasLabel = edge.label && edge.label.length > 0;
         const labelObj = hasLabel

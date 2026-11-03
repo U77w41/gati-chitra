@@ -47,4 +47,15 @@ describe('groups', () => {
     const d = parseMermaid('flowchart TD\nsubgraph group2\nA\nend\nsubgraph "T"\nB\nend');
     expect(new Set(d.groups.map(g => g.id)).size).toBe(2);
   });
+
+  it('arrows to a subgraph do not create nodes', () => {
+    const d = parseMermaid('flowchart LR\nsubgraph S\nA\nend\nB --> S');
+    expect(d.nodes.map(n => n.id)).toEqual(['A', 'B']);
+    expect(d.edges[0]).toMatchObject({ from: 'B', to: 'S', toIsGroup: true });
+  });
+
+  it('notes a subgraph direction that cannot apply', () => {
+    const d = parseMermaid('flowchart TB\nsubgraph S\ndirection LR\nA\nend\nC --> A');
+    expect(d.diagnostics).toContainEqual({ line: 3, severity: 'info', message: MESSAGES.groupDirectionIgnored('S') });
+  });
 });

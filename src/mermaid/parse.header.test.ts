@@ -25,4 +25,8 @@ describe('parseMermaid header & nodes', () => {
     expect(parseMermaid('flowchart TD\nA[Ünï code]').nodes[0].label).toBe('Ünï code');
     expect(parseMermaid('flowchart TD\nA[the end]').nodes[0].label).toBe('the end'); // Review Focus 1
   });
+
+  it('reads the front matter title', () => {
+    expect(parseMermaid('---\ntitle: "Checkout"\n---\nflowchart TD\nA').title).toBe('Checkout');
+  });
 });

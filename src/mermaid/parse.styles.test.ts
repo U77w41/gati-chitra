@@ -18,4 +18,9 @@ describe('styles parsing', () => {
     expect(ls.edges.map(e => e.style)).toEqual([{ stroke: '#0f0' }, { stroke: '#f00' }]);
     expect(parseMermaid('flowchart TD\nA\nclass A hot\nclassDef hot fill:#f00').nodes[0].style).toEqual({ fill: '#f00' });
   });
+
+  it('applies classDef default before other classes', () => {
+    const d = parseMermaid('flowchart LR\nclassDef default fill:#eee\nclassDef hot fill:#f00\nA\nB:::hot');
+    expect(d.nodes.map(n => n.style.fill)).toEqual(['#eee', '#f00']);
+  });
 });

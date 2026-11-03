@@ -1,6 +1,7 @@
 import { LIMITS, MESSAGES } from '../core/constants';
 import type {
   Diagnostic,
+  EdgeAnim,
   EdgeKind,
   GraphEdge,
   GraphNode,
@@ -16,6 +17,9 @@ export interface StatementContext {
   currentGroupId: string | null;
   hasReportedMaxNodes: boolean;
   hasReportedMaxEdges: boolean;
+  subgraphIds: Set<string>;
+  explicitNodeIds: Set<string>;
+  edgePropsMap: Map<string, EdgeAnim>;
 }
 
 export function splitStatements(line: string): string[] {
@@ -95,13 +99,19 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
   for (const tokens of allTokens) {
     if (!tokens) continue;
     const nodeGroups: NodeRef[][] = [[]];
-    const ops: { kind: EdgeKind; label: string; length: number; markdown: boolean }[] = [];
+    const ops: { kind: EdgeKind; label: string; length: number; markdown: boolean; ref: string | null }[] = [];
 
     for (const tok of tokens) {
       if (tok.type === 'node') {
         nodeGroups[nodeGroups.length - 1].push(tok.ref);
       } else if (tok.type === 'edge') {
-        ops.push({ kind: tok.kind, label: tok.label, length: tok.length, markdown: tok.markdown });
+        ops.push({
+          kind: tok.kind,
+          label: tok.label,
+          length: tok.length,
+          markdown: tok.markdown,
+          ref: tok.ref,
+        });
         nodeGroups.push([]);
       }
     }
@@ -110,6 +120,11 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
 
     for (const group of nodeGroups) {
       for (const ref of group) {
+        const isGroup = ctx.subgraphIds.has(ref.id) && !ctx.explicitNodeIds.has(ref.id);
+        if (isGroup) {
+          continue;
+        }
+
         if (ref.notes) {
           for (const note of ref.notes) {
             ctx.diagnostics.push({ line: lineIndex + 1, severity: note.severity, message: note.message });
@@ -162,8 +177,10 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
       const rightGroup = nodeGroups[opIdx + 1];
       for (const a of leftGroup) {
         for (const b of rightGroup) {
-          const aExists = ctx.nodes.some(n => n.id === a.id);
-          const bExists = ctx.nodes.some(n => n.id === b.id);
+          const aIsGroup = ctx.subgraphIds.has(a.id) && !ctx.explicitNodeIds.has(a.id);
+          const bIsGroup = ctx.subgraphIds.has(b.id) && !ctx.explicitNodeIds.has(b.id);
+          const aExists = aIsGroup || ctx.nodes.some(n => n.id === a.id);
+          const bExists = bIsGroup || ctx.nodes.some(n => n.id === b.id);
           if (aExists && bExists) {
             if (ctx.edges.length >= LIMITS.maxEdges) {
               if (!ctx.hasReportedMaxEdges) {
@@ -172,6 +189,8 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
               }
             } else {
               const edgeIndex = ctx.edges.length;
+              const edgeRef = ops[opIdx].ref;
+              const anim = (edgeRef ? ctx.edgePropsMap.get(edgeRef) : undefined) ?? { animate: null, speed: null };
               ctx.edges.push({
                 id: 'e' + edgeIndex,
                 index: edgeIndex,
@@ -180,9 +199,13 @@ export function parseStatement(raw: string, lineIndex: number, ctx: StatementCon
                 kind: ops[opIdx].kind,
                 label: ops[opIdx].label,
                 length: ops[opIdx].length,
+                ref: edgeRef,
+                anim,
+                markdown: ops[opIdx].markdown,
+                fromIsGroup: aIsGroup,
+                toIsGroup: bIsGroup,
                 style: {},
                 line: lineIndex,
-                markdown: ops[opIdx].markdown,
               });
               ctx.lines[lineIndex].edgeIndexes.push(edgeIndex);
             }

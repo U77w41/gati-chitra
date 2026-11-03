@@ -24,7 +24,7 @@ export interface NodeRef {
 
 export type StatementToken =
   | { type: 'node'; ref: NodeRef; start: number; end: number }
-  | { type: 'edge'; kind: EdgeKind; label: string; length: number; markdown: boolean; start: number; end: number }
+  | { type: 'edge'; kind: EdgeKind; label: string; length: number; markdown: boolean; ref: string | null; start: number; end: number }
   | { type: 'amp'; start: number; end: number }
   | { type: 'semi'; start: number; end: number };
 
@@ -123,11 +123,18 @@ const OPERATORS_TABLE: { regex: RegExp; kind: EdgeKind }[] = [
 export function readEdgeOperator(
   s: string,
   pos: number
-): { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } | null {
+): { kind: EdgeKind; label: string; length: number; markdown?: boolean; ref?: string | null; end: number } | null {
   while (pos < s.length && /\s/.test(s[pos])) pos++;
   if (pos >= s.length) return null;
 
-  const rest = s.slice(pos);
+  let rest = s.slice(pos);
+  let edgeRef: string | null = null;
+  const refMatch = /^([\p{L}\p{N}_]+)@(?=[-=<~ox])/u.exec(rest);
+  if (refMatch) {
+    edgeRef = refMatch[1];
+    pos += refMatch[0].length;
+    rest = s.slice(pos);
+  }
 
   for (const { opener, closers } of INLINE_OPENERS) {
     if (opener.test(rest)) {
@@ -148,13 +155,14 @@ export function readEdgeOperator(
                 label = cleanLabel(label);
               }
               const length = computeEdgeLength(closer.kind, m[0]);
-              const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } = {
+              const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; ref?: string | null; end: number } = {
                 kind: closer.kind,
                 label,
                 length,
                 end: cand + m[0].length,
               };
               if (markdown) res.markdown = true;
+              if (edgeRef) res.ref = edgeRef;
               return res;
             }
           }
@@ -215,13 +223,14 @@ export function readEdgeOperator(
     end = pipeEnd + 1;
   }
 
-  const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; end: number } = {
+  const res: { kind: EdgeKind; label: string; length: number; markdown?: boolean; ref?: string | null; end: number } = {
     kind: matchedKind,
     label,
     length: opLength,
     end,
   };
   if (markdown) res.markdown = true;
+  if (edgeRef) res.ref = edgeRef;
   return res;
 }
 
@@ -240,20 +249,11 @@ export function scanStatement(line: string): StatementToken[] | null {
     if (expectNode) {
       const res = readNodeRef(line, p);
       if (!res) return null;
-      tokens.push({
-        type: 'node',
-        ref: res.ref,
-        start: p,
-        end: res.end,
-      });
+      tokens.push({ type: 'node', ref: res.ref, start: p, end: res.end });
       p = res.end;
       while (p < line.length && /\s/.test(line[p])) p++;
       if (p < line.length && line[p] === '&') {
-        tokens.push({
-          type: 'amp',
-          start: p,
-          end: p + 1,
-        });
+        tokens.push({ type: 'amp', start: p, end: p + 1 });
         p++;
         expectNode = true;
       } else {
@@ -261,11 +261,7 @@ export function scanStatement(line: string): StatementToken[] | null {
       }
     } else {
       if (line[p] === ';') {
-        tokens.push({
-          type: 'semi',
-          start: p,
-          end: p + 1,
-        });
+        tokens.push({ type: 'semi', start: p, end: p + 1 });
         p++;
         while (p < line.length && /\s/.test(line[p])) p++;
         if (p < line.length) return null;
@@ -280,6 +276,7 @@ export function scanStatement(line: string): StatementToken[] | null {
         label: op.label,
         length: op.length,
         markdown: op.markdown ?? false,
+        ref: op.ref ?? null,
         start: p,
         end: op.end,
       });

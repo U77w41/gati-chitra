@@ -18,21 +18,29 @@ export interface GraphNode {
   style: StyleMap; group: string | null; markdown: boolean;
   line: number; // 0-based index of the line where the node is first referenced
 }
+export interface EdgeAnim { animate: boolean | null; speed: 'fast' | 'slow' | null }
+export interface NodeLink { url: string; tooltip: string | null; target: '_self' | '_blank' | '_parent' | '_top' }
 export interface GraphEdge {
   id: string;    // `e${index}`
   index: number; // 0-based order of creation; matches linkStyle numbers
   from: string; to: string; kind: EdgeKind; label: string; length: number; style: StyleMap;
+  ref: string | null;
+  anim: EdgeAnim;
   markdown: boolean;
+  fromIsGroup: boolean;
+  toIsGroup: boolean;
   line: number;  // 0-based index of the line that defines the edge
 }
 export interface GraphGroup {
   id: string; title: string; parent: string | null; direction: Direction | null;
+  directionLine?: number;
   markdown: boolean;
   line: number; // 0-based index of the `subgraph` line
 }
 export type LineKind =
   | 'frontmatter' | 'directive' | 'header' | 'blank' | 'comment' | 'pos' | 'statement'
-  | 'subgraph' | 'end' | 'direction' | 'classDef' | 'class' | 'style' | 'linkStyle' | 'unknown';
+  | 'subgraph' | 'end' | 'direction' | 'classDef' | 'class' | 'style' | 'linkStyle'
+  | 'edgeProps' | 'click' | 'acc' | 'unknown';
 export interface SourceLine {
   index: number; text: string; kind: LineKind;
   nodeIds: string[];     // nodes referenced on this line, in order, without duplicates
@@ -44,6 +52,11 @@ export interface ParsedDoc {
   nodes: GraphNode[]; edges: GraphEdge[]; groups: GraphGroup[];
   classDefs: Record<string, StyleMap>;
   pins: Record<string, Point>;
+  title: string | null;
+  accTitle: string | null;
+  accDescr: string | null;
+  links: Record<string, NodeLink>;
+  explicitEdgeAnimation: boolean;
   lines: SourceLine[]; diagnostics: Diagnostic[];
   ok: boolean; // true when there is no diagnostic with severity 'error'
 }

@@ -54,6 +54,9 @@ export function applyComputedStyles(
 
   for (const node of nodes) {
     const effective: StyleMap = {};
+    if (classDefs.default) {
+      Object.assign(effective, classDefs.default);
+    }
     for (const c of node.classNames) {
       if (classDefs[c]) {
         Object.assign(effective, classDefs[c]);

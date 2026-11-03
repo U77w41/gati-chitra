@@ -4,6 +4,7 @@ import type { Diagnostic, Direction, SourceLine } from '../core/types';
 export interface HeaderResult {
   headerIdx: number;
   direction: Direction;
+  title: string | null;
   ok: boolean;
 }
 
@@ -23,6 +24,7 @@ export function parseHeader(
   }
 
   let step4Start = first === -1 ? 0 : first;
+  let title: string | null = null;
   if (first !== -1 && rawLines[first].trim() === '---') {
     let closeFm = -1;
     for (let i = first + 1; i < rawLines.length; i++) {
@@ -34,6 +36,16 @@ export function parseHeader(
     if (closeFm !== -1) {
       for (let i = first; i <= closeFm; i++) {
         lines[i].kind = 'frontmatter';
+      }
+      for (let i = first + 1; i < closeFm; i++) {
+        const m = /^title\s*:\s*(.*)$/.exec(rawLines[i].trim());
+        if (m) {
+          let val = m[1].trim();
+          if (val.startsWith('"') && val.endsWith('"') && val.length >= 2) {
+            val = val.slice(1, -1);
+          }
+          title = val;
+        }
       }
       step4Start = closeFm + 1;
     }
@@ -64,14 +76,14 @@ export function parseHeader(
     } else {
       diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.notFlowchart });
       for (let j = i; j < rawLines.length; j++) lines[j].kind = 'unknown';
-      return { headerIdx: -1, direction: 'TB', ok: false };
+      return { headerIdx: -1, direction: 'TB', title: null, ok: false };
     }
   }
 
   if (headerIdx === -1) {
     diagnostics.push({ line: 1, severity: 'error', message: MESSAGES.notFlowchart });
-    return { headerIdx: -1, direction: 'TB', ok: false };
+    return { headerIdx: -1, direction: 'TB', title: null, ok: false };
   }
 
-  return { headerIdx, direction, ok: true };
+  return { headerIdx, direction, title, ok: true };
 }

@@ -931,7 +931,7 @@ git add -A && git commit -m "feat: parse new node shapes, @{} syntax, entities a
 - Produces: `sealedGroups(doc: ParsedDoc): Set<string>` in `src/mermaid/groups.ts`. It returns the groups that have a `direction` and no edge between a node inside them (at any depth) and a node outside. The parser uses it for the info note; Task 42's layout uses it too. It lives in `mermaid` because `mermaid` may not import `layout`.
 - Produces the Part 3 fields with Part 4.6 and 4.7 semantics. Default values: `ref: null`, `anim: { animate: null, speed: null }`, `fromIsGroup: false`, `toIsGroup: false`, `title: null`, `accTitle: null`, `accDescr: null`, `links: {}`, `explicitEdgeAnimation: false`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('reads edge ids and properties', () => {
@@ -979,10 +979,10 @@ it('notes a subgraph direction that cannot apply', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test -- src/mermaid`. Expected: FAIL.
-- [ ] **Step 3: Implement** Part 4.6 and 4.7. Collect edge refs in a first pass over the lines, using the edge-id regex from Part 4.3.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test -- src/mermaid`. Expected: FAIL.
+- [x] **Step 3: Implement** Part 4.6 and 4.7. Collect edge refs in a first pass over the lines, using the edge-id regex from Part 4.3.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: parse edge ids, click links, accessibility lines and the title"
