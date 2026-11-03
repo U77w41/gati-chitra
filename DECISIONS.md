@@ -17,3 +17,4 @@ Task 28: chose #8c8c91 (light) and #8e8e8e (dark) for --border because they pres
 Task 30: chose 57.26 KB gzip (level 9) for mediabunny lazy chunk after tree-shaking specific imports.
 Task 32: chose to run Chromium and WebKit locally (Firefox fails to launch locally on macOS without Full Disk Access due to TCC blocking ~/Library/Application Support/Firefox; GitHub Actions CI runs all three on ubuntu-latest) and actionlint could not run locally (executable not installed).
 Task 33: confirmed 53.38 KB initial JS gzip (level 9) and 57.26 KB largest lazy chunk gzip (level 9) against the 150 KB and 80 KB budgets.
+UX refinements: chose 24px snap radius on connection drop, +8px handle hit radius, and added text color picker to properties panel to improve connection reliability and node font styling.

@@ -73,11 +73,30 @@ export function reduce(
     case 'pointerUp': {
       if (state.connect) {
         const fromId = state.connect.fromId;
-        const target = hitTest(env.scene, event.world, null);
+        const hit = hitTest(env.scene, event.world, null);
+        let targetId = hit?.kind === 'node' ? hit.id : null;
+        if (!targetId) {
+          let minDist = Infinity;
+          for (const node of env.scene.doc.nodes) {
+            const box = env.scene.layout.nodes[node.id];
+            if (!box) continue;
+            const left = box.center.x - box.width / 2;
+            const right = box.center.x + box.width / 2;
+            const top = box.center.y - box.height / 2;
+            const bottom = box.center.y + box.height / 2;
+            const dx = Math.max(left - event.world.x, 0, event.world.x - right);
+            const dy = Math.max(top - event.world.y, 0, event.world.y - bottom);
+            const dist = Math.hypot(dx, dy);
+            if (dist <= 24 && dist < minDist) {
+              minDist = dist;
+              targetId = node.id;
+            }
+          }
+        }
         const effects: EditorEffect[] = [];
-        if (target?.kind === 'node') {
-          effects.push({ type: 'applyOp', op: { type: 'addEdge', from: fromId, to: target.id } });
-        } else if (target === null) {
+        if (targetId) {
+          effects.push({ type: 'applyOp', op: { type: 'addEdge', from: fromId, to: targetId } });
+        } else if (hit === null) {
           effects.push({ type: 'addConnectedNode', fromId, at: event.world });
         }
         return { state: { ...state, connect: null }, effects };

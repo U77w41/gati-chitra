@@ -171,6 +171,25 @@ test.describe('Editing, connecting and properties panel', () => {
     expect(text).toContain('style A fill:#ffcc00');
   });
 
+  test('changes node text colour via properties panel', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\nA');
+    });
+    await page.waitForTimeout(300);
+
+    const aScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('A'));
+    await page.mouse.click(aScreen.x, aScreen.y);
+    await page.waitForTimeout(100);
+
+    await page.locator('#prop-text-color').fill('#e63946');
+    await page.locator('#prop-text-color').dispatchEvent('change');
+    await page.waitForTimeout(300);
+
+    const text = await page.locator('#source').inputValue();
+    expect(text).toContain('style A color:#e63946');
+  });
+
   test('edits edge properties: kind, reverse, delete', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.evaluate(() => {

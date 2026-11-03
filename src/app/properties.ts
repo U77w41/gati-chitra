@@ -28,6 +28,7 @@ export function setupProperties(env: PropertiesEnv): () => void {
   const propShape = panelEl.querySelector<HTMLSelectElement>('#prop-shape')!;
   const propFill = panelEl.querySelector<HTMLInputElement>('#prop-fill')!;
   const propStroke = panelEl.querySelector<HTMLInputElement>('#prop-stroke')!;
+  const propTextColor = panelEl.querySelector<HTMLInputElement>('#prop-text-color')!;
   const propClearColours = panelEl.querySelector<HTMLButtonElement>('#prop-clear-colours')!;
   const propDelete = panelEl.querySelector<HTMLButtonElement>('#prop-delete')!;
 
@@ -88,11 +89,19 @@ export function setupProperties(env: PropertiesEnv): () => void {
     }
   });
 
+  propTextColor.addEventListener('change', () => {
+    const state = getState();
+    const sel = state.editor.selection;
+    if (sel?.kind === 'node' && state.doc.ok) {
+      executeOp({ type: 'setNodeStyle', id: sel.id, style: { color: propTextColor.value } });
+    }
+  });
+
   propClearColours.addEventListener('click', () => {
     const state = getState();
     const sel = state.editor.selection;
     if (sel?.kind === 'node' && state.doc.ok) {
-      executeOp({ type: 'setNodeStyle', id: sel.id, style: { fill: '', stroke: '' } });
+      executeOp({ type: 'setNodeStyle', id: sel.id, style: { fill: '', stroke: '', color: '' } });
     }
   });
 
@@ -150,6 +159,7 @@ export function setupProperties(env: PropertiesEnv): () => void {
         if (document.activeElement !== propShape) propShape.value = node.shape;
         if (document.activeElement !== propFill) propFill.value = toHexColor(node.style.fill, theme.nodeFill);
         if (document.activeElement !== propStroke) propStroke.value = toHexColor(node.style.stroke, theme.nodeStroke);
+        if (document.activeElement !== propTextColor) propTextColor.value = toHexColor(node.style.color, theme.nodeText);
       }
     } else if (sel.kind === 'edge') {
       nodeSection.hidden = true;

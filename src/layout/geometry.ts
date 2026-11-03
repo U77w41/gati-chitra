@@ -176,7 +176,7 @@ function pointToSegmentDistance(p: Point, a: Point, b: Point): number {
 export function hitTest(scene: Scene, p: Point, handleNodeId: string | null): Hit | null {
   if (handleNodeId && scene.layout.nodes[handleNodeId]) {
     const hp = handlePoint(scene.doc, scene.layout.nodes[handleNodeId]);
-    if (Math.hypot(p.x - hp.x, p.y - hp.y) <= LAYOUT.handleRadius + 4) {
+    if (Math.hypot(p.x - hp.x, p.y - hp.y) <= LAYOUT.handleRadius + 8) {
       return { kind: 'handle', id: handleNodeId };
     }
   }

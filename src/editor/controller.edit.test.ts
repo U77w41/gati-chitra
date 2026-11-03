@@ -75,6 +75,30 @@ describe('controller connect and edit', () => {
     ]);
   });
 
+  it('connects to target node when pointer up is near target node border', () => {
+    let s = stateWithASelected();
+    s = reduce(
+      s,
+      { type: 'pointerDown', world: hp, screen: hp, button: 0, space: false },
+      env,
+    ).state;
+
+    const bBox = scene.layout.nodes.B;
+    const nearB = { x: bCenter.x, y: bCenter.y + bBox.height / 2 + 10 };
+    const res = reduce(
+      s,
+      { type: 'pointerUp', world: nearB, screen: nearB },
+      env,
+    );
+    expect(res.state.connect).toBeNull();
+    expect(res.effects).toEqual([
+      {
+        type: 'applyOp',
+        op: { type: 'addEdge', from: 'A', to: 'B' },
+      },
+    ]);
+  });
+
   it('adds connected node on pointer up over empty space', () => {
     let s = stateWithASelected();
     s = reduce(
