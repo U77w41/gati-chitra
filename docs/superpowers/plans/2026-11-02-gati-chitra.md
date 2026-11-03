@@ -1085,7 +1085,7 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
 
 5. Return `{ ref, end }`.
 
-* \[ \] **Step 1: Write the failing tests.** `tokens.test.ts` (each line is one assertion; `r(s)` means `readNodeRef(s, 0)`):
+* [x] **Step 1: Write the failing tests.** `tokens.test.ts` (each line is one assertion; `r(s)` means `readNodeRef(s, 0)`):
 
 ```
 expect(r('A')).toEqual({ ref: { id: 'A', label: null, shape: null, className: null }, end: 1 });
@@ -1139,13 +1139,13 @@ expect(parseMermaid('flowchart TD\nA[the end]').nodes[0].label).toBe('the end');
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/mermaid`. Expected: FAIL (modules not found).
+* [x] **Step 2: Run** `npx vitest run src/mermaid`. Expected: FAIL (modules not found).
 
-* \[ \] **Step 3: Implement** `cleanLabel`, `readNodeRef` in `src/mermaid/tokens.ts` and the Task 3 portion of `parseMermaid` in `src/mermaid/parse.ts`, following the algorithms above. Keep a `SHAPE_TABLE` constant in `tokens.ts` with the ten rows of 4.2 in the stated order.
+* [x] **Step 3: Implement** `cleanLabel`, `readNodeRef` in `src/mermaid/tokens.ts` and the Task 3 portion of `parseMermaid` in `src/mermaid/parse.ts`, following the algorithms above. Keep a `SHAPE_TABLE` constant in `tokens.ts` with the ten rows of 4.2 in the stated order.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: parse flowchart header and node references"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: parse flowchart header and node references"`
 
 ### Task 4: Parser, part 2: edges
 
