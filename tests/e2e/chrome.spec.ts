@@ -10,7 +10,7 @@ test.describe('Site Chrome and Scheme', () => {
     const box = await header.boundingBox();
     expect(box!.height).toBeGreaterThanOrEqual(72);
 
-    await expect(page.locator('.brand-name')).toHaveText('Gati-chitra');
+    await expect(page.locator('.brand-name')).toHaveText('Gati Chitra');
     const brandSvg = page.locator('.brand svg.brand-icon');
     await expect(brandSvg).toBeVisible();
 

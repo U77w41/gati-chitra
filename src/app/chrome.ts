@@ -40,7 +40,7 @@ export function headerHtml(): string {
     '<div class="container header-inner">' +
     '<a class="brand" href="./" aria-label="Gati-chitra home">' +
     logoSvg('brand-icon') +
-    '<span class="brand-text"><span class="brand-name">Gati-chitra</span></span>' +
+    '<span class="brand-text"><span class="brand-name">Gati Chitra</span></span>' +
     '</a>' +
     '<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark colour scheme" title="Switch between light and dark colour scheme">' +
     ICONS.moon +

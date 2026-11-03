@@ -30,8 +30,8 @@ button { font: inherit; color: inherit; }
   transition: background-color .3s, color .3s, border-color .3s, box-shadow .3s;
 }
 
-.container { width: 100%; max-width: var(--container); padding: 0 var(--gutter); margin: 0 auto; }
-.container-wide { width: 100%; max-width: var(--container-wide); padding: 0 var(--gutter); margin: 0 auto; }
+.container,
+.container-wide { width: 100%; max-width: 100%; padding: 0 var(--gutter); margin: 0 auto; }
 
 .card {
   padding: 24px;
