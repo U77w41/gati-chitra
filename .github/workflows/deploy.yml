@@ -1,0 +1,61 @@
+name: Test and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:dist
+      - run: npm run test:e2e
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Compute base path and site URLs
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [ "${repo,,}" = "$owner.github.io" ]; then base="/"; else base="/$repo/"; fi
+          echo "BASE_PATH=$base" >> "$GITHUB_ENV"
+          echo "VITE_SITE_URL=https://$owner.github.io$base" >> "$GITHUB_ENV"
+          echo "VITE_SOURCE_URL=https://github.com/$GITHUB_REPOSITORY" >> "$GITHUB_ENV"
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check:dist
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -3334,15 +3334,15 @@ The `deploy` job runs only after `test` passes (a failing check blocks a release
 
 **`__studio.measureFrames(count)`:** draws `count` frames at consecutive phases (`i / count`) straight onto the main canvas using the current scene and settings, with `performance.now()` around the loop, and returns the average milliseconds per frame.
 
-* \[ \] **Step 1: Write the browser tests.**
+* [x] **Step 1: Write the browser tests.**
 
 `tests/e2e/network.spec.ts` (F17): record every request with `page.on('request')`. Load `/?e2e=1`, interact (type, drag a node, export a PNG and an SVG), and assert that no request goes to another origin. Then call `context.setOffline(true)`, and repeat: type text, drag a node, export PNG and SVG; they all still work (the page keeps functioning offline after load).
 
 `tests/e2e/perf.spec.ts` (budgets): build a text of 100 nodes as a binary tree (`flowchart TD`, then for node `n` an edge to `2n` and `2n+1` while within 100); set it; select the `traffic` style; `__studio.measureFrames(30)` returns less than 50 milliseconds on average. Also assert that setting a 300-node chain text and waiting for `__studio.getSummary().nodes.length === 300` takes less than 3 seconds.
 
-* \[ \] **Step 2: Implement** `check-dist.mjs`, the `check:dist` script (`"check:dist": "node scripts/check-dist.mjs"`), the workflow and `measureFrames`.
+* [x] **Step 2: Implement** `check-dist.mjs`, the `check:dist` script (`"check:dist": "node scripts/check-dist.mjs"`), the workflow and `measureFrames`.
 
-* \[ \] **Step 3: Verify the dist check:**
+* [x] **Step 3: Verify the dist check:**
 
   * Run `npm run build && npm run check:dist`. Expected: it prints the sizes and `OK`.
 
@@ -3352,9 +3352,9 @@ The `deploy` job runs only after `test` passes (a failing check blocks a release
 
   * Run `npm run build` again (without `BASE_PATH`) so `dist` matches the default.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "ci: test, check and deploy to GitHub Pages"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "ci: test, check and deploy to GitHub Pages"`
 
 ### Task 22: Brand, logo, favicon, site header and footer, colour scheme
 

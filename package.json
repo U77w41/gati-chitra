@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "check:dist": "node scripts/check-dist.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test"

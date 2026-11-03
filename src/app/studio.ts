@@ -1,8 +1,10 @@
+import { frameState } from '../anim/anim';
 import { handlePoint } from '../layout/geometry';
+import { drawBackground, drawScene } from '../render/draw';
 import { exportFrame } from '../render/frame';
 import type { ExportMode } from '../core/types';
 import { worldToScreen } from '../editor/view';
-import { resolveTheme } from '../render/themes';
+import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
 
 export interface StudioEnv {
@@ -91,6 +93,39 @@ export function setupStudioApi(env: StudioEnv): void {
           ? 'dark'
           : 'light';
       return resolveTheme(state.settings.theme, scheme);
+    },
+    measureFrames: (count: number) => {
+      const state = env.getState();
+      const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
+      const ctx = canvas?.getContext('2d');
+      if (!state.scene || !ctx || count <= 0) return 0;
+
+      const scheme =
+        document.documentElement.getAttribute('data-scheme') === 'dark'
+          ? 'dark'
+          : 'light';
+      const themeId = resolveTheme(state.settings.theme, scheme);
+      const theme = THEMES[themeId];
+      const dpr = window.devicePixelRatio || 1;
+
+      const t0 = performance.now();
+      for (let i = 0; i < count; i++) {
+        const phase = i / count;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        drawBackground(ctx, theme, canvas.width, canvas.height, false);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const frame = frameState(state.scene, state.settings.anim, phase);
+        drawScene(ctx, state.scene, theme, state.view, frame, {
+          transparent: false,
+          selection: null,
+          handleNodeId: null,
+          connectPreview: null,
+          focus: null,
+          showGlow: state.settings.anim.glow,
+        });
+      }
+      const t1 = performance.now();
+      return (t1 - t0) / count;
     },
   };
 }

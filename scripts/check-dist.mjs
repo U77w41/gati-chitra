@@ -1,0 +1,84 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import zlib from 'node:zlib';
+
+const base = process.env.BASE_PATH ?? '/';
+const dist = 'dist';
+
+const htmlPath = path.join(dist, 'index.html');
+if (!fs.existsSync(htmlPath)) {
+  console.error(`dist/index.html not found`);
+  process.exit(1);
+}
+
+const html = fs.readFileSync(htmlPath, 'utf8');
+
+const refs = new Set();
+
+const scriptRegex = /<script\b[^>]*\bsrc=["']([^"']+\.js)["']/g;
+let m;
+while ((m = scriptRegex.exec(html)) !== null) {
+  refs.add(m[1]);
+}
+
+const linkRegex1 = /<link\b[^>]*\bhref=["']([^"']+\.js)["'][^>]*\brel=["']modulepreload["']/g;
+while ((m = linkRegex1.exec(html)) !== null) {
+  refs.add(m[1]);
+}
+
+const linkRegex2 = /<link\b[^>]*\brel=["']modulepreload["'][^>]*\bhref=["']([^"']+\.js)["']/g;
+while ((m = linkRegex2.exec(html)) !== null) {
+  refs.add(m[1]);
+}
+
+if (refs.size === 0) {
+  console.error('No script found in dist/index.html');
+  process.exit(1);
+}
+
+let totalGz = 0;
+
+for (const ref of refs) {
+  if (!ref.startsWith(base)) {
+    console.error(`Asset URL does not start with BASE_PATH: ${ref}`);
+    process.exit(1);
+  }
+
+  const relative = ref.slice(base.length);
+  const filePath = path.join(dist, relative);
+
+  if (!fs.existsSync(filePath)) {
+    console.error(`Asset file not found: ${filePath}`);
+    process.exit(1);
+  }
+
+  const content = fs.readFileSync(filePath);
+  const gz = zlib.gzipSync(content, { level: 9 }).length;
+  totalGz += gz;
+  console.log(`${relative}: ${(gz / 1024).toFixed(2)} KB (gzip)`);
+}
+
+console.log(`Total initial JS: ${(totalGz / 1024).toFixed(2)} KB (gzip)`);
+
+if (totalGz > 350 * 1024) {
+  console.error('Initial JavaScript is over the 350 KB budget');
+  process.exit(1);
+}
+
+const templatesIndexPath = path.join(dist, 'templates', 'index.json');
+if (!fs.existsSync(templatesIndexPath)) {
+  console.error(`Missing ${templatesIndexPath}`);
+  process.exit(1);
+}
+
+const templates = JSON.parse(fs.readFileSync(templatesIndexPath, 'utf8'));
+for (const entry of templates) {
+  const tFile = path.join(dist, 'templates', entry.file);
+  if (!fs.existsSync(tFile)) {
+    console.error(`Missing template file: ${tFile}`);
+    process.exit(1);
+  }
+}
+
+console.log('OK');
+process.exit(0);
