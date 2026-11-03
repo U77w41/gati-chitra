@@ -1309,7 +1309,7 @@ expect(parseMermaid(dup).ok).toBe(false);
 
 **`parseStyleString`:** split on `/,(?=\s*[A-Za-z-]+\s*:)/`; for each part split at the first `:`; trim both sides; skip parts without a colon or with an empty key; strip a trailing `;` from the value.
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 `styles.test.ts`:
 
@@ -1379,13 +1379,13 @@ const alphabet = 'AB[]{}()-><|&;:%"\n .=#';
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/mermaid`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/mermaid`. Expected: FAIL.
 
-* \[ \] **Step 3: Create** `tests/support/corpus.ts` from Appendix A, then implement `styles.ts` and the handlers in `parse.ts`.
+* [x] **Step 3: Create** `tests/support/corpus.ts` from Appendix A, then implement `styles.ts` and the handlers in `parse.ts`.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: parse groups, classes, styles, comments and pins"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: parse groups, classes, styles, comments and pins"`
 
 ### Task 6: Text patches, part 1: pins, add, delete
 

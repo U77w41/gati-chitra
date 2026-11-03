@@ -11,6 +11,13 @@ import type {
   SourceLine,
   StyleMap,
 } from '../core/types';
+import {
+  applyComputedStyles,
+  parseStyleString,
+  type QueuedClass,
+  type QueuedLinkStyle,
+  type QueuedStyle,
+} from './styles';
 import { type NodeRef, scanStatement } from './tokens';
 
 export function parseMermaid(text: string): ParsedDoc {
@@ -50,8 +57,15 @@ export function parseMermaid(text: string): ParsedDoc {
   const groups: GraphGroup[] = [];
   const classDefs: Record<string, StyleMap> = {};
   const pins: Record<string, Point> = {};
+  const groupStack: string[] = [];
+
+  const queuedClasses: QueuedClass[] = [];
+  const queuedStyles: QueuedStyle[] = [];
+  const queuedLinkStyles: QueuedLinkStyle[] = [];
+
   let hasReportedMaxNodes = false;
   let hasReportedMaxEdges = false;
+  let hasReportedMaxGroupDepth = false;
 
   let first = -1;
   for (let i = 0; i < rawLines.length; i++) {
@@ -84,9 +98,7 @@ export function parseMermaid(text: string): ParsedDoc {
 
   for (let i = step4Start; i < rawLines.length; i++) {
     const trimmed = rawLines[i].trim();
-    if (trimmed === '') {
-      continue;
-    }
+    if (trimmed === '') continue;
     if (trimmed.startsWith('%%{')) {
       lines[i].kind = 'directive';
       continue;
@@ -105,9 +117,7 @@ export function parseMermaid(text: string): ParsedDoc {
       break;
     } else {
       diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.notFlowchart });
-      for (let j = i; j < rawLines.length; j++) {
-        lines[j].kind = 'unknown';
-      }
+      for (let j = i; j < rawLines.length; j++) lines[j].kind = 'unknown';
       return {
         direction: 'TB',
         nodes: [],
@@ -139,6 +149,7 @@ export function parseMermaid(text: string): ParsedDoc {
 
   const posRegex = /^\s*%%\s*studio:pos\s+(\S+)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s*$/;
   const dirRegex = /^direction\s+(TB|TD|BT|RL|LR)\s*;?$/;
+  const endRegex = /^end\s*;?$/;
 
   for (let i = headerIdx + 1; i < rawLines.length; i++) {
     const raw = rawLines[i];
@@ -165,8 +176,122 @@ export function parseMermaid(text: string): ParsedDoc {
       continue;
     }
 
+    if (trimmed.startsWith('subgraph')) {
+      let gId = '';
+      let gTitle = '';
+      const m1 = /^subgraph\s+([A-Za-z0-9_]+)\s*\[(.*)\]\s*;?$/.exec(trimmed);
+      if (m1) {
+        gId = m1[1];
+        gTitle = m1[2].trim();
+        if (gTitle.startsWith('"') && gTitle.endsWith('"') && gTitle.length >= 2) {
+          gTitle = gTitle.slice(1, -1);
+        }
+      } else {
+        const m2 = /^subgraph\s+"(.*)"\s*;?$/.exec(trimmed);
+        if (m2) {
+          gId = `group${groups.length + 1}`;
+          gTitle = m2[1];
+        } else {
+          const m3 = /^subgraph\s+(.+?)\s*;?$/.exec(trimmed);
+          if (m3) {
+            gTitle = m3[1].trim();
+            gId = gTitle.replace(/[^A-Za-z0-9_]/g, '_');
+          }
+        }
+      }
+
+      if (gId) {
+        lines[i].kind = 'subgraph';
+        const parent = groupStack.length > 0 ? groupStack[groupStack.length - 1] : null;
+        groups.push({ id: gId, title: gTitle, parent, direction: null, line: i });
+        groupStack.push(gId);
+        if (groupStack.length > LIMITS.maxGroupDepth && !hasReportedMaxGroupDepth) {
+          diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.groupTooDeep });
+          hasReportedMaxGroupDepth = true;
+        }
+        continue;
+      }
+    }
+
+    if (endRegex.test(trimmed)) {
+      lines[i].kind = 'end';
+      if (groupStack.length === 0) {
+        diagnostics.push({ line: i + 1, severity: 'warning', message: MESSAGES.strayEnd(i + 1) });
+      } else {
+        groupStack.pop();
+      }
+      continue;
+    }
+
     if (dirRegex.test(trimmed)) {
       lines[i].kind = 'direction';
+      if (groupStack.length > 0) {
+        const currId = groupStack[groupStack.length - 1];
+        const grp = groups.find(g => g.id === currId);
+        if (grp) {
+          const dMatch = dirRegex.exec(trimmed)![1];
+          grp.direction = dMatch === 'TD' ? 'TB' : (dMatch as Direction);
+        }
+      }
+      continue;
+    }
+
+    if (trimmed.startsWith('classDef ')) {
+      lines[i].kind = 'classDef';
+      const rest = trimmed.slice(9).trim();
+      const spaceIdx = rest.search(/\s/);
+      const firstToken = spaceIdx === -1 ? rest : rest.slice(0, spaceIdx);
+      let styleStr = spaceIdx === -1 ? '' : rest.slice(spaceIdx + 1).trim();
+      if (styleStr.endsWith(';')) styleStr = styleStr.slice(0, -1).trim();
+      const styleMap = parseStyleString(styleStr);
+      for (const name of firstToken.split(',').map(s => s.trim()).filter(Boolean)) {
+        classDefs[name] = { ...styleMap };
+      }
+      continue;
+    }
+
+    if (trimmed.startsWith('class ')) {
+      lines[i].kind = 'class';
+      const rest = trimmed.slice(6).trim();
+      const parts = rest.split(/\s+/);
+      if (parts.length >= 2) {
+        const ids = parts[0].split(',').map(s => s.trim()).filter(Boolean);
+        const className = parts[1].trim();
+        queuedClasses.push({ ids, className });
+      }
+      continue;
+    }
+
+    if (trimmed.startsWith('style ')) {
+      lines[i].kind = 'style';
+      const rest = trimmed.slice(6).trim();
+      const spaceIdx = rest.search(/\s/);
+      if (spaceIdx !== -1) {
+        const id = rest.slice(0, spaceIdx).trim();
+        let styleStr = rest.slice(spaceIdx + 1).trim();
+        if (styleStr.endsWith(';')) styleStr = styleStr.slice(0, -1).trim();
+        const style = parseStyleString(styleStr);
+        queuedStyles.push({ id, style });
+      }
+      continue;
+    }
+
+    if (trimmed.startsWith('linkStyle ')) {
+      lines[i].kind = 'linkStyle';
+      const rest = trimmed.slice(10).trim();
+      const spaceIdx = rest.search(/\s/);
+      if (spaceIdx !== -1) {
+        const target = rest.slice(0, spaceIdx).trim();
+        let styleStr = rest.slice(spaceIdx + 1).trim();
+        if (styleStr.endsWith(';')) styleStr = styleStr.slice(0, -1).trim();
+        const style = parseStyleString(styleStr);
+        if (target === 'default') {
+          queuedLinkStyles.push({ target: 'default', style });
+        } else {
+          const indexes = target.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+          queuedLinkStyles.push({ target: indexes, style });
+        }
+      }
       continue;
     }
 
@@ -185,7 +310,9 @@ export function parseMermaid(text: string): ParsedDoc {
         }
       }
 
+      const currentGroupId = groupStack.length > 0 ? groupStack[groupStack.length - 1] : null;
       const seenOnLine = new Set<string>();
+
       for (const group of nodeGroups) {
         for (const ref of group) {
           if (!seenOnLine.has(ref.id)) {
@@ -207,7 +334,7 @@ export function parseMermaid(text: string): ParsedDoc {
                 shape: ref.shape ?? 'rect',
                 classNames: ref.className ? [ref.className] : [],
                 style: {},
-                group: null,
+                group: currentGroupId,
                 line: i,
               });
             }
@@ -216,6 +343,9 @@ export function parseMermaid(text: string): ParsedDoc {
             if (ref.label !== null) existing.label = ref.label;
             if (ref.className && !existing.classNames.includes(ref.className)) {
               existing.classNames.push(ref.className);
+            }
+            if (existing.group === null && currentGroupId !== null) {
+              existing.group = currentGroupId;
             }
           }
         }
@@ -257,6 +387,19 @@ export function parseMermaid(text: string): ParsedDoc {
       diagnostics.push({ line: i + 1, severity: 'warning', message: MESSAGES.unknownLine(i + 1) });
     }
   }
+
+  for (const openGroupId of groupStack) {
+    const grp = groups.find(g => g.id === openGroupId);
+    if (grp) {
+      diagnostics.push({
+        line: grp.line + 1,
+        severity: 'warning',
+        message: MESSAGES.unclosedGroup(grp.id),
+      });
+    }
+  }
+
+  applyComputedStyles(nodes, edges, classDefs, queuedClasses, queuedStyles, queuedLinkStyles);
 
   const ok = !diagnostics.some(d => d.severity === 'error');
 
