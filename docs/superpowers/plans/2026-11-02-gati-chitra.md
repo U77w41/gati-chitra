@@ -3223,13 +3223,13 @@ await probeEncoder(100, 100, async () => { throw new Error('x'); })   // null
 
 * The first page load does not download the video library: record the network requests while loading and check that no request URL contains `mediabunny` until `#export-video` is clicked (the on-demand chunk is named by Vite after the module).
 
-* \[ \] **Step 2: Run** `npx vitest run src/export/video.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/export/video.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `video.ts` and the panel changes.
+* [x] **Step 3: Implement** `video.ts` and the panel changes.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: MP4 and WebM export with fallback"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: MP4 and WebM export with fallback"`
 
 ### Task 21: CI, GitHub Pages deployment, size and network checks
 

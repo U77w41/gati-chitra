@@ -4,6 +4,7 @@ import { downloadBlob } from '../export/download';
 import { safeFilename } from '../export/filename';
 import { exportGif } from '../export/gif';
 import { exportPng } from '../export/png';
+import { exportVideo } from '../export/video';
 import { canvasMeasure } from '../layout/measure';
 import { isEmptyBounds } from '../render/frame';
 import { renderSvg } from '../render/svg';
@@ -23,10 +24,12 @@ export function setupExportPanel(env: ExportPanelEnv): void {
   const exportMode = dialogEl.querySelector<HTMLSelectElement>('#export-mode')!;
   const exportScale = dialogEl.querySelector<HTMLSelectElement>('#export-scale')!;
   const exportFps = dialogEl.querySelector<HTMLSelectElement>('#export-fps')!;
+  const exportLoops = dialogEl.querySelector<HTMLSelectElement>('#export-loops');
   const exportTransparent = dialogEl.querySelector<HTMLInputElement>('#export-transparent')!;
   const exportPngBtn = dialogEl.querySelector<HTMLButtonElement>('#export-png')!;
   const exportSvgBtn = dialogEl.querySelector<HTMLButtonElement>('#export-svg')!;
   const exportGifBtn = dialogEl.querySelector<HTMLButtonElement>('#export-gif')!;
+  const exportVideoBtn = dialogEl.querySelector<HTMLButtonElement>('#export-video');
   const exportCancel = dialogEl.querySelector<HTMLButtonElement>('#export-cancel')!;
   const exportClose = dialogEl.querySelector<HTMLButtonElement>('#export-close')!;
   const exportProgress = dialogEl.querySelector<HTMLProgressElement>('#export-progress')!;
@@ -175,10 +178,85 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       }
       downloadBlob(res.blob, filename);
     } catch (err: any) {
-      if (err?.name === 'AbortError') {
+      if (err?.name === 'AbortError' || abortCtrl?.signal.aborted) {
         exportMessage.textContent = MESSAGES.exportCancelled;
       } else {
         exportMessage.textContent = err?.message ?? 'Export failed';
+      }
+    } finally {
+      abortCtrl = null;
+      if (exportProgress) exportProgress.hidden = true;
+      const curState = getState();
+      const noScene = !curState.scene || isEmptyBounds(curState.scene.layout.bounds);
+      for (const b of saveButtons) b.disabled = noScene;
+    }
+  });
+
+  exportVideoBtn?.addEventListener('click', async () => {
+    const state = getState();
+    if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
+
+    const scheme =
+      document.documentElement.getAttribute('data-scheme') === 'dark'
+        ? 'dark'
+        : 'light';
+    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const mode = exportMode.value as ExportMode;
+    const loops = exportLoops ? parseInt(exportLoops.value, 10) : 2;
+    const name = exportName.value;
+
+    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(
+      '#export-png, #export-svg, #export-gif, #export-video',
+    );
+
+    try {
+      for (const b of saveButtons) b.disabled = true;
+      if (exportProgress) {
+        exportProgress.hidden = false;
+        exportProgress.value = 0;
+        exportProgress.max = 100;
+      }
+      exportMessage.textContent = '';
+      abortCtrl = new AbortController();
+
+      const res = await exportVideo(
+        state.scene,
+        theme,
+        state.settings.anim,
+        { mode, loops },
+        (done, total) => {
+          if (exportProgress) {
+            exportProgress.value = done;
+            exportProgress.max = total;
+          }
+        },
+        abortCtrl.signal,
+      );
+
+      if ('fallback' in res) {
+        exportMessage.textContent = MESSAGES.videoUnsupported;
+        const gifRes = await exportGif(
+          state.scene,
+          theme,
+          state.settings.anim,
+          { mode, fps: 20 },
+          (done, total) => {
+            if (exportProgress) {
+              exportProgress.value = done;
+              exportProgress.max = total;
+            }
+          },
+          abortCtrl.signal,
+        );
+        downloadBlob(gifRes.blob, safeFilename(name, 'gif'));
+      } else {
+        downloadBlob(res.blob, safeFilename(name, res.container));
+      }
+    } catch (err: any) {
+      if (err?.name === 'AbortError' || abortCtrl?.signal.aborted) {
+        exportMessage.textContent = MESSAGES.exportCancelled;
+      } else {
+        exportMessage.textContent = MESSAGES.videoFailed(err?.message ?? 'Export failed');
       }
     } finally {
       abortCtrl = null;

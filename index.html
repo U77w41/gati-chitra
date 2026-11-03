@@ -141,6 +141,15 @@
             <option value="25">25 fps</option>
           </select>
 
+          <label for="export-loops">Loops</label>
+          <select id="export-loops">
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+
           <label><input type="checkbox" id="export-transparent" /> Transparent background</label>
 
           <progress id="export-progress" hidden></progress>
@@ -151,6 +160,7 @@
           <button id="export-png">Save as PNG</button>
           <button id="export-svg">Save as SVG</button>
           <button id="export-gif">Save as GIF</button>
+          <button id="export-video">Save as video</button>
         </div>
       </dialog>
       <dialog id="gallery" aria-modal="true" aria-label="Templates gallery">
