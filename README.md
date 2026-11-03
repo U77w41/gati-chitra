@@ -24,14 +24,6 @@ npm run check:dist  # Verify build integrity, assets, and bundle budget
 npm run test:e2e     # Run end-to-end browser tests
 ```
 
-## Deploy to GitHub Pages
-
-1. Push your commits to `https://github.com/U77w41/gati-chitra`.
-2. In the repository settings, go to **Settings → Pages** and set **Source** to **GitHub Actions**.
-3. Push changes to the `main` branch. The deployment workflow builds the application, validates distribution constraints, runs tests, and publishes the site.
-
-GitHub Pages serves repositories named `<user>.github.io` from the root path `/` and all other repositories from `/<repository-name>/`. Gati-chitra is served at `https://u77w41.github.io/gati-chitra/`. The deployment workflow configures `BASE_PATH` automatically during the build.
-
 ## Supported Mermaid syntax
 
 Gati-chitra parses standard flowchart declarations:
