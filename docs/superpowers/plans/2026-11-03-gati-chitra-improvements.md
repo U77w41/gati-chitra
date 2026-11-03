@@ -1350,14 +1350,14 @@ git add -A && git commit -m "feat: visual edits keep the new syntax intact"
 
 ### Task 44: Release v0.3.0
 
-- [ ] **Step 1: Rewrite the README's "Supported Mermaid syntax" section.**
+- [x] **Step 1: Rewrite the README's "Supported Mermaid syntax" section.**
   - Cover every form from Part 4 with one short example each.
   - Add a "Not supported" list: icons and images, click callbacks, `curve:`, class-based edge animation, and other diagram types.
   - Update "Known limitations".
-- [ ] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
-- [ ] **Step 3: Add the v0.3.0 section** from Part 7 and tick what commands can check (Part 0, rule 2). Set `package.json` to `0.3.0`.
-- [ ] **Step 4: Run** the full command list from Part 0. Expected: PASS.
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
+- [x] **Step 3: Add the v0.3.0 section** from Part 7 and tick what commands can check (Part 0, rule 2). Set `package.json` to `0.3.0`.
+- [x] **Step 4: Run** the full command list from Part 0. Expected: PASS.
+- [x] **Step 5: Commit and tag**
 
 ```bash
 git add -A && git commit -m "chore: release v0.3.0" && git tag v0.3.0

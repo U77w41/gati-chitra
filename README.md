@@ -25,28 +25,95 @@ npm run check:dist  # Verify build integrity, assets, and bundle budget
 npm run test:e2e     # Run end-to-end browser tests
 ```
 
-## What's new in v0.2.0
+## What's new in v0.3.0
 
-- Resilience: duplicate subgraph IDs and layout errors no longer crash the application or clear the diagram.
-- Share links and autosave: opening a shared diagram does not overwrite local storage until edited, broken links show an error message with undo support, and updates synchronize across browser tabs.
-- Performance: idle diagrams stop redrawing when paused, dragging pinned nodes reuses existing layout coordinates, and the video export bundle has stricter size budgets.
-- Accessibility: toolbar buttons and controls support keyboard activation, UI borders meet WCAG 3:1 contrast ratios, and screen readers announce diagnostics summaries and control labels.
-- Continuous integration: tests verify Chromium, Firefox, and WebKit on GitHub Actions under production base paths.
+- Extended Mermaid syntax: 10 additional node shapes, 5 new arrow styles, variable link lengths, and per-edge animation controls.
+- Text formatting: bold and italic markdown labels, HTML entity codes, and diagram titles in frontmatter.
+- Subgraphs: layout direction per subgraph, and arrows connecting directly to subgraphs.
+- Accessibility and links: accessible diagram descriptions, and clickable links in exported SVG diagrams.
+- Syntax preservation: visual edits preserve property blocks, edge lengths, and multi-statement lines.
 
 ## Supported Mermaid syntax
 
-Gati-chitra parses standard flowchart declarations:
+Gati-chitra supports standard Mermaid flowchart declarations:
 
 - Direction headers: `flowchart TD`, `flowchart LR`, `flowchart BT`, `flowchart RL`, and `graph` equivalents.
-- Node definitions and shapes: rectangle `[text]`, rounded `(text)`, stadium `([text])`, circle `((text))`, diamond `{text}`, hexagon `{{text}}`, parallelogram `[/text/]`, reversed parallelogram `[\text\]`, cylinder `[(text)]`, and subroutine `[[text]]`.
-- Arrow connections: solid arrows `-->`, lines `---`, dotted arrows `-.->`, dotted lines `-.-`, thick arrows `==>`, thick lines `===`, circle ends `--o`, cross ends `--x`, and bidirectional arrows `<-->`.
-- Edge labels: `-->|label|` or `-- label -->`.
-- Node chaining: `A --> B --> C`.
-- Subgraphs: `subgraph Title ... end`.
-- Styling: `classDef`, `class`, inline `style`, and `linkStyle`.
-- Comments: lines beginning with `%%`.
+- Frontmatter titles:
+  ```mermaid
+  ---
+  title: Network overview
+  ---
+  ```
+- Multiple statements per line separated by semicolons: `A --> B; B --> C`.
+- Identifiers: letters, digits, underscores, hyphens, and Unicode characters (`web-server`, `node_1`, `데이터`).
+- Node bracket shapes:
+  - Rectangle: `A[text]`
+  - Rounded rectangle: `B(text)`
+  - Stadium: `C([text])`
+  - Circle: `D((text))`
+  - Double circle: `E(((text)))`
+  - Diamond: `F{text}`
+  - Hexagon: `G{{text}}`
+  - Parallelogram: `H[/text/]`
+  - Parallelogram reversed: `I[\text\]`
+  - Trapezoid: `J[/text\]`
+  - Trapezoid reversed: `K[\text/]`
+  - Cylinder: `L[(text)]`
+  - Subroutine: `M[[text]]`
+  - Flag or asymmetric: `N>text]`
+- Property syntax `@{ }` node shapes:
+  - Document: `A@{ shape: doc, label: "Report" }`
+  - All 20 short shape names: `rect`, `rounded`, `stadium`, `circle`, `diam`, `hex`, `lean-r`, `lean-l`, `cyl`, `fr-rect`, `trap-b`, `trap-t`, `dbl-circ`, `odd`, `doc`, `sm-circ`, `f-circ`, `fr-circ`, `fork`, and `text`.
+- Arrow connections and lengths:
+  - Solid arrows: `A --> B` (longer: `A ---> B`)
+  - Open lines: `A --- B` (longer: `A ---- B`)
+  - Dotted arrows: `A -.-> B` (longer: `A -..-> B`)
+  - Dotted lines: `A -.- B` (longer: `A -..- B`)
+  - Thick arrows: `A ==> B` (longer: `A ===> B`)
+  - Thick lines: `A === B` (longer: `A ==== B`)
+  - Bidirectional arrows: `A <--> B`, `A <-.-> B`, `A <==> B`
+  - Circle and cross ends: `A --o B`, `A --x B`
+  - Two-ended markers: `A o--o B`, `A x--x B`
+  - Invisible links for spacing: `A ~~~ B`
+- Edge labels:
+  - Pipe labels: `A -->|label| B` or `A -->|"quoted label"| B`
+  - Inline labels: `A -- label --> B`, `A == label ==> B`, `A -. label .-> B`
+- Edge identifiers and animation overrides:
+  - Edge identifier: `A e1@--> B`
+  - Animation properties: `e1@{ animate: true, animation: fast }` (or `animation: slow`)
+- Markdown formatting in labels:
+  - Backtick strings support bold and italic formatting: `A["`**Bold** and *italic*`"]`
+  - Explicit line breaks with `<br/>` or `<br>`.
+- Entity codes:
+  - Code points such as `#9829;` (heart), `#35;` (`#`), and named entities `#amp;`, `#lt;`, `#gt;`, `#quot;`, `#apos;`, and `#nbsp;`.
+- Subgraphs:
+  - Subgraph containers: `subgraph S [Title] ... end`
+  - Direction within a subgraph: `direction LR`
+  - Arrow connections to subgraphs: `A --> S`
+- Interactive links on nodes:
+  - `click A "https://example.com" "Tooltip" _blank`
+- Accessibility annotations:
+  - `accTitle: Title of the diagram`
+  - `accDescr: Short description of the diagram`
+  - Multi-line descriptions: `accDescr { ... }`
+- Styling:
+  - Default class: `classDef default fill:#f9f,stroke:#333`
+  - Named classes: `classDef custom fill:#f9f,stroke:#333`
+  - Applying classes: `class A custom` or `A:::custom`
+  - Inline node styles: `style A fill:#ffd,stroke:#333`
+  - Link styles: `linkStyle 0 stroke:#333,stroke-width:2px` or `linkStyle default stroke:#333`
+- Comments:
+  - Lines beginning with `%%`.
 
 Lines with syntax that Gati-chitra does not understand are preserved in the text editor during graphical edits.
+
+## Not supported
+
+- Icons and images (`icon:`, `img:`)
+- JavaScript click callbacks (`click A callbackName`)
+- The `curve:` edge interpolation property
+- Class-based edge animation
+- Diagram types other than flowcharts (such as sequence, state, or class diagrams)
 
 ## Keyboard shortcuts
 
@@ -112,7 +179,5 @@ Repository instructions for AI coding assistants are maintained in `AGENTS.md`, 
 ## Known limitations
 
 - Subgraphs and node groups are edited directly in the Mermaid text rather than on the interactive canvas.
-- Multiple statements on a single line separated by semicolons are planned for v0.3.0.
-- Extended link lengths (`--->`, `====>`), invisible links (`~~~`), and additional arrow combinations (`<==>`, `x--x`, `o--o`) will be added in v0.3.0.
-- Hyphenated and Unicode node identifiers will be added in v0.3.0.
+- Real line breaks in markdown labels are only supported within a single source line (or with `<br/>`).
 - Only flowchart diagrams are supported.

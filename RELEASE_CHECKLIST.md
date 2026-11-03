@@ -65,3 +65,13 @@ Tick every box before the release tag.
 - [ ] By hand: a paused, idle tab uses close to no CPU (browser task manager).
 - [ ] The first workflow run on `main` deploys, and the site works under `/gati-chitra/`.
 
+## v0.3.0
+
+- [x] Automated.
+- [ ] Paste five flowcharts you use from GitHub READMEs or docs. Each draws with no warning, or the warning is about something under "Not supported".
+- [ ] All 10 new shapes and 5 new arrow kinds look right in all four themes, on canvas, in PNG and in SVG.
+- [ ] Bold and italic labels show on canvas and in PNG, SVG and GIF.
+- [ ] An SVG with `click` links opens in a browser; the links work, and `_blank` opens a new tab.
+- [ ] `direction LR` inside a TB chart lays out sideways; with an arrow to the outside, the info note appears.
+- [x] The README syntax list matches what the parser reads.
+
