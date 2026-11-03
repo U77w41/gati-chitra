@@ -4,6 +4,30 @@ import { parseMermaid } from '../mermaid/parse';
 import { buildScene } from '../layout/scene';
 import type { MeasureText } from '../layout/measure';
 import { canvasMeasure } from '../layout/measure';
+import {
+  canRedo,
+  canUndo,
+  createHistory,
+  pushText,
+  redo,
+  undo,
+  type History,
+} from '../editor/history';
+import {
+  createEditorState,
+  reduce,
+  type EditorEnv,
+  type EditorState,
+} from '../editor/controller';
+
+export type CommitSource =
+  | 'typing'
+  | 'op'
+  | 'undo'
+  | 'redo'
+  | 'open'
+  | 'template'
+  | 'share';
 
 export interface AppState {
   text: string;
@@ -12,6 +36,9 @@ export interface AppState {
   view: ViewState;
   settings: Settings;
   paused: boolean;
+  history: History;
+  editor: EditorState;
+  lastTypingTime: number;
 }
 
 export function createState(text: string, settings: Settings): AppState {
@@ -19,6 +46,8 @@ export function createState(text: string, settings: Settings): AppState {
   const measure = canvasMeasure();
   const scene = doc.ok ? buildScene(doc, measure) : null;
   const view: ViewState = { zoom: 1, panX: 0, panY: 0 };
+  const history = createHistory(text);
+  const editor = createEditorState();
 
   return {
     text,
@@ -27,6 +56,9 @@ export function createState(text: string, settings: Settings): AppState {
     view,
     settings,
     paused: false,
+    history,
+    editor,
+    lastTypingTime: 0,
   };
 }
 
@@ -43,5 +75,54 @@ export function applyText(
     text,
     doc,
     scene,
+  };
+}
+
+export function commitText(
+  state: AppState,
+  text: string,
+  source: CommitSource,
+  measure: MeasureText,
+): AppState {
+  const now = Date.now();
+  let history = state.history;
+  let targetText = text;
+
+  if (source === 'undo') {
+    history = undo(state.history);
+    targetText = history.present;
+  } else if (source === 'redo') {
+    history = redo(state.history);
+    targetText = history.present;
+  } else {
+    const coalesce = source === 'typing' && now - state.lastTypingTime < 1000;
+    history = pushText(state.history, targetText, { coalesce });
+  }
+
+  const newState = applyText(state, targetText, measure);
+
+  let editor = newState.editor;
+  if (source !== 'op') {
+    const env: EditorEnv = {
+      scene: newState.scene ?? {
+        doc: newState.doc,
+        layout: {
+          nodes: {},
+          groups: {},
+          edges: {},
+          bounds: { x: 0, y: 0, width: 0, height: 0 },
+        },
+      },
+      ok: newState.doc.ok,
+      measure,
+    };
+    editor = reduce(editor, { type: 'textChanged' }, env).state;
+  }
+
+  return {
+    ...newState,
+    history,
+    editor,
+    lastTypingTime: source === 'typing' ? now : 0,
   };
 }

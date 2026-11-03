@@ -35,14 +35,20 @@ export function setupStudioApi(env: StudioEnv): void {
     getNodeScreenCenter: (id: string) => {
       const state = env.getState();
       const box = state.scene?.layout.nodes[id];
-      return box ? worldToScreen(state.view, box.center) : null;
+      if (!box) return null;
+      const pt = worldToScreen(state.view, box.center);
+      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
+      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
     },
     getEdgeScreenMid: (id: string) => {
       const state = env.getState();
       const path = state.scene?.layout.edges[id];
-      return path ? worldToScreen(state.view, path.labelPoint) : null;
+      if (!path) return null;
+      const pt = worldToScreen(state.view, path.labelPoint);
+      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
+      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
     },
-    getSelection: () => null,
+    getSelection: () => env.getState().editor.selection,
     getResolvedTheme: () => {
       const state = env.getState();
       const scheme =

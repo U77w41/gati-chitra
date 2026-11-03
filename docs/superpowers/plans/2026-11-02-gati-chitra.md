@@ -2396,7 +2396,7 @@ export function reduce(state: EditorState, event: EditorEvent, env: EditorEnv): 
 
 6. Selection is drawn through `DrawOptions.selection`; `window.__studio.getSelection()` returns it.
 
-* \[ \] **Step 1: Write the failing tests.**
+* [x] **Step 1: Write the failing tests.**
 
 ```
 // history.test.ts
@@ -2437,13 +2437,13 @@ down with button 1 on a node -> pan set, no selection change to that node
 
 * Click `#btn-autolayout` after a drag: the pos lines and marker are gone.
 
-* \[ \] **Step 2: Run** `npx vitest run src/editor` and the new e2e file. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/editor` and the new e2e file. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** `history.ts`, `controller.ts` and the app wiring.
+* [x] **Step 3: Implement** `history.ts`, `controller.ts` and the app wiring.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: selection, drag to move, undo and redo"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: selection, drag to move, undo and redo"`
 
 ### Task 14: Connect, add, delete, rename in place, properties panel
 
