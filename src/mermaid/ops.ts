@@ -1,8 +1,8 @@
 import { MESSAGES } from '../core/constants';
 import type {
-  EdgeKind,
+  Direction,
   ParsedDoc,
-  ShapeKind,
+  StyleMap,
   TextOp,
   TextOpResult,
 } from '../core/types';
@@ -13,11 +13,24 @@ import {
   shapeTokens,
 } from './format';
 import { nextNodeId } from './ids';
+import {
+  deleteEdgeInternal,
+  renameEdgeInternal,
+  reverseEdgeInternal,
+  setEdgeKindInternal,
+  splitStatement,
+} from './ops-edge';
+import {
+  deleteNodeInternal,
+  renameNodeInternal,
+  setShapeInternal,
+  spliceLine,
+} from './ops-node';
 import { parseMermaid } from './parse';
 import { formatPinLine, PIN_LINE_RE, PIN_MARKER } from './positions';
-import { scanStatement, type StatementToken } from './tokens';
+import { parseStyleString } from './styles';
 
-export { edgeOperatorText, formatLabel, shapeTokens };
+export { edgeOperatorText, formatLabel, shapeTokens, spliceLine, splitStatement };
 
 function indentOf(line: string): string {
   const m = /^\s*/.exec(line);
@@ -63,222 +76,92 @@ function getInsertionInfo(doc: ParsedDoc): { index: number; indent: string } {
   return { index: doc.lines.length - 1, indent: '  ' };
 }
 
-export function splitStatement(line: string): string[] {
-  const tokens = scanStatement(line);
-  if (!tokens) return [line];
-
-  const edgeTokens = tokens.filter(t => t.type === 'edge');
-  const hasAmp = tokens.some(t => t.type === 'amp');
-  if (edgeTokens.length <= 1 && !hasAmp) return [line];
-
-  const nodeGroups: StatementToken[][] = [[]];
-  const ops: { kind: EdgeKind; label: string }[] = [];
-
-  for (const tok of tokens) {
-    if (tok.type === 'node') {
-      nodeGroups[nodeGroups.length - 1].push(tok);
-    } else if (tok.type === 'edge') {
-      ops.push({ kind: tok.kind, label: tok.label });
-      nodeGroups.push([]);
-    }
-  }
-
-  if (ops.length === 0) return [line];
-
-  const indent = indentOf(line);
-  const emitted = new Set<string>();
-  const result: string[] = [];
-
-  for (let i = 0; i < ops.length; i++) {
-    const leftGroup = nodeGroups[i];
-    const rightGroup = nodeGroups[i + 1];
-    const op = ops[i];
-    const opStr = edgeOperatorText(op.kind) + (op.label ? '|' + op.label + '|' : '');
-
-    for (const a of leftGroup) {
-      if (a.type !== 'node') continue;
-      for (const b of rightGroup) {
-        if (b.type !== 'node') continue;
-
-        const textA = emitted.has(a.ref.id) ? a.ref.id : line.slice(a.start, a.end);
-        emitted.add(a.ref.id);
-
-        const textB = emitted.has(b.ref.id) ? b.ref.id : line.slice(b.start, b.end);
-        emitted.add(b.ref.id);
-
-        result.push(`${indent}${textA} ${opStr} ${textB}`);
-      }
-    }
-  }
-
-  return result;
-}
-
-function deleteEdgeInternal(
-  text: string,
-  index: number,
-  exclude: string[] = []
-): TextOpResult {
+function setNodeStyleInternal(text: string, id: string, style: StyleMap): TextOpResult {
   const doc = parseMermaid(text);
   if (!doc.ok) return { error: MESSAGES.fixTextFirst };
-  if (index < 0 || index >= doc.edges.length) return { error: MESSAGES.unknownEdge(index) };
+  if (!doc.nodes.some(n => n.id === id)) return { error: MESSAGES.unknownNode(id) };
 
-  const edge = doc.edges[index];
-  const L = edge.line;
   const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
-  const edgesOnLine = doc.edges.filter(e => e.line === L);
-  if (edgesOnLine.length > 1) {
-    const split = splitStatement(lines[L]);
-    lines.splice(L, 1, ...split);
-    return deleteEdgeInternal(lines.join('\n') + '\n', index, exclude);
-  }
+  let styleLineIdx = -1;
+  let existingStyleMap: StyleMap = {};
 
-  const lineTokens = scanStatement(lines[L]);
-  const nodeToks = lineTokens ? lineTokens.filter(t => t.type === 'node') : [];
-  const indent = indentOf(lines[L]);
-  const standaloneLines: string[] = [];
-  const handled = new Set<string>();
-
-  for (const t of nodeToks) {
-    if (t.type === 'node' && !handled.has(t.ref.id)) {
-      handled.add(t.ref.id);
-      if (!exclude.includes(t.ref.id)) {
-        const isRefElsewhere = doc.lines.some(
-          l => l.index !== L && l.nodeIds.includes(t.ref.id)
-        );
-        if (!isRefElsewhere) {
-          standaloneLines.push(indent + lines[L].slice(t.start, t.end));
-        }
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim();
+    if (trimmed.startsWith('style ')) {
+      const rest = trimmed.slice(6).trim();
+      const spaceIdx = rest.search(/\s/);
+      const styleId = spaceIdx === -1 ? rest : rest.slice(0, spaceIdx).trim();
+      if (styleId === id) {
+        styleLineIdx = i;
+        let sStr = spaceIdx === -1 ? '' : rest.slice(spaceIdx + 1).trim();
+        if (sStr.endsWith(';')) sStr = sStr.slice(0, -1).trim();
+        existingStyleMap = parseStyleString(sStr);
+        break;
       }
     }
   }
 
-  lines.splice(L, 1, ...standaloneLines);
-
-  for (let j = 0; j < lines.length; j++) {
-    const trimmed = lines[j].trim();
-    if (trimmed.startsWith('linkStyle ')) {
-      const rest = trimmed.slice(10).trim();
-      const spaceIdx = rest.search(/\s/);
-      if (spaceIdx !== -1) {
-        const target = rest.slice(0, spaceIdx).trim();
-        const stylePart = rest.slice(spaceIdx).trim();
-        if (target !== 'default') {
-          const nums = target
-            .split(',')
-            .map(s => parseInt(s.trim(), 10))
-            .filter(n => !isNaN(n));
-          const updatedNums: number[] = [];
-          for (const n of nums) {
-            if (n === index) continue;
-            if (n > index) updatedNums.push(n - 1);
-            else updatedNums.push(n);
-          }
-          if (updatedNums.length === 0) {
-            lines.splice(j, 1);
-            j--;
-          } else {
-            lines[j] = `${indentOf(lines[j])}linkStyle ${updatedNums.join(',')} ${stylePart}`;
-          }
-        }
+  if (styleLineIdx !== -1) {
+    const merged = { ...existingStyleMap };
+    for (const [k, v] of Object.entries(style)) {
+      if (v === '') {
+        delete merged[k];
+      } else {
+        merged[k] = v;
       }
+    }
+    const pairs = Object.entries(merged).map(([k, v]) => `${k}:${v}`);
+    if (pairs.length === 0) {
+      lines.splice(styleLineIdx, 1);
+    } else {
+      const indent = indentOf(lines[styleLineIdx]);
+      lines[styleLineIdx] = `${indent}style ${id} ${pairs.join(',')}`;
+    }
+  } else {
+    const pairs = Object.entries(style)
+      .filter(([_, v]) => v !== '')
+      .map(([k, v]) => `${k}:${v}`);
+    if (pairs.length > 0) {
+      const { index, indent } = getInsertionInfo(doc);
+      lines.splice(index + 1, 0, `${indent}style ${id} ${pairs.join(',')}`);
     }
   }
 
   return { text: lines.join('\n') + '\n' };
 }
 
-function deleteNodeInternal(text: string, id: string): TextOpResult {
+function renameGroupInternal(text: string, id: string, title: string): TextOpResult {
   const doc = parseMermaid(text);
   if (!doc.ok) return { error: MESSAGES.fixTextFirst };
-  if (!doc.nodes.some(n => n.id === id)) return { error: MESSAGES.unknownNode(id) };
+  const grp = doc.groups.find(g => g.id === id);
+  if (!grp) return { error: `Unknown group "${id}".` };
 
-  let currentText = text;
-  while (true) {
-    const curDoc = parseMermaid(currentText);
-    const touching = curDoc.edges
-      .filter(e => e.from === id || e.to === id)
-      .sort((a, b) => b.index - a.index);
-    if (touching.length === 0) break;
-
-    const res = deleteEdgeInternal(currentText, touching[0].index, [id]);
-    if ('error' in res) return res;
-    currentText = res.text;
-  }
-
-  const curDoc = parseMermaid(currentText);
-  const lines = curDoc.lines.map(l => l.text);
+  const lines = doc.lines.map(l => l.text);
   while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
-  for (let j = 0; j < lines.length; j++) {
-    const toks = scanStatement(lines[j]);
-    if (toks) {
-      const nodeToks = toks.filter(t => t.type === 'node');
-      const edgeToks = toks.filter(t => t.type === 'edge');
-      if (edgeToks.length === 0) {
-        if (nodeToks.length === 1 && nodeToks[0].ref.id === id) {
-          lines.splice(j, 1);
-          j--;
-          continue;
-        }
-        if (nodeToks.some(t => t.ref.id === id)) {
-          const remaining = nodeToks.filter(t => t.ref.id !== id);
-          if (remaining.length === 0) {
-            lines.splice(j, 1);
-            j--;
-            continue;
-          } else {
-            const indent = indentOf(lines[j]);
-            lines[j] =
-              indent + remaining.map(t => lines[j].slice(t.start, t.end)).join(' & ');
-          }
-          continue;
-        }
-      }
-    }
+  const indent = indentOf(lines[grp.line]);
+  lines[grp.line] = `${indent}subgraph ${id} [${formatLabel(title)}]`;
+  return { text: lines.join('\n') + '\n' };
+}
 
-    const trimmed = lines[j].trim();
-    if (trimmed.startsWith('style ')) {
-      const rest = trimmed.slice(6).trim();
-      const spaceIdx = rest.search(/\s/);
-      const styleId = spaceIdx === -1 ? rest : rest.slice(0, spaceIdx).trim();
-      if (styleId === id) {
-        lines.splice(j, 1);
-        j--;
-        continue;
-      }
-    }
+function setDirectionInternal(text: string, direction: Direction): TextOpResult {
+  const doc = parseMermaid(text);
+  if (!doc.ok) return { error: MESSAGES.fixTextFirst };
 
-    if (trimmed.startsWith('class ')) {
-      const rest = trimmed.slice(6).trim();
-      const parts = rest.split(/\s+/);
-      if (parts.length >= 2) {
-        const ids = parts[0].split(',').map(s => s.trim()).filter(Boolean);
-        const className = parts[1].trim();
-        if (ids.includes(id)) {
-          const remaining = ids.filter(x => x !== id);
-          if (remaining.length === 0) {
-            lines.splice(j, 1);
-            j--;
-          } else {
-            lines[j] = `${indentOf(lines[j])}class ${remaining.join(',')} ${className}`;
-          }
-          continue;
-        }
-      }
-    }
+  const lines = doc.lines.map(l => l.text);
+  while (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
 
-    const posMatch = PIN_LINE_RE.exec(lines[j]);
-    if (posMatch && posMatch[1] === id) {
-      lines.splice(j, 1);
-      j--;
-      continue;
-    }
+  const headerIdx = doc.lines.findIndex(l => l.kind === 'header');
+  if (headerIdx !== -1) {
+    const dirStr = direction === 'TB' ? 'TD' : direction;
+    lines[headerIdx] = lines[headerIdx].replace(
+      /^(\s*)(flowchart|graph)(?:\s+(TB|TD|BT|RL|LR))?(\s*;?\s*)$/,
+      `$1$2 ${dirStr}$4`
+    );
   }
 
-  while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop();
   return { text: lines.join('\n') + '\n' };
 }
 
@@ -375,6 +258,38 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
 
   if (op.type === 'deleteNode') {
     return deleteNodeInternal(text, op.id);
+  }
+
+  if (op.type === 'renameNode') {
+    return renameNodeInternal(text, op.id, op.label);
+  }
+
+  if (op.type === 'setShape') {
+    return setShapeInternal(text, op.id, op.shape);
+  }
+
+  if (op.type === 'renameEdge') {
+    return renameEdgeInternal(text, op.index, op.label);
+  }
+
+  if (op.type === 'setEdgeKind') {
+    return setEdgeKindInternal(text, op.index, op.kind);
+  }
+
+  if (op.type === 'reverseEdge') {
+    return reverseEdgeInternal(text, op.index);
+  }
+
+  if (op.type === 'setNodeStyle') {
+    return setNodeStyleInternal(text, op.id, op.style);
+  }
+
+  if (op.type === 'renameGroup') {
+    return renameGroupInternal(text, op.id, op.title);
+  }
+
+  if (op.type === 'setDirection') {
+    return setDirectionInternal(text, op.direction);
   }
 
   return { error: 'Unsupported operation' };

@@ -1582,7 +1582,7 @@ formatLabel('say "x"') // '"say #quot;x#quot;"';  formatLabel('a;b') // '"a;b"'
 
 * **setDirection(direction):** rewrite the header line with `/^(\s*)(flowchart|graph)(?:\s+(TB|TD|BT|RL|LR))?(\s*;?\s*)$/` as `$1$2 <dir>$4`, where `<dir>` is `TD` for `TB` and the value otherwise.
 
-* \[ \] **Step 1: Write the failing tests:**
+* [x] **Step 1: Write the failing tests:**
 
 ```
 // renameNode
@@ -1626,13 +1626,13 @@ run('graph LR;\nA\n', { type: 'setDirection', direction: 'TB' })                
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/mermaid/ops.edit.test.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/mermaid/ops.edit.test.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the new operations in `ops.ts`. If the file passes 300 lines, move the edge-editing rules into `src/mermaid/ops-edge.ts` and import them.
+* [x] **Step 3: Implement** the new operations in `ops.ts`. If the file passes 300 lines, move the edge-editing rules into `src/mermaid/ops-edge.ts` and import them.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: text patches for rename, shape, arrow style, reverse, colours"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: text patches for rename, shape, arrow style, reverse, colours"`
 
 ### Task 8: Node sizing and automatic layout
 
