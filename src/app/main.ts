@@ -1,4 +1,5 @@
-const app = document.querySelector<HTMLDivElement>('#app');
-if (app) {
-  app.textContent = 'Gati-chitra';
-}
+import './tokens.css';
+import './style.css';
+import { initApp } from './ui';
+
+initApp();

@@ -2259,7 +2259,7 @@ export function applyText(state: AppState, text: string, measure: MeasureText): 
 
 10. Undo, redo, selection and dragging come in Task 13; the toolbar buttons for them exist but are disabled.
 
-* \[ \] **Step 1: Write the failing unit tests.**
+* [x] **Step 1: Write the failing unit tests.**
 
 ```
 // view.test.ts
@@ -2289,7 +2289,7 @@ expect(s1.text).toBe('flowchart TD\nA-->B');                                    
 
 ```
 
-* \[ \] **Step 2: Write the failing browser tests** `tests/e2e/preview.spec.ts` (open `/?e2e=1`):
+* [x] **Step 2: Write the failing browser tests** `tests/e2e/preview.spec.ts` (open `/?e2e=1`):
 
   * The page loads; `#source` contains the sample text; the canvas has more than 100 non-background pixels (read `getImageData` inside `page.evaluate`).
 
@@ -2307,13 +2307,13 @@ expect(s1.text).toBe('flowchart TD\nA-->B');                                    
 
   * Typing 1000 characters of valid text keeps the page responsive (no error in the console).
 
-* \[ \] **Step 3: Run** `npx vitest run src/editor src/app` and `npm run test:e2e`. Expected: FAIL.
+* [x] **Step 3: Run** `npx vitest run src/editor src/app` and `npm run test:e2e`. Expected: FAIL.
 
-* \[ \] **Step 4: Implement** the view maths, storage, state, then the page (`ui.ts` builds the DOM and wires events; `main.ts` only starts it). Create `src/app/tokens.css` with exactly the content shown under "Visual identity" in Part 2 and import it from `main.ts` before `style.css`. Keep `style.css` minimal for now: a two-column layout (text left, canvas right, stacking vertically under 900 px wide) and visible `:focus-visible` outlines, taking every colour from the tokens (`var(--text-main)`, `var(--card-background)` and so on; never write a colour value in a stylesheet). Task 22 puts the site header and footer around this page and replaces `style.css` with the full skin, using the same tokens.
+* [x] **Step 4: Implement** the view maths, storage, state, then the page (`ui.ts` builds the DOM and wires events; `main.ts` only starts it). Create `src/app/tokens.css` with exactly the content shown under "Visual identity" in Part 2 and import it from `main.ts` before `style.css`. Keep `style.css` minimal for now: a two-column layout (text left, canvas right, stacking vertically under 900 px wide) and visible `:focus-visible` outlines, taking every colour from the tokens (`var(--text-main)`, `var(--card-background)` and so on; never write a colour value in a stylesheet). Task 22 puts the site header and footer around this page and replaces `style.css` with the full skin, using the same tokens.
 
-* \[ \] **Step 5: Run** `npm test` then `npm run test:e2e`. Expected: PASS.
+* [x] **Step 5: Run** `npm test` then `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 6: Commit.** `git add -A && git commit -m "feat: app shell with live animated preview"`
+* [x] **Step 6: Commit.** `git add -A && git commit -m "feat: app shell with live animated preview"`
 
 ### Task 13: Undo and redo, selection, drag to move (pins)
 
