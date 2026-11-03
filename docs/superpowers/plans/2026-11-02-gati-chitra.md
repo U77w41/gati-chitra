@@ -1690,7 +1690,7 @@ export function computeGroups(doc: ParsedDoc, nodes: Record<string, NodeBox>): R
 
 10. `bounds` is the union of all node rectangles and group rectangles.
 
-* \[ \] **Step 1: Write the failing tests** (`m = testMeasure`, so every character is 8 px wide):
+* [x] **Step 1: Write the failing tests** (`m = testMeasure`, so every character is 8 px wide):
 
 ```
 // measure.test.ts
@@ -1732,9 +1732,9 @@ expect(L(CORPUS[0].text)).toEqual(L(CORPUS[0].text));        // deterministic
 
 ```
 
-* \[ \] **Step 2: Run** `npx vitest run src/layout`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/layout`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** both files. If `npm run build` says `@dagrejs/dagre` has no type declarations, create `src/types/dagre.d.ts` with exactly:
+* [x] **Step 3: Implement** both files. If `npm run build` says `@dagrejs/dagre` has no type declarations, create `src/types/dagre.d.ts` with exactly:
 
 ```
 declare module '@dagrejs/dagre' {
@@ -1758,9 +1758,9 @@ declare module '@dagrejs/dagre' {
 
 `canvasMeasure` creates one offscreen `<canvas>` (or `OffscreenCanvas`), sets `ctx.font = size + 'px ' + FONT_STACK_SANS` and returns `ctx.measureText(text).width`.
 
-* \[ \] **Step 4: Run** `npm test`. Expected: PASS.
+* [x] **Step 4: Run** `npm test`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: size nodes and lay out the graph"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: size nodes and lay out the graph"`
 
 ### Task 9: Geometry, edge routing, hit-testing and the scene
 

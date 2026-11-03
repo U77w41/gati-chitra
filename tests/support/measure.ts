@@ -1,3 +1,3 @@
-export function testMeasure(text: string): number {
+export function testMeasure(text: string, _fontSize?: number): number {
   return text.length * 8;
 }
