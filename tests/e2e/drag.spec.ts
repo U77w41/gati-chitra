@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { editorText } from '../support/editor';
 
 test.describe('Selection, drag and history', () => {
   test('drags node to create pin, supports undo and redo, autolayout', async ({ page }) => {
@@ -9,7 +10,7 @@ test.describe('Selection, drag and history', () => {
     });
     await page.waitForTimeout(300);
 
-    const initialText = await page.locator('#source').inputValue();
+    const initialText = await editorText(page);
     const preDragSnap = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas');
       return c?.toDataURL();
@@ -27,7 +28,7 @@ test.describe('Selection, drag and history', () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    const postDragText = await page.locator('#source').inputValue();
+    const postDragText = await editorText(page);
     expect(postDragText).toContain('%% studio:pos A ');
     expect(postDragText).toContain('%% studio:layout v1');
 
@@ -43,19 +44,19 @@ test.describe('Selection, drag and history', () => {
     // Undo
     await page.click('#btn-undo');
     await page.waitForTimeout(300);
-    const undoText = await page.locator('#source').inputValue();
+    const undoText = await editorText(page);
     expect(undoText).toBe(initialText);
 
     // Redo
     await page.click('#btn-redo');
     await page.waitForTimeout(300);
-    const redoText = await page.locator('#source').inputValue();
+    const redoText = await editorText(page);
     expect(redoText).toBe(postDragText);
 
     // Autolayout clears pins
     await page.click('#btn-autolayout');
     await page.waitForTimeout(300);
-    const autoText = await page.locator('#source').inputValue();
+    const autoText = await editorText(page);
     expect(autoText).not.toContain('%% studio:pos');
     expect(autoText).not.toContain('%% studio:layout');
   });
@@ -85,7 +86,7 @@ test.describe('Selection, drag and history', () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    const finalSource = await page.locator('#source').inputValue();
+    const finalSource = await editorText(page);
     expect(finalSource).not.toContain('%% studio:pos A');
     expect(finalSource).toContain('X');
   });
@@ -115,7 +116,7 @@ test.describe('Selection, drag and history', () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).not.toContain('%% studio:pos');
 
     const msg = page.locator('#message');

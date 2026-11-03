@@ -8,6 +8,7 @@ interface ImportMetaEnv {
 interface StudioApi {
   getText: () => string;
   setText: (t: string) => void;
+  getCaret: () => { line: number; col: number };
   getPresentStep: () => number | null;
   getSummary: () => { nodes: string[]; edges: number; ok: boolean };
   getView: () => import('./core/types').Viewport;

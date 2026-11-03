@@ -11,10 +11,27 @@
 }
 #canvas-panel { position: relative; }
 #source {
-  flex: 1; min-height: 200px; width: 100%; resize: none; padding: 10px;
+  flex: 1; min-height: 200px; width: 100%; display: flex; flex-direction: column;
   border: 1px solid var(--border); border-radius: var(--radius-control);
   background: var(--card-background-muted); color: var(--text-main);
+  overflow: hidden;
+}
+#source .cm-editor {
+  height: 100%; flex: 1;
   font-family: var(--font-mono); font-size: 14px; line-height: 1.5;
+  background: transparent; color: inherit;
+}
+#source .cm-editor.cm-focused {
+  outline: none;
+}
+#source .cm-scroller {
+  overflow: auto;
+  font-family: inherit;
+}
+#source .cm-gutters {
+  background: transparent;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
 }
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

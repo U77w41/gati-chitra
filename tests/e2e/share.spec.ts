@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { encodeShare } from '../../src/share/share';
 import { MESSAGES } from '../../src/core/constants';
+import { editorText, setEditorText } from '../support/editor';
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -52,13 +53,13 @@ test.describe('Share links and templates', () => {
     await page2.goto(resolvedUrl);
     await page2.waitForTimeout(300);
 
-    expect(await page2.locator('#source').inputValue()).toBe('flowchart LR\nP-->Q');
+    expect(await editorText(page2)).toBe('flowchart LR\nP-->Q');
     expect(page2.url()).not.toContain('#');
 
     // Reload page2: should restore autosaved diagram (A-->B), not the shared one
     await page2.reload();
     await page2.waitForTimeout(300);
-    expect(await page2.locator('#source').inputValue()).toBe('flowchart TD\nA-->B');
+    expect(await editorText(page2)).toBe('flowchart TD\nA-->B');
   });
 
   test('shows error message on invalid share link and falls back to default', async ({ page }) => {
@@ -68,7 +69,7 @@ test.describe('Share links and templates', () => {
     await expect(page.locator('#message')).toContainText(
       'The share link could not be read. Showing the sample diagram.',
     );
-    expect(await page.locator('#source').inputValue()).not.toBe('');
+    expect(await editorText(page)).not.toBe('');
   });
 
   test('opens template gallery and loads selected template', async ({ page }) => {
@@ -85,7 +86,7 @@ test.describe('Share links and templates', () => {
     await gallery.getByText('Data pipeline').click();
     await expect(gallery).toBeHidden();
 
-    const sourceText = await page.locator('#source').inputValue();
+    const sourceText = await editorText(page);
     expect(sourceText).toContain('subgraph ingest');
   });
 
@@ -128,7 +129,7 @@ test.describe('Share links and templates', () => {
     await page2.goto(shareUrl);
     await page2.waitForTimeout(300);
 
-    expect(await page2.locator('#source').inputValue()).toBe('flowchart TD\nPlain-->Fallback');
+    expect(await editorText(page2)).toBe('flowchart TD\nPlain-->Fallback');
   });
 
   test('shows error when diagram is too large for share link', async ({ page }) => {
@@ -173,13 +174,13 @@ test.describe('Share links and templates', () => {
     await page.waitForTimeout(300);
 
     await expect(page.locator('#message')).toHaveText(MESSAGES.shareOpened);
-    expect(await page.locator('#source').inputValue()).toContain('SharedDiagram');
+    expect(await editorText(page)).toContain('SharedDiagram');
 
     await page.locator('body').focus();
     await page.keyboard.press('ControlOrMeta+z');
     await page.waitForTimeout(200);
 
-    expect(await page.locator('#source').inputValue()).toBe('flowchart TD\nSavedDiagram');
+    expect(await editorText(page)).toBe('flowchart TD\nSavedDiagram');
   });
 
   test('a new hash loads', async ({ page }) => {
@@ -188,26 +189,24 @@ test.describe('Share links and templates', () => {
 
     await page.goto(`./?e2e=1#${enc1.hash}`);
     await page.waitForTimeout(300);
-    expect(await page.locator('#source').inputValue()).toContain('DiagramOne');
+    expect(await editorText(page)).toContain('DiagramOne');
 
     await page.evaluate((h) => {
       location.hash = h;
     }, enc2.hash);
     await page.waitForTimeout(300);
-    expect(await page.locator('#source').inputValue()).toContain('DiagramTwo');
+    expect(await editorText(page)).toContain('DiagramTwo');
   });
 
   test('typing right before a reload is kept', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
-    const source = page.locator('#source');
-    await source.focus();
-    await source.fill('flowchart TD\nKeptOnReload');
+    await setEditorText(page, 'flowchart TD\nKeptOnReload');
     await page.reload();
     await page.waitForTimeout(300);
 
-    expect(await page.locator('#source').inputValue()).toContain('KeptOnReload');
+    expect(await editorText(page)).toContain('KeptOnReload');
   });
 
   test('a second tab follows', async ({ context }) => {
@@ -219,19 +218,14 @@ test.describe('Share links and templates', () => {
     await page1.waitForTimeout(300);
     await page2.waitForTimeout(300);
 
-    const source2 = page2.locator('#source');
-    await source2.focus();
-    await source2.fill('flowchart TD\nSyncedToTab1');
+    await setEditorText(page2, 'flowchart TD\nSyncedToTab1');
     await page1.waitForTimeout(1200);
-    expect(await page1.locator('#source').inputValue()).toContain('SyncedToTab1');
+    expect(await editorText(page1)).toContain('SyncedToTab1');
 
-    const source1 = page1.locator('#source');
-    await source1.focus();
-    await source1.fill('flowchart TD\nTab1Edits');
+    await setEditorText(page1, 'flowchart TD\nTab1Edits');
     await page1.waitForTimeout(500);
 
-    await source2.focus();
-    await source2.fill('flowchart TD\nTab2SecondChange');
+    await setEditorText(page2, 'flowchart TD\nTab2SecondChange');
     await page1.waitForTimeout(1200);
 
     const msg = page1.locator('#message');
@@ -241,6 +235,6 @@ test.describe('Share links and templates', () => {
 
     await loadBtn.click();
     await page1.waitForTimeout(200);
-    expect(await source1.inputValue()).toContain('Tab2SecondChange');
+    expect(await editorText(page1)).toContain('Tab2SecondChange');
   });
 });

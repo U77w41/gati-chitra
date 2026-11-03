@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { editorText, setEditorText } from '../support/editor';
 
 test.describe('Live preview and app shell', () => {
   test('loads page with sample text and rendered canvas', async ({ page }) => {
     await page.goto('./?e2e=1');
 
-    const source = page.locator('#source');
-    await expect(source).not.toBeEmpty();
+    expect(await editorText(page)).not.toBe('');
 
     await expect
       .poll(async () => {
@@ -91,8 +91,7 @@ test.describe('Live preview and app shell', () => {
     await page.waitForTimeout(800);
     await page.reload();
 
-    const source = page.locator('#source');
-    await expect(source).toHaveValue(testText);
+    expect(await editorText(page)).toBe(testText);
   });
 
   test('handles storage failure safely (Review Focus 5)', async ({ context, page }) => {
@@ -103,8 +102,7 @@ test.describe('Live preview and app shell', () => {
     });
 
     await page.goto('./?e2e=1');
-    const source = page.locator('#source');
-    await source.fill('flowchart TD\nUnsaved-->Test');
+    await setEditorText(page, 'flowchart TD\nUnsaved-->Test');
 
     await page.waitForTimeout(1000);
     const msg = page.locator('#message');

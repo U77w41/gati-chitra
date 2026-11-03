@@ -8,10 +8,11 @@ import { worldToScreen } from '../editor/view';
 import { resolveTheme, THEMES } from '../render/themes';
 import { getDrawCount } from './render-loop';
 import type { AppState } from './state';
+import type { CodeEditor } from './code-editor';
 
 export interface StudioEnv {
   getState: () => AppState;
-  sourceEl: HTMLTextAreaElement;
+  editor: CodeEditor;
   applyNewText: (t: string) => void;
   dispatch?: (event: EditorEvent) => void;
   getPresentStep?: () => number | null;
@@ -25,12 +26,15 @@ export function setupStudioApi(env: StudioEnv): void {
     return;
   }
 
+  (window as unknown as { __studioEditor: unknown }).__studioEditor = env.editor.view;
+
   window.__studio = {
-    getText: () => env.sourceEl.value,
+    getText: () => env.editor.getText(),
     setText: (t: string) => {
-      env.sourceEl.value = t;
+      env.editor.setText(t, 'replace');
       env.applyNewText(t);
     },
+    getCaret: () => env.editor.getCaret(),
     getPresentStep: () => (env.getPresentStep ? env.getPresentStep() : null),
     getSummary: () => {
       const state = env.getState();

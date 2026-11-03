@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setEditorText } from '../support/editor';
 import { contrastRatio } from '../support/contrast';
 
 test.describe('Accessibility and reduced motion', () => {
@@ -129,19 +130,14 @@ test.describe('Accessibility and reduced motion', () => {
   test('diagnostics are buttons', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
-    const source = page.locator('#source');
-    await source.fill('flowchart TD\nBROKEN LINE ???\nC --> D');
+    await setEditorText(page, 'flowchart TD\nBROKEN LINE ???\nC --> D');
     await page.waitForTimeout(400);
     const diagBtn = page.locator('#diagnostics button').first();
     await expect(diagBtn).toBeVisible();
     await diagBtn.focus();
     await page.keyboard.press('Enter');
-    const sel = await source.evaluate((el: HTMLTextAreaElement) => ({
-      start: el.selectionStart,
-      value: el.value.slice(0, el.selectionStart),
-    }));
-    const lineNum = sel.value.split('\n').length;
-    expect(lineNum).toBe(2);
+    const caret = await page.evaluate(() => (window as any).__studio.getCaret());
+    expect(caret.line).toBe(2);
   });
 
   test('control borders meet 3:1', async ({ page }) => {

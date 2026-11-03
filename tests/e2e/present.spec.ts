@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { editorText } from '../support/editor';
 
 test.describe('Present mode', () => {
   test('navigates through presentation steps and exits on Escape', async ({ page }) => {
@@ -58,11 +59,11 @@ test.describe('Present mode', () => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
 
-    const source = page.locator('#source');
-    await source.focus();
+    const content = page.locator('.cm-content');
+    await content.focus();
     await page.keyboard.press('p');
 
     await expect(page.locator('body')).not.toHaveClass(/presenting/);
-    expect(await source.inputValue()).toContain('p');
+    expect(await editorText(page)).toContain('p');
   });
 });

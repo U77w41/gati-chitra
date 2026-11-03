@@ -1429,7 +1429,7 @@ export function editorText(page: Page): Promise<string>;
 - **`KeyInfo`** gains `inEditor?: boolean`. When it is true, `shortcutFor` returns only `'escape'`.
 - **`__studio`** gains `getCaret(): { line: number; col: number }`.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 ```ts
 it('finds the smallest change', () => {
@@ -1446,7 +1446,7 @@ it('leaves keys inside the editor to the editor', () => {
 });
 ```
 
-- [ ] **Step 2: Write the failing e2e tests** in `edit.spec.ts`
+- [x] **Step 2: Write the failing e2e tests** in `edit.spec.ts`
   - "one undo history":
     1. Type `\nA --> X` and wait 1.1 s.
     2. Drag node A 50 px.
@@ -1456,10 +1456,10 @@ it('leaves keys inside the editor to the editor', () => {
   - "caret stays after a canvas edit": put the caret at the end of line 2, rename the node defined on line 4 from the properties panel, and check `__studio.getCaret().line` is still 2.
   - "line numbers show": `.cm-lineNumbers .cm-gutterElement` count is at least the line count.
   - "pasting fenced text strips the fences": in Chromium, grant clipboard permissions, write a fenced diagram to the clipboard and press Ctrl+V in an empty editor; the editor text has no ```` ``` ````.
-- [ ] **Step 3: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
-- [ ] **Step 4: Implement** per the Interfaces block. Canvas ops and undo/redo call `setText(text, 'patch')`; New, Open, templates and share links call `setText(text, 'replace')`. Move the `paste` handling from Task 37 into `onPaste`.
-- [ ] **Step 5: Run** `npm test && npm run lint && npm run build && npm run check:dist && npm run test:e2e`. Expected: PASS; initial JS is under 150 KB gzip. Record the new size in `DECISIONS.md`.
-- [ ] **Step 6: Commit**
+- [x] **Step 3: Run** `npm test && npm run test:e2e -- edit.spec.ts`. Expected: FAIL.
+- [x] **Step 4: Implement** per the Interfaces block. Canvas ops and undo/redo call `setText(text, 'patch')`; New, Open, templates and share links call `setText(text, 'replace')`. Move the `paste` handling from Task 37 into `onPaste`.
+- [x] **Step 5: Run** `npm test && npm run lint && npm run build && npm run check:dist && npm run test:e2e`. Expected: PASS; initial JS is under 150 KB gzip. Record the new size in `DECISIONS.md`.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat: code editor with one undo history"

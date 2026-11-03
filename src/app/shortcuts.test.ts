@@ -55,4 +55,8 @@ describe('shortcutFor', () => {
   it.each(['BODY', 'MAIN', 'CANVAS'])('Enter on %s renames', (tag) => {
     expect(shortcutFor({ key: 'Enter', ctrl: false, meta: false, shift: false, alt: false, targetTag: tag })).toBe('rename');
   });
+
+  it('leaves keys inside the editor to the editor', () => {
+    expect(shortcutFor({ key: 'z', ctrl: true, meta: false, shift: false, alt: false, targetTag: 'DIV', inEditor: true })).toBeNull();
+  });
 });

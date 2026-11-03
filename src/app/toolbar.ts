@@ -13,7 +13,7 @@ export interface ToolbarEnv {
   doUndo: () => void;
   doRedo: () => void;
   onAddNode: (shape: ShapeKind) => void;
-  sourceEl: HTMLTextAreaElement;
+  getText: () => string;
 }
 
 export function setupToolbar(env: ToolbarEnv): () => void {
@@ -57,7 +57,7 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     }
   });
   btnSave.addEventListener('click', () => {
-    downloadText(env.sourceEl.value, 'diagram.mmd', 'text/vnd.mermaid');
+    downloadText(env.getText(), 'diagram.mmd', 'text/vnd.mermaid');
   });
   btnFit.addEventListener('click', env.triggerFit);
   btnUndo.addEventListener('click', env.doUndo);

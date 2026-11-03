@@ -25,6 +25,7 @@ import { checkInitialShare, setupHashChangeListener, setupShareHandler } from '.
 import { mountChrome } from './chrome';
 import { describeDiagram } from './describe';
 import { stripFences } from '../mermaid/fences';
+import { createCodeEditor } from './code-editor';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -39,20 +40,38 @@ export async function initApp(): Promise<void> {
   let dirty = false;
   const measure = canvasMeasure();
 
-  const sourceEl = document.querySelector<HTMLTextAreaElement>('#source')!;
+  const sourceParent = document.querySelector<HTMLElement>('#source')!;
   const diagnosticsEl = document.querySelector<HTMLUListElement>('#diagnostics')!;
   const canvasEl = document.querySelector<HTMLCanvasElement>('#canvas')!;
   const messageEl = document.querySelector<HTMLDivElement>('#message')!;
   setMessageElement(messageEl);
   const ctx = canvasEl.getContext('2d')!;
 
-  sourceEl.value = state.text;
   let hasFitted = false;
   let parseTimer: ReturnType<typeof setTimeout> | null = null;
   let pausedPhase = 0;
   const startTime = performance.now();
 
-  const updateDiagnostics = setupDiagnostics(diagnosticsEl, sourceEl);
+
+  function doUndo(): void { commit('', 'undo'); }
+  function doRedo(): void { commit('', 'redo'); }
+
+  const editor = createCodeEditor(sourceParent, {
+    initialText: state.text,
+    label: 'Mermaid text',
+    onChange: (text) => {
+      if (parseTimer) clearTimeout(parseTimer);
+      parseTimer = setTimeout(() => {
+        parseTimer = null;
+        commit(text, 'typing');
+      }, TIMING.parseDebounceMs);
+    },
+    onUndo: doUndo,
+    onRedo: doRedo,
+    onPaste: (text) => stripFences(text),
+  });
+
+  const updateDiagnostics = setupDiagnostics(diagnosticsEl, (line) => editor.revealLine(line));
 
   function triggerFit(): void {
     const w = canvasEl.clientWidth || canvasEl.width;
@@ -77,7 +96,7 @@ export async function initApp(): Promise<void> {
 
   const autosave = setupAutosave({
     store,
-    getText: () => sourceEl.value || state.text,
+    getText: () => editor.getText() || state.text,
     onUnavailable: () => showMessage(MESSAGES.storageUnavailable),
     debounceMs: TIMING.autosaveDebounceMs,
   });
@@ -100,7 +119,7 @@ export async function initApp(): Promise<void> {
       screenToWorld(state.view, { x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 }),
       shape,
     ),
-    sourceEl,
+    getText: () => editor.getText(),
   });
 
   let freshlyCreatedNodeId: string | null = null;
@@ -124,13 +143,17 @@ export async function initApp(): Promise<void> {
     if (source !== 'typing' && parseTimer) {
       clearTimeout(parseTimer);
       parseTimer = null;
-      if (sourceEl.value !== state.text) {
-        state = commitText(state, sourceEl.value, 'typing', measure);
+      if (editor.getText() !== state.text) {
+        state = commitText(state, editor.getText(), 'typing', measure);
       }
     }
     state = commitText(state, text, source, measure, opts);
     if (source === 'typing' || source === 'op') dirty = true;
-    sourceEl.value = state.text;
+    if (source === 'op' || source === 'undo' || source === 'redo') {
+      editor.setText(state.text, 'patch');
+    } else if (source === 'open' || source === 'share' || source === 'template') {
+      editor.setText(state.text, 'replace');
+    }
     updateAfterCommit();
   }
 
@@ -155,8 +178,6 @@ export async function initApp(): Promise<void> {
     requestRedraw();
   };
 
-  function doUndo(): void { commit('', 'undo'); }
-  function doRedo(): void { commit('', 'redo'); }
 
   updateDiagnostics(state.doc);
   updateAriaLabel();
@@ -195,35 +216,6 @@ export async function initApp(): Promise<void> {
         run: () => applySync(t),
       });
     },
-  });
-
-  sourceEl.addEventListener('input', () => {
-    if (parseTimer) clearTimeout(parseTimer);
-    parseTimer = setTimeout(() => commit(sourceEl.value, 'typing'), TIMING.parseDebounceMs);
-  });
-  sourceEl.addEventListener('change', () => {
-    if (parseTimer) {
-      clearTimeout(parseTimer);
-      parseTimer = null;
-    }
-    if (sourceEl.value !== state.text) {
-      commit(sourceEl.value, 'typing');
-    }
-  });
-  sourceEl.addEventListener('paste', (e) => {
-    const isFull = (sourceEl.selectionStart === 0 && sourceEl.selectionEnd === sourceEl.value.length) || sourceEl.value.trim() === '';
-    if (isFull) {
-      const clip = e.clipboardData?.getData('text');
-      if (clip) {
-        const stripped = stripFences(clip);
-        if (stripped !== clip) {
-          e.preventDefault();
-          sourceEl.value = stripped;
-          if (parseTimer) clearTimeout(parseTimer);
-          commit(stripped, 'typing');
-        }
-      }
-    }
   });
 
   const present = setupPresentMode({
@@ -287,8 +279,8 @@ export async function initApp(): Promise<void> {
   });
 
   setupStudioApi({
-    getState: () => state, sourceEl, dispatch,
-    applyNewText: (t: string) => commit(t, 'open'),
+    getState: () => state, editor, dispatch,
+    applyNewText: (t: string) => commit(t, 'typing'),
     getPresentStep: present.getPresentStep,
   });
 

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { CORPUS } from '../support/corpus';
+import { editorText, setEditorText, typeInEditor } from '../support/editor';
 
 test.describe('Editing, connecting and properties panel', () => {
   test('connects nodes by dragging from handle to node', async ({ page }) => {
@@ -28,7 +29,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('A --> B');
   });
 
@@ -52,7 +53,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.mouse.up();
     await page.waitForTimeout(300);
 
-    const textAfterDrop = await page.locator('#source').inputValue();
+    const textAfterDrop = await editorText(page);
     expect(textAfterDrop).toContain('n1[New]');
     expect(textAfterDrop).toContain('A --> n1');
     expect(textAfterDrop).toContain('%% studio:pos n1');
@@ -65,13 +66,13 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
 
-    const textAfterEdit = await page.locator('#source').inputValue();
+    const textAfterEdit = await editorText(page);
     expect(textAfterEdit).toContain('n1[Next]');
 
     // One undo click removes node, arrow, and pin
     await page.click('#btn-undo');
     await page.waitForTimeout(300);
-    const textAfterUndo = await page.locator('#source').inputValue();
+    const textAfterUndo = await editorText(page);
     expect(textAfterUndo).not.toContain('n1');
     expect(textAfterUndo).not.toContain('A -->');
   });
@@ -90,7 +91,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.mouse.dblclick(box!.x + 150, box!.y + 150);
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('n1[New]');
     await expect(page.locator('#inline-edit')).toBeVisible();
   });
@@ -112,7 +113,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('A[Alpha]');
   });
 
@@ -130,7 +131,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.keyboard.press('Delete');
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).not.toContain('A');
   });
 
@@ -148,7 +149,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.selectOption('#prop-shape', 'diamond');
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('A{A}');
   });
 
@@ -167,7 +168,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.locator('#prop-fill').dispatchEvent('change');
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('style A fill:#ffcc00');
   });
 
@@ -186,7 +187,7 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.locator('#prop-text-color').dispatchEvent('change');
     await page.waitForTimeout(300);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('style A color:#e63946');
   });
 
@@ -205,19 +206,19 @@ test.describe('Editing, connecting and properties panel', () => {
     // Change kind to dottedArrow
     await page.selectOption('#prop-kind', 'dottedArrow');
     await page.waitForTimeout(300);
-    let text = await page.locator('#source').inputValue();
+    let text = await editorText(page);
     expect(text).toContain('A -.-> B');
 
     // Reverse edge
     await page.click('#prop-reverse');
     await page.waitForTimeout(300);
-    text = await page.locator('#source').inputValue();
+    text = await editorText(page);
     expect(text).toContain('B -.-> A');
 
     // Delete edge
     await page.click('#prop-delete');
     await page.waitForTimeout(300);
-    text = await page.locator('#source').inputValue();
+    text = await editorText(page);
     expect(text).toContain('A');
     expect(text).toContain('B');
     expect(text).not.toContain('->');
@@ -240,7 +241,7 @@ test.describe('Editing, connecting and properties panel', () => {
 
     await page.click('#btn-undo');
     await page.waitForTimeout(300);
-    const restored = await page.locator('#source').inputValue();
+    const restored = await editorText(page);
     expect(restored).toBe(initial);
   });
 
@@ -302,14 +303,12 @@ test.describe('Editing, connecting and properties panel', () => {
   test('New is undoable', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);
-    const source = page.locator('#source');
-    await source.focus();
-    await source.fill('flowchart TD\nCustomLine');
+    await setEditorText(page, 'flowchart TD\nCustomLine');
     await page.click('#btn-new');
     await page.locator('body').focus();
     await page.keyboard.press('ControlOrMeta+z');
     await page.waitForTimeout(200);
-    expect(await source.inputValue()).toContain('CustomLine');
+    expect(await editorText(page)).toContain('CustomLine');
   });
 
   test('the same file opens twice', async ({ page }) => {
@@ -322,12 +321,12 @@ test.describe('Editing, connecting and properties panel', () => {
     };
     await page.locator('#file-picker').setInputFiles(file);
     await page.waitForTimeout(200);
-    expect(await page.locator('#source').inputValue()).toContain('FromFile');
+    expect(await editorText(page)).toContain('FromFile');
 
-    await page.locator('#source').fill('flowchart TD\nEditedInBetween');
+    await setEditorText(page, 'flowchart TD\nEditedInBetween');
     await page.locator('#file-picker').setInputFiles(file);
     await page.waitForTimeout(200);
-    expect(await page.locator('#source').inputValue()).toContain('FromFile');
+    expect(await editorText(page)).toContain('FromFile');
   });
 
   test('inline editor sits on the node', async ({ page }) => {
@@ -355,7 +354,7 @@ test.describe('Editing, connecting and properties panel', () => {
     };
     await page.locator('#file-picker').setInputFiles(file);
     await page.waitForTimeout(200);
-    const val = await page.locator('#source').inputValue();
+    const val = await editorText(page);
     expect(val).toBe('flowchart TD\nFromMd');
   });
 
@@ -376,7 +375,115 @@ test.describe('Editing, connecting and properties panel', () => {
     await page.selectOption('#prop-shape', { label: 'Document' });
     await page.waitForTimeout(200);
 
-    const text = await page.locator('#source').inputValue();
+    const text = await editorText(page);
     expect(text).toContain('A@{ shape: doc, label: "Start" }');
+  });
+
+  test('one undo history', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
+    const startText = await editorText(page);
+
+    await typeInEditor(page, '\nA --> X');
+    await page.waitForTimeout(1100);
+
+    const aScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('A'));
+    expect(aScreen).not.toBeNull();
+    await page.mouse.move(aScreen.x, aScreen.y);
+    await page.mouse.down();
+    await page.mouse.move(aScreen.x + 50, aScreen.y, { steps: 5 });
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+
+    const textAfterDrag = await editorText(page);
+    expect(textAfterDrag).toContain('studio:pos A');
+
+    // Focus the editor and press Ctrl+Z: text has A --> X and no studio:pos A line
+    await page.locator('.cm-content').focus();
+    await page.keyboard.press('ControlOrMeta+z');
+    await page.waitForTimeout(200);
+
+    const textAfterUndo1 = await editorText(page);
+    expect(textAfterUndo1).toContain('A --> X');
+    expect(textAfterUndo1).not.toContain('studio:pos A');
+
+    // Click the page body and press Ctrl+Z: text equals starting text
+    await page.locator('body').click({ position: { x: 10, y: 10 } });
+    await page.keyboard.press('ControlOrMeta+z');
+    await page.waitForTimeout(200);
+
+    const textAfterUndo2 = await editorText(page);
+    expect(textAfterUndo2).toBe(startText);
+
+    // Press Ctrl+Y twice: the drag is back
+    await page.keyboard.press('Control+y');
+    await page.waitForTimeout(100);
+    await page.keyboard.press('Control+y');
+    await page.waitForTimeout(200);
+
+    const textAfterRedo = await editorText(page);
+    expect(textAfterRedo).toContain('studio:pos A');
+  });
+
+  test('caret stays after a canvas edit', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await setEditorText(page, 'flowchart TD\nA[First]\nB[Second]\nC[Third]');
+    await page.waitForTimeout(300);
+
+    // Put caret at end of line 2
+    await page.evaluate(() => {
+      const view = (window as any).__studioEditor;
+      if (view) {
+        const line2 = view.state.doc.line(2);
+        view.dispatch({ selection: { anchor: line2.to } });
+        view.focus();
+      }
+    });
+
+    const caretBefore = await page.evaluate(() => (window as any).__studio.getCaret());
+    expect(caretBefore.line).toBe(2);
+
+    // Rename node C defined on line 4 from properties panel
+    const cScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('C'));
+    await page.mouse.click(cScreen.x, cScreen.y);
+    await page.waitForTimeout(100);
+
+    await page.fill('#prop-label', 'RenamedC');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(200);
+
+    const caretAfter = await page.evaluate(() => (window as any).__studio.getCaret());
+    expect(caretAfter.line).toBe(2);
+  });
+
+  test('line numbers show', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await setEditorText(page, 'flowchart TD\nA\nB\nC');
+    await page.waitForTimeout(300);
+
+    const gutters = page.locator('.cm-lineNumbers .cm-gutterElement');
+    const count = await gutters.count();
+    expect(count).toBeGreaterThanOrEqual(4);
+  });
+
+  test('pasting fenced text strips the fences', async ({ page, context, browserName }) => {
+    test.skip(browserName !== 'chromium', 'clipboard permissions only supported in Chromium');
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
+
+    await setEditorText(page, '');
+    await page.evaluate(() => {
+      navigator.clipboard.writeText('```mermaid\nflowchart TD\nPasted\n```');
+    });
+
+    await page.locator('.cm-content').focus();
+    await page.keyboard.press('ControlOrMeta+v');
+    await page.waitForTimeout(300);
+
+    const text = await editorText(page);
+    expect(text).not.toContain('```');
+    expect(text).toContain('flowchart TD');
+    expect(text).toContain('Pasted');
   });
 });

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setEditorText } from '../support/editor';
 
 test.describe('Network privacy and offline functionality', () => {
   test('does not send requests to other origins and functions offline', async ({
@@ -16,7 +17,7 @@ test.describe('Network privacy and offline functionality', () => {
     const origin = new URL(page.url()).origin;
 
     // Interact online: type text
-    await page.locator('#source').fill('flowchart TD\nA-->B');
+    await setEditorText(page, 'flowchart TD\nA-->B');
     await page.waitForTimeout(200);
 
     // Drag a node
@@ -54,7 +55,7 @@ test.describe('Network privacy and offline functionality', () => {
     await context.setOffline(true);
 
     // Type text offline
-    await page.locator('#source').fill('flowchart TD\nX-->Y');
+    await setEditorText(page, 'flowchart TD\nX-->Y');
     await page.waitForTimeout(200);
 
     // Drag a node offline

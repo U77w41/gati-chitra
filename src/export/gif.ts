@@ -1,4 +1,3 @@
-import { applyPalette, GIFEncoder, quantize } from 'gifenc';
 import { loopSeconds } from '../anim/anim';
 import { EXPORT } from '../core/constants';
 import type {
@@ -117,6 +116,7 @@ export async function exportGif(
     offset += chunk.length;
   }
 
+  const { applyPalette, GIFEncoder, quantize } = await import('gifenc');
   const palette = quantize(allRgba, 256);
   const encoder = GIFEncoder();
 

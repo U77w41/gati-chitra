@@ -17,9 +17,14 @@ export interface KeyInfo {
   shift: boolean;
   alt: boolean;
   targetTag: string;
+  inEditor?: boolean;
 }
 
 export function shortcutFor(k: KeyInfo): ShortcutAction | null {
+  if (k.inEditor) {
+    return k.key === 'Escape' ? 'escape' : null;
+  }
+
   if (k.alt) return null;
 
   const tag = k.targetTag.toUpperCase();
@@ -83,6 +88,7 @@ export interface ShortcutsEnv {
 export function setupKeyboardShortcuts(env: ShortcutsEnv): () => void {
   const handler = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement | null;
+    const inEditor = Boolean(target?.closest('.cm-editor'));
     const info: KeyInfo = {
       key: e.key,
       ctrl: e.ctrlKey,
@@ -90,11 +96,12 @@ export function setupKeyboardShortcuts(env: ShortcutsEnv): () => void {
       shift: e.shiftKey,
       alt: e.altKey,
       targetTag: target?.tagName ?? '',
+      inEditor,
     };
     const action = shortcutFor(info);
     if (!action) return;
 
-    if (action !== 'escape' || (target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA')) {
+    if (action !== 'escape' || (target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA' && !inEditor)) {
       e.preventDefault();
     }
 
