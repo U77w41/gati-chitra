@@ -27,12 +27,16 @@
 #message { min-height: 1.5em; color: var(--text-body); font-size: var(--font-size-sm); }
 select,
 #props input[type="text"],
-#export-panel input[type="text"],
-#inline-edit {
+#export-panel input[type="text"] {
   padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-control);
   background: var(--card-background); color: var(--text-main); font: inherit;
 }
-#inline-edit { position: absolute; z-index: 5; resize: none; box-shadow: var(--shadow-l2); }
+#inline-edit {
+  box-sizing: border-box;
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-control);
+  background: var(--card-background); color: var(--text-main); font: inherit;
+  position: absolute; z-index: 5; resize: none; box-shadow: var(--shadow-l2);
+}
 dialog {
   padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-card);
   background: var(--card-background); color: var(--text-main); box-shadow: var(--shadow-l2);
@@ -42,7 +46,7 @@ dialog::backdrop { background: #00000066; }
 .dialog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .dialog-header h2 { margin: 0; font-size: var(--font-size-md); }
 .dialog-body { display: flex; flex-direction: column; gap: 8px; font-size: var(--font-size-sm); }
-.dialog-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.dialog-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 #share-box { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--card-background); border: 1px solid var(--border); border-radius: var(--radius-control); }
 #share-box[hidden] { display: none; }
 .template { background: var(--card-background-muted); border: 1px solid var(--border); border-radius: var(--radius-control); color: var(--text-main); padding: 8px 12px; font-size: var(--font-size-sm); text-align: left; cursor: pointer; }

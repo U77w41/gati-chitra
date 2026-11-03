@@ -118,6 +118,7 @@ export const MESSAGES = {
   fixTextFirst: 'Fix the errors in the text first.',
   shareTooLong: 'This diagram is too large for a link. Save it as a .mmd file instead.',
   shareInvalid: 'The share link could not be read. Showing the sample diagram.',
+  templateFailed: 'The template could not be loaded.',
   storageUnavailable: 'Browser storage is unavailable, so autosave is off.',
   groupsInText: 'Groups are edited in the text.',
   linkCopied: 'Link copied.',

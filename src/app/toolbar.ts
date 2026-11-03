@@ -29,7 +29,7 @@ export function setupToolbar(env: ToolbarEnv): () => void {
   const filePicker = document.querySelector<HTMLInputElement>('#file-picker')!;
 
   btnNew.addEventListener('click', () =>
-    env.commit('flowchart TD\n', 'typing'),
+    env.commit('flowchart TD\n', 'open'),
   );
   btnOpen.addEventListener('click', () => filePicker.click());
   filePicker.addEventListener('change', () => {
@@ -39,6 +39,7 @@ export function setupToolbar(env: ToolbarEnv): () => void {
       reader.onload = () => {
         if (typeof reader.result === 'string')
           env.commit(reader.result, 'open');
+        filePicker.value = '';
       };
       reader.readAsText(file);
     }

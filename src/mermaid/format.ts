@@ -50,7 +50,7 @@ export function edgeOperatorText(kind: EdgeKind): string {
 
 export function formatLabel(label: string): string {
   let s = label.replace(/\r\n|\r|\n/g, '<br/>');
-  if (/[()[\]{}"|;]/.test(s)) {
+  if (/[()[\]{}"|;]/.test(s) || /^[/\\]|[/\\]$|^>|@{/.test(s)) {
     s = s.replace(/"/g, '#quot;');
     return `"${s}"`;
   }
@@ -58,5 +58,10 @@ export function formatLabel(label: string): string {
 }
 
 export function formatPipeLabel(label: string): string {
-  return label.replace(/\|/g, '/').replace(/\r\n|\r|\n/g, '<br/>');
+  let s = label.replace(/\r\n|\r|\n/g, '<br/>');
+  if (/[|;]/.test(s)) {
+    s = s.replace(/"/g, '#quot;');
+    return `"${s}"`;
+  }
+  return s;
 }

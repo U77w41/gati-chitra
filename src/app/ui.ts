@@ -130,6 +130,13 @@ export async function initApp(): Promise<void> {
   }
 
   function commit(text: string, source: CommitSource, opts?: { coalesce?: boolean }): void {
+    if (source !== 'typing' && parseTimer) {
+      clearTimeout(parseTimer);
+      parseTimer = null;
+      if (sourceEl.value !== state.text) {
+        state = commitText(state, sourceEl.value, 'typing', measure);
+      }
+    }
     state = commitText(state, text, source, measure, opts);
     sourceEl.value = state.text;
     updateAfterCommit();
@@ -165,6 +172,15 @@ export async function initApp(): Promise<void> {
   sourceEl.addEventListener('input', () => {
     if (parseTimer) clearTimeout(parseTimer);
     parseTimer = setTimeout(() => commit(sourceEl.value, 'typing'), TIMING.parseDebounceMs);
+  });
+  sourceEl.addEventListener('change', () => {
+    if (parseTimer) {
+      clearTimeout(parseTimer);
+      parseTimer = null;
+    }
+    if (sourceEl.value !== state.text) {
+      commit(sourceEl.value, 'typing');
+    }
   });
 
   const present = setupPresentMode({

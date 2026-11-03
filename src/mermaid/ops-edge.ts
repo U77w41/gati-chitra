@@ -39,7 +39,7 @@ export function splitStatement(line: string): string[] {
     const leftGroup = nodeGroups[i];
     const rightGroup = nodeGroups[i + 1];
     const op = ops[i];
-    const opStr = edgeOperatorText(op.kind) + (op.label ? '|' + op.label + '|' : '');
+    const opStr = edgeOperatorText(op.kind) + (op.label ? '|' + formatPipeLabel(op.label) + '|' : '');
 
     for (const a of leftGroup) {
       if (a.type !== 'node') continue;

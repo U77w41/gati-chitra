@@ -146,10 +146,10 @@ export function setupProperties(env: PropertiesEnv): () => void {
       propDelete.hidden = false;
       const node = state.doc.nodes.find((n) => n.id === sel.id);
       if (node) {
-        propLabel.value = node.label;
-        propShape.value = node.shape;
-        propFill.value = toHexColor(node.style.fill, theme.nodeFill);
-        propStroke.value = toHexColor(node.style.stroke, theme.nodeStroke);
+        if (document.activeElement !== propLabel) propLabel.value = node.label;
+        if (document.activeElement !== propShape) propShape.value = node.shape;
+        if (document.activeElement !== propFill) propFill.value = toHexColor(node.style.fill, theme.nodeFill);
+        if (document.activeElement !== propStroke) propStroke.value = toHexColor(node.style.stroke, theme.nodeStroke);
       }
     } else if (sel.kind === 'edge') {
       nodeSection.hidden = true;
@@ -158,15 +158,17 @@ export function setupProperties(env: PropertiesEnv): () => void {
       const idx = Number(sel.id.slice(1));
       const edge = state.doc.edges[idx];
       if (edge) {
-        propLabel.value = edge.label ?? '';
-        propKind.value = edge.kind;
+        if (document.activeElement !== propLabel) propLabel.value = edge.label ?? '';
+        if (document.activeElement !== propKind) propKind.value = edge.kind;
       }
     } else if (sel.kind === 'group') {
       nodeSection.hidden = true;
       edgeSection.hidden = true;
       propDelete.hidden = true;
       const grp = state.doc.groups.find((g) => g.id === sel.id);
-      if (grp) propLabel.value = grp.title;
+      if (grp) {
+        if (document.activeElement !== propLabel) propLabel.value = grp.title;
+      }
     }
   };
 }

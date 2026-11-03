@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { MESSAGES } from '../../src/core/constants';
 
 test.describe('Site Chrome and Scheme', () => {
   test('header renders brand, theme toggle, and nav links', async ({ page }) => {
@@ -229,5 +230,36 @@ test.describe('Site Chrome and Scheme', () => {
     await page.keyboard.press('Escape');
     await expect(page.locator('.site-header')).toBeVisible();
     await expect(page.locator('.site-footer')).toBeVisible();
+  });
+
+  test('a failed template says so', async ({ page }) => {
+    await page.route('**/templates/checkout.mmd', (route) => route.abort());
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(200);
+
+    await page.click('#btn-templates');
+    await page.locator('.gallery-card', { hasText: 'Checkout' }).click();
+    await expect(page.locator('#message')).toHaveText(MESSAGES.templateFailed);
+  });
+
+  test('export footer fits a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(200);
+
+    await page.click('#btn-export');
+    await page.waitForTimeout(100);
+
+    const buttons = page.locator('#export-panel .dialog-footer button');
+    const count = await buttons.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const box = await buttons.nth(i).boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(375 + 1); // 1px tolerance
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(812 + 1);
+    }
   });
 });

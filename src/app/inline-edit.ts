@@ -15,7 +15,7 @@ export interface InlineEditManager {
 export function setupInlineEditor(
   textarea: HTMLTextAreaElement,
   getState: () => AppState,
-  _canvasEl: HTMLCanvasElement,
+  canvasEl: HTMLCanvasElement,
 ): InlineEditManager {
   let active = false;
   let currentKind: 'node' | 'edge' | 'group' = 'node';
@@ -66,12 +66,23 @@ export function setupInlineEditor(
       commitCallback = onCommit;
       cancelCallback = onCancel;
 
+      textarea.value = initial;
+      textarea.style.display = 'block';
+
       const state = getState();
       const view = state.view;
+      const canvasRect = canvasEl.getBoundingClientRect();
+      const parentRect =
+        (textarea.offsetParent as HTMLElement | null)?.getBoundingClientRect() ??
+        textarea.parentElement?.getBoundingClientRect() ??
+        canvasRect;
+      const offsetX = canvasRect.left - parentRect.left;
+      const offsetY = canvasRect.top - parentRect.top;
 
       if (kind === 'node') {
         const box = state.scene?.layout.nodes[id];
         if (box) {
+          const center = worldToScreen(view, box.center);
           const tl = worldToScreen(view, {
             x: box.center.x - box.width / 2,
             y: box.center.y - box.height / 2,
@@ -80,28 +91,30 @@ export function setupInlineEditor(
             x: box.center.x + box.width / 2,
             y: box.center.y + box.height / 2,
           });
-          textarea.style.left = `${tl.x}px`;
-          textarea.style.top = `${tl.y}px`;
-          textarea.style.width = `${Math.max(80, br.x - tl.x)}px`;
-          textarea.style.height = `${Math.max(30, br.y - tl.y)}px`;
+          const w = Math.max(80, br.x - tl.x);
+          const h = Math.max(30, br.y - tl.y);
+          textarea.style.width = `${w}px`;
+          textarea.style.height = `${h}px`;
+          textarea.style.left = `${offsetX + center.x - w / 2}px`;
+          textarea.style.top = `${offsetY + center.y - h / 2}px`;
         }
       } else if (kind === 'edge') {
         const path = state.scene?.layout.edges[id];
         if (path) {
           const pt = worldToScreen(view, path.labelPoint);
-          textarea.style.left = `${pt.x - 40}px`;
-          textarea.style.top = `${pt.y - 15}px`;
           textarea.style.width = '100px';
           textarea.style.height = '30px';
+          textarea.style.left = `${offsetX + pt.x - 50}px`;
+          textarea.style.top = `${offsetY + pt.y - 15}px`;
         }
       } else if (kind === 'group') {
         const gbox = state.scene?.layout.groups[id];
         if (gbox) {
           const tl = worldToScreen(view, { x: gbox.rect.x, y: gbox.rect.y });
-          textarea.style.left = `${tl.x}px`;
-          textarea.style.top = `${tl.y}px`;
           textarea.style.width = `${Math.max(120, gbox.rect.width * view.zoom)}px`;
           textarea.style.height = '30px';
+          textarea.style.left = `${offsetX + tl.x}px`;
+          textarea.style.top = `${offsetY + tl.y}px`;
         }
       }
 

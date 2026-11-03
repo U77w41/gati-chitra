@@ -260,4 +260,69 @@ test.describe('Editing, connecting and properties panel', () => {
 
     await expect(page.locator('#message')).toContainText('Groups are edited in the text.');
   });
+
+  test('typed label survives a mouse move', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\nA');
+    });
+    await page.waitForTimeout(300);
+    const aScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('A'));
+    await page.mouse.click(aScreen.x, aScreen.y);
+    await page.waitForTimeout(100);
+    const labelInput = page.locator('#prop-label');
+    await labelInput.focus();
+    await labelInput.fill('Renamed');
+    const canvas = page.locator('#canvas');
+    const box = (await canvas.boundingBox())!;
+    await page.mouse.move(box.x + 20, box.y + 20);
+    await page.mouse.move(box.x + 100, box.y + 100);
+    expect(await labelInput.inputValue()).toBe('Renamed');
+  });
+
+  test('New is undoable', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(300);
+    const source = page.locator('#source');
+    await source.focus();
+    await source.fill('flowchart TD\nCustomLine');
+    await page.click('#btn-new');
+    await page.locator('body').focus();
+    await page.keyboard.press('ControlOrMeta+z');
+    await page.waitForTimeout(200);
+    expect(await source.inputValue()).toContain('CustomLine');
+  });
+
+  test('the same file opens twice', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.waitForTimeout(300);
+    const file = {
+      name: 'diagram.mmd',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('flowchart TD\nFromFile'),
+    };
+    await page.locator('#file-picker').setInputFiles(file);
+    await page.waitForTimeout(200);
+    expect(await page.locator('#source').inputValue()).toContain('FromFile');
+
+    await page.locator('#source').fill('flowchart TD\nEditedInBetween');
+    await page.locator('#file-picker').setInputFiles(file);
+    await page.waitForTimeout(200);
+    expect(await page.locator('#source').inputValue()).toContain('FromFile');
+  });
+
+  test('inline editor sits on the node', async ({ page }) => {
+    await page.goto('/?e2e=1');
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\nA');
+    });
+    await page.waitForTimeout(300);
+    const aScreen = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('A'));
+    await page.mouse.dblclick(aScreen.x, aScreen.y);
+    await page.waitForTimeout(200);
+    const editBox = (await page.locator('#inline-edit').boundingBox())!;
+    const editCenter = { x: editBox.x + editBox.width / 2, y: editBox.y + editBox.height / 2 };
+    expect(Math.abs(editCenter.x - aScreen.x)).toBeLessThanOrEqual(4);
+    expect(Math.abs(editCenter.y - aScreen.y)).toBeLessThanOrEqual(4);
+  });
 });

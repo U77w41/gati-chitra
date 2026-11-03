@@ -182,9 +182,24 @@ export function readEdgeOperator(
   while (p < s.length && /\s/.test(s[p])) p++;
 
   if (p < s.length && s[p] === '|') {
-    const pipeEnd = s.indexOf('|', p + 1);
+    let pipeEnd = -1;
+    if (s[p + 1] === '"') {
+      const qEnd = s.indexOf('"', p + 2);
+      if (qEnd !== -1) {
+        const nextPipe = s.indexOf('|', qEnd + 1);
+        if (nextPipe !== -1) {
+          pipeEnd = nextPipe;
+        }
+      }
+    }
+    if (pipeEnd === -1) {
+      pipeEnd = s.indexOf('|', p + 1);
+    }
     if (pipeEnd === -1) return null;
     label = s.slice(p + 1, pipeEnd).trim();
+    if (label.startsWith('"') && label.endsWith('"') && label.length >= 2) {
+      label = label.slice(1, -1);
+    }
     end = pipeEnd + 1;
   }
 

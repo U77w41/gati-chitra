@@ -37,12 +37,13 @@ export function setupGallery(env: GalleryEnv): void {
     listEl.innerHTML = '';
     for (const item of items) {
       const btn = document.createElement('button');
-      btn.className = 'template';
+      btn.className = 'template gallery-card';
       btn.textContent = item.title;
       btn.addEventListener('click', async () => {
         const text = await loadTemplate(baseUrl, item);
         if (!text) {
-          messageEl.textContent = MESSAGES.shareInvalid;
+          messageEl.textContent = MESSAGES.templateFailed;
+          close();
           return;
         }
         commit(text, 'template');

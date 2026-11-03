@@ -79,6 +79,18 @@ describe('text patches: edit operations', () => {
     });
   });
 
+  it.each(['/api', '/api/', '\\x', 'a/b', '>x', 'x@{y}'])('rename to %s round-trips', (label) => {
+    const r = applyOp('flowchart TD\nA[Start]', { type: 'renameNode', id: 'A', label });
+    expect('text' in r && parseMermaid(r.text).nodes[0]).toMatchObject({ label, shape: 'rect' });
+  });
+
+  it('changes the kind of an edge with an inline label in a node group', () => {
+    const r = applyOp('flowchart TD\nA & B -- yes|no --> C', { type: 'setEdgeKind', index: 0, kind: 'dottedArrow' });
+    expect('text' in r).toBe(true);
+    const d = parseMermaid((r as { text: string }).text);
+    expect(d.edges.map(e => e.label)).toEqual(['yes|no', 'yes|no']);
+  });
+
   it('handles renameEdge', () => {
     expect(
       run('flowchart TD\n  A -->|yes| B\n', {
