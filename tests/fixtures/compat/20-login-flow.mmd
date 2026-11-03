@@ -1,0 +1,17 @@
+flowchart TD
+    Start([User visits site]) --> Login{Already registered?}
+    Login -->|No| Register[Fill registration form]
+    Register --> SendEmail[Send activation email]
+    SendEmail --> Verify[User clicks link]
+    Verify --> Auth[Authenticate session]
+    Login -->|Yes| EnterCreds[Enter username & password]
+    EnterCreds --> Validate{Credentials valid?}
+    Validate -->|No| Error[Show error message]
+    Error --> EnterCreds
+    Validate -->|Yes| 2FA{2FA enabled?}
+    2FA -->|Yes| OTP[Enter one-time code]
+    OTP --> CheckOTP{Code valid?}
+    CheckOTP -->|No| OTP
+    CheckOTP -->|Yes| Auth
+    2FA -->|No| Auth
+    Auth --> Dashboard([Redirect to dashboard])

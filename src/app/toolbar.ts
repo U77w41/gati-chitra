@@ -1,5 +1,6 @@
 import type { ShapeKind, TextOp } from '../core/types';
 import { canRedo, canUndo } from '../editor/history';
+import { stripFences } from '../mermaid/fences';
 import { downloadText } from './download';
 import type { AppState, CommitSource } from './state';
 
@@ -28,6 +29,7 @@ export function setupToolbar(env: ToolbarEnv): () => void {
   const addShapeEl = document.querySelector<HTMLSelectElement>('#add-shape')!;
   const filePicker = document.querySelector<HTMLInputElement>('#file-picker')!;
 
+  filePicker.accept = '.mmd,.txt,.md';
   btnNew.addEventListener('click', () =>
     env.commit('flowchart TD\n', 'open'),
   );
@@ -37,8 +39,9 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        if (typeof reader.result === 'string')
-          env.commit(reader.result, 'open');
+        if (typeof reader.result === 'string') {
+          env.commit(stripFences(reader.result), 'open');
+        }
         filePicker.value = '';
       };
       reader.readAsText(file);

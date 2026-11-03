@@ -1,0 +1,16 @@
+flowchart TD
+    subgraph Build [Build Stage]
+        Checkout[Checkout Code] --> Lint[Linting]
+        Lint --> Compile[Compile TS]
+    end
+    subgraph Test [Test Stage]
+        Unit[Unit Tests]
+        E2E[E2E Tests]
+    end
+    Compile --> Unit
+    Compile --> E2E
+    subgraph Deploy [Deploy Stage]
+        Staging[Deploy Staging] --> Prod[Deploy Production]
+    end
+    Unit --> Staging
+    E2E --> Staging

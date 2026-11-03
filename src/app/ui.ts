@@ -21,12 +21,9 @@ import { loadDoc, loadSettings, safeStore, setupAutosave, setupDocSync } from '.
 import { setMessageElement, showMessage } from './message';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
-import {
-  checkInitialShare,
-  setupHashChangeListener,
-  setupShareHandler,
-} from './share-handler';
+import { checkInitialShare, setupHashChangeListener, setupShareHandler } from './share-handler';
 import { mountChrome } from './chrome';
+import { stripFences } from '../mermaid/fences';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -209,6 +206,21 @@ export async function initApp(): Promise<void> {
       commit(sourceEl.value, 'typing');
     }
   });
+  sourceEl.addEventListener('paste', (e) => {
+    const isFull = (sourceEl.selectionStart === 0 && sourceEl.selectionEnd === sourceEl.value.length) || sourceEl.value.trim() === '';
+    if (isFull) {
+      const clip = e.clipboardData?.getData('text');
+      if (clip) {
+        const stripped = stripFences(clip);
+        if (stripped !== clip) {
+          e.preventDefault();
+          sourceEl.value = stripped;
+          if (parseTimer) clearTimeout(parseTimer);
+          commit(stripped, 'typing');
+        }
+      }
+    }
+  });
 
   const present = setupPresentMode({
     btnPresent: document.querySelector('#btn-present')!,
@@ -217,20 +229,16 @@ export async function initApp(): Promise<void> {
     messageEl, getState: () => state, triggerFit,
   });
 
-  const animControls = setupAnimControls(
-    {
-      animStyleEl: document.querySelector('#anim-style')!,
-      animSpeedEl: document.querySelector('#anim-speed')!,
-      animDensityEl: document.querySelector('#anim-density')!,
-      animGlowEl: document.querySelector('#anim-glow')!,
-      animPauseEl: document.querySelector('#anim-pause')!,
-      themeEl: document.querySelector('#theme')!,
-    },
-    () => state, store,
-    (paused) => {
-      if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
-    },
-  );
+  const animControls = setupAnimControls({
+    animStyleEl: document.querySelector('#anim-style')!,
+    animSpeedEl: document.querySelector('#anim-speed')!,
+    animDensityEl: document.querySelector('#anim-density')!,
+    animGlowEl: document.querySelector('#anim-glow')!,
+    animPauseEl: document.querySelector('#anim-pause')!,
+    themeEl: document.querySelector('#theme')!,
+  }, () => state, store, (paused) => {
+    if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
+  });
 
   setupKeyboardShortcuts({
     onUndo: doUndo, onRedo: doRedo, onFit: triggerFit,
@@ -260,34 +268,28 @@ export async function initApp(): Promise<void> {
 
   setupExportPanel({
     dialogEl: document.querySelector('#export-panel')!,
-    getState: () => state,
-    btnExport: document.querySelector('#btn-export')!,
+    getState: () => state, btnExport: document.querySelector('#btn-export')!,
   });
 
   setupShareHandler({
-    btnShare: document.querySelector('#btn-share')!,
-    shareBox: document.querySelector('#share-box')!,
-    shareUrlInput: document.querySelector('#share-url')!,
-    shareBoxClose: document.querySelector('#share-box-close'),
+    btnShare: document.querySelector('#btn-share')!, shareBox: document.querySelector('#share-box')!,
+    shareUrlInput: document.querySelector('#share-url')!, shareBoxClose: document.querySelector('#share-box-close'),
     messageEl, getState: () => state,
   });
 
   setupGallery({
     dialogEl: document.querySelector('#gallery')!,
     btnTemplates: document.querySelector('#btn-templates')!,
-    baseUrl: import.meta.env.BASE_URL,
-    commit, triggerFit, messageEl,
+    baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl,
   });
 
   setupStudioApi({
-    getState: () => state, sourceEl,
+    getState: () => state, sourceEl, dispatch,
     applyNewText: (t: string) => commit(t, 'open'),
-    dispatch, getPresentStep: present.getPresentStep,
+    getPresentStep: present.getPresentStep,
   });
 
-  document
-    .querySelectorAll<HTMLButtonElement>(
-      '#toolbar button, #canvas-controls button, #props button, dialog button',
-    )
-    .forEach((b) => b.classList.add(b.id === 'btn-export' ? 'btn-primary' : 'btn-secondary'));
+  document.querySelectorAll<HTMLButtonElement>(
+    '#toolbar button, #canvas-controls button, #props button, dialog button',
+  ).forEach((b) => b.classList.add(b.id === 'btn-export' ? 'btn-primary' : 'btn-secondary'));
 }

@@ -344,4 +344,18 @@ test.describe('Editing, connecting and properties panel', () => {
     expect(Math.abs(editCenter.x - aScreen.x)).toBeLessThanOrEqual(4);
     expect(Math.abs(editCenter.y - aScreen.y)).toBeLessThanOrEqual(4);
   });
+
+  test('opening a Markdown file strips the fences', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
+    const file = {
+      name: 'diagram.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from('```mermaid\nflowchart TD\nFromMd\n```'),
+    };
+    await page.locator('#file-picker').setInputFiles(file);
+    await page.waitForTimeout(200);
+    const val = await page.locator('#source').inputValue();
+    expect(val).toBe('flowchart TD\nFromMd');
+  });
 });

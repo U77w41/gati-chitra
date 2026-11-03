@@ -999,11 +999,11 @@ git add -A && git commit -m "feat: parse edge ids, click links, accessibility li
   - `stripFences(text: string): string`. When the first non-blank line matches `/^\s*(```|~~~)\s*mermaid\s*$/i` and the last non-blank line matches `/^\s*(```|~~~)\s*$/`, it removes both; otherwise it returns the text unchanged.
   - Fixture format: `<name>.json` = `{ "nodes": number, "edges": number, "groups": number }`.
 
-- [ ] **Step 1: Write the fixtures.**
+- [x] **Step 1: Write the fixtures.**
   - Copy 20 examples from https://mermaid.js.org/syntax/flowchart.html, one per file, covering: classic shapes, every new shape name, every arrow form, link length, invisible links, edge ids with animation, `&` chains, markdown strings, entity codes, subgraphs with `direction`, arrows to subgraphs, `click`, comments and directives, front matter title, `accTitle`/`accDescr`, `classDef`/`class`/`:::`/`style`/`linkStyle default`, several statements on one line, Unicode ids, and two longer real-world diagrams (a CI pipeline and a login flow).
   - Leave out icon and image examples (not in scope).
   - Count the nodes, edges and groups by hand into the `.json` file.
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 ```ts
 for (const name of fixtureNames) {
@@ -1028,11 +1028,11 @@ it('strips fences', () => {
 });
 ```
 
-- [ ] **Step 3: Run** `npm test -- src/mermaid`. Expected: FAIL on `stripFences` and on any fixture that shows a gap. Fix gaps in the parser task's module (34, 35 or 36), not with special cases in the test. If a fixture uses syntax listed under "Not in scope", replace that fixture.
-- [ ] **Step 4: Write the failing e2e test** in `edit.spec.ts`, "opening a Markdown file strips the fences": `setInputFiles` a `.md` file whose whole content is a fenced flowchart; the editor shows the text without fences.
-- [ ] **Step 5: Implement** `stripFences` and wire it to Open and paste.
-- [ ] **Step 6: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- edit.spec.ts`. Expected: PASS.
-- [ ] **Step 7: Commit**
+- [x] **Step 3: Run** `npm test -- src/mermaid`. Expected: FAIL on `stripFences` and on any fixture that shows a gap. Fix gaps in the parser task's module (34, 35 or 36), not with special cases in the test. If a fixture uses syntax listed under "Not in scope", replace that fixture.
+- [x] **Step 4: Write the failing e2e test** in `edit.spec.ts`, "opening a Markdown file strips the fences": `setInputFiles` a `.md` file whose whole content is a fenced flowchart; the editor shows the text without fences.
+- [x] **Step 5: Implement** `stripFences` and wire it to Open and paste.
+- [x] **Step 6: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- edit.spec.ts`. Expected: PASS.
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A && git commit -m "test: Mermaid compatibility corpus and fence stripping"
