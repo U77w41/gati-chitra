@@ -1,4 +1,5 @@
 import { frameState, phaseAt } from '../anim/anim';
+import { handlePoint } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { withNodeAt } from '../layout/scene';
 import { drawBackground, drawScene } from '../render/draw';
@@ -45,11 +46,24 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
         ? getPausedPhase()
         : phaseAt(elapsed, state.settings.anim);
       const frame = frameState(sceneToDraw, state.settings.anim, phase);
+      const connectPreview =
+        state.editor.connect && sceneToDraw.layout.nodes[state.editor.connect.fromId]
+          ? {
+              from: handlePoint(
+                sceneToDraw.doc,
+                sceneToDraw.layout.nodes[state.editor.connect.fromId],
+              ),
+              to: state.editor.connect.to,
+            }
+          : null;
       drawScene(ctx, sceneToDraw, theme, state.view, frame, {
         transparent: false,
         selection: state.editor.selection,
-        handleNodeId: null,
-        connectPreview: null,
+        handleNodeId:
+          state.editor.selection?.kind === 'node'
+            ? state.editor.selection.id
+            : null,
+        connectPreview,
         focus: null,
         showGlow: state.settings.anim.glow,
       });

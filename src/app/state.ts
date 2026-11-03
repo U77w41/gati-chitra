@@ -83,6 +83,7 @@ export function commitText(
   text: string,
   source: CommitSource,
   measure: MeasureText,
+  opts?: { coalesce?: boolean },
 ): AppState {
   const now = Date.now();
   let history = state.history;
@@ -95,7 +96,9 @@ export function commitText(
     history = redo(state.history);
     targetText = history.present;
   } else {
-    const coalesce = source === 'typing' && now - state.lastTypingTime < 1000;
+    const coalesce =
+      opts?.coalesce ??
+      (source === 'typing' && now - state.lastTypingTime < 1000);
     history = pushText(state.history, targetText, { coalesce });
   }
 

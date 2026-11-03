@@ -2,10 +2,9 @@ import {
   MESSAGES,
   TIMING,
 } from '../core/constants';
-import type { TextOp } from '../core/types';
+import type { Point, ShapeKind, TextOp } from '../core/types';
 import { phaseAt } from '../anim/anim';
-import { fitView, panBy } from '../editor/view';
-import { canRedo, canUndo } from '../editor/history';
+import { fitView, panBy, screenToWorld } from '../editor/view';
 import {
   reduce,
   type EditorEffect,
@@ -16,9 +15,13 @@ import { canvasMeasure } from '../layout/measure';
 import { applyOp } from '../mermaid/ops';
 import { setupAnimControls } from './anim-controls';
 import { setupCanvasEvents } from './canvas-events';
-import { downloadBlob } from './download';
+import { setupDiagnostics } from './diagnostics';
+import { setupInlineEditor } from './inline-edit';
+import { createConnectedNode, createNodeAt } from './node-creator';
+import { setupProperties } from './properties';
 import { startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
+import { setupKeyboardShortcuts } from './shortcuts';
 import {
   commitText,
   createState,
@@ -32,6 +35,7 @@ import {
   saveDoc,
 } from './storage';
 import { setupStudioApi } from './studio';
+import { setupToolbar } from './toolbar';
 
 export function initApp(): void {
   const store = safeStore();
@@ -47,15 +51,6 @@ export function initApp(): void {
   const messageEl = document.querySelector<HTMLDivElement>('#message')!;
   const ctx = canvasEl.getContext('2d')!;
 
-  const btnNew = document.querySelector<HTMLButtonElement>('#btn-new')!;
-  const btnOpen = document.querySelector<HTMLButtonElement>('#btn-open')!;
-  const btnSave = document.querySelector<HTMLButtonElement>('#btn-save-mmd')!;
-  const btnUndo = document.querySelector<HTMLButtonElement>('#btn-undo')!;
-  const btnRedo = document.querySelector<HTMLButtonElement>('#btn-redo')!;
-  const btnFit = document.querySelector<HTMLButtonElement>('#btn-fit')!;
-  const btnAutolayout = document.querySelector<HTMLButtonElement>('#btn-autolayout')!;
-  const filePicker = document.querySelector<HTMLInputElement>('#file-picker')!;
-
   sourceEl.value = state.text;
   let hasFitted = false;
   let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -64,37 +59,14 @@ export function initApp(): void {
   let pausedPhase = 0;
   const startTime = performance.now();
 
+  const updateDiagnostics = setupDiagnostics(diagnosticsEl, sourceEl);
+
   function triggerFit(): void {
     if (state.scene) {
       state.view = fitView(state.scene.layout.bounds, {
         width: canvasEl.clientWidth,
         height: canvasEl.clientHeight,
       });
-    }
-  }
-
-  function updateButtons(): void {
-    btnUndo.disabled = !canUndo(state.history);
-    btnRedo.disabled = !canRedo(state.history);
-    btnAutolayout.disabled = Object.keys(state.doc.pins).length === 0;
-  }
-
-  function updateDiagnostics(): void {
-    diagnosticsEl.innerHTML = '';
-    for (const diag of state.doc.diagnostics) {
-      const li = document.createElement('li');
-      li.className = diag.severity;
-      li.textContent = `Line ${diag.line}: ${diag.message}`;
-      li.addEventListener('click', () => {
-        const lines = sourceEl.value.split('\n');
-        let start = 0;
-        for (let i = 0; i < diag.line - 1 && i < lines.length; i++) {
-          start += lines[i].length + 1;
-        }
-        sourceEl.focus();
-        sourceEl.setSelectionRange(start, start + (lines[diag.line - 1]?.length ?? 0));
-      });
-      diagnosticsEl.appendChild(li);
     }
   }
 
@@ -116,10 +88,48 @@ export function initApp(): void {
     }, TIMING.autosaveDebounceMs);
   }
 
+  const inlineEditor = setupInlineEditor(
+    document.querySelector<HTMLTextAreaElement>('#inline-edit')!,
+    () => state,
+    canvasEl,
+  );
+
+  const updateProps = setupProperties({
+    panelEl: document.querySelector<HTMLElement>('#props')!,
+    getState: () => state,
+    executeOp,
+  });
+
+  const updateButtons = setupToolbar({
+    getState: () => state,
+    commit,
+    executeOp,
+    triggerFit,
+    doUndo,
+    doRedo,
+    onAddNode: (shape) => {
+      const rect = canvasEl.getBoundingClientRect();
+      const center = screenToWorld(state.view, { x: rect.width / 2, y: rect.height / 2 });
+      handleAddNodeAt(center, shape);
+    },
+    sourceEl,
+  });
+
+  let freshlyCreatedNodeId: string | null = null;
+
   function updateAfterCommit(): void {
-    updateDiagnostics();
+    if (state.editor.selection) {
+      const { kind, id } = state.editor.selection;
+      let exists = false;
+      if (kind === 'node') exists = state.doc.nodes.some((n) => n.id === id);
+      else if (kind === 'edge') exists = state.doc.edges.some((e) => e.id === id);
+      else if (kind === 'group') exists = state.doc.groups.some((g) => g.id === id);
+      if (!exists) state.editor.selection = null;
+    }
+    updateDiagnostics(state.doc);
     updateAriaLabel();
     updateButtons();
+    updateProps();
     scheduleAutosave();
     if (!hasFitted && state.scene) {
       triggerFit();
@@ -127,8 +137,8 @@ export function initApp(): void {
     }
   }
 
-  function commit(text: string, source: CommitSource): void {
-    state = commitText(state, text, source, measure);
+  function commit(text: string, source: CommitSource, opts?: { coalesce?: boolean }): void {
+    state = commitText(state, text, source, measure, opts);
     sourceEl.value = state.text;
     updateAfterCommit();
   }
@@ -139,7 +149,39 @@ export function initApp(): void {
       messageEl.textContent = res.error;
     } else {
       messageEl.textContent = '';
-      commit(res.text, 'op');
+      const coalesce = op.type === 'renameNode' && freshlyCreatedNodeId === op.id;
+      freshlyCreatedNodeId = null;
+      commit(res.text, 'op', { coalesce });
+    }
+  }
+
+  function handleAddNodeAt(at: Point, shape: ShapeKind): void {
+    const { newId, error } = createNodeAt(state, at, shape, commit);
+    if (error) {
+      messageEl.textContent = error;
+      return;
+    }
+    if (newId) {
+      freshlyCreatedNodeId = newId;
+      state.editor.selection = { kind: 'node', id: newId };
+      state.editor.editing = { kind: 'node', id: newId, initial: 'New' };
+      updateProps();
+      inlineEditor.start('node', newId, 'New', (t) => dispatch({ type: 'commitEdit', text: t }), () => { freshlyCreatedNodeId = null; dispatch({ type: 'cancelEdit' }); });
+    }
+  }
+
+  function handleAddConnectedNode(fromId: string, at: Point): void {
+    const { newId, error } = createConnectedNode(state, fromId, at, commit);
+    if (error) {
+      messageEl.textContent = error;
+      return;
+    }
+    if (newId) {
+      freshlyCreatedNodeId = newId;
+      state.editor.selection = { kind: 'node', id: newId };
+      state.editor.editing = { kind: 'node', id: newId, initial: 'New' };
+      updateProps();
+      inlineEditor.start('node', newId, 'New', (t) => dispatch({ type: 'commitEdit', text: t }), () => { freshlyCreatedNodeId = null; dispatch({ type: 'cancelEdit' }); });
     }
   }
 
@@ -148,6 +190,11 @@ export function initApp(): void {
       if (eff.type === 'applyOp') executeOp(eff.op);
       else if (eff.type === 'panBy') state.view = panBy(state.view, eff.dx, eff.dy);
       else if (eff.type === 'message') messageEl.textContent = eff.text;
+      else if (eff.type === 'addNodeAt') handleAddNodeAt(eff.at, eff.shape);
+      else if (eff.type === 'addConnectedNode') handleAddConnectedNode(eff.fromId, eff.at);
+      else if (eff.type === 'startEdit') {
+        inlineEditor.start(eff.kind, eff.id, eff.initial, (t) => dispatch({ type: 'commitEdit', text: t }), () => dispatch({ type: 'cancelEdit' }));
+      }
     }
   }
 
@@ -162,15 +209,17 @@ export function initApp(): void {
     };
     const { state: nextEditor, effects } = reduce(state.editor, event, env);
     state.editor = nextEditor;
+    updateProps();
     handleEffects(effects);
   }
 
-  const doUndo = () => canUndo(state.history) && commit('', 'undo');
-  const doRedo = () => canRedo(state.history) && commit('', 'redo');
+  function doUndo(): void { commit('', 'undo'); }
+  function doRedo(): void { commit('', 'redo'); }
 
-  updateDiagnostics();
+  updateDiagnostics(state.doc);
   updateAriaLabel();
   updateButtons();
+  updateProps();
   if (state.scene) {
     triggerFit();
     hasFitted = true;
@@ -202,53 +251,11 @@ export function initApp(): void {
     },
   );
 
-  btnNew.addEventListener('click', () => commit('flowchart TD\n', 'typing'));
-  btnOpen.addEventListener('click', () => filePicker.click());
-  filePicker.addEventListener('change', () => {
-    const file = filePicker.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') commit(reader.result, 'open');
-      };
-      reader.readAsText(file);
-    }
-  });
-  btnSave.addEventListener('click', () => {
-    downloadBlob(sourceEl.value, 'diagram.mmd', 'text/vnd.mermaid');
-  });
-  btnFit.addEventListener('click', triggerFit);
-  btnUndo.addEventListener('click', doUndo);
-  btnRedo.addEventListener('click', doRedo);
-  btnAutolayout.addEventListener('click', () => executeOp({ type: 'clearPins' }));
-
-  window.addEventListener('keydown', (e) => {
-    const isInput =
-      (e.target as HTMLElement)?.tagName === 'TEXTAREA' ||
-      (e.target as HTMLElement)?.tagName === 'INPUT';
-    if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-      e.preventDefault();
-      triggerFit();
-      return;
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-      if (!isInput) {
-        e.preventDefault();
-        if (e.shiftKey) doRedo();
-        else doUndo();
-        return;
-      }
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y' && !e.shiftKey) {
-      if (!isInput) {
-        e.preventDefault();
-        doRedo();
-        return;
-      }
-    }
-    if (!isInput || e.key === 'Escape') {
-      dispatch({ type: 'keyDown', key: e.key });
-    }
+  setupKeyboardShortcuts({
+    triggerFit,
+    doUndo,
+    doRedo,
+    dispatch,
   });
 
   setupCanvasEvents({
@@ -284,5 +291,6 @@ export function initApp(): void {
     getState: () => state,
     sourceEl,
     applyNewText: (t: string) => commit(t, 'open'),
+    dispatch,
   });
 }

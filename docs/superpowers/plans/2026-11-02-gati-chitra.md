@@ -2515,7 +2515,7 @@ down with button 1 on a node -> pan set, no selection change to that node
 
 7. After any operation, keep the selection if its id still exists; otherwise clear it.
 
-* \[ \] **Step 1: Write the failing tests.** Extend `controller.test.ts` (scene from `'flowchart TD\nA-->B'`, `env.ok` true unless stated):
+* [x] **Step 1: Write the failing tests.** Extend `controller.test.ts` (scene from `'flowchart TD\nA-->B'`, `env.ok` true unless stated):
 
 ```
 // selection of A is set first; hp = handlePoint(doc, boxA)
@@ -2562,13 +2562,13 @@ env.ok false: Delete -> [{ message fixTextFirst }]; dblClick -> [{ message fixTe
 
 11. With the `CORPUS[1]` text, click a group's title band and press Delete: `#message` shows `Groups are edited in the text.` and the text is unchanged.
 
-* \[ \] **Step 2: Run** `npx vitest run src/editor` and `npx playwright test tests/e2e/edit.spec.ts`. Expected: FAIL.
+* [x] **Step 2: Run** `npx vitest run src/editor` and `npx playwright test tests/e2e/edit.spec.ts`. Expected: FAIL.
 
-* \[ \] **Step 3: Implement** the reducer additions, `properties.ts` and the wiring.
+* [x] **Step 3: Implement** the reducer additions, `properties.ts` and the wiring.
 
-* \[ \] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
+* [x] **Step 4: Run** `npm test` and `npm run test:e2e`. Expected: PASS.
 
-* \[ \] **Step 5: Commit.** `git add -A && git commit -m "feat: connect, add, delete, rename in place and properties panel"`
+* [x] **Step 5: Commit.** `git add -A && git commit -m "feat: connect, add, delete, rename in place and properties panel"`
 
 ### Task 15: Export framework and PNG
 

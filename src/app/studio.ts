@@ -1,3 +1,4 @@
+import { handlePoint } from '../layout/geometry';
 import { worldToScreen } from '../editor/view';
 import { resolveTheme } from '../render/themes';
 import type { AppState } from './state';
@@ -6,6 +7,7 @@ export interface StudioEnv {
   getState: () => AppState;
   sourceEl: HTMLTextAreaElement;
   applyNewText: (t: string) => void;
+  dispatch?: (event: any) => void;
 }
 
 export function setupStudioApi(env: StudioEnv): void {
@@ -47,6 +49,29 @@ export function setupStudioApi(env: StudioEnv): void {
       const pt = worldToScreen(state.view, path.labelPoint);
       const rect = document.querySelector('#canvas')?.getBoundingClientRect();
       return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+    },
+    getNodeHandleScreen: (id: string) => {
+      const state = env.getState();
+      const box = state.scene?.layout.nodes[id];
+      if (!box || !state.scene) return null;
+      const hp = handlePoint(state.scene.doc, box);
+      const pt = worldToScreen(state.view, hp);
+      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
+      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+    },
+    getGroupTitleScreen: (id: string) => {
+      const state = env.getState();
+      const gbox = state.scene?.layout.groups[id];
+      if (!gbox || !state.scene) return null;
+      const pt = worldToScreen(state.view, {
+        x: gbox.rect.x + 20,
+        y: gbox.rect.y + 14,
+      });
+      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
+      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+    },
+    dispatch: (event: any) => {
+      env.dispatch?.(event);
     },
     getSelection: () => env.getState().editor.selection,
     getResolvedTheme: () => {

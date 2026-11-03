@@ -162,3 +162,60 @@ body {
 #message:empty {
   display: none;
 }
+
+#props {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background-color: var(--card-background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-l1);
+  z-index: 10;
+  max-width: 240px;
+  font-size: var(--font-size-xs);
+}
+
+#props[hidden] {
+  display: none;
+}
+
+#props div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#props label {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+#props input,
+#props select,
+#props button {
+  background-color: var(--card-background-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  color: var(--text-main);
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+}
+
+#inline-edit {
+  position: absolute;
+  z-index: 20;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-sm);
+  padding: 4px 8px;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-control);
+  background-color: var(--card-background);
+  color: var(--text-main);
+  resize: none;
+  box-shadow: var(--shadow-l2);
+}

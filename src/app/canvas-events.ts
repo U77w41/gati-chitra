@@ -80,4 +80,14 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
 
   canvasEl.addEventListener('pointerup', onPointerUp);
   canvasEl.addEventListener('pointercancel', onPointerUp);
+
+  canvasEl.addEventListener('dblclick', (e) => {
+    const rect = canvasEl.getBoundingClientRect();
+    const screen = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const world = screenToWorld(getState().view, screen);
+    dispatch({
+      type: 'dblClick',
+      world,
+    });
+  });
 }
