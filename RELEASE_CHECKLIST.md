@@ -84,3 +84,14 @@ Tick every box before the release tag.
 - [ ] Copy PNG pastes into a document or slide app; Copy SVG pastes as text.
 - [ ] The panel split is remembered after a reload.
 
+## v0.5.0
+
+- [x] Automated, including `offline.spec.ts`.
+- [ ] In Chrome or Edge on the deployed site, the install option appears. The installed app opens in its own window, and opening a `.mmd` file with it loads the file.
+- [ ] Load the deployed site once, go offline and reload. Editing and saving PNG, SVG, GIF and video still work.
+- [ ] Deploy a change while a tab is open. "A new version is available" appears, and Reload brings in the new version.
+- [ ] Paste the site URL into a messaging app; the 1200x630 card shows.
+- [ ] `https://u77w41.github.io/gati-chitra/does-not-exist` shows the 404 page with a working link back.
+- [ ] Optional, by the owner: check the JSON-LD with Google's Rich Results Test, and submit `sitemap.xml` in Google Search Console.
+
+

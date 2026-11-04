@@ -770,7 +770,7 @@ git add -A && git commit -m "ci: three browsers, real base path, ship the tested
 - [ ] **Step 2: Run the humanizer** on `README.md` (Part 0, rule 6), then restore any command, number or path it changed.
 - [ ] **Step 3: Add the v0.2.0 section** from Part 7 to `RELEASE_CHECKLIST.md`. Tick the boxes you can check by running commands; list the rest for the owner (Part 0, rule 2).
 - [ ] **Step 4: Run** `npm ci && npm run lint && npm test && npm run build && npm run check:dist && BASE_PATH=/gati-chitra/ npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 5: Commit and tag**
 
 ```bash
 git add -A && git commit -m "chore: release v0.2.0" && git tag v0.2.0
@@ -1892,16 +1892,16 @@ git add -A && git commit -m "feat: social image, 404 page, sitemap and structure
 
 ### Task 56: Release v0.5.0
 
-- [ ] **Step 1: Update the README:**
+- [x] **Step 1: Update the README:**
   - installing the app
   - offline use
   - how updates arrive
   - opening `.mmd` files
   - a note in "Privacy" that the service worker caches only this site's own files
-- [ ] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
-- [ ] **Step 3: Add the v0.5.0 section** from Part 7 and tick what commands can check. The offline and update checks on the deployed site are the owner's (Part 0, rule 2). Set `package.json` to `0.5.0`.
-- [ ] **Step 4: Run** the full command list. Expected: PASS.
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
+- [x] **Step 3: Add the v0.5.0 section** from Part 7 and tick what commands can check. The offline and update checks on the deployed site are the owner's (Part 0, rule 2). Set `package.json` to `0.5.0`.
+- [x] **Step 4: Run** the full command list. Expected: PASS.
+- [x] **Step 5: Commit and tag**
 
 ```bash
 git add -A && git commit -m "chore: release v0.5.0" && git tag v0.5.0
@@ -2112,7 +2112,7 @@ git add -A && git commit -m "feat: properties sheet and shared exports on phones
 - [ ] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
 - [ ] **Step 3: Add the v0.6.0 section** from Part 7 and tick what commands can check. The real-device checks are the owner's (Part 0, rule 2). Set `package.json` to `0.6.0`.
 - [ ] **Step 4: Run** the full command list. Expected: PASS in all five Playwright projects.
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 5: Commit and tag**
 
 ```bash
 git add -A && git commit -m "chore: release v0.6.0" && git tag v0.6.0
@@ -2154,7 +2154,7 @@ Each release task appends its section to `RELEASE_CHECKLIST.md`. The implementer
 
 ### v0.5.0
 
-- [ ] Automated, including `offline.spec.ts`.
+- [x] Automated, including `offline.spec.ts`.
 - [ ] In Chrome or Edge on the deployed site, the install option appears. The installed app opens in its own window, and opening a `.mmd` file with it loads the file.
 - [ ] Load the deployed site once, go offline and reload. Editing and saving PNG, SVG, GIF and video still work.
 - [ ] Deploy a change while a tab is open. "A new version is available" appears, and Reload brings in the new version.

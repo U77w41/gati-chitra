@@ -25,6 +25,23 @@ npm run check:dist  # Verify build integrity, assets, and bundle budget
 npm run test:e2e     # Run end-to-end browser tests
 ```
 
+## Offline use and app installation
+
+Gati-chitra runs as a Progressive Web App (PWA):
+
+- **Installing**: In Chromium browsers and Safari, click the install icon in the address bar or select "Add to Home Screen" to install Gati-chitra as a standalone windowed app.
+- **Offline access**: Once loaded, the app works offline. You can edit flowcharts and export PNG, SVG, GIF, and video without an internet connection.
+- **Updates**: When a new release deploys, an alert banner informs you that a new version is available. Click Reload to activate the new version.
+- **File handling**: On supported operating systems, you can register Gati-chitra as the default handler for `.mmd` files or open them directly from your file manager.
+
+## What's new in v0.5.0
+
+- Progressive Web App: Install Gati-chitra as a standalone desktop or mobile application.
+- Offline use: The service worker caches the application so editing and all export formats work without an internet connection.
+- Update notice: An in-app notice appears when a new version deploys, with a Reload button to update.
+- File handling: Open `.mmd` files directly with the installed desktop app.
+- Discoverability: 1200x630 social preview image, custom 404 page that preserves share links, structured JSON-LD data, and a sitemap.
+
 ## What's new in v0.4.0
 
 - Code editor: CodeMirror 6 text editor with syntax highlighting, line numbers, and gutter lint markers on syntax errors.
@@ -182,7 +199,7 @@ Node coordinates repositioned by dragging are saved directly into the Mermaid so
 
 ## Privacy
 
-Gati-chitra processes all diagrams locally in your browser. It does not use server endpoints, cookies, analytics, or third-party tracking. Share links encode the full diagram text directly inside the URL hash fragment (`#v1=...`), which web browsers do not transmit to web servers.
+Gati-chitra processes all diagrams locally in your browser. It does not use server endpoints, cookies, analytics, or third-party tracking. The service worker caches only this site's own files for offline use and never stores your diagrams or tracks external requests. Share links encode the diagram text directly inside the URL hash fragment (`#v1=...`), which web browsers do not transmit to web servers.
 
 ## Branding
 
