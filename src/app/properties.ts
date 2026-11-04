@@ -34,6 +34,12 @@ export function setupProperties(env: PropertiesEnv): () => void {
   const propTextColor = panelEl.querySelector<HTMLInputElement>('#prop-text-color')!;
   const propClearColours = panelEl.querySelector<HTMLButtonElement>('#prop-clear-colours')!;
   const propDelete = panelEl.querySelector<HTMLButtonElement>('#prop-delete')!;
+  const propsClose = panelEl.querySelector<HTMLButtonElement>('#props-close');
+
+  propsClose?.addEventListener('click', () => {
+    panelEl.hidden = true;
+    document.querySelector<HTMLCanvasElement>('#canvas')?.focus();
+  });
 
   const propKind = panelEl.querySelector<HTMLSelectElement>('#prop-kind')!;
   const propReverse = panelEl.querySelector<HTMLButtonElement>('#prop-reverse')!;

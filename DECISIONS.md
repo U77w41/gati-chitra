@@ -29,3 +29,4 @@ Task 52: confirmed 149.37 KB initial JS gzip (level 9) under the 150 KB budget a
 Task 54: chose ignoreVary option in service worker cache matching because preview servers set Vary: Origin on dynamic ES module chunk imports, and set CFFIXED_USER_HOME in playwright.config.ts on macOS to prevent CoreFoundation TCC sandbox blocking Firefox profile creation.
 Task 55: chose not to create robots.txt because crawlers only read it at the domain root, which this project site does not control.
 Task 58: chose to keep #props hidden on narrow screens during selection until longPress because small screens require avoiding panel obstruction during taps and drags.
+Task 59: chose to focus propLabel on bottom sheet open and canvas on close because it provides immediate keyboard/screen-reader editing flow on phones.

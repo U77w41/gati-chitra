@@ -71,7 +71,7 @@
 #props { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 #anim-speed-value { display: inline-block; min-width: 4.5ch; font-variant-numeric: tabular-nums; }
 #anim-density-value { display: inline-block; min-width: 2ch; font-variant-numeric: tabular-nums; }
-#props[hidden] { display: none; }
+#props[hidden] { display: none !important; }
 #message { min-height: 1.5em; color: var(--text-body); font-size: var(--font-size-sm); }
 select,
 #props input[type="text"],
@@ -135,6 +135,7 @@ body.presenting #workspace { grid-template-columns: 1fr; }
 @media (min-width: 768px) {
   #view-tabs { display: none !important; }
   #btn-more { display: none !important; }
+  #props-close { display: none !important; }
 }
 
 @media (max-width: 767px) {
@@ -146,4 +147,19 @@ body.presenting #workspace { grid-template-columns: 1fr; }
   #workspace { grid-template-columns: 1fr !important; gap: 8px; min-height: auto; }
   #splitter { display: none !important; }
   #text-panel[hidden], #canvas-panel[hidden] { display: none !important; }
+  #props {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 50vh;
+    overflow-y: auto;
+    background: var(--card-background);
+    border-top: 1px solid var(--border);
+    box-shadow: var(--shadow-l2);
+    z-index: 100;
+    padding: 12px;
+    box-sizing: border-box;
+  }
 }

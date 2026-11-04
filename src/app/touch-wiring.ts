@@ -138,9 +138,11 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
           : null;
 
         if (hit?.kind === 'node' || hit?.kind === 'edge') {
-          dispatch({ type: 'select', selection: { kind: hit.kind, id: hit.id } });
           const propsEl = document.querySelector<HTMLElement>('#props');
           if (propsEl) propsEl.hidden = false;
+          dispatch({ type: 'select', selection: { kind: hit.kind, id: hit.id } });
+          const firstInput = propsEl?.querySelector<HTMLInputElement>('#prop-label');
+          firstInput?.focus();
           env.requestRedraw?.();
         }
         break;

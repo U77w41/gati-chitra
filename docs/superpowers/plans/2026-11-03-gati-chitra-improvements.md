@@ -2075,7 +2075,7 @@ export function shareFile(file: File, nav: Pick<Navigator, 'share'> | undefined)
 - **On narrow screens** where `canShareFile` is true, the four Save buttons pass their file to `shareFile` instead of downloading. `'cancelled'` shows nothing, and `'unsupported'` falls back to a download. Wide screens behave as before.
 - **Narrow screens:** `#props` is a bottom sheet: fixed to the bottom, full width, `max-height: 50vh`, scrolling, with `#props-close`. Opening it moves focus to its first field; closing it returns focus to the canvas.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('checks file sharing', () => {
@@ -2094,10 +2094,10 @@ it('maps share results', async () => {
 `mobile.spec.ts`:
 - A long press on A opens `#props`, whose box spans the viewport width and touches its bottom edge. `#props-close` closes it.
 - In `mobile-chrome`, an init script replaces `navigator.share` and `navigator.canShare` with recorders. Save as PNG then records one call with a file named `diagram.png`.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- --project=mobile-chrome`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- --project=mobile-chrome`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: properties sheet and shared exports on phones"

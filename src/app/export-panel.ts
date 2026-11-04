@@ -1,4 +1,4 @@
-import { MESSAGES } from '../core/constants';
+import { MESSAGES, UI } from '../core/constants';
 import type { ExportMode } from '../core/types';
 import { downloadBlob } from '../export/download';
 import { safeFilename } from '../export/filename';
@@ -6,6 +6,7 @@ import { canvasMeasure } from '../layout/measure';
 import { isEmptyBounds } from '../render/frame';
 import { resolveTheme, THEMES } from '../render/themes';
 import type { AppState } from './state';
+import { canShareFile, shareFile } from './share-file';
 
 export interface ExportPanelEnv {
   dialogEl: HTMLDialogElement;
@@ -36,6 +37,20 @@ export function setupExportPanel(env: ExportPanelEnv): void {
   const SAVE_BTNS = '#export-png, #export-svg, #export-gif, #export-video, #export-copy-png, #export-copy-svg';
   btnExport.disabled = false;
   let abortCtrl: AbortController | null = null;
+
+  async function saveOrShare(blob: Blob, filename: string): Promise<void> {
+    const isNarrow = typeof window !== 'undefined' && window.innerWidth < UI.narrowBreakpoint;
+    const file = new File([blob], filename, { type: blob.type });
+    if (isNarrow && typeof navigator !== 'undefined' && canShareFile(file, navigator)) {
+      const res = await shareFile(file, navigator);
+      if (res === 'shared' || res === 'cancelled') return;
+    }
+    downloadBlob(blob, filename);
+  }
+
+  const onProgress = (done: number, total: number) => {
+    if (exportProgress) { exportProgress.value = done; exportProgress.max = total; }
+  };
 
   function getTheme(state: AppState) {
     const scheme = document.documentElement.getAttribute('data-scheme') === 'dark' ? 'dark' : 'light';
@@ -100,7 +115,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       if (res.reduced) {
         exportMessage.textContent = MESSAGES.pngReduced(res.scaleUsed);
       }
-      downloadBlob(res.blob, filename);
+      await saveOrShare(res.blob, filename);
     } catch (err: unknown) {
       exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
     } finally {
@@ -145,7 +160,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       const { renderSvg } = await import('../render/svg');
       const svgText = renderSvg(state.scene, theme, { mode, transparent }, canvasMeasure());
       const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
-      downloadBlob(blob, filename);
+      await saveOrShare(blob, filename);
     } catch (err: unknown) {
       exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
     }
@@ -200,19 +215,14 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         theme,
         state.settings.anim,
         { mode, fps },
-        (done, total) => {
-          if (exportProgress) {
-            exportProgress.value = done;
-            exportProgress.max = total;
-          }
-        },
+        onProgress,
         abortCtrl.signal,
       );
 
       if (res.reduced) {
         exportMessage.textContent = MESSAGES.gifReduced;
       }
-      downloadBlob(res.blob, filename);
+      await saveOrShare(res.blob, filename);
     } catch (err: unknown) {
       if ((err instanceof Error && err.name === 'AbortError') || abortCtrl?.signal.aborted) {
         exportMessage.textContent = MESSAGES.exportCancelled;
@@ -253,12 +263,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         theme,
         state.settings.anim,
         { mode, loops },
-        (done, total) => {
-          if (exportProgress) {
-            exportProgress.value = done;
-            exportProgress.max = total;
-          }
-        },
+        onProgress,
         abortCtrl.signal,
       );
 
@@ -269,17 +274,12 @@ export function setupExportPanel(env: ExportPanelEnv): void {
           theme,
           state.settings.anim,
           { mode, fps: 20 },
-          (done, total) => {
-            if (exportProgress) {
-              exportProgress.value = done;
-              exportProgress.max = total;
-            }
-          },
+          onProgress,
           abortCtrl.signal,
         );
-        downloadBlob(gifRes.blob, safeFilename(name, 'gif'));
+        await saveOrShare(gifRes.blob, safeFilename(name, 'gif'));
       } else {
-        downloadBlob(res.blob, safeFilename(name, res.container));
+        await saveOrShare(res.blob, safeFilename(name, res.container));
       }
     } catch (err: unknown) {
       if ((err instanceof Error && err.name === 'AbortError') || abortCtrl?.signal.aborted) {

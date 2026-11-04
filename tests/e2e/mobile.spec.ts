@@ -150,7 +150,19 @@ test.describe('Mobile phone layout', () => {
       type: 'touchEnd',
       touchPoints: [],
     });
-    await expect(page.locator('#props')).toBeVisible();
+    const props = page.locator('#props');
+    await expect(props).toBeVisible();
+
+    const propsBox = (await props.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(Math.abs(propsBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(propsBox.width - viewport.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(propsBox.y + propsBox.height - viewport.height)).toBeLessThanOrEqual(2);
+
+    const propsClose = page.locator('#props-close');
+    await expect(propsClose).toBeVisible();
+    await propsClose.click();
+    await expect(props).toBeHidden();
   });
 
   test('a double tap on empty space adds a node', async ({ page }, testInfo) => {
@@ -194,5 +206,34 @@ test.describe('Mobile phone layout', () => {
     await expect.poll(async () => {
       return await page.evaluate(() => window.__studio!.getSelection()?.id);
     }).toBe('A');
+  });
+
+  test('export on phone shares via navigator.share when available', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.addInitScript(() => {
+      (window as any).__shareCalls = [];
+      (navigator as any).canShare = () => true;
+      (navigator as any).share = async (data: any) => {
+        (window as any).__shareCalls.push(data);
+      };
+    });
+    await page.goto('./?e2e=1');
+
+    await page.locator('#btn-export').click();
+    const dialog = page.locator('#export-panel');
+    await expect(dialog).toBeVisible();
+
+    await page.locator('#export-png').click();
+
+    await expect.poll(async () => {
+      return await page.evaluate(() => (window as any).__shareCalls?.length ?? 0);
+    }).toBe(1);
+
+    const sharedFile = await page.evaluate(() => {
+      const call = (window as any).__shareCalls[0];
+      const file = call?.files?.[0];
+      return file ? { name: file.name, type: file.type } : null;
+    });
+    expect(sharedFile?.name).toBe('diagram.png');
   });
 });
