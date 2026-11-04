@@ -34,6 +34,34 @@ Gati-chitra runs as a Progressive Web App (PWA):
 - **Updates**: When a new release deploys, an alert banner informs you that a new version is available. Click Reload to activate the new version.
 - **File handling**: On supported operating systems, you can register Gati-chitra as the default handler for `.mmd` files or open them directly from your file manager.
 
+## Phones and tablets
+
+Gati-chitra supports phones and touch screens:
+
+- **Diagram and Text tabs**: Windows narrower than 768 pixels show tabs above the canvas to switch between the diagram view and the Mermaid text editor.
+- **More menu**: Secondary toolbar buttons move into a `...` menu to fit smaller screens.
+- **Properties sheet**: Pressing and holding a node or edge opens its properties in a bottom sheet. Tap `✕` or press Escape to close the sheet and return to the canvas.
+- **Sharing exports**: When the browser supports file sharing, the Save buttons in the export dialog open the system share sheet to send diagrams directly to other apps.
+
+### Touch gestures
+
+| Gesture | Action |
+| --- | --- |
+| Drag empty canvas | Pan diagram |
+| Drag node | Move node |
+| Pinch | Zoom and pan |
+| Tap node or edge | Select |
+| Press and hold (600 ms) | Open properties sheet |
+| Double tap empty canvas | Add node |
+| Double tap node | Rename node |
+
+## What's new in v0.6.0
+
+- Phone layout: Diagram and Text tabs for screens under 768 pixels, with secondary actions grouped under a More menu.
+- Touch gestures: One-finger pan, node dragging, pinch-to-zoom, tap selection, double-tap node creation and renaming, and press-and-hold properties opening.
+- Bottom sheet: Properties panel opens as a bottom sheet on mobile devices.
+- System share sheet: Export dialog uses native file sharing when supported by the device.
+
 ## What's new in v0.5.0
 
 - Progressive Web App: Install Gati-chitra as a standalone desktop or mobile application.

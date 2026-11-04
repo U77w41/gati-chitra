@@ -94,4 +94,18 @@ Tick every box before the release tag.
 - [ ] `https://u77w41.github.io/gati-chitra/does-not-exist` shows the 404 page with a working link back.
 - [ ] Optional, by the owner: check the JSON-LD with Google's Rich Results Test, and submit `sitemap.xml` in Google Search Console.
 
+## v0.6.0
+
+- [x] Automated, in all five Playwright projects.
+- [ ] On a real Android phone (Chrome) and a real iPhone (Safari):
+  - [ ] tabs and the More menu
+  - [ ] move a node, pan, pinch zoom
+  - [ ] long press opens the sheet
+  - [ ] double tap adds a node
+  - [ ] rename with the on-screen keyboard
+  - [ ] Save as PNG opens the share sheet
+- [ ] Rotating the phone keeps the layout usable, with no sideways scrolling.
+- [ ] On desktop, quickly repeat the v0.4.0 keyboard and mouse checks; nothing has changed there.
+
+
 

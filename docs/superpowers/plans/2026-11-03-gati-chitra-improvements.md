@@ -511,7 +511,7 @@ git add -A && git commit -m "fix: duplicate subgraph ids and layout errors no lo
 **Interfaces:**
 - Produces: `formatLabel(label: string): string` now also quotes labels that start or end with `/` or `\`, start with `>`, or contain `@{`.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 ```ts
 it.each(['/api', '/api/', '\\x', 'a/b', '>x', 'x@{y}'])('rename to %s round-trips', (label) => {
@@ -526,15 +526,15 @@ it('changes the kind of an edge with an inline label in a node group', () => {
 });
 ```
 
-- [ ] **Step 2: Write the failing e2e tests**
+- [x] **Step 2: Write the failing e2e tests**
   - `edit.spec.ts`: "typed label survives a mouse move". Select node A, type `Renamed` into `#prop-label` without leaving it, move the mouse across the canvas; `#prop-label` still holds `Renamed`.
   - `edit.spec.ts`: "New is undoable". Type a line, click New within one second, press Ctrl+Z with focus on the page body; the typed text is back.
   - `edit.spec.ts`: "the same file opens twice". `setInputFiles` the same `.mmd` file twice, editing the text in between; the second open loads the file again.
   - `edit.spec.ts`: "inline editor sits on the node". Double-click node A; the centre of `#inline-edit`'s box is within 4 px of `getNodeScreenCenter('A')`.
   - `chrome.spec.ts`: "a failed template says so". Route `**/templates/checkout.mmd` to abort, click that template; `#message` shows `MESSAGES.templateFailed`.
   - `chrome.spec.ts`: "export footer fits a phone". At viewport 375x812, open Export; every `.dialog-footer button` box lies inside the viewport.
-- [ ] **Step 3: Run** `npm test && npm run test:e2e -- edit.spec.ts chrome.spec.ts`. Expected: the new tests FAIL.
-- [ ] **Step 4: Implement.**
+- [x] **Step 3: Run** `npm test && npm run test:e2e -- edit.spec.ts chrome.spec.ts`. Expected: the new tests FAIL.
+- [x] **Step 4: Implement.**
   - `updateProps` skips writing any input that is `document.activeElement`.
   - `formatLabel` quotes per the Interfaces block.
   - `splitStatement` writes pipe labels with `formatPipeLabel`.
@@ -543,8 +543,8 @@ it('changes the kind of an edge with an inline label in a node group', () => {
   - `gallery.ts` shows `MESSAGES.templateFailed`.
   - The inline editor position uses the canvas's bounding rect.
   - `.dialog-footer` gets `flex-wrap: wrap`.
-- [ ] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "fix: properties, rename quoting, New, reopening files and template errors"
@@ -560,7 +560,7 @@ git add -A && git commit -m "fix: properties, rename quoting, New, reopening fil
 **Interfaces:**
 - Produces: `KeyInfo.targetTag` semantics. `shortcutFor` returns `null` for `Enter` unless `targetTag` is `BODY`, `MAIN` or `CANVAS`. `contrastRatio(a: string, b: string): number` (WCAG formula, hex input) in `tests/support/contrast.ts`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it.each(['BUTTON', 'A', 'SUMMARY', 'SELECT'])('Enter on %s is left to the browser', (tag) => {
@@ -578,14 +578,14 @@ it.each(['BODY', 'MAIN', 'CANVAS'])('Enter on %s renames', (tag) => {
 - "diagnostics are buttons": break line 2; Tab to the first `#diagnostics button` and press Enter; the caret is on line 2.
 - "control borders meet 3:1": read `--border` (or the token `.btn` borders use) from the computed style on `:root` in light and dark; `contrastRatio(border, background) >= 3`.
 
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- a11y.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- a11y.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - **Labels:** `index.html` adds visible labels "Animation", "Speed" (with `<output id="anim-speed-value">`), "Density" (with `<output id="anim-density-value">`) and "Theme". It adds a visually hidden label "New node shape" for `#add-shape`, and `aria-label`s "Edit label" for `#inline-edit` and "Export progress" for `#export-progress`. Add a `.visually-hidden` utility class.
   - **Pause button:** its text switches between "Pause" and "Play"; remove `aria-pressed`.
   - **Diagnostics:** each item is a `<button type="button">` inside its `<li>`. `aria-live` moves from the list to a new `#diagnostics-summary` that reads, for example, "2 errors, 1 warning".
   - **Border tokens:** darken (light scheme) or lighten (dark scheme) them, keeping the hue, until they reach 3:1. Record the values in `DECISIONS.md`.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "fix: keyboard activation, control labels and contrast"
@@ -602,7 +602,7 @@ git add -A && git commit -m "fix: keyboard activation, control labels and contra
 - Produces: `showMessage(text: string, action?: { label: string; run: () => void }): void` in `src/app/message.ts`. It writes `#message` and, when an action is given, adds one button after the text; any later message replaces it. Every place that now sets `messageEl.textContent` calls it instead.
 - Produces: `decodeShare(hash: string): Promise<string | null>` (same signature; stops reading once the output passes `SHARE.maxDecodedBytes`, and rejects input longer than `SHARE.maxUrlChars`). `flushAutosave(): void` and `setupDocSync(env: { store: KeyValueStore | null; getText(): string; isDirty(): boolean; apply(text: string): void; ask(text: string): void }): () => void` in `src/app/storage.ts`.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 ```ts
 it('rejects a share link that inflates past the limit', async () => {
@@ -617,20 +617,20 @@ it('opening a share link is one undo step above the autosaved diagram', () => {
 });
 ```
 
-- [ ] **Step 2: Write the failing e2e tests** in `share.spec.ts`
+- [x] **Step 2: Write the failing e2e tests** in `share.spec.ts`
   - "share link keeps the autosave undoable": seed `localStorage[STORAGE.docKey]`, open a share link, see `MESSAGES.shareOpened`, press Ctrl+Z on the page body; the text equals the seed.
   - "a new hash loads": with the app open, set `location.hash` to another share hash; the text changes.
   - "typing right before a reload is kept": type, reload at once; the text is kept.
   - "a second tab follows": two pages in one context; type in page 2; page 1, which has no edits of its own, shows the new text within 1 s. When page 1 has edits, it shows `MESSAGES.changedInOtherTab` with a "Load it" button instead.
-- [ ] **Step 3: Run** `npm test && npm run test:e2e -- share.spec.ts`. Expected: FAIL.
-- [ ] **Step 4: Implement.**
+- [x] **Step 3: Run** `npm test && npm run test:e2e -- share.spec.ts`. Expected: FAIL.
+- [x] **Step 4: Implement.**
   - **`decodeShare`:** read the decompressed stream with a reader, counting bytes, and cancel past the limit.
   - **Start-up:** build the state from the autosaved text (or the sample), then commit the shared text with source `'share'`.
   - **`hashchange`:** a listener runs the same path.
   - **Autosave:** `pagehide`, and `visibilitychange` to hidden, call `flushAutosave`.
   - **Other tabs:** `setupDocSync` listens for `storage` events on `STORAGE.docKey`. "Dirty" means this tab committed text since it last loaded or synced.
-- [ ] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 6: Commit**
+- [x] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "fix: share links and autosave never lose a diagram"
@@ -644,11 +644,11 @@ git add -A && git commit -m "fix: share links and autosave never lose a diagram"
 **Interfaces:**
 - Produces: `check-dist.mjs` constants `INITIAL_JS_BUDGET_KB = 150` and `LAZY_CHUNK_BUDGET_KB = 80`. It prints `Largest lazy chunk: <name> <n> KB (gzip)`.
 
-- [ ] **Step 1: Add the failing check.** In `check-dist.mjs`, after the initial-JS check, gzip every `.js` file in `dist/assets` that is not an initial script. Fail with `Lazy chunk <name> is over the 80 KB budget` if one is over. Lower the initial budget to 150.
-- [ ] **Step 2: Run** `npm run build && npm run check:dist`. Expected: FAIL on the mediabunny chunk (about 182 KB gzip).
-- [ ] **Step 3: Implement.** In `exportVideo` and `probeEncoder`, replace `const m = await import('mediabunny')` with a destructured import of exactly the names the file uses, so Rollup can tree-shake the rest.
-- [ ] **Step 4: Run** `npm run build && npm run check:dist && npm run test:e2e -- export-video.spec.ts`. Expected: PASS. The chunk should be about 59 KB gzip; record the real number in `DECISIONS.md`.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Add the failing check.** In `check-dist.mjs`, after the initial-JS check, gzip every `.js` file in `dist/assets` that is not an initial script. Fail with `Lazy chunk <name> is over the 80 KB budget` if one is over. Lower the initial budget to 150.
+- [x] **Step 2: Run** `npm run build && npm run check:dist`. Expected: FAIL on the mediabunny chunk (about 182 KB gzip).
+- [x] **Step 3: Implement.** In `exportVideo` and `probeEncoder`, replace `const m = await import('mediabunny')` with a destructured import of exactly the names the file uses, so Rollup can tree-shake the rest.
+- [x] **Step 4: Run** `npm run build && npm run check:dist && npm run test:e2e -- export-video.spec.ts`. Expected: PASS. The chunk should be about 59 KB gzip; record the real number in `DECISIONS.md`.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "perf: smaller video chunk and stricter bundle budgets"
@@ -677,7 +677,7 @@ git add -A && git commit -m "perf: smaller video chunk and stricter bundle budge
   - The render loop exports `requestRedraw(): void`.
   - `layoutDoc` keeps a one-entry cache keyed by `structureKey(doc: ParsedDoc, measure: MeasureText): string`, built from direction, node ids, labels and shapes, edge ends, labels, kinds and lengths, and groups. Pins, styles and classes are left out. `dagreRunCount(): number` is exported for tests.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('caches prepared data per scene', () => { const s = sceneOf('flowchart TD\nA --> B'); expect(prepare(s)).toBe(prepare(s)); });
@@ -697,10 +697,10 @@ it('moving a pin does not re-run dagre', () => {
 ```
 
 `perf.spec.ts`: lower the per-frame budget from 50 ms to 33 ms (p95) on the 300-node corpus diagram, and add "idle canvas does not repaint": pause, wait 500 ms, and count `drawScene` calls through a `__studio.getDrawCount()` hook; the count does not change.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- perf.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. Theme changes, view changes, selection changes, scene changes and present-mode steps call `requestRedraw()`.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- perf.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. Theme changes, view changes, selection changes, scene changes and present-mode steps call `requestRedraw()`.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "perf: redraw only when needed and reuse layout during drags"
@@ -719,7 +719,7 @@ git add -A && git commit -m "perf: redraw only when needed and reuse layout duri
   - Projects `chromium`, `firefox` and `webkit`.
   - Video tests run only where `probeEncoder` reports support; elsewhere they assert the GIF fallback message.
 
-- [ ] **Step 1: Write the failing test** in `src/repo.test.ts`
+- [x] **Step 1: Write the failing test** in `src/repo.test.ts`
 
 ```ts
 it('CI tests three browsers on the real base path and ships what it tested', () => {
@@ -736,8 +736,8 @@ it('CI tests three browsers on the real base path and ships what it tested', () 
 });
 ```
 
-- [ ] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement.**
+- [x] **Step 2: Run** `npm test -- src/repo.test.ts`. Expected: FAIL.
+- [x] **Step 3: Implement.**
   - **`test` job:**
     - Computes `BASE_PATH` and the `VITE_*` URLs, using the same shell block the deploy job has now.
     - Runs `npm ci`, `npx playwright install --with-deps`, `npm run lint`, `npm test`, `npm run build`, `npm run check:dist` and `npm run test:e2e`.
@@ -748,8 +748,8 @@ it('CI tests three browsers on the real base path and ships what it tested', () 
   - **Dependabot:** weekly updates for `npm` and `github-actions`, with minor and patch updates grouped.
   - **Action versions:** check the current major of every Action (Part 0, rule 7) and record them.
   - **e2e paths:** change `page.goto('/...')` to `page.goto('./...')` in every spec.
-- [ ] **Step 4: Run** `npm test && BASE_PATH=/gati-chitra/ npm run test:e2e`. Expected: PASS in all three browsers. Do not push; the owner sees the first real workflow run when they push. If `npx actionlint .github/workflows/deploy.yml` runs, fix what it reports; if it cannot run (no network), say so in `DECISIONS.md`.
-- [ ] **Step 5: Commit**
+- [x] **Step 4: Run** `npm test && BASE_PATH=/gati-chitra/ npm run test:e2e`. Expected: PASS in all three browsers. Do not push; the owner sees the first real workflow run when they push. If `npx actionlint .github/workflows/deploy.yml` runs, fix what it reports; if it cannot run (no network), say so in `DECISIONS.md`.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "ci: three browsers, real base path, ship the tested build"
@@ -760,16 +760,16 @@ git add -A && git commit -m "ci: three browsers, real base path, ship the tested
 **Files:**
 - Modify: `README.md`, `RELEASE_CHECKLIST.md`, `package.json` (version `0.2.0`), `DECISIONS.md`
 
-- [ ] **Step 1: Fix the README facts against the code.**
+- [x] **Step 1: Fix the README facts against the code.**
   - The pause shortcut is `k`, not Space: `shortcutFor` maps `k`; Space is held to pan.
   - The zoom range is 0.1x to 4x (`VIEW`).
   - The PNG limit is 40,000,000 pixels (`EXPORT.pngMaxPixels`); GIF and video are 2,073,600 pixels per frame.
   - Add `npm run lint` to the commands.
   - Add the v0.2 fixes in one short "What's new" list.
   - Update "Known limitations" with the syntax M2 will add.
-- [ ] **Step 2: Run the humanizer** on `README.md` (Part 0, rule 6), then restore any command, number or path it changed.
-- [ ] **Step 3: Add the v0.2.0 section** from Part 7 to `RELEASE_CHECKLIST.md`. Tick the boxes you can check by running commands; list the rest for the owner (Part 0, rule 2).
-- [ ] **Step 4: Run** `npm ci && npm run lint && npm test && npm run build && npm run check:dist && BASE_PATH=/gati-chitra/ npm run test:e2e`. Expected: PASS.
+- [x] **Step 2: Run the humanizer** on `README.md` (Part 0, rule 6), then restore any command, number or path it changed.
+- [x] **Step 3: Add the v0.2.0 section** from Part 7 to `RELEASE_CHECKLIST.md`. Tick the boxes you can check by running commands; list the rest for the owner (Part 0, rule 2).
+- [x] **Step 4: Run** `npm ci && npm run lint && npm test && npm run build && npm run check:dist && BASE_PATH=/gati-chitra/ npm run test:e2e`. Expected: PASS.
 - [x] **Step 5: Commit and tag**
 
 ```bash
@@ -1884,7 +1884,7 @@ git add -A && git commit -m "feat: offline use and update notice"
 - [x] **Step 2: Run** `npm run build && npm run check:dist`. Expected: FAIL.
 - [x] **Step 3: Implement** per the Interfaces block. Run `npm run build && npm run og`, look at `public/og-image.png`, and commit it.
 - [x] **Step 4: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ VITE_SITE_URL=https://u77w41.github.io/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: social image, 404 page, sitemap and structured data"
@@ -2105,13 +2105,13 @@ git add -A && git commit -m "feat: properties sheet and shared exports on phones
 
 ### Task 60: Release v0.6.0
 
-- [ ] **Step 1: Update the README.**
+- [x] **Step 1: Update the README.**
   - Add a "Phones and tablets" section: tabs, More, the gestures table and sharing exports.
   - Remove touch editing from "Known limitations".
   - In the v0.1 plan's "Not in scope" line, nothing changes (that plan is history); record in `DECISIONS.md` that touch editing is now in scope.
-- [ ] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
-- [ ] **Step 3: Add the v0.6.0 section** from Part 7 and tick what commands can check. The real-device checks are the owner's (Part 0, rule 2). Set `package.json` to `0.6.0`.
-- [ ] **Step 4: Run** the full command list. Expected: PASS in all five Playwright projects.
+- [x] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
+- [x] **Step 3: Add the v0.6.0 section** from Part 7 and tick what commands can check. The real-device checks are the owner's (Part 0, rule 2). Set `package.json` to `0.6.0`.
+- [x] **Step 4: Run** the full command list. Expected: PASS in all five Playwright projects.
 - [x] **Step 5: Commit and tag**
 
 ```bash
