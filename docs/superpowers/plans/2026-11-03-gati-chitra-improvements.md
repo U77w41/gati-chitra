@@ -2124,8 +2124,8 @@ Each release task appends its section to `RELEASE_CHECKLIST.md`. The implementer
 
 ### v0.2.0
 
-- [ ] Automated, in Chromium, Firefox and WebKit.
-- [ ] `check:dist` reports initial JS of 150 KB gzip or less, and a largest lazy chunk of 80 KB gzip or less. Both numbers are in `DECISIONS.md`.
+- [x] Automated, in Chromium, Firefox and WebKit.
+- [x] `check:dist` reports initial JS of 150 KB gzip or less, and a largest lazy chunk of 80 KB gzip or less. Both numbers are in `DECISIONS.md`.
 - [ ] By hand: `subgraph X` nested inside `subgraph X` shows a warning, and editing continues.
 - [ ] By hand: Tab to every toolbar button and footer link and press Enter; each one acts.
 - [ ] By hand: open a share link over an existing diagram, then press Ctrl+Z; your diagram is back.
@@ -2135,7 +2135,7 @@ Each release task appends its section to `RELEASE_CHECKLIST.md`. The implementer
 
 ### v0.3.0
 
-- [ ] Automated.
+- [x] Automated.
 - [ ] Paste five flowcharts you use from GitHub READMEs or docs. Each draws with no warning, or the warning is about something under "Not supported".
 - [ ] All 10 new shapes and 5 new arrow kinds look right in all four themes, on canvas, in PNG and in SVG.
 - [ ] Bold and italic labels show on canvas and in PNG, SVG and GIF.
@@ -2145,7 +2145,7 @@ Each release task appends its section to `RELEASE_CHECKLIST.md`. The implementer
 
 ### v0.4.0
 
-- [ ] Automated, including `axe.spec.ts`.
+- [x] Automated, including `axe.spec.ts`.
 - [ ] Keyboard only: build a three-node diagram with two arrows, rename one node, nudge one, and save a PNG, without touching the mouse.
 - [ ] VoiceOver (macOS) or NVDA (Windows): toolbar groups, the editor, the canvas selection announcements and the diagnostics are all read.
 - [ ] Type, drag, rename, then press Ctrl+Z three times, alternating between the editor and the page; each step restores the exact earlier text.
@@ -2164,7 +2164,7 @@ Each release task appends its section to `RELEASE_CHECKLIST.md`. The implementer
 
 ### v0.6.0
 
-- [ ] Automated, in all five Playwright projects.
+- [x] Automated, in all five Playwright projects.
 - [ ] On a real Android phone (Chrome) and a real iPhone (Safari):
   - [ ] tabs and the More menu
   - [ ] move a node, pan, pinch zoom

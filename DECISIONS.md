@@ -31,3 +31,5 @@ Task 55: chose not to create robots.txt because crawlers only read it at the dom
 Task 58: chose to keep #props hidden on narrow screens during selection until longPress because small screens require avoiding panel obstruction during taps and drags.
 Task 59: chose to focus propLabel on bottom sheet open and canvas on close because it provides immediate keyboard/screen-reader editing flow on phones.
 Task 60: touch editing and phone layout are now in scope for v0.6.0 (superseding v0.1 non-goals).
+Verification 2026-11-04: check:dist reports 149.81 KB initial JS gzip and 57.27 KB largest lazy chunk gzip against the 150 KB and 80 KB budgets.
+Verification 2026-11-04: the superpowers skills are not available in this agent tool (only find-skills and humanizer load), so I followed Part 0 of the improvements plan, which holds the same rules.

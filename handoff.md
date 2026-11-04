@@ -16,16 +16,18 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ## 2. Current State (v0.6.0)
 
-- **Branch**: `improvements`
-- **Release tag**: `v0.6.0` (commit `5cb55d7`)
-- **Completed plans**:
-  - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23).
-  - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60).
-- **Test suite**:
-  - Unit tests: 389 passing across 57 files (`npm test`).
-  - Linter: 0 warnings, 0 errors across 154 files (`npm run lint`).
-  - Bundle budgets: Initial JS 149.81 KB gzip (limit 150 KB); Largest lazy chunk 57.27 KB gzip (limit 80 KB).
-  - End-to-end tests: 310 passing across all 5 Playwright projects: `chromium`, `firefox`, `webkit`, `mobile-chrome`, `mobile-safari` (`npm run test:e2e`).
+- **Last verified**: 2026-11-04.
+- **Branch**: `main` (HEAD). The `improvements` branch points at the same commit, and `origin/main` matches it.
+- **Release commit**: `5cb55d7` (`chore: release v0.6.0`). The `v0.6.0` tag currently points at `821d484` (the commit that added this handoff), not at the release commit. Fixing the tag needs the owner's decision, because the tag may already exist on the remote.
+- **Plans**:
+  - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
+  - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked, with no task steps left open. The automated boxes in Part 7 are now ticked too. The remaining open boxes are by-hand, real-device, deployed-site and owner items.
+- **Checks run on 2026-11-04**:
+  - `npm test`: 389 tests passing across 57 files.
+  - `npm run lint`: 0 warnings, 0 errors across 154 files.
+  - `npm run build` with `BASE_PATH=/gati-chitra/`: passes, including both TypeScript configs.
+  - `npm run check:dist` on that build: initial JS 149.81 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
+  - `npm run test:e2e`: 310 passed, 15 skipped across `chromium` (103), `firefox` (103), `webkit` (103), `mobile-chrome` (8) and `mobile-safari` (8). The skipped tests are conditional mobile cases, not failures.
 
 ---
 
@@ -51,6 +53,7 @@ Every agent working on this repository must follow these rules without exception
 6. **Agent instructions & Skills**:
    - `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` define shared guidelines across coding tools.
    - Use the `superpowers` skills (`test-driven-development`, `systematic-debugging`, `executing-plans`, `verification-before-completion`).
+   - The Freebuff agent tool used on 2026-11-04 could load only `find-skills` and `humanizer`. It followed Part 0 of the improvements plan instead, as `AGENTS.md` allows when a skill cannot be installed.
    - Humanize all public prose (`README.md`, documentation pages) using plain, direct phrasing without promotional filler.
 
 ---
@@ -81,31 +84,33 @@ npm test
 # 2. Run linter (oxlint)
 npm run lint
 
-# 3. Compile TypeScript and build production bundle
-npm run build
+# 3. Compile TypeScript and build the production bundle with the site base path
+BASE_PATH=/gati-chitra/ VITE_SITE_URL=https://u77w41.github.io/gati-chitra/ npm run build
 
-# 4. Verify distribution assets, gzip budgets, and base path
+# 4. Verify distribution assets, gzip budgets, and base path on that build
 BASE_PATH=/gati-chitra/ VITE_SITE_URL=https://u77w41.github.io/gati-chitra/ npm run check:dist
 
 # 5. Run end-to-end browser tests (Playwright)
 npm run test:e2e
 
-# 6. Run targeted E2E spec (optional during dev)
+# 6. Run a targeted E2E spec (optional during dev)
 npm run test:e2e -- tests/e2e/mobile.spec.ts
 ```
+
+`check:dist` compares asset URLs in `dist/index.html` against `BASE_PATH`. Build with the same `BASE_PATH` first, or the check fails on `/theme-init.js`.
 
 ---
 
 ## 6. Pending Actions for Next Session / Repository Owner
 
-1. **Manual hardware testing**:
-   Automated checks for `v0.6.0` pass in all 5 Playwright projects. The manual checks in `RELEASE_CHECKLIST.md` under `## v0.6.0` remain for physical Android and iPhone testing (gesture feel, on-screen keyboard, share sheet).
-2. **Branch integration**:
-   The `improvements` branch is fully tested and tagged at `v0.6.0`. When ready, merge `improvements` into `main` and push tags:
-   ```bash
-   git checkout main
-   git merge improvements --ff-only
-   git push origin main --tags
-   ```
+1. **Manual hardware and by-hand checks**:
+   All automated checks pass. The open boxes in Part 7 of the improvements plan and in `RELEASE_CHECKLIST.md` remain:
+   - Physical Android and iPhone testing (gesture feel, on-screen keyboard, share sheet, rotation).
+   - Desktop repeat of the v0.4.0 keyboard and mouse checks.
+   - Deployed-site checks: install prompt, offline reload, update notice, social card, 404 page.
+   - Pasting five real-world flowcharts, and checking shapes and labels in every theme and export.
+   - Optional: JSON-LD Rich Results Test and Search Console sitemap submission.
+2. **Tag correction**:
+   The `v0.6.0` tag points at `821d484` instead of the release commit `5cb55d7`. Decide whether to move it. Moving a pushed tag rewrites history for anyone who has fetched it, so the owner should decide.
 3. **Subsequent work**:
    If starting a new feature set or milestone, follow the superpower workflow: brainstorm scope, write an implementation plan under `docs/superpowers/plans/`, verify with TDD, and keep files under the 300-line budget.
