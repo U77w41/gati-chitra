@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { LIMITS, LAYOUT, ANIM, EXPORT, SHARE, MESSAGES, SCHEME, BRAND } from './constants';
+import { LIMITS, LAYOUT, ANIM, EXPORT, SHARE, MESSAGES, SCHEME, BRAND, TOUCH } from './constants';
 
 it('pins the limits', () => {
   expect(LIMITS.maxNodes).toBe(300);
@@ -35,4 +35,9 @@ it('builds messages', () => {
   expect(BRAND.name).toBe('Gati-chitra');
   expect(BRAND.tools.map(t => t.id)).toEqual(['diff', 'anurup']);
   expect(SHARE.prefix).toBe('v1=');
+  expect(TOUCH.hitTolerance).toBe(14);
+  expect(TOUCH.handleRadius).toBe(12);
+  expect(TOUCH.longPressMs).toBe(500);
+  expect(TOUCH.slop).toBe(8);
+  expect(TOUCH.doubleTapMs).toBe(300);
 });

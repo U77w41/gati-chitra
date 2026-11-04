@@ -128,6 +128,14 @@ export const UI = {
 
 export const KEYBOARD = { nudge: 10 } as const;
 
+export const TOUCH = {
+  hitTolerance: 14,
+  handleRadius: 12,
+  longPressMs: 500,
+  slop: 8,
+  doubleTapMs: 300,
+} as const;
+
 export const MESSAGES = {
   notFlowchart: "Only flowchart diagrams are supported. Start with 'flowchart TD' or 'graph LR'.",
   tooManyNodes: 'Too many nodes (limit 300).',

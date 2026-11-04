@@ -52,4 +52,147 @@ test.describe('Mobile phone layout', () => {
       .analyze();
     expect(results.violations).toEqual([]);
   });
+
+  test('spreading two fingers raises __studio.getView().zoom', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.goto('./?e2e=1');
+    const client = await page.context().newCDPSession(page);
+
+    const initialZoom = await page.evaluate(() => window.__studio!.getView().zoom);
+    const canvasBox = (await page.locator('#canvas').boundingBox())!;
+    const cx = canvasBox.x + canvasBox.width / 2;
+    const cy = canvasBox.y + canvasBox.height / 2;
+
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: cx - 20, y: cy, id: 1 },
+        { x: cx + 20, y: cy, id: 2 },
+      ],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: cx - 50, y: cy, id: 1 },
+        { x: cx + 50, y: cy, id: 2 },
+      ],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    const newZoom = await page.evaluate(() => window.__studio!.getView().zoom);
+    expect(newZoom).toBeGreaterThan(initialZoom);
+  });
+
+  test('one finger dragging node A adds a studio:pos A line', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.goto('./?e2e=1');
+    const client = await page.context().newCDPSession(page);
+
+    const aCenter = (await page.evaluate(() => window.__studio!.getNodeScreenCenter('A')))!;
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: Math.round(aCenter.x), y: Math.round(aCenter.y), id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: Math.round(aCenter.x) + 30, y: Math.round(aCenter.y) + 30, id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    const textAfterDrag = await page.evaluate(() => window.__studio!.getText());
+    expect(textAfterDrag).toMatch(/studio:pos A/);
+  });
+
+  test('one finger dragging empty space changes panX and leaves the text unchanged', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.goto('./?e2e=1');
+    const client = await page.context().newCDPSession(page);
+
+    const canvasBox = (await page.locator('#canvas').boundingBox())!;
+    const textBeforePan = await page.evaluate(() => window.__studio!.getText());
+    const initialPanX = await page.evaluate(() => window.__studio!.getView().panX);
+    const emptyX = canvasBox.x + 10;
+    const emptyY = canvasBox.y + 10;
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: emptyX, y: emptyY, id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: emptyX + 40, y: emptyY, id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    const textAfterPan = await page.evaluate(() => window.__studio!.getText());
+    const newPanX = await page.evaluate(() => window.__studio!.getView().panX);
+    expect(textAfterPan).toBe(textBeforePan);
+    expect(newPanX).not.toBe(initialPanX);
+  });
+
+  test('a 600 ms press on A shows #props', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.goto('./?e2e=1');
+    const client = await page.context().newCDPSession(page);
+
+    const aCenter = (await page.evaluate(() => window.__studio!.getNodeScreenCenter('A')))!;
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: Math.round(aCenter.x), y: Math.round(aCenter.y), id: 1 }],
+    });
+    await page.waitForTimeout(650);
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await expect(page.locator('#props')).toBeVisible();
+  });
+
+  test('a double tap on empty space adds a node', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-chrome');
+    await page.goto('./?e2e=1');
+    const client = await page.context().newCDPSession(page);
+
+    const canvasBox = (await page.locator('#canvas').boundingBox())!;
+    const nodesBefore = await page.evaluate(() => window.__studio!.getSummary().nodes.length);
+    const dblX = canvasBox.x + 20;
+    const dblY = canvasBox.y + 40;
+    // tap 1
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: dblX, y: dblY, id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await page.waitForTimeout(50);
+    // tap 2
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: dblX, y: dblY, id: 1 }],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await expect.poll(async () => {
+      return await page.evaluate(() => window.__studio!.getSummary().nodes.length);
+    }).toBe(nodesBefore + 1);
+  });
+
+  test('mobile-safari touchscreen tap on node selects it', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-safari');
+    await page.goto('./?e2e=1');
+    const aCenter = (await page.evaluate(() => window.__studio!.getNodeScreenCenter('A')))!;
+    await page.touchscreen.tap(aCenter.x, aCenter.y);
+    await expect.poll(async () => {
+      return await page.evaluate(() => window.__studio!.getSelection()?.id);
+    }).toBe('A');
+  });
 });

@@ -5,6 +5,7 @@ import type { AppState } from './state';
 import type { TextOp } from '../core/types';
 import { KEYBOARD } from '../core/constants';
 import { edgeCycle, nextNodeInDirection, type Dir } from '../editor/keyboard-nav';
+import type { TouchWiring } from './touch-wiring';
 
 export interface CanvasEventsEnv {
   canvasEl: HTMLCanvasElement;
@@ -44,7 +45,24 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
     { passive: false },
   );
 
+  let touchWiring: TouchWiring | null = null;
+  const touchPromise = import('./touch-wiring').then(({ createTouchWiring }) => {
+    touchWiring = createTouchWiring(env);
+    return touchWiring;
+  });
+
   canvasEl.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch') {
+      try {
+        canvasEl.setPointerCapture(e.pointerId);
+      } catch {}
+      if (touchWiring) touchWiring.onPointerDown(e);
+      else {
+        const sample = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+        touchPromise.then((w) => w.onPointerDown(sample as PointerEvent));
+      }
+      return;
+    }
     try {
       canvasEl.setPointerCapture(e.pointerId);
     } catch {}
@@ -73,6 +91,14 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
   });
 
   canvasEl.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'touch') {
+      if (touchWiring) touchWiring.onPointerMove(e);
+      else {
+        const sample = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+        touchPromise.then((w) => w.onPointerMove(sample as PointerEvent));
+      }
+      return;
+    }
     const rect = canvasEl.getBoundingClientRect();
     const screen = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     const world = screenToWorld(getState().view, screen);
@@ -84,6 +110,17 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
   });
 
   const onPointerUp = (e: PointerEvent) => {
+    if (e.pointerType === 'touch') {
+      try {
+        canvasEl.releasePointerCapture(e.pointerId);
+      } catch {}
+      if (touchWiring) touchWiring.onPointerUp(e);
+      else {
+        const sample = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+        touchPromise.then((w) => w.onPointerUp(sample as PointerEvent));
+      }
+      return;
+    }
     try {
       canvasEl.releasePointerCapture(e.pointerId);
     } catch {}
@@ -98,7 +135,20 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
   };
 
   canvasEl.addEventListener('pointerup', onPointerUp);
-  canvasEl.addEventListener('pointercancel', onPointerUp);
+  canvasEl.addEventListener('pointercancel', (e) => {
+    if (e.pointerType === 'touch') {
+      try {
+        canvasEl.releasePointerCapture(e.pointerId);
+      } catch {}
+      if (touchWiring) touchWiring.onPointerCancel(e);
+      else {
+        const sample = { clientX: e.clientX, clientY: e.clientY, pointerId: e.pointerId };
+        touchPromise.then((w) => w.onPointerCancel(sample as PointerEvent));
+      }
+      return;
+    }
+    onPointerUp(e);
+  });
 
   canvasEl.addEventListener('dblclick', (e) => {
     if (env.isPresenting?.()) return;

@@ -7,6 +7,18 @@ import { renderSvg } from '../../src/render/svg';
 import { THEMES } from '../../src/render/themes';
 import { drawScene } from '../../src/render/draw';
 import { createRecordingContext } from './recording-context';
+import { pointOnPath, tangentAt } from '../../src/layout/geometry';
+
+export function offsetFromEdgeMid(scene: Scene, edgeId: string, d: number): Point {
+  const path = scene.layout.edges[edgeId];
+  if (!path) throw new Error(`Edge ${edgeId} not found in scene layout`);
+  const mid = pointOnPath(path, 0.5);
+  const tan = tangentAt(path, 0.5);
+  return {
+    x: mid.x - tan.y * d,
+    y: mid.y + tan.x * d,
+  };
+}
 
 export function sceneOf(textOrDoc: string | ParsedDoc): Scene {
   const doc = typeof textOrDoc === 'string' ? parseMermaid(textOrDoc) : textOrDoc;

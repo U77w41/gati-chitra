@@ -1994,7 +1994,7 @@ export function gestureStep(s: GestureState, input: GestureInput): { state: Gest
   - `doubleTap`: add a node on empty space; rename on a node.
 - Touch hit-tests use `TOUCH.hitTolerance` and the handle radius `TOUCH.handleRadius`. A `setInterval` of 100 ms sends `tick`s while a pointer is down.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 ```ts
 const down = (id: number, x: number, y: number, t: number) => ({ kind: 'down', id, x, y, t }) as const;
@@ -2038,7 +2038,7 @@ it('touch hit-testing is more forgiving', () => {
 ```
 
 (Read `Hit` in `geometry.ts` for the exact shape of an edge hit and match it.)
-- [ ] **Step 2: Write the failing e2e tests** in `mobile.spec.ts`.
+- [x] **Step 2: Write the failing e2e tests** in `mobile.spec.ts`.
 
   In `mobile-chrome`, send multi-touch with CDP `Input.dispatchTouchEvent`:
   - spreading two fingers raises `__studio.getView().zoom`
@@ -2048,10 +2048,10 @@ it('touch hit-testing is more forgiving', () => {
   - a double tap on empty space adds a node
 
   In `mobile-safari`, use `page.touchscreen.tap` on A: A is selected.
-- [ ] **Step 3: Run** `npm test && npm run test:e2e -- --project=mobile-chrome --project=mobile-safari`. Expected: FAIL.
-- [ ] **Step 4: Implement** per the Interfaces block.
-- [ ] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects; the desktop drag and edit specs are unchanged.
-- [ ] **Step 6: Commit**
+- [x] **Step 3: Run** `npm test && npm run test:e2e -- --project=mobile-chrome --project=mobile-safari`. Expected: FAIL.
+- [x] **Step 4: Implement** per the Interfaces block.
+- [x] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects; the desktop drag and edit specs are unchanged.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat: touch gestures for move, pan, pinch and long press"

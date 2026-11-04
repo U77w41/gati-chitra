@@ -1,4 +1,4 @@
-import { LAYOUT } from '../core/constants';
+import { LAYOUT, TOUCH } from '../core/constants';
 import type {
   EdgePath,
   GroupBox,
@@ -191,20 +191,23 @@ export function routeEdges(
 }
 
 function pointToSegmentDistance(p: Point, a: Point, b: Point): number {
-  const abx = b.x - a.x;
-  const aby = b.y - a.y;
+  const abx = b.x - a.x, aby = b.y - a.y;
   const lenSq = abx * abx + aby * aby;
-  if (lenSq === 0) {
-    return Math.hypot(p.x - a.x, p.y - a.y);
-  }
+  if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
   const t = Math.max(0, Math.min(1, ((p.x - a.x) * abx + (p.y - a.y) * aby) / lenSq));
   return Math.hypot(p.x - (a.x + t * abx), p.y - (a.y + t * aby));
 }
 
-export function hitTest(scene: Scene, p: Point, handleNodeId: string | null): Hit | null {
+export function hitTest(
+  scene: Scene,
+  p: Point,
+  handleNodeId: string | null,
+  tolerance: number = LAYOUT.hitTolerance,
+): Hit | null {
   if (handleNodeId && scene.layout.nodes[handleNodeId]) {
     const hp = handlePoint(scene.doc, scene.layout.nodes[handleNodeId]);
-    if (Math.hypot(p.x - hp.x, p.y - hp.y) <= LAYOUT.handleRadius + 8) {
+    const hr = tolerance > LAYOUT.hitTolerance ? TOUCH.handleRadius : LAYOUT.handleRadius;
+    if (Math.hypot(p.x - hp.x, p.y - hp.y) <= hr + 8) {
       return { kind: 'handle', id: handleNodeId };
     }
   }
@@ -239,11 +242,8 @@ export function hitTest(scene: Scene, p: Point, handleNodeId: string | null): Hi
           return { kind: 'node', id: node.id };
         }
       } else {
-        const left = box.center.x - box.width / 2;
-        const right = box.center.x + box.width / 2;
-        const top = box.center.y - box.height / 2;
-        const bottom = box.center.y + box.height / 2;
-        if (p.x >= left && p.x <= right && p.y >= top && p.y <= bottom) {
+        const halfW = box.width / 2, halfH = box.height / 2;
+        if (Math.abs(p.x - box.center.x) <= halfW && Math.abs(p.y - box.center.y) <= halfH) {
           return { kind: 'node', id: node.id };
         }
       }
@@ -267,7 +267,7 @@ export function hitTest(scene: Scene, p: Point, handleNodeId: string | null): Hi
       prev = curr;
     }
 
-    if (edgeMinDist <= LAYOUT.hitTolerance && edgeMinDist < nearestDistance) {
+    if (edgeMinDist <= tolerance && edgeMinDist < nearestDistance) {
       nearestDistance = edgeMinDist;
       nearestEdgeId = edge.id;
     }

@@ -1,6 +1,7 @@
 import { EDGE_KIND_NAMES, SHAPE_NAMES } from '../core/shapes';
 import type { EdgeKind, ShapeKind, TextOp } from '../core/types';
 import { resolveTheme, THEMES } from '../render/themes';
+import { UI } from '../core/constants';
 import { announceSelection } from './describe';
 import type { AppState } from './state';
 
@@ -166,6 +167,10 @@ export function setupProperties(env: PropertiesEnv): () => void {
     }
     if (!sel) {
       panelEl.hidden = true;
+      return;
+    }
+    const isNarrowScreen = typeof window !== 'undefined' && window.innerWidth < UI.narrowBreakpoint;
+    if (isNarrowScreen && panelEl.hidden) {
       return;
     }
     panelEl.hidden = false;
