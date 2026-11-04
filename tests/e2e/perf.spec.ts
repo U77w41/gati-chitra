@@ -34,11 +34,26 @@ test.describe('Performance budgets', () => {
     await page.waitForTimeout(300);
 
     await page.locator('#anim-pause').click();
-    await page.waitForTimeout(300);
 
-    const countBefore = await page.evaluate(() => (window as any).__studio.getDrawCount());
+    // A late resize observer callback or font load can schedule one more frame.
+    // Wait until the draw count settles, then check it does not move again.
+    const drawCount = () =>
+      page.evaluate(() => (window as any).__studio.getDrawCount());
+
+    await expect
+      .poll(
+        async () => {
+          const before = await drawCount();
+          await page.waitForTimeout(250);
+          return (await drawCount()) === before;
+        },
+        { timeout: 5000 },
+      )
+      .toBe(true);
+
+    const countBefore = await drawCount();
     await page.waitForTimeout(500);
-    const countAfter = await page.evaluate(() => (window as any).__studio.getDrawCount());
+    const countAfter = await drawCount();
 
     expect(countAfter).toBe(countBefore);
   });

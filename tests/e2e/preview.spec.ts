@@ -1,5 +1,28 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { editorText, setEditorText } from '../support/editor';
+
+async function nonBgPixels(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
+    if (!canvas) return 0;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return 0;
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imgData.data;
+    let nonBg = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const a = data[i + 3];
+      // Background is white #ffffff
+      if (a > 0 && (r < 250 || g < 250 || b < 250)) {
+        nonBg++;
+      }
+    }
+    return nonBg;
+  });
+}
 
 test.describe('Live preview and app shell', () => {
   test('loads page with sample text and rendered canvas', async ({ page }) => {
@@ -7,30 +30,7 @@ test.describe('Live preview and app shell', () => {
 
     expect(await editorText(page)).not.toBe('');
 
-    await expect
-      .poll(async () => {
-        return page.evaluate(() => {
-          const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
-          if (!canvas) return 0;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return 0;
-          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imgData.data;
-          let nonBg = 0;
-          for (let i = 0; i < data.length; i += 4) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const a = data[i + 3];
-            // Background is white #ffffff
-            if (a > 0 && (r < 250 || g < 250 || b < 250)) {
-              nonBg++;
-            }
-          }
-          return nonBg;
-        });
-      })
-      .toBeGreaterThan(100);
+    await expect.poll(() => nonBgPixels(page)).toBeGreaterThan(100);
   });
 
   test('updates summary and diagram when text is set via studio API', async ({ page }) => {
@@ -57,27 +57,8 @@ test.describe('Live preview and app shell', () => {
     const diag = page.locator('#diagnostics li');
     await expect(diag).toContainText("Line 1: Only flowchart diagrams are supported");
 
-    const nonBgPixels = await page.evaluate(() => {
-      const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
-      if (!canvas) return 0;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return 0;
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-      let nonBg = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const a = data[i + 3];
-        if (a > 0 && (r < 250 || g < 250 || b < 250)) {
-          nonBg++;
-        }
-      }
-      return nonBg;
-    });
-
-    expect(nonBgPixels).toBeGreaterThan(100);
+    // The good picture is redrawn asynchronously, so wait for it to appear.
+    await expect.poll(() => nonBgPixels(page)).toBeGreaterThan(100);
   });
 
   test('autosaves text after 800ms and restores on reload', async ({ page }) => {
