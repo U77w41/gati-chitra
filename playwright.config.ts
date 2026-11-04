@@ -33,6 +33,7 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
       testIgnore: /mobile\.spec\.ts/,
+      ...(process.env.CI ? { workers: 1 } : {}),
     },
     {
       name: 'mobile-chrome',
@@ -43,6 +44,7 @@ export default defineConfig({
       name: 'mobile-safari',
       use: { ...devices['iPhone 14'] },
       testMatch: /mobile\.spec\.ts/,
+      ...(process.env.CI ? { workers: 1 } : {}),
     },
   ],
   webServer: {

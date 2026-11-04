@@ -201,6 +201,7 @@ test.describe('Mobile phone layout', () => {
   test('mobile-safari touchscreen tap on node selects it', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile-safari');
     await page.goto('./?e2e=1');
+    await page.waitForTimeout(300);
     const aCenter = (await page.evaluate(() => window.__studio!.getNodeScreenCenter('A')))!;
     await page.touchscreen.tap(aCenter.x, aCenter.y);
     await expect.poll(async () => {
