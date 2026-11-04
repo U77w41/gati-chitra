@@ -1,4 +1,4 @@
-import { SHORTCUT_HELP } from './shortcuts';
+import { SHORTCUT_HELP } from './shortcuts-help';
 
 export interface HelpEnv {
   dialogEl: HTMLDialogElement;

@@ -227,9 +227,6 @@ export async function initApp(): Promise<void> {
   });
 
   let help: { open: () => void; close: () => void; isOpen: () => boolean } | undefined;
-  import('./help').then(({ setupHelpDialog }) => {
-    help = setupHelpDialog({ dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')! });
-  });
 
   const present = setupPresentMode({
     btnPresent: document.querySelector('#btn-present')!, canvasPanel: document.querySelector('#canvas-panel')!,
@@ -270,20 +267,18 @@ export async function initApp(): Promise<void> {
     onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });
 
-  import('./export-panel').then(({ setupExportPanel }) => {
-    setupExportPanel({ dialogEl: document.querySelector('#export-panel')!, getState: () => state, btnExport: document.querySelector('#btn-export')! });
-  });
-
   setupShareHandler({
     btnShare: document.querySelector('#btn-share')!, shareBox: document.querySelector('#share-box')!,
     shareUrlInput: document.querySelector('#share-url')!, shareBoxClose: document.querySelector('#share-box-close'),
     messageEl, getState: () => state,
   });
 
-  import('./gallery').then(({ setupGallery }) => {
+  import('./dialogs').then(({ setupHelpDialog, setupGallery, setupInstallPrompt, setupExportPanel }) => {
+    help = setupHelpDialog({ dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')! });
     setupGallery({ dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!, baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl });
+    setupExportPanel({ dialogEl: document.querySelector('#export-panel')!, getState: () => state, btnExport: document.querySelector('#btn-export')! });
+    setupInstallPrompt(document.querySelector<HTMLButtonElement>('#btn-install'));
   });
-  import('./install-prompt').then(({ setupInstallPrompt }) => setupInstallPrompt(document.querySelector<HTMLButtonElement>('#btn-install')));
 
   setupStudioApi({
     getState: () => state, editor, dispatch,

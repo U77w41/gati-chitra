@@ -36,4 +36,5 @@ Verification 2026-11-04: the superpowers skills are not available in this agent 
 CI deploy fix: chose to skip the WebKit animation canvas-readback test in CI because the canvas is blank under Ubuntu CI CPU contention (fully transparent pixels), it never reproduces locally, two timing fixes did not help, and the animation is still verified on Chromium and Firefox in CI and on all three browsers locally. The deploy has been blocked since v0.3.0.
 CI WebKit concurrency fix: chose to set workers: 1 for WebKit projects in CI and wait 300ms for canvas settlement in mobile-safari tap test because parallel WebKit worker contention causes touch event timing flakes under Ubuntu CI CPU load.
 PWA install fix: chose to add #btn-install to toolbar with lazy-loaded beforeinstallprompt handler and fallback instructions to enable explicit PWA installation without exceeding the initial JS bundle budget.
+Bundle optimization fix: chose to consolidate dialog dynamic imports into dialogs.ts and extract SHORTCUT_HELP to shortcuts-help.ts to keep initial JS gzip at 149.40 KB (612 bytes under budget) across all platforms.
 
