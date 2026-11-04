@@ -33,5 +33,6 @@ CLAUDE.local.md
 .gemini/settings.local.json
 GEMINI.local.md
 .agents/
+skills-lock.json
 .worktrees/
 worktrees/
