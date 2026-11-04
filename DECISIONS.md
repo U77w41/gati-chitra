@@ -35,4 +35,5 @@ Verification 2026-11-04: check:dist reports 149.81 KB initial JS gzip and 57.27 
 Verification 2026-11-04: the superpowers skills are not available in this agent tool (only find-skills and humanizer load), so I followed Part 0 of the improvements plan, which holds the same rules.
 CI deploy fix: chose to skip the WebKit animation canvas-readback test in CI because the canvas is blank under Ubuntu CI CPU contention (fully transparent pixels), it never reproduces locally, two timing fixes did not help, and the animation is still verified on Chromium and Firefox in CI and on all three browsers locally. The deploy has been blocked since v0.3.0.
 CI WebKit concurrency fix: chose to set workers: 1 for WebKit projects in CI and wait 300ms for canvas settlement in mobile-safari tap test because parallel WebKit worker contention causes touch event timing flakes under Ubuntu CI CPU load.
+PWA install fix: chose to add #btn-install to toolbar with lazy-loaded beforeinstallprompt handler and fallback instructions to enable explicit PWA installation without exceeding the initial JS bundle budget.
 

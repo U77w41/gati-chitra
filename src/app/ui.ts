@@ -53,7 +53,6 @@ export async function initApp(): Promise<void> {
   let pausedPhase = 0;
   const startTime = performance.now();
 
-
   function doUndo(): void { commit('', 'undo'); }
   function doRedo(): void { commit('', 'redo'); }
 
@@ -284,6 +283,7 @@ export async function initApp(): Promise<void> {
   import('./gallery').then(({ setupGallery }) => {
     setupGallery({ dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!, baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl });
   });
+  import('./install-prompt').then(({ setupInstallPrompt }) => setupInstallPrompt(document.querySelector<HTMLButtonElement>('#btn-install')));
 
   setupStudioApi({
     getState: () => state, editor, dispatch,
