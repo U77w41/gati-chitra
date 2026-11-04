@@ -1833,7 +1833,7 @@ export function swPlugin(): Plugin;
 - [x] **Step 4: Run** `npm test && npm run build && npm run check:dist && npm run test:e2e -- offline.spec.ts`. Expected: FAIL.
 - [x] **Step 5: Implement** per the Interfaces block. Show the update notice with `showMessage(MESSAGES.updateReady, { label: 'Reload', run })`.
 - [x] **Step 6: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A && git commit -m "feat: offline use and update notice"
@@ -1876,14 +1876,14 @@ git add -A && git commit -m "feat: offline use and update notice"
   2. Opens `/?e2e=1` in Playwright Chromium and loads `public/templates/checkout.mmd` with `__studio.setText`.
   3. Writes `__studio.ogImage()` to `public/og-image.png` and stops the server.
 
-- [ ] **Step 1: Write the failing `check-dist` checks:**
+- [x] **Step 1: Write the failing `check-dist` checks:**
   - `dist/404.html` exists and contains `href="${base}"`.
   - `dist/sitemap.xml` contains `<loc>${VITE_SITE_URL}</loc>` when `VITE_SITE_URL` is set.
   - `dist/og-image.png`'s PNG header gives 1200x630.
   - `dist/index.html` contains `summary_large_image` and `application/ld+json`, and no `%VITE_` placeholder (the existing check).
-- [ ] **Step 2: Run** `npm run build && npm run check:dist`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. Run `npm run build && npm run og`, look at `public/og-image.png`, and commit it.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ VITE_SITE_URL=https://u77w41.github.io/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
+- [x] **Step 2: Run** `npm run build && npm run check:dist`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. Run `npm run build && npm run og`, look at `public/og-image.png`, and commit it.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ VITE_SITE_URL=https://u77w41.github.io/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash

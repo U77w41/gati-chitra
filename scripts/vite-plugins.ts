@@ -19,6 +19,35 @@ function listPublicFiles(dir: string, baseDir: string = dir): string[] {
   return result;
 }
 
+export function siteFilesPlugin(): Plugin {
+  let siteUrl = '';
+
+  return {
+    name: 'site-files-plugin',
+    configResolved(config) {
+      siteUrl = process.env.VITE_SITE_URL || (config.env?.VITE_SITE_URL ?? '');
+    },
+    generateBundle() {
+      if (siteUrl) {
+        const date = new Date().toISOString().slice(0, 10);
+        const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteUrl}</loc>
+    <lastmod>${date}</lastmod>
+  </url>
+</urlset>
+`;
+        this.emitFile({
+          type: 'asset',
+          fileName: 'sitemap.xml',
+          source: sitemap,
+        });
+      }
+    },
+  };
+}
+
 export function swPlugin(): Plugin {
   let base = '/';
 
@@ -28,7 +57,12 @@ export function swPlugin(): Plugin {
       base = config.base;
     },
     async generateBundle(_options, bundle) {
-      const emittedFiles = Object.keys(bundle);
+      const emittedFiles = Object.entries(bundle)
+        .filter(([, v]) => !(v.type === 'chunk' && (!v.code || v.code.length === 0)))
+        .map(([k]) => k);
+      if (fs.existsSync('404.html')) {
+        emittedFiles.push('404.html');
+      }
       const publicFiles = listPublicFiles(path.resolve('public'));
       const allFiles = Array.from(new Set([...emittedFiles, ...publicFiles])).sort();
 

@@ -207,5 +207,52 @@ for (const url of precachedUrls) {
   }
 }
 
+// 12. Check 404.html, sitemap.xml, og-image.png, and structured data
+const notFoundPath = path.join(dist, '404.html');
+if (!fs.existsSync(notFoundPath)) {
+  console.error(`Missing ${notFoundPath}`);
+  process.exit(1);
+}
+const notFoundHtml = fs.readFileSync(notFoundPath, 'utf8');
+if (!notFoundHtml.includes(`href="${base}"`)) {
+  console.error(`Expected href="${base}" in dist/404.html`);
+  process.exit(1);
+}
+
+const siteUrl = process.env.VITE_SITE_URL;
+if (siteUrl) {
+  const sitemapPath = path.join(dist, 'sitemap.xml');
+  if (!fs.existsSync(sitemapPath)) {
+    console.error(`Missing ${sitemapPath}`);
+    process.exit(1);
+  }
+  const sitemapXml = fs.readFileSync(sitemapPath, 'utf8');
+  if (!sitemapXml.includes(`<loc>${siteUrl}</loc>`)) {
+    console.error(`Expected <loc>${siteUrl}</loc> in dist/sitemap.xml`);
+    process.exit(1);
+  }
+}
+
+const ogPath = path.join(dist, 'og-image.png');
+if (!fs.existsSync(ogPath)) {
+  console.error(`Missing ${ogPath}`);
+  process.exit(1);
+}
+const ogBuf = fs.readFileSync(ogPath);
+if (ogBuf.readUInt32BE(16) !== 1200 || ogBuf.readUInt32BE(20) !== 630) {
+  console.error(`Expected 1200x630 in dist/og-image.png, got ${ogBuf.readUInt32BE(16)}x${ogBuf.readUInt32BE(20)}`);
+  process.exit(1);
+}
+
+if (!html.includes('summary_large_image')) {
+  console.error('Expected summary_large_image in dist/index.html');
+  process.exit(1);
+}
+
+if (!html.includes('application/ld+json')) {
+  console.error('Expected application/ld+json in dist/index.html');
+  process.exit(1);
+}
+
 console.log('OK');
 process.exit(0);

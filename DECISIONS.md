@@ -27,3 +27,4 @@ Task 47: chose to load mermaid language and lint extensions asynchronously into 
 Task 49: chose to offset each end's aiming target along canonical-pair normal from unshifted border point to maintain >= 10px separation at node borders.
 Task 52: confirmed 149.37 KB initial JS gzip (level 9) under the 150 KB budget and released v0.4.0.
 Task 54: chose ignoreVary option in service worker cache matching because preview servers set Vary: Origin on dynamic ES module chunk imports, and set CFFIXED_USER_HOME in playwright.config.ts on macOS to prevent CoreFoundation TCC sandbox blocking Firefox profile creation.
+Task 55: chose not to create robots.txt because crawlers only read it at the domain root, which this project site does not control.

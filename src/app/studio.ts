@@ -1,10 +1,11 @@
 import { frameState } from '../anim/anim';
+import { EXPORT } from '../core/constants';
 import { handlePoint } from '../layout/geometry';
 import { drawBackground, drawScene } from '../render/draw';
 import { exportFrame } from '../render/frame';
 import type { ExportMode } from '../core/types';
 import type { EditorEvent } from '../editor/controller';
-import { worldToScreen } from '../editor/view';
+import { fitView, worldToScreen } from '../editor/view';
 import { resolveTheme, THEMES } from '../render/themes';
 import { getDrawCount } from './render-loop';
 import type { AppState } from './state';
@@ -17,6 +18,23 @@ export interface StudioEnv {
   dispatch?: (event: EditorEvent) => void;
   getPresentStep?: () => number | null;
 }
+
+const drawOpts = (showGlow: boolean) => ({
+  transparent: false,
+  selection: null,
+  handleNodeId: null,
+  connectPreview: null,
+  focus: null,
+  showGlow,
+});
+
+const toScreen = (pt: { x: number; y: number }) => {
+  const r = document.querySelector('#canvas')?.getBoundingClientRect();
+  return r ? { x: pt.x + r.left, y: pt.y + r.top } : pt;
+};
+
+const currentScheme = () =>
+  document.documentElement.getAttribute('data-scheme') === 'dark' ? 'dark' : 'light';
 
 export function setupStudioApi(env: StudioEnv): void {
   if (
@@ -47,40 +65,24 @@ export function setupStudioApi(env: StudioEnv): void {
     getView: () => env.getState().view,
     getSettings: () => env.getState().settings,
     getNodeScreenCenter: (id: string) => {
-      const state = env.getState();
-      const box = state.scene?.layout.nodes[id];
-      if (!box) return null;
-      const pt = worldToScreen(state.view, box.center);
-      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
-      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+      const box = env.getState().scene?.layout.nodes[id];
+      return box ? toScreen(worldToScreen(env.getState().view, box.center)) : null;
     },
     getEdgeScreenMid: (id: string) => {
-      const state = env.getState();
-      const path = state.scene?.layout.edges[id];
-      if (!path) return null;
-      const pt = worldToScreen(state.view, path.labelPoint);
-      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
-      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+      const path = env.getState().scene?.layout.edges[id];
+      return path ? toScreen(worldToScreen(env.getState().view, path.labelPoint)) : null;
     },
     getNodeHandleScreen: (id: string) => {
       const state = env.getState();
       const box = state.scene?.layout.nodes[id];
       if (!box || !state.scene) return null;
-      const hp = handlePoint(state.scene.doc, box);
-      const pt = worldToScreen(state.view, hp);
-      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
-      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+      return toScreen(worldToScreen(state.view, handlePoint(state.scene.doc, box)));
     },
     getGroupTitleScreen: (id: string) => {
       const state = env.getState();
       const gbox = state.scene?.layout.groups[id];
       if (!gbox || !state.scene) return null;
-      const pt = worldToScreen(state.view, {
-        x: gbox.rect.x + 20,
-        y: gbox.rect.y + 14,
-      });
-      const rect = document.querySelector('#canvas')?.getBoundingClientRect();
-      return rect ? { x: pt.x + rect.left, y: pt.y + rect.top } : pt;
+      return toScreen(worldToScreen(state.view, { x: gbox.rect.x + 20, y: gbox.rect.y + 14 }));
     },
     dispatch: (event: EditorEvent) => {
       env.dispatch?.(event);
@@ -92,27 +94,33 @@ export function setupStudioApi(env: StudioEnv): void {
       const frame = exportFrame(bounds, mode, scale);
       return { width: frame.pixelWidth, height: frame.pixelHeight };
     },
-    getResolvedTheme: () => {
+    getResolvedTheme: () => resolveTheme(env.getState().settings.theme, currentScheme()),
+    ogImage: async () => {
       const state = env.getState();
-      const scheme =
-        document.documentElement.getAttribute('data-scheme') === 'dark'
-          ? 'dark'
-          : 'light';
-      return resolveTheme(state.settings.theme, scheme);
+      const canvas = document.createElement('canvas');
+      canvas.width = EXPORT.ogWidth;
+      canvas.height = EXPORT.ogHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx || !state.scene) return canvas.toDataURL('image/png');
+      const theme = THEMES.daylight;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      drawBackground(ctx, theme, EXPORT.ogWidth, EXPORT.ogHeight, false);
+      const view = fitView(state.scene.layout.bounds, {
+        width: EXPORT.ogWidth,
+        height: EXPORT.ogHeight,
+      });
+      const frame = frameState(state.scene, state.settings.anim, 0.25);
+      drawScene(ctx, state.scene, theme, view, frame, drawOpts(state.settings.anim.glow));
+      return canvas.toDataURL('image/png');
     },
     measureFrames: (count: number) => {
       const state = env.getState();
       const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
       const ctx = canvas?.getContext('2d');
       if (!state.scene || !ctx || count <= 0) return 0;
-
-      const scheme =
-        document.documentElement.getAttribute('data-scheme') === 'dark'
-          ? 'dark'
-          : 'light';
-      const themeId = resolveTheme(state.settings.theme, scheme);
-      const theme = THEMES[themeId];
+      const theme = THEMES[resolveTheme(state.settings.theme, currentScheme())];
       const dpr = window.devicePixelRatio || 1;
+      const opts = drawOpts(state.settings.anim.glow);
 
       const t0 = performance.now();
       for (let i = 0; i < count; i++) {
@@ -121,14 +129,7 @@ export function setupStudioApi(env: StudioEnv): void {
         drawBackground(ctx, theme, canvas.width, canvas.height, false);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         const frame = frameState(state.scene, state.settings.anim, phase);
-        drawScene(ctx, state.scene, theme, state.view, frame, {
-          transparent: false,
-          selection: null,
-          handleNodeId: null,
-          connectPreview: null,
-          focus: null,
-          showGlow: state.settings.anim.glow,
-        });
+        drawScene(ctx, state.scene, theme, state.view, frame, opts);
       }
       const t1 = performance.now();
       return (t1 - t0) / count;

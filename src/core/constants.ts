@@ -92,6 +92,8 @@ export const EDGE_ANIM = { fastFactor: 2, slowFactor: 0.5 } as const;
 
 export const EXPORT = {
   margin: 32,
+  ogWidth: 1200,
+  ogHeight: 630,
   pngScales: [1, 2, 3],
   pngMaxSide: 8192,
   pngMaxPixels: 40_000_000,

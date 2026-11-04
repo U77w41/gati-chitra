@@ -13,10 +13,15 @@
     <meta property="og:url" content="%VITE_SITE_URL%" />
     <meta property="og:site_name" content="Ujjwal Chowdhury" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://u77w41.github.io/support-my-work/assets/avatar.png" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Gati-chitra · Ujjwal Chowdhury" />
-    <meta name="twitter:description" content="Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video." />
+    <meta property="og:image" content="%VITE_SITE_URL%og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="An animated flowchart drawn in Gati-chitra" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="%VITE_SITE_URL%og-image.png" />
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gati-chitra","applicationCategory":"DesignApplication","operatingSystem":"Any (runs in a web browser)","url":"%VITE_SITE_URL%","description":"Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video. Everything runs in your browser.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Ujjwal Chowdhury"}}
+    </script>
 
     <meta name="theme-color" content="#f5f5fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#303030" media="(prefers-color-scheme: dark)" />
@@ -196,7 +201,9 @@
       </div>
     </main>
     <footer class="site-footer" id="site-footer"></footer>
-    <noscript>This tool needs JavaScript.</noscript>
+    <noscript>
+      <p>Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video. Everything runs in your browser. Source code is available on <a href="%VITE_SOURCE_URL%">GitHub</a>.</p>
+    </noscript>
     <script type="module" src="/src/app/main.ts"></script>
   </body>
 </html>

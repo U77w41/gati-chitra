@@ -15,6 +15,8 @@ it('pins layout and animation values', () => {
 it('pins export values', () => {
   expect(EXPORT.gifMaxFrames).toBe(300);
   expect(EXPORT.slideWidth).toBe(1280);
+  expect(EXPORT.ogWidth).toBe(1200);
+  expect(EXPORT.ogHeight).toBe(630);
   expect(EXPORT.pngScales).toEqual([1, 2, 3]);
 });
 it('builds messages', () => {

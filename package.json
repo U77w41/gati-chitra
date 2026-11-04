@@ -11,6 +11,7 @@
     "check:dist": "node scripts/check-dist.mjs",
     "icons": "node scripts/make-icons.mjs",
     "lint": "oxlint --deny-warnings -D no-explicit-any -D no-unused-vars src scripts",
+    "og": "node scripts/make-og.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:e2e": "playwright test"

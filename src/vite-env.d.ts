@@ -24,6 +24,7 @@ interface StudioApi {
     scale: number
   ) => { width: number; height: number };
   getResolvedTheme: () => import('./core/types').ThemeId;
+  ogImage: () => Promise<string>;
   measureFrames: (count: number) => number;
   getDrawCount: () => number;
 }

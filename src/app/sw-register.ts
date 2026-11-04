@@ -86,24 +86,20 @@ export interface PreloadErrorEnv {
 }
 
 export function setupPreloadErrorHandler(env: PreloadErrorEnv): void {
-  const target =
-    env.target ?? (typeof window !== 'undefined' ? window : undefined);
-  const storage =
-    env.storage ??
-    (typeof sessionStorage !== 'undefined' ? sessionStorage : undefined);
+  const target = env.target ?? (typeof window !== 'undefined' ? window : undefined);
+  const storage = env.storage ?? (typeof sessionStorage !== 'undefined' ? sessionStorage : undefined);
   const reload = env.reload ?? (() => location.reload());
 
   if (!target || !storage) return;
 
   target.addEventListener('vite:preloadError', (event: unknown) => {
-    const custom = event as { payload?: Error };
-    const errMessage = custom?.payload?.message || String(event);
+    const err = (event as { payload?: Error })?.payload?.message || String(event);
     if (!storage.getItem('gc-reloaded')) {
       storage.setItem('gc-reloaded', '1');
       reload();
     } else {
       storage.removeItem('gc-reloaded');
-      env.onError(errMessage);
+      env.onError(err);
     }
   });
 }
