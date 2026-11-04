@@ -64,6 +64,7 @@ Tick every box before the release tag.
 - [ ] By hand: with two tabs open, an edit in one appears in the other.
 - [ ] By hand: a paused, idle tab uses close to no CPU (browser task manager).
 - [ ] The first workflow run on `main` deploys, and the site works under `/gati-chitra/`.
+  > Blocked until the WebKit animation test skip lands. Once the next push passes CI, this can be verified.
 
 ## v0.3.0
 
