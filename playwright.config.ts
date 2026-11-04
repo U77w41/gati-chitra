@@ -1,4 +1,13 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
+
+if (process.platform === 'darwin' && !process.env.CFFIXED_USER_HOME) {
+  const userHome = path.join(os.tmpdir(), 'playwright-user-home');
+  fs.mkdirSync(userHome, { recursive: true });
+  process.env.CFFIXED_USER_HOME = userHome;
+}
 
 const basePath = process.env.BASE_PATH || '/';
 const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`;

@@ -167,5 +167,45 @@ if (!html.includes(`<link rel="manifest" href="${base}manifest.webmanifest"`)) {
   process.exit(1);
 }
 
+// 11. Check that sw.js exists, under 4 KB gzip, no unreplaced placeholders, precached URLs exist
+const swPath = path.join(dist, 'sw.js');
+if (!fs.existsSync(swPath)) {
+  console.error(`Missing ${swPath}`);
+  process.exit(1);
+}
+
+const swContent = fs.readFileSync(swPath, 'utf8');
+const swGz = zlib.gzipSync(Buffer.from(swContent), { level: 9 }).length;
+if (swGz > 4 * 1024) {
+  console.error(`dist/sw.js is over 4 KB gzip budget: ${(swGz / 1024).toFixed(2)} KB`);
+  process.exit(1);
+}
+
+if (swContent.includes('__PRECACHE__')) {
+  console.error('dist/sw.js contains unreplaced __PRECACHE__');
+  process.exit(1);
+}
+
+if (swContent.includes('__BUILD_ID__')) {
+  console.error('dist/sw.js contains unreplaced __BUILD_ID__');
+  process.exit(1);
+}
+
+const escapedBase = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const precachedUrls = [...swContent.matchAll(new RegExp(`"(${escapedBase}[^"]*)"`, 'g'))].map((match) => match[1]);
+if (precachedUrls.length === 0) {
+  console.error('No precached URLs found in dist/sw.js');
+  process.exit(1);
+}
+
+for (const url of precachedUrls) {
+  const rel = url.slice(base.length);
+  const target = rel === '' ? path.join(dist, 'index.html') : path.join(dist, rel);
+  if (!fs.existsSync(target)) {
+    console.error(`Precached URL does not exist in dist: ${url} (checked ${target})`);
+    process.exit(1);
+  }
+}
+
 console.log('OK');
 process.exit(0);

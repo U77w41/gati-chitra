@@ -163,6 +163,8 @@ export const MESSAGES = {
   nothingToPresent: 'Nothing to present. Add a node first.',
   exportCancelled: 'Export cancelled.',
   videoFailed: (m: string) => `Video export failed: ${m}`,
+  updateReady: 'A new version is available.',
+  offlineReady: 'Ready to work offline.',
 } as const;
 
 export const SCHEME = {

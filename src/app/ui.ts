@@ -27,6 +27,7 @@ import { createCodeEditor } from './code-editor';
 import { setupHelpDialog } from './help';
 import { setupSplitter } from './splitter';
 import { setupFileLaunch } from './file-launch';
+import { registerServiceWorker, setupPreloadErrorHandler } from './sw-register';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -199,22 +200,10 @@ export async function initApp(): Promise<void> {
     (err) => showMessage(err),
   );
 
-  function applySync(t: string): void {
-    commit(t, 'open');
-    dirty = false;
-  }
-
+  function applySync(t: string): void { commit(t, 'open'); dirty = false; }
   setupDocSync({
-    store,
-    getText: () => state.text,
-    isDirty: () => dirty,
-    apply: applySync,
-    ask: (t) => {
-      showMessage(MESSAGES.changedInOtherTab, {
-        label: 'Load it',
-        run: () => applySync(t),
-      });
-    },
+    store, getText: () => state.text, isDirty: () => dirty, apply: applySync,
+    ask: (t) => { showMessage(MESSAGES.changedInOtherTab, { label: 'Load it', run: () => applySync(t) }); },
   });
 
   setupSplitter({
@@ -223,8 +212,17 @@ export async function initApp(): Promise<void> {
     set: (v) => { state.settings.split = v; saveSettings(store, state.settings); },
   });
 
-  setupFileLaunch({
-    open: (t) => { commit(t, 'open'); dirty = false; },
+  setupFileLaunch({ open: (t) => { commit(t, 'open'); dirty = false; } });
+  setupPreloadErrorHandler({ onError: (err) => showMessage(MESSAGES.videoFailed(err)) });
+
+  registerServiceWorker({
+    container: 'serviceWorker' in navigator ? navigator.serviceWorker : undefined,
+    prod: import.meta.env.PROD,
+    enabled: !location.search.includes('e2e=1') || location.search.includes('sw=1'),
+    base: import.meta.env.BASE_URL,
+    reload: () => location.reload(),
+    showUpdate: (run) => showMessage(MESSAGES.updateReady, { label: 'Reload', run }),
+    showOfflineReady: () => showMessage(MESSAGES.offlineReady),
   });
 
   const help = setupHelpDialog({

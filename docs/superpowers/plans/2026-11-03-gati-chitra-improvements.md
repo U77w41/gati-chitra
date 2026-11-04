@@ -1827,48 +1827,12 @@ export function swPlugin(): Plugin;
   - The first install, with no prior controller, calls `showOfflineReady`.
 - **`vite:preloadError`** in `ui.ts`: reload once, guarded by `sessionStorage['gc-reloaded']`; the second time, show `MESSAGES.videoFailed` with the error text.
 
-- [ ] **Step 1: Write the failing unit tests**
-
-```ts
-it('names caches', () => { expect(cacheName('abc')).toBe('gati-chitra-abc'); });
-it('lists precache URLs', () => {
-  expect(precacheUrls(['index.html', 'assets/a.js', 'sw.js', 'assets/a.js.map'], '/gati-chitra/'))
-    .toEqual(['/gati-chitra/', '/gati-chitra/index.html', '/gati-chitra/assets/a.js']);
-});
-it('chooses a strategy', () => {
-  const scope = new URL('https://u.github.io/gati-chitra/');
-  expect(strategyFor(new URL('https://u.github.io/gati-chitra/'), scope)).toBe('network-first');
-  expect(strategyFor(new URL('https://u.github.io/gati-chitra/assets/a-1.js'), scope)).toBe('cache-first');
-  expect(strategyFor(new URL('https://u.github.io/other/'), scope)).toBe('bypass');
-  expect(strategyFor(new URL('https://cdn.example/x.js'), scope)).toBe('bypass');
-});
-it('offers an update when a new worker waits', async () => {
-  const posted: unknown[] = []; let shown: (() => void) | null = null;
-  const reg = { waiting: { postMessage: (m: unknown) => posted.push(m) }, addEventListener() {} };
-  await registerServiceWorker({ ...fakeDeps({ register: async () => reg, controller: {} }), showUpdate: (cb) => { shown = cb; } });
-  shown!(); expect(posted).toEqual([{ type: 'skipWaiting' }]);
-});
-it('stays off in dev and in e2e', async () => {
-  let called = false;
-  await registerServiceWorker({ ...fakeDeps({ register: async () => { called = true; return {}; } }), prod: false });
-  expect(called).toBe(false);
-});
-```
-
-- [ ] **Step 2: Write the failing e2e tests** in `offline.spec.ts`, Chromium only (`test.skip(browserName !== 'chromium')`):
-  - "works offline after the first visit":
-    1. Open `./?e2e=1&sw=1` and wait for `navigator.serviceWorker.controller`.
-    2. Turn the network off with `context.setOffline(true)`, then reload.
-    3. The editor shows the last text, a template loads, and Save as SVG downloads a file.
-    4. Save as video either downloads a video or shows the GIF fallback, with no failed request in `page.on('requestfailed')` for `/assets/`.
-  - "a missing lazy chunk reloads once": route the video chunk to 404 and click Save as video; the page reloads once, and the second failure shows a message instead of looping.
-- [ ] **Step 3: Write the failing `check-dist` checks:**
-  - `dist/sw.js` exists and is under 4 KB gzip.
-  - It contains neither `__PRECACHE__` nor `__BUILD_ID__`.
-  - Every precached URL (with `base` removed) exists in `dist`.
-- [ ] **Step 4: Run** `npm test && npm run build && npm run check:dist && npm run test:e2e -- offline.spec.ts`. Expected: FAIL.
-- [ ] **Step 5: Implement** per the Interfaces block. Show the update notice with `showMessage(MESSAGES.updateReady, { label: 'Reload', run })`.
-- [ ] **Step 6: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
+- [x] **Step 1: Write the failing unit tests**
+- [x] **Step 2: Write the failing e2e tests**
+- [x] **Step 3: Write the failing `check-dist` checks:**
+- [x] **Step 4: Run** `npm test && npm run build && npm run check:dist && npm run test:e2e -- offline.spec.ts`. Expected: FAIL.
+- [x] **Step 5: Implement** per the Interfaces block. Show the update notice with `showMessage(MESSAGES.updateReady, { label: 'Reload', run })`.
+- [x] **Step 6: Run** `npm test && npm run lint && npm run build && BASE_PATH=/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
 - [ ] **Step 7: Commit**
 
 ```bash

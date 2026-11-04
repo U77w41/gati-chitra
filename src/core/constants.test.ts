@@ -27,6 +27,8 @@ it('builds messages', () => {
   expect(MESSAGES.unknownEdge(5)).toBe('Unknown arrow 5.');
   expect(MESSAGES.groupsInText).toBe('Groups are edited in the text.');
   expect(MESSAGES.videoFailed('x')).toBe('Video export failed: x');
+  expect(MESSAGES.updateReady).toBe('A new version is available.');
+  expect(MESSAGES.offlineReady).toBe('Ready to work offline.');
   expect(SCHEME.storageKey).toBe('StackColorScheme');
   expect(BRAND.name).toBe('Gati-chitra');
   expect(BRAND.tools.map(t => t.id)).toEqual(['diff', 'anurup']);
