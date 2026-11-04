@@ -16,8 +16,8 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ## 2. Current State (v0.6.0)
 
-- **Last verified**: 2026-11-04.
-- **Branch**: `main` (HEAD). The `improvements` branch points at the same commit, and `origin/main` matches it.
+- **Last verified**: 2026-11-04, locally. CI is red and the Pages deploy is skipped; see section 6.
+- **Branch**: `main` (HEAD, pushed to `origin/main`). The local `improvements` branch is an older pointer at `821d484` and does not carry the two commits after it.
 - **Release commit**: `5cb55d7` (`chore: release v0.6.0`). The `v0.6.0` tag currently points at `821d484` (the commit that added this handoff), not at the release commit. Fixing the tag needs the owner's decision, because the tag may already exist on the remote.
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
@@ -28,6 +28,7 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
   - `npm run build` with `BASE_PATH=/gati-chitra/`: passes, including both TypeScript configs.
   - `npm run check:dist` on that build: initial JS 149.81 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
   - `npm run test:e2e`: 310 passed, 15 skipped across `chromium` (103), `firefox` (103), `webkit` (103), `mobile-chrome` (8) and `mobile-safari` (8). The skipped tests are conditional mobile cases, not failures.
+  - Targeted re-run after the `a75627d` test change: `npx playwright test tests/e2e/perf.spec.ts tests/e2e/preview.spec.ts --project=chromium --project=firefox --project=webkit --repeat-each=3` gave 99 passed, and `npm run lint` stayed clean. None of it reproduced the CI failure; see section 6.
 
 ---
 
@@ -101,16 +102,61 @@ npm run test:e2e -- tests/e2e/mobile.spec.ts
 
 ---
 
-## 6. Pending Actions for Next Session / Repository Owner
+## 6. Open Blocker: GitHub Pages Deploy (2026-11-04)
 
-1. **Manual hardware and by-hand checks**:
-   All automated checks pass. The open boxes in Part 7 of the improvements plan and in `RELEASE_CHECKLIST.md` remain:
+The published site still runs the v0.2.0 build. `https://u77w41.github.io/gati-chitra/` returns 200, but the latest Pages deployment starts from `df28685` (2026-11-03 15:48 UTC), which is before the v0.3.0 release. `https://u77w41.github.io/gati-chitra/sitemap.xml` returns 404. Pages uses `build_type: workflow`, and `.github/workflows/deploy.yml` runs the `deploy` job only when the `test` job passes on `main`, so any e2e failure blocks the release.
+
+### Failing runs
+
+| Run | Commit | e2e result | Failing test |
+| --- | --- | --- | --- |
+| `41790756473` | `821d484` | 308 passed, 15 skipped | `webkit` `tests/e2e/perf.spec.ts` idle repaint: 7 draws instead of 6; `webkit` `tests/e2e/preview.spec.ts` preserved picture: 0 non-background pixels |
+| `41871883863` | `a75627d` | 309 passed, 15 skipped | `webkit` `tests/e2e/preview.spec.ts` `animation updates frames when active and freezes when paused`: the two snapshots are equal |
+
+`a75627d` replaced the fixed waits in the idle-repaint and preserved-picture tests with polling. The animation test still samples the canvas at fixed times.
+
+### Evidence
+
+The data URL from the `41871883863` failure decodes to a 1596x798 PNG in which every one of the 1,273,608 pixels is `00000000`: a fully transparent canvas. The canvas was still empty 500 ms later. It can only stay blank if the background is never drawn, or if a resize clears it and no frame follows. Both point at the render loop not running (an exception, or no further `requestAnimationFrame`), not at a paint the test read too early.
+
+That reading fits the earlier two failures as well: an extra frame after pause, and a blank preserved picture.
+
+The `a75627d` wait-for-quiescence change did not stop the suite from failing on the next run, so waiting longer is not the fix on its own.
+
+### What was checked locally
+
+- The two specs passed 99 of 99 runs across chromium, firefox and webkit (`--repeat-each=3`).
+- Repeated WebKit runs of the two specs (`--repeat-each=5`) passed 55 of 55.
+- The full local e2e suite passed 310 tests with 15 conditional skips.
+
+All of that ran without the CI runner's CPU contention and without the five-project parallel load.
+
+### Next steps
+
+1. Record page errors and draw counts. In `tests/e2e/preview.spec.ts`, collect `page.on('pageerror')` and `page.on('console')` before `goto`, and record `window.__studio.getDrawCount()` with each snapshot. A count that stops growing means the loop died, and the page error names the cause.
+2. Reproduce under load rather than in isolation: `npx playwright test tests/e2e/preview.spec.ts --project=webkit --workers=4 --repeat-each=10`, or run the full suite with a CPU burner in the background.
+3. Fix the cause the error points to. Do not add retries or raise limits to get a green run.
+4. If the loop is healthy and only the pixel readback is blank, the problem is in WebKit's canvas readback under load. In that case run the WebKit project with one worker in CI and see whether the failures stop, then record the choice in `DECISIONS.md`.
+5. Check the deploy after a green run:
+
+```bash
+gh run list --workflow deploy.yml --limit 3
+gh run watch <run-id> --exit-status
+gh api repos/U77w41/gati-chitra/deployments --jq '.[0:3][] | "\(.sha[0:7]) \(.created_at)"'
+curl -s -o /dev/null -w '%{http_code}\n' https://u77w41.github.io/gati-chitra/sitemap.xml
+```
+
+## 7. Pending Actions for Next Session / Repository Owner
+
+1. **Unblock the deploy**: follow section 6 before any new feature work. The release stays invisible to users until the e2e job passes on `main`.
+2. **Manual hardware and by-hand checks**:
+   All automated checks pass locally, and the CI test job gets through lint, unit tests, build and size checks before it reaches e2e. The open boxes in Part 7 of the improvements plan and in `RELEASE_CHECKLIST.md` remain:
    - Physical Android and iPhone testing (gesture feel, on-screen keyboard, share sheet, rotation).
    - Desktop repeat of the v0.4.0 keyboard and mouse checks.
    - Deployed-site checks: install prompt, offline reload, update notice, social card, 404 page.
    - Pasting five real-world flowcharts, and checking shapes and labels in every theme and export.
    - Optional: JSON-LD Rich Results Test and Search Console sitemap submission.
-2. **Tag correction**:
+3. **Tag correction**:
    The `v0.6.0` tag points at `821d484` instead of the release commit `5cb55d7`. Decide whether to move it. Moving a pushed tag rewrites history for anyone who has fetched it, so the owner should decide.
-3. **Subsequent work**:
+4. **Subsequent work**:
    If starting a new feature set or milestone, follow the superpower workflow: brainstorm scope, write an implementation plan under `docs/superpowers/plans/`, verify with TDD, and keep files under the 300-line budget.
