@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
+import { BRAND } from './core/constants';
 
 const read = (p: string) => readFileSync(p, 'utf8');
 const PLAN = 'docs/superpowers/plans/2026-11-02-gati-chitra.md';
@@ -70,6 +71,23 @@ it('CI tests three browsers on the real base path and ships what it tested', () 
   for (const p of ['chromium', 'firefox', 'webkit']) expect(pw).toContain(p);
   const dep = readFileSync('.github/dependabot.yml', 'utf8');
   expect(dep).toContain('npm'); expect(dep).toContain('github-actions');
+});
+
+it('manifest.webmanifest has correct brand name, start_url, scope and valid PNG icons', () => {
+  const manifest = JSON.parse(read('public/manifest.webmanifest'));
+  expect(manifest.name).toBe(BRAND.name);
+  expect(manifest.start_url).toBe('./');
+  expect(manifest.scope).toBe('./');
+  for (const icon of manifest.icons) {
+    const iconPath = join('public', icon.src);
+    expect(existsSync(iconPath), `missing ${iconPath}`).toBe(true);
+    const buf = readFileSync(iconPath);
+    const width = buf.readUInt32BE(16);
+    const height = buf.readUInt32BE(20);
+    const [expectedW, expectedH] = icon.sizes.split('x').map(Number);
+    expect(width).toBe(expectedW);
+    expect(height).toBe(expectedH);
+  }
 });
 
 

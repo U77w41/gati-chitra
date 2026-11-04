@@ -1767,13 +1767,13 @@ git add -A && git commit -m "chore: release v0.4.0" && git tag v0.4.0
   Relative URLs resolve against the manifest's own URL, so the file works under any base path. `name` must equal `BRAND.name`.
 - `setupFileLaunch(env: { open(text: string, name: string): void }): void`. When `'launchQueue' in window`, it reads the first file and calls `open(stripFences(text), file.name)`, which commits with source `'open'`.
 
-- [ ] **Step 1: Write the failing tests.**
+- [x] **Step 1: Write the failing tests.**
   - In `src/repo.test.ts`: parse `public/manifest.webmanifest`. `name` equals `BRAND.name`; `start_url` and `scope` equal `./`; each icon file exists and its PNG header (bytes 16 to 23) gives the stated size.
   - In `check-dist.mjs`: `dist/manifest.webmanifest` and the three icons exist, and `dist/index.html` has `<link rel="manifest" href="${base}manifest.webmanifest"`.
-- [ ] **Step 2: Run** `npm test && npm run build && npm run check:dist`. Expected: FAIL.
-- [ ] **Step 3: Implement.** Run `npm run icons` and commit the generated PNGs (they are site assets, not build output).
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run check:dist && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run build && npm run check:dist`. Expected: FAIL.
+- [x] **Step 3: Implement.** Run `npm run icons` and commit the generated PNGs (they are site assets, not build output).
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run check:dist && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: installable app with .mmd file handling"

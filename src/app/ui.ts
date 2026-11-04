@@ -26,6 +26,7 @@ import { stripFences } from '../mermaid/fences';
 import { createCodeEditor } from './code-editor';
 import { setupHelpDialog } from './help';
 import { setupSplitter } from './splitter';
+import { setupFileLaunch } from './file-launch';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -220,6 +221,10 @@ export async function initApp(): Promise<void> {
     handle: document.querySelector('#splitter')!, workspace: document.querySelector('#workspace')!,
     get: () => state.settings.split,
     set: (v) => { state.settings.split = v; saveSettings(store, state.settings); },
+  });
+
+  setupFileLaunch({
+    open: (t) => { commit(t, 'open'); dirty = false; },
   });
 
   const help = setupHelpDialog({

@@ -143,5 +143,29 @@ if (html.includes('%VITE_')) {
   process.exit(1);
 }
 
+// 10. Check that manifest.webmanifest and icons exist in dist/
+const manifestPath = path.join(dist, 'manifest.webmanifest');
+if (!fs.existsSync(manifestPath)) {
+  console.error(`Missing ${manifestPath}`);
+  process.exit(1);
+}
+
+const manifestIcons = [
+  path.join(dist, 'icons', 'icon-192.png'),
+  path.join(dist, 'icons', 'icon-512.png'),
+  path.join(dist, 'icons', 'icon-maskable-512.png'),
+];
+for (const iconPath of manifestIcons) {
+  if (!fs.existsSync(iconPath)) {
+    console.error(`Missing manifest icon: ${iconPath}`);
+    process.exit(1);
+  }
+}
+
+if (!html.includes(`<link rel="manifest" href="${base}manifest.webmanifest"`)) {
+  console.error(`Expected <link rel="manifest" href="${base}manifest.webmanifest" in dist/index.html`);
+  process.exit(1);
+}
+
 console.log('OK');
 process.exit(0);

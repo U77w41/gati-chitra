@@ -6,6 +6,12 @@ const root = process.cwd();
 const svgPath = path.join(root, 'public/favicon.svg');
 const icoPath = path.join(root, 'public/favicon.ico');
 const touchPath = path.join(root, 'public/apple-touch-icon.png');
+const iconsDir = path.join(root, 'public/icons');
+const icon192Path = path.join(iconsDir, 'icon-192.png');
+const icon512Path = path.join(iconsDir, 'icon-512.png');
+const iconMaskable512Path = path.join(iconsDir, 'icon-maskable-512.png');
+
+fs.mkdirSync(iconsDir, { recursive: true });
 
 const svg = fs.readFileSync(svgPath, 'utf-8');
 const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
@@ -48,7 +54,34 @@ await page.setContent(
 const touchPng = await page.screenshot({ type: 'png' });
 fs.writeFileSync(touchPath, touchPng);
 
+// 4. 192x192 icon-192.png
+await page.setViewportSize({ width: 192, height: 192 });
+await page.setContent(
+  `<body style="margin:0; padding:0; overflow:hidden;"><img src="${dataUrl}" width="192" height="192" style="display:block;"></body>`,
+);
+const icon192 = await page.screenshot({ omitBackground: true, type: 'png' });
+fs.writeFileSync(icon192Path, icon192);
+
+// 5. 512x512 icon-512.png
+await page.setViewportSize({ width: 512, height: 512 });
+await page.setContent(
+  `<body style="margin:0; padding:0; overflow:hidden;"><img src="${dataUrl}" width="512" height="512" style="display:block;"></body>`,
+);
+const icon512 = await page.screenshot({ omitBackground: true, type: 'png' });
+fs.writeFileSync(icon512Path, icon512);
+
+// 6. 512x512 icon-maskable-512.png (logo at 60% of canvas on #f5f5fa)
+await page.setViewportSize({ width: 512, height: 512 });
+await page.setContent(
+  `<body style="margin:0; background:#f5f5fa; width:512px; height:512px; display:flex; align-items:center; justify-content:center; overflow:hidden;"><img src="${dataUrl}" width="307" height="307" style="display:block;"></body>`,
+);
+const iconMaskable512 = await page.screenshot({ type: 'png' });
+fs.writeFileSync(iconMaskable512Path, iconMaskable512);
+
 await browser.close();
 
 console.log(`Wrote ${icoPath} (${icoBuf.length} bytes)`);
 console.log(`Wrote ${touchPath} (${touchPng.length} bytes)`);
+console.log(`Wrote ${icon192Path} (${icon192.length} bytes)`);
+console.log(`Wrote ${icon512Path} (${icon512.length} bytes)`);
+console.log(`Wrote ${iconMaskable512Path} (${iconMaskable512.length} bytes)`);
