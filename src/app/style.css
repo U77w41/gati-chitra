@@ -1,7 +1,7 @@
 /* ---- studio skin ---- */
 #main { flex: 1 0 auto; display: flex; flex-direction: column; padding-top: 16px; padding-bottom: 24px; }
 #app { display: flex; flex-direction: column; flex: 1; gap: 12px; }
-#toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+#toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; position: relative; }
 #toolbar [role="group"] { display: flex; align-items: center; gap: 4px; }
 .toolbar-spacer { flex: 1; min-width: 8px; }
 #workspace { display: grid; grid-template-columns: var(--split, 33%) 12px minmax(0, 1fr); gap: 0; flex: 1; min-height: 520px; }
@@ -112,4 +112,38 @@ body.presenting #canvas-controls,
 body.presenting #splitter,
 body.presenting #props { display: none; }
 body.presenting #workspace { grid-template-columns: 1fr; }
-@media (width <= 768px) { #workspace { grid-template-columns: 1fr !important; gap: 12px; } #splitter { display: none !important; } }
+#view-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+#view-tabs[hidden] { display: none !important; }
+#view-tabs button[role="tab"] {
+  background: transparent; border: none; border-bottom: 2px solid transparent;
+  padding: 8px 16px; font-weight: 600; font-size: var(--font-size-sm);
+  color: var(--text-muted); cursor: pointer;
+}
+#view-tabs button[role="tab"][aria-selected="true"] {
+  color: var(--text-main); border-bottom-color: var(--brand);
+}
+#more-menu {
+  position: absolute; top: 100%; right: 0; z-index: 20;
+  background: var(--card-background); border: 1px solid var(--border);
+  border-radius: var(--radius-card); box-shadow: var(--shadow-l2);
+  padding: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 160px;
+}
+#more-menu[hidden] { display: none !important; }
+#more-menu [role="group"] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
+#more-menu button { text-align: left; width: 100%; }
+
+@media (min-width: 768px) {
+  #view-tabs { display: none !important; }
+  #btn-more { display: none !important; }
+}
+
+@media (max-width: 767px) {
+  #toolbar { gap: 4px; padding: 4px 0; }
+  #toolbar [role="group"] { flex-wrap: wrap; gap: 4px; }
+  #toolbar button,
+  #toolbar select { padding: 4px 8px; font-size: 13px; min-height: 32px; }
+  #add-shape { max-width: 100px; }
+  #workspace { grid-template-columns: 1fr !important; gap: 8px; min-height: auto; }
+  #splitter { display: none !important; }
+  #text-panel[hidden], #canvas-panel[hidden] { display: none !important; }
+}

@@ -57,6 +57,8 @@
             <button id="btn-present" disabled>Present</button>
           </div>
           <div class="toolbar-spacer"></div>
+          <button id="btn-more" aria-expanded="false" aria-controls="more-menu">More</button>
+          <div id="more-menu" role="menu" hidden></div>
           <button id="btn-help" aria-label="Help" title="Help">?</button>
           <button id="btn-export" class="btn-primary" disabled>Export</button>
           <input type="file" id="file-picker" accept=".mmd,.txt,.md" style="display: none" />
@@ -66,14 +68,18 @@
           <input type="text" id="share-url" readonly />
           <button id="share-box-close" aria-label="Close">✕</button>
         </div>
+        <div id="view-tabs" role="tablist" aria-label="Panels" hidden>
+          <button id="tab-diagram" role="tab" aria-selected="true" aria-controls="canvas-panel" tabindex="0">Diagram</button>
+          <button id="tab-text" role="tab" aria-selected="false" aria-controls="text-panel" tabindex="-1">Text</button>
+        </div>
         <div id="workspace">
-          <section id="text-panel">
+          <section id="text-panel" role="tabpanel" aria-labelledby="tab-text">
             <div id="source"></div>
             <div id="diagnostics-summary" aria-live="polite"></div>
             <ul id="diagnostics"></ul>
           </section>
           <div id="splitter" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="33" aria-label="Resize panels"></div>
-          <section id="canvas-panel">
+          <section id="canvas-panel" role="tabpanel" aria-labelledby="tab-diagram">
             <canvas id="canvas" role="img" aria-describedby="canvas-desc" tabindex="0"></canvas>
             <p id="canvas-desc" class="visually-hidden"></p>
             <div id="canvas-status" class="visually-hidden" aria-live="polite"></div>

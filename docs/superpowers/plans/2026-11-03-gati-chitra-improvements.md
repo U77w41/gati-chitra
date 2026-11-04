@@ -1932,7 +1932,7 @@ git add -A && git commit -m "chore: release v0.5.0" && git tag v0.5.0
   - `#more-menu` opens on click, Enter or Space. Arrow keys move inside it, and Escape closes it and returns focus to `#btn-more`.
 - At 768 px and wider, nothing changes from v0.4.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('uses the breakpoint', () => { expect([isNarrow(767), isNarrow(768)]).toEqual([true, false]); });
@@ -1945,10 +1945,10 @@ it('uses the breakpoint', () => { expect([isNarrow(767), isNarrow(768)]).toEqual
 - the toolbar's height is 100 px or less
 - More opens a menu that contains "Templates"
 - `axe` on this layout finds no violations
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- --project=mobile-chrome --project=mobile-safari`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- --project=mobile-chrome --project=mobile-safari`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS in all five projects.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: phone layout with Text and Diagram tabs"

@@ -24,7 +24,6 @@ import { mountChrome } from './chrome';
 import { describeDiagram } from './describe';
 import { stripFences } from '../mermaid/fences';
 import { createCodeEditor } from './code-editor';
-import { setupHelpDialog } from './help';
 import { setupSplitter } from './splitter';
 import { setupFileLaunch } from './file-launch';
 import { registerServiceWorker, setupPreloadErrorHandler } from './sw-register';
@@ -212,21 +211,25 @@ export async function initApp(): Promise<void> {
     set: (v) => { state.settings.split = v; saveSettings(store, state.settings); },
   });
 
+  import('./narrow').then(({ setupNarrowLayout }) => setupNarrowLayout({
+    tabs: document.querySelector('#view-tabs')!, textPanel: document.querySelector('#text-panel')!,
+    canvasPanel: document.querySelector('#canvas-panel')!, onShowDiagram: triggerFit,
+  }));
+
   setupFileLaunch({ open: (t) => { commit(t, 'open'); dirty = false; } });
   setupPreloadErrorHandler({ onError: (err) => showMessage(MESSAGES.videoFailed(err)) });
 
   registerServiceWorker({
     container: 'serviceWorker' in navigator ? navigator.serviceWorker : undefined,
-    prod: import.meta.env.PROD,
-    enabled: !location.search.includes('e2e=1') || location.search.includes('sw=1'),
-    base: import.meta.env.BASE_URL,
-    reload: () => location.reload(),
+    prod: import.meta.env.PROD, enabled: !location.search.includes('e2e=1') || location.search.includes('sw=1'),
+    base: import.meta.env.BASE_URL, reload: () => location.reload(),
     showUpdate: (run) => showMessage(MESSAGES.updateReady, { label: 'Reload', run }),
     showOfflineReady: () => showMessage(MESSAGES.offlineReady),
   });
 
-  const help = setupHelpDialog({
-    dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')!,
+  let help: { open: () => void; close: () => void; isOpen: () => boolean } | undefined;
+  import('./help').then(({ setupHelpDialog }) => {
+    help = setupHelpDialog({ dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')! });
   });
 
   const present = setupPresentMode({
@@ -249,8 +252,8 @@ export async function initApp(): Promise<void> {
     onPresent: () => present.start(), onTogglePause: () => animControls.togglePause(),
     onDelete: () => dispatch({ type: 'keyDown', key: 'Delete' }),
     onRename: () => dispatch({ type: 'keyDown', key: 'Enter' }),
-    onEscape: () => { if (help.isOpen()) help.close(); else if (present.isPresenting()) present.exit(); else dispatch({ type: 'keyDown', key: 'Escape' }); },
-    onHelp: () => help.open(),
+    onEscape: () => { if (help?.isOpen()) help.close(); else if (present.isPresenting()) present.exit(); else dispatch({ type: 'keyDown', key: 'Escape' }); },
+    onHelp: () => help?.open(),
     isPresenting: present.isPresenting,
   });
 
