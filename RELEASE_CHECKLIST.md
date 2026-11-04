@@ -75,3 +75,12 @@ Tick every box before the release tag.
 - [ ] `direction LR` inside a TB chart lays out sideways; with an arrow to the outside, the info note appears.
 - [x] The README syntax list matches what the parser reads.
 
+## v0.4.0
+
+- [x] Automated, including `axe.spec.ts`.
+- [ ] Keyboard only: build a three-node diagram with two arrows, rename one node, nudge one, and save a PNG, without touching the mouse.
+- [ ] VoiceOver (macOS) or NVDA (Windows): toolbar groups, the editor, the canvas selection announcements and the diagnostics are all read.
+- [ ] Type, drag, rename, then press Ctrl+Z three times, alternating between the editor and the page; each step restores the exact earlier text.
+- [ ] Copy PNG pastes into a document or slide app; Copy SVG pastes as text.
+- [ ] The panel split is remembered after a reload.
+

@@ -1718,17 +1718,17 @@ git add -A && git commit -m "feat: copy PNG and SVG to the clipboard"
 
 ### Task 52: Release v0.4.0
 
-- [ ] **Step 1: Update the README:**
+- [x] **Step 1: Update the README:**
   - the editor
   - the toolbar groups and Help
   - the shortcut table, copied from `SHORTCUT_HELP`
   - keyboard editing on the canvas
   - copy to clipboard
   - the new initial JS size
-- [ ] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
-- [ ] **Step 3: Add the v0.4.0 section** from Part 7 and tick what commands can check (Part 0, rule 2). Set `package.json` to `0.4.0`.
-- [ ] **Step 4: Run** the full command list. Expected: PASS.
-- [ ] **Step 5: Commit and tag**
+- [x] **Step 2: Run the humanizer** on `README.md`, then restore commands, numbers and code blocks.
+- [x] **Step 3: Add the v0.4.0 section** from Part 7 and tick what commands can check (Part 0, rule 2). Set `package.json` to `0.4.0`.
+- [x] **Step 4: Run** the full command list. Expected: PASS.
+- [x] **Step 5: Commit and tag**
 
 ```bash
 git add -A && git commit -m "chore: release v0.4.0" && git tag v0.4.0

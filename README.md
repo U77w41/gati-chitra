@@ -25,6 +25,15 @@ npm run check:dist  # Verify build integrity, assets, and bundle budget
 npm run test:e2e     # Run end-to-end browser tests
 ```
 
+## What's new in v0.4.0
+
+- Code editor: CodeMirror 6 text editor with syntax highlighting, line numbers, and gutter lint markers on syntax errors.
+- Toolbar and Help: Toolbar grouped into File, Edit, and View sections, plus a Help dialog (`?`) listing all keyboard shortcuts.
+- Resizable panels: Draggable and keyboard-adjustable panel splitter that remembers width across sessions.
+- Canvas keyboard controls: Select nodes with arrow keys, cycle connected arrows with `[` and `]`, nudge node positions with Shift+Arrow, rename with Enter, and connect nodes via the properties panel.
+- Clipboard export: Copy PNG images and SVG markup directly to your clipboard.
+- Bundle budget: Initial JS stays under 150 KB gzip.
+
 ## What's new in v0.3.0
 
 - Extended Mermaid syntax: 10 additional node shapes, 5 new arrow styles, variable link lengths, and per-edge animation controls.
@@ -122,17 +131,24 @@ The table below lists the available keyboard shortcuts:
 | Shortcut | Action |
 | --- | --- |
 | `Ctrl+Z` / `Cmd+Z` | Undo |
-| `Ctrl+Y` / `Cmd+Y` / `Ctrl+Shift+Z` / `Cmd+Shift+Z` | Redo |
-| `f` | Fit diagram to viewport |
-| `+` / `=` | Zoom in (1.25x) |
-| `-` | Zoom out (0.8x) |
-| `p` | Toggle present mode |
-| `k` | Toggle pause or play animation |
+| `Ctrl+Y` / `Cmd+Shift+Z` | Redo |
+| `Ctrl+0` / `Cmd+0` | Fit diagram to view |
+| `+` / `=` | Zoom in |
+| `-` | Zoom out |
+| `P` | Toggle present mode |
+| `K` | Pause or resume animation |
 | `Delete` / `Backspace` | Delete selected node or edge |
 | `Enter` | Rename selected node |
-| `Escape` | Close dialog or exit present mode |
+| `Escape` | Deselect or exit |
+| `?` | Show help and shortcuts |
+| `Drag canvas` | Pan the diagram view |
+| `Arrow keys in present mode` | Next or previous present step |
+| `Arrow keys on splitter` | Resize panels |
+| `Arrow keys on canvas` | Select node in direction |
+| `[` / `]` on canvas | Cycle arrows of selected node |
+| `Shift+Arrow on canvas` | Nudge selected node position |
 
-Hold `Space` while dragging to pan the canvas. Keyboard shortcuts do not trigger while typing in text inputs or textareas.
+Hold `Space` while dragging to pan the canvas. Global keyboard shortcuts do not trigger while typing in text inputs or the code editor, except for `Escape`.
 
 ## Limits
 
@@ -156,6 +172,11 @@ You can export diagrams in multiple formats:
 - **SVG**: Standalone static vector graphic with inline font and geometry metadata.
 - **GIF**: Animated GIF rendered with optimized global palette quantization.
 - **MP4 / WebM**: Hardware-accelerated video using the WebCodecs API, with automatic fallback to GIF when video encoding is unavailable.
+
+You can also copy diagrams directly to your clipboard from the export dialog:
+
+- **Copy PNG**: Copies the raster diagram to the system clipboard as an image.
+- **Copy SVG**: Copies the SVG markup to the system clipboard as text.
 
 Node coordinates repositioned by dragging are saved directly into the Mermaid source using `%% studio:pos <id> <x> <y>` comment annotations. Other Mermaid renderers safely ignore these comment lines.
 

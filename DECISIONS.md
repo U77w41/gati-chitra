@@ -25,3 +25,4 @@ Task 45: axe checks passed at once across all six states with zero violations (W
 Task 46: confirmed 146.39 KB initial JS gzip (level 9) with CodeMirror editor and dynamic gifenc import against the 150 KB budget.
 Task 47: chose to load mermaid language and lint extensions asynchronously into code editor compartments to keep initial JS at 146.84 KB gzip under the 150 KB budget.
 Task 49: chose to offset each end's aiming target along canonical-pair normal from unshifted border point to maintain >= 10px separation at node borders.
+Task 52: confirmed 149.37 KB initial JS gzip (level 9) under the 150 KB budget and released v0.4.0.

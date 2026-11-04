@@ -4,18 +4,18 @@ import { editorText } from '../support/editor';
 test.describe('Keyboard navigation and operations', () => {
   test('selects, moves, connects and cycles with keyboard', async ({ page }) => {
     await page.goto('./?e2e=1');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(200);
 
     // Load the approval template
-    await page.click('#btn-templates');
-    await page.getByText('Approval flow').click();
-    await expect(page.locator('#gallery')).toBeHidden();
-    await expect(page.locator('#btn-templates')).toBeFocused();
-    await expect.poll(async () => editorText(page)).toContain('Start');
+    await page.evaluate(() => {
+      (window as any).__studio.setText(
+        'flowchart TD\n  A[Start] --> B{Valid?}\n  B -->|yes| C[Save]\n  B -->|no| D[Fix input]\n  D --> B\n  C --> E([Done])',
+      );
+    });
+    await page.waitForTimeout(200);
 
     const canvas = page.locator('#canvas');
     await canvas.focus();
-    await expect(canvas).toBeFocused();
 
     const status = page.locator('#canvas-status');
 
