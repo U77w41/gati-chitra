@@ -162,4 +162,23 @@ test.describe('SVG export', () => {
     await expect(page.locator('#export-message')).toContainText('Nothing to export');
     expect(await page.locator('#export-svg').isDisabled()).toBe(true);
   });
+
+  test('copies SVG to clipboard on Chromium', async ({ page, context, browserName }) => {
+    test.skip(browserName !== 'chromium', 'Clipboard permission tests are Chromium only');
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.goto('./?e2e=1');
+    await page.evaluate(() => {
+      (window as any).__studio.setText('flowchart TD\nA-->B');
+    });
+    await page.waitForTimeout(300);
+
+    await page.click('#btn-export');
+    await expect(page.locator('#export-panel')).toBeVisible();
+
+    await page.click('#export-copy-svg');
+    await expect(page.locator('#export-message')).toHaveText('Copied to the clipboard.');
+
+    const text = await page.evaluate(() => navigator.clipboard.readText());
+    expect(text.startsWith('<svg')).toBe(true);
+  });
 });

@@ -1692,7 +1692,7 @@ export function copyText(text: string, deps: ClipboardDeps): Promise<'ok' | 'den
 
   `copyImage` passes the Promise (not the Blob) to `ClipboardItem`, so Safari keeps the user gesture. With no `clipboard.write` or `makeItem`, it returns `'unsupported'`; a rejection returns `'denied'`. The panel shows `MESSAGES.copied` or `MESSAGES.copyUnsupported`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('reports missing support', async () => { expect(await copyImage(Promise.resolve(new Blob()), {})).toBe('unsupported'); });
@@ -1707,10 +1707,10 @@ it('copies text', async () => {
 ```
 
 e2e in `export-svg.spec.ts`, Chromium only: grant `clipboard-read` and `clipboard-write`, click Copy SVG; `navigator.clipboard.readText()` starts with `<svg` and `#export-message` shows `MESSAGES.copied`.
-- [ ] **Step 2: Run** `npm test && npm run test:e2e -- export-svg.spec.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test && npm run test:e2e -- export-svg.spec.ts`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: copy PNG and SVG to the clipboard"

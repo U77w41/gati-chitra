@@ -26,13 +26,21 @@ export function setupExportPanel(env: ExportPanelEnv): void {
   const exportSvgBtn = dialogEl.querySelector<HTMLButtonElement>('#export-svg')!;
   const exportGifBtn = dialogEl.querySelector<HTMLButtonElement>('#export-gif')!;
   const exportVideoBtn = dialogEl.querySelector<HTMLButtonElement>('#export-video');
+  const exportCopyPng = dialogEl.querySelector<HTMLButtonElement>('#export-copy-png');
+  const exportCopySvg = dialogEl.querySelector<HTMLButtonElement>('#export-copy-svg');
   const exportCancel = dialogEl.querySelector<HTMLButtonElement>('#export-cancel')!;
   const exportClose = dialogEl.querySelector<HTMLButtonElement>('#export-close')!;
   const exportProgress = dialogEl.querySelector<HTMLProgressElement>('#export-progress')!;
   const exportMessage = dialogEl.querySelector<HTMLElement>('#export-message')!;
 
+  const SAVE_BTNS = '#export-png, #export-svg, #export-gif, #export-video, #export-copy-png, #export-copy-svg';
   btnExport.disabled = false;
   let abortCtrl: AbortController | null = null;
+
+  function getTheme(state: AppState) {
+    const scheme = document.documentElement.getAttribute('data-scheme') === 'dark' ? 'dark' : 'light';
+    return THEMES[resolveTheme(state.settings.theme, scheme)];
+  }
 
   function open(): void {
     const state = getState();
@@ -45,9 +53,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
       exportName.value = title;
     }
 
-    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(
-      '#export-png, #export-svg, #export-gif, #export-video',
-    );
+    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(SAVE_BTNS);
     for (const b of saveButtons) b.disabled = noScene;
 
     if (dialogEl.showModal) dialogEl.showModal();
@@ -55,10 +61,16 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     exportName.focus();
   }
 
+  function resetSaveButtons(): void {
+    abortCtrl = null;
+    if (exportProgress) exportProgress.hidden = true;
+    const curState = getState();
+    const noScene = !curState.scene || isEmptyBounds(curState.scene.layout.bounds);
+    for (const b of dialogEl.querySelectorAll<HTMLButtonElement>(SAVE_BTNS)) b.disabled = noScene;
+  }
+
   function close(): void {
-    if (abortCtrl) {
-      abortCtrl.abort();
-    }
+    if (abortCtrl) abortCtrl.abort();
     if (dialogEl.close) dialogEl.close();
     else dialogEl.removeAttribute('open');
     btnExport.focus();
@@ -75,12 +87,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
   exportPngBtn.addEventListener('click', async () => {
     const state = getState();
     if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
-
-    const scheme =
-      document.documentElement.getAttribute('data-scheme') === 'dark'
-        ? 'dark'
-        : 'light';
-    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const theme = getTheme(state);
     const mode = exportMode.value as ExportMode;
     const scale = parseInt(exportScale.value, 10);
     const transparent = exportTransparent.checked;
@@ -89,11 +96,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     try {
       exportPngBtn.disabled = true;
       const { exportPng } = await import('../export/png');
-      const res = await exportPng(state.scene, theme, {
-        mode,
-        scale,
-        transparent,
-      });
+      const res = await exportPng(state.scene, theme, { mode, scale, transparent });
       if (res.reduced) {
         exportMessage.textContent = MESSAGES.pngReduced(res.scaleUsed);
       }
@@ -105,52 +108,81 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     }
   });
 
+  exportCopyPng?.addEventListener('click', async () => {
+    const state = getState();
+    if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
+    const theme = getTheme(state);
+    const mode = exportMode.value as ExportMode;
+    const scale = parseInt(exportScale.value, 10);
+    const transparent = exportTransparent.checked;
+
+    try {
+      exportCopyPng.disabled = true;
+      const [{ copyImage }, { exportPng }] = await Promise.all([
+        import('./clipboard'),
+        import('../export/png'),
+      ]);
+      const pngPromise = exportPng(state.scene, theme, { mode, scale, transparent }).then((r) => r.blob);
+      const res = await copyImage(pngPromise);
+      if (res === 'ok') exportMessage.textContent = MESSAGES.copied;
+      else if (res === 'unsupported') exportMessage.textContent = MESSAGES.copyUnsupported;
+    } catch (err: unknown) {
+      exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
+    } finally {
+      exportCopyPng.disabled = false;
+    }
+  });
+
   exportSvgBtn.addEventListener('click', async () => {
     const state = getState();
     if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
-
-    const scheme =
-      document.documentElement.getAttribute('data-scheme') === 'dark'
-        ? 'dark'
-        : 'light';
-    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const theme = getTheme(state);
     const mode = exportMode.value as ExportMode;
     const transparent = exportTransparent.checked;
     const filename = safeFilename(exportName.value, 'svg');
 
     try {
       const { renderSvg } = await import('../render/svg');
-      const svgText = renderSvg(
-        state.scene,
-        theme,
-        { mode, transparent },
-        canvasMeasure(),
-      );
-      const blob = new Blob([svgText], {
-        type: 'image/svg+xml;charset=utf-8',
-      });
+      const svgText = renderSvg(state.scene, theme, { mode, transparent }, canvasMeasure());
+      const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
       downloadBlob(blob, filename);
     } catch (err: unknown) {
       exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
     }
   });
 
+  exportCopySvg?.addEventListener('click', async () => {
+    const state = getState();
+    if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
+    const theme = getTheme(state);
+    const mode = exportMode.value as ExportMode;
+    const transparent = exportTransparent.checked;
+
+    try {
+      exportCopySvg.disabled = true;
+      const [{ copyText }, { renderSvg }] = await Promise.all([
+        import('./clipboard'),
+        import('../render/svg'),
+      ]);
+      const svgText = renderSvg(state.scene, theme, { mode, transparent }, canvasMeasure());
+      const res = await copyText(svgText);
+      if (res === 'ok') exportMessage.textContent = MESSAGES.copied;
+      else exportMessage.textContent = MESSAGES.copyUnsupported;
+    } catch (err: unknown) {
+      exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
+    } finally {
+      exportCopySvg.disabled = false;
+    }
+  });
+
   exportGifBtn.addEventListener('click', async () => {
     const state = getState();
     if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
-
-    const scheme =
-      document.documentElement.getAttribute('data-scheme') === 'dark'
-        ? 'dark'
-        : 'light';
-    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const theme = getTheme(state);
     const mode = exportMode.value as ExportMode;
     const fps = parseInt(exportFps.value, 10);
     const filename = safeFilename(exportName.value, 'gif');
-
-    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(
-      '#export-png, #export-svg, #export-gif, #export-video',
-    );
+    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(SAVE_BTNS);
 
     try {
       for (const b of saveButtons) b.disabled = true;
@@ -188,11 +220,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         exportMessage.textContent = err instanceof Error ? err.message : 'Export failed';
       }
     } finally {
-      abortCtrl = null;
-      if (exportProgress) exportProgress.hidden = true;
-      const curState = getState();
-      const noScene = !curState.scene || isEmptyBounds(curState.scene.layout.bounds);
-      for (const b of saveButtons) b.disabled = noScene;
+      resetSaveButtons();
     }
   });
 
@@ -200,18 +228,11 @@ export function setupExportPanel(env: ExportPanelEnv): void {
     const state = getState();
     if (!state.scene || isEmptyBounds(state.scene.layout.bounds)) return;
 
-    const scheme =
-      document.documentElement.getAttribute('data-scheme') === 'dark'
-        ? 'dark'
-        : 'light';
-    const theme = THEMES[resolveTheme(state.settings.theme, scheme)];
+    const theme = getTheme(state);
     const mode = exportMode.value as ExportMode;
     const loops = exportLoops ? parseInt(exportLoops.value, 10) : 2;
     const name = exportName.value;
-
-    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(
-      '#export-png, #export-svg, #export-gif, #export-video',
-    );
+    const saveButtons = dialogEl.querySelectorAll<HTMLButtonElement>(SAVE_BTNS);
 
     try {
       for (const b of saveButtons) b.disabled = true;
@@ -267,11 +288,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
         exportMessage.textContent = MESSAGES.videoFailed(err instanceof Error ? err.message : 'Export failed');
       }
     } finally {
-      abortCtrl = null;
-      if (exportProgress) exportProgress.hidden = true;
-      const curState = getState();
-      const noScene = !curState.scene || isEmptyBounds(curState.scene.layout.bounds);
-      for (const b of saveButtons) b.disabled = noScene;
+      resetSaveButtons();
     }
   });
 }

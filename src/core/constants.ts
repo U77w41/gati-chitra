@@ -158,6 +158,8 @@ export const MESSAGES = {
   storageUnavailable: 'Browser storage is unavailable, so autosave is off.',
   groupsInText: 'Groups are edited in the text.',
   linkCopied: 'Link copied.',
+  copied: 'Copied to the clipboard.',
+  copyUnsupported: 'This browser cannot copy images. Use Save instead.',
   nothingToPresent: 'Nothing to present. Add a node first.',
   exportCancelled: 'Export cancelled.',
   videoFailed: (m: string) => `Video export failed: ${m}`,
