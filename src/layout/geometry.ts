@@ -127,30 +127,32 @@ export function routeEdges(
         p1 = { x: cx + w / 2, y: cy - h / 2 + 14 };
         control = { x: cx + w / 2 + size, y: cy - h / 2 - size };
       } else {
-        p0 = edge.fromIsGroup
-          ? rectBorderPoint(groupBoxes[edge.from]!.rect, toCenter)
-          : borderPoint(nodes[edge.from]!, fromShape, toCenter);
-        p1 = edge.toIsGroup
-          ? rectBorderPoint(groupBoxes[edge.to]!.rect, fromCenter)
-          : borderPoint(nodes[edge.to]!, toShape, fromCenter);
-
-        if (n === 1) {
-          pathKind = 'straight';
-          control = null;
-        } else {
+        let sx = 0, sy = 0, nrm = { x: 0, y: 0 }, offset = 0;
+        if (n > 1) {
           pathKind = 'quad';
           const centerA = edge.from < edge.to ? fromCenter : toCenter;
           const centerB = edge.from < edge.to ? toCenter : fromCenter;
-          const vx = centerB.x - centerA.x;
-          const vy = centerB.y - centerA.y;
-          const vlen = Math.hypot(vx, vy);
-          const d = vlen === 0 ? { x: 0, y: 1 } : { x: vx / vlen, y: vy / vlen };
-          const nrm = { x: -d.y, y: d.x };
-          const offset = (i - (n - 1) / 2) * LAYOUT.parallelOffset;
-          const mid = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+          const vx = centerB.x - centerA.x, vy = centerB.y - centerA.y;
+          const vlen = Math.hypot(vx, vy) || 1;
+          nrm = { x: -vy / vlen, y: vx / vlen };
+          offset = (i - (n - 1) / 2) * LAYOUT.parallelOffset;
+          sx = nrm.x * offset * LAYOUT.parallelEndShare;
+          sy = nrm.y * offset * LAYOUT.parallelEndShare;
+        }
+
+        const clipEnd = (isGroup: boolean, id: string, shape: ShapeKind, toward: Point) => {
+          const base = isGroup ? rectBorderPoint(groupBoxes[id]!.rect, toward) : borderPoint(nodes[id]!, shape, toward);
+          if (n <= 1) return base;
+          const target = { x: base.x + sx, y: base.y + sy };
+          return isGroup ? rectBorderPoint(groupBoxes[id]!.rect, target) : borderPoint(nodes[id]!, shape, target);
+        };
+        p0 = clipEnd(edge.fromIsGroup, edge.from, fromShape, toCenter);
+        p1 = clipEnd(edge.toIsGroup, edge.to, toShape, fromCenter);
+
+        if (n > 1) {
           control = {
-            x: mid.x + nrm.x * (offset * 2),
-            y: mid.y + nrm.y * (offset * 2),
+            x: (p0.x + p1.x) / 2 + nrm.x * (offset * 2),
+            y: (p0.y + p1.y) / 2 + nrm.y * (offset * 2),
           };
         }
       }

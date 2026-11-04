@@ -1579,7 +1579,7 @@ git add -A && git commit -m "feat: grouped toolbar, help and resizable panels"
   - Aim each end at the other node's centre shifted by `normal * offset * parallelEndShare`, then clip with `borderPoint`, so the arrowheads no longer meet at one point.
 - Edge labels sit on a rounded rectangle (radius `edgeLabelRadius`) filled with `theme.edgeLabelBg` and stroked with `theme.edge` at 30% alpha, on canvas and in SVG.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 it('separates opposite arrows', () => {
@@ -1593,10 +1593,10 @@ it('draws label pills', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npm test`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the Interfaces block. Hit-testing uses the new paths automatically.
-- [ ] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- drag.spec.ts edit.spec.ts`. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npm test`. Expected: FAIL.
+- [x] **Step 3: Implement** per the Interfaces block. Hit-testing uses the new paths automatically.
+- [x] **Step 4: Run** `npm test && npm run lint && npm run build && npm run test:e2e -- drag.spec.ts edit.spec.ts`. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: clearer parallel arrows and labels"

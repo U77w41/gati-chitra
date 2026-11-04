@@ -134,7 +134,7 @@ export function renderSvg(
       const h = LAYOUT.edgeLabelH;
       const x = path.labelPoint.x - w / 2;
       const y = path.labelPoint.y - h / 2;
-      out += `<rect x="${fmt(x)}" y="${fmt(y)}" width="${fmt(w)}" height="${fmt(h)}" rx="4" fill="${theme.edgeLabelBg}"/>`;
+      out += `<rect x="${fmt(x)}" y="${fmt(y)}" width="${fmt(w)}" height="${fmt(h)}" rx="${fmt(LAYOUT.edgeLabelRadius)}" fill="${theme.edgeLabelBg}" stroke="${theme.edge}" stroke-opacity="0.3"/>`;
       if (edge.markdown) {
         const runs = parseInlineMarkdown(edge.label);
         out += `<text x="${fmt(path.labelPoint.x)}" y="${fmt(path.labelPoint.y)}" dy="0.35em" text-anchor="middle" font-size="13" fill="${theme.edgeLabelText}">`;

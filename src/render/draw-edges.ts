@@ -144,9 +144,14 @@ export function drawEdgeLabels(
       }
       const h = LAYOUT.edgeLabelH;
       ctx.beginPath();
-      ctx.roundRect(path.labelPoint.x - w / 2, path.labelPoint.y - h / 2, w, h, 4);
+      ctx.roundRect(path.labelPoint.x - w / 2, path.labelPoint.y - h / 2, w, h, LAYOUT.edgeLabelRadius);
       ctx.fillStyle = theme.edgeLabelBg;
       ctx.fill();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = theme.edge;
+      ctx.globalAlpha = 0.3;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
 
       ctx.fillStyle = theme.edgeLabelText;
       if (edge.markdown) {

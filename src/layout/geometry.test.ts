@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseMermaid } from '../mermaid/parse';
 import { buildSteps } from '../anim/steps';
+import { LAYOUT } from '../core/constants';
 import {
   borderPoint,
   handlePoint,
@@ -13,6 +14,7 @@ import {
 import { buildScene } from './scene';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
+import { dist, sceneOf } from '../../tests/support/scene';
 import type { NodeBox } from '../core/types';
 
 function box(id: string, x: number, y: number, w = 100, h = 40): NodeBox {
@@ -65,10 +67,10 @@ describe('geometry', () => {
 
     const two = routeEdges(parseMermaid('flowchart TD\nA-->B\nB-->A'), nodes);
     expect([two.e0.kind, two.e1.kind]).toEqual(['quad', 'quad']);
-    expect([two.e0.control!.x, two.e1.control!.x]).toEqual([14, -14]);
+    expect([two.e0.control!.x, two.e1.control!.x]).toEqual([35, -35]);
 
     const three = routeEdges(parseMermaid('flowchart TD\nA-->B\nA-->B\nA-->B'), nodes);
-    expect([three.e0.control!.x, three.e1.control!.x, three.e2.control!.x]).toEqual([28, 0, -28]);
+    expect([three.e0.control!.x, three.e1.control!.x, three.e2.control!.x]).toEqual([70, 0, -70]);
 
     const loop = routeEdges(parseMermaid('flowchart TD\nA-->A'), nodes).e0;
     expect(loop).toMatchObject({ kind: 'loop', control: { x: 50 + 28, y: -20 - 28 } });
@@ -145,5 +147,12 @@ describe('geometry', () => {
     expect(s.layout.nodes.B.center.x).toBeGreaterThan(s.layout.nodes.A.center.x);
     expect(s.layout.edges).toEqual({});
     expect(buildSteps(s.doc).flatMap((st) => st.edges)).toEqual([]);
+  });
+
+  it('separates opposite arrows', () => {
+    const s = sceneOf('flowchart LR\nA --> B\nB --> A');
+    const [e0, e1] = [s.layout.edges.e0, s.layout.edges.e1];
+    expect(dist(pointOnPath(e0, 0.5), pointOnPath(e1, 0.5))).toBeGreaterThanOrEqual(LAYOUT.parallelOffset - 0.5);
+    expect(dist(e0.from, e1.to)).toBeGreaterThanOrEqual(10);
   });
 });

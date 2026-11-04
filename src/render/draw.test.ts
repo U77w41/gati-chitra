@@ -212,4 +212,13 @@ describe('draw', () => {
     const calls = draw('flowchart TD\nA@{ shape: sm-circ, label: "S" }\nB@{ shape: text, label: "T" }');
     expect(calls.filter(c => c.name === 'fillText').map(c => c.args[0])).toEqual(['T']);
   });
+
+  it('draws label pills with radius and 30% alpha stroke', () => {
+    const calls = draw('flowchart LR\nA -->|yes| B');
+    expect(calls).toContainEqual({
+      name: 'roundRect',
+      args: expect.arrayContaining([6]),
+    });
+    expect(calls).toContainEqual({ name: 'set:globalAlpha', args: [0.3] });
+  });
 });

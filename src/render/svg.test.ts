@@ -128,4 +128,8 @@ describe('SVG export', () => {
     expect(s).toContain('<title id="gc-title">Orders</title>');
     expect(s).toContain('<a href="https://x.org/?a=1&amp;b=2" target="_blank" rel="noopener noreferrer"><title>Tip</title>');
   });
+
+  it('draws label pills', () => {
+    expect(svg('flowchart LR\nA -->|yes| B')).toMatch(/<rect[^>]*rx="6"/);
+  });
 });
