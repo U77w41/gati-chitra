@@ -1636,7 +1636,7 @@ export function announceSelection(doc: ParsedDoc, sel: Selection | null): string
   - Enter renames, Delete deletes, Escape clears.
 - **Connect to:** a node selection fills `#prop-connect` with every other node id. `#prop-connect-go` applies `{ type: 'addEdge', from, to }`.
 
-- [ ] **Step 1: Write the failing unit tests**
+- [x] **Step 1: Write the failing unit tests**
 
 ```ts
 // 3x3 grid, ids r{row}c{col}, centres at (col*100, row*100), order row-major
@@ -1659,17 +1659,17 @@ it('cycles arrows', () => {
 });
 ```
 
-- [ ] **Step 2: Write the failing e2e tests** in `keyboard.spec.ts`. Load the approval template, focus `#canvas`, then check each step:
+- [x] **Step 2: Write the failing e2e tests** in `keyboard.spec.ts`. Load the approval template, focus `#canvas`, then check each step:
   1. ArrowDown: `#canvas-status` reads `Node A, Start, Rectangle. 0 in, 1 out.`
   2. ArrowDown: node B is selected.
   3. Shift+ArrowRight: the text gains a `%% studio:pos B` line.
   4. Enter: `#inline-edit` is visible. Escape closes it.
   5. `]`: an arrow is selected.
   6. Escape, then select B with ArrowDown. Choose `E` in `#prop-connect` and activate `#prop-connect-go`: the text has a new `B --> E` line.
-- [ ] **Step 3: Run** `npm test && npm run test:e2e -- keyboard.spec.ts`. Expected: FAIL.
-- [ ] **Step 4: Implement** per the Interfaces block.
-- [ ] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
-- [ ] **Step 6: Commit**
+- [x] **Step 3: Run** `npm test && npm run test:e2e -- keyboard.spec.ts`. Expected: FAIL.
+- [x] **Step 4: Implement** per the Interfaces block.
+- [x] **Step 5: Run** `npm test && npm run lint && npm run build && npm run test:e2e`. Expected: PASS, including `axe.spec.ts`.
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A && git commit -m "feat: select, move and connect with the keyboard"

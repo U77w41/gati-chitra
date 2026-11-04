@@ -1,6 +1,7 @@
 import { EDGE_KIND_NAMES, SHAPE_NAMES } from '../core/shapes';
 import type { EdgeKind, ShapeKind, TextOp } from '../core/types';
 import { resolveTheme, THEMES } from '../render/themes';
+import { announceSelection } from './describe';
 import type { AppState } from './state';
 
 export interface PropertiesEnv {
@@ -35,6 +36,8 @@ export function setupProperties(env: PropertiesEnv): () => void {
 
   const propKind = panelEl.querySelector<HTMLSelectElement>('#prop-kind')!;
   const propReverse = panelEl.querySelector<HTMLButtonElement>('#prop-reverse')!;
+  const propConnect = panelEl.querySelector<HTMLSelectElement>('#prop-connect')!;
+  const propConnectGo = panelEl.querySelector<HTMLButtonElement>('#prop-connect-go')!;
 
   const nodeSection = panelEl.querySelector<HTMLElement>('#prop-section-node')!;
   const edgeSection = panelEl.querySelector<HTMLElement>('#prop-section-edge')!;
@@ -138,6 +141,14 @@ export function setupProperties(env: PropertiesEnv): () => void {
     }
   });
 
+  propConnectGo.addEventListener('click', () => {
+    const state = getState();
+    const sel = state.editor.selection;
+    if (sel?.kind === 'node' && state.doc.ok && propConnect.value) {
+      executeOp({ type: 'addEdge', from: sel.id, to: propConnect.value });
+    }
+  });
+
   propDelete.addEventListener('click', () => {
     const state = getState();
     const sel = state.editor.selection;
@@ -149,6 +160,10 @@ export function setupProperties(env: PropertiesEnv): () => void {
   return function update(): void {
     const state = getState();
     const sel = state.editor.selection;
+    const statusEl = document.querySelector<HTMLElement>('#canvas-status');
+    if (statusEl) {
+      statusEl.textContent = announceSelection(state.doc, sel);
+    }
     if (!sel) {
       panelEl.hidden = true;
       return;
@@ -177,6 +192,19 @@ export function setupProperties(env: PropertiesEnv): () => void {
         if (document.activeElement !== propFill) propFill.value = toHexColor(node.style.fill, theme.nodeFill);
         if (document.activeElement !== propStroke) propStroke.value = toHexColor(node.style.stroke, theme.nodeStroke);
         if (document.activeElement !== propTextColor) propTextColor.value = toHexColor(node.style.color, theme.nodeText);
+        const otherNodes = state.doc.nodes.filter((n) => n.id !== sel.id);
+        const currentConnectVal = propConnect.value;
+        propConnect.innerHTML = '';
+        for (const on of otherNodes) {
+          const opt = document.createElement('option');
+          opt.value = on.id;
+          opt.textContent = on.id;
+          propConnect.appendChild(opt);
+        }
+        if (currentConnectVal && otherNodes.some((n) => n.id === currentConnectVal)) {
+          propConnect.value = currentConnectVal;
+        }
+        propConnectGo.disabled = disabled || otherNodes.length === 0;
       }
     } else if (sel.kind === 'edge') {
       nodeSection.hidden = true;

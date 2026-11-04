@@ -68,8 +68,9 @@
           </section>
           <div id="splitter" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="33" aria-label="Resize panels"></div>
           <section id="canvas-panel">
-            <canvas id="canvas" role="img" aria-describedby="canvas-desc"></canvas>
+            <canvas id="canvas" role="img" aria-describedby="canvas-desc" tabindex="0"></canvas>
             <p id="canvas-desc" class="visually-hidden"></p>
+            <div id="canvas-status" class="visually-hidden" aria-live="polite"></div>
             <div id="props" hidden>
               <div id="prop-section-label">
                 <label for="prop-label">Label</label>
@@ -85,6 +86,9 @@
                 <label for="prop-text-color">Text</label>
                 <input type="color" id="prop-text-color" />
                 <button id="prop-clear-colours">Clear colours</button>
+                <label for="prop-connect">Connect to</label>
+                <select id="prop-connect"></select>
+                <button id="prop-connect-go">Connect</button>
               </div>
               <div id="prop-section-edge">
                 <label for="prop-kind">Kind</label>

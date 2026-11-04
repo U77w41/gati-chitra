@@ -254,7 +254,8 @@ export async function initApp(): Promise<void> {
   setupCanvasEvents({
     canvasEl, getState: () => state, dispatch,
     updateView: (fn) => { state.view = fn(state.view); requestRedraw(); },
-    isPresenting: present.isPresenting,
+    isPresenting: present.isPresenting, executeOp,
+    isInlineEditing: () => state.editor.editing !== null, requestRedraw,
   });
 
   startRenderLoop({

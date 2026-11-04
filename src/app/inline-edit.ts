@@ -30,6 +30,7 @@ export function setupInlineEditor(
     commitCallback = null;
     cancelCallback = null;
     cb?.(textarea.value);
+    canvasEl.focus();
   }
 
   function cancel(): void {
@@ -40,6 +41,7 @@ export function setupInlineEditor(
     commitCallback = null;
     cancelCallback = null;
     cb?.();
+    canvasEl.focus();
   }
 
   textarea.addEventListener('keydown', (e) => {
@@ -48,9 +50,11 @@ export function setupInlineEditor(
         return;
       }
       e.preventDefault();
+      e.stopPropagation();
       commit();
     } else if (e.key === 'Escape') {
       e.preventDefault();
+      e.stopPropagation();
       cancel();
     }
   });

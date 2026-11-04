@@ -124,6 +124,8 @@ export const UI = {
   splitStep: 0.05,
 } as const;
 
+export const KEYBOARD = { nudge: 10 } as const;
+
 export const MESSAGES = {
   notFlowchart: "Only flowchart diagrams are supported. Start with 'flowchart TD' or 'graph LR'.",
   tooManyNodes: 'Too many nodes (limit 300).',

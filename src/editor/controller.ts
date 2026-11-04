@@ -167,6 +167,10 @@ export function reduce(
       return { state: { ...state, editing: null }, effects: [] };
     }
 
+    case 'select': {
+      return { state: { ...state, selection: event.selection }, effects: [] };
+    }
+
     case 'textChanged': {
       return { state: { ...state, drag: null, pan: null, connect: null, editing: null }, effects: [] };
     }

@@ -23,7 +23,8 @@ export type EditorEvent =
   | { type: 'textChanged' }
   | { type: 'dblClick'; world: Point }
   | { type: 'commitEdit'; text: string }
-  | { type: 'cancelEdit' };
+  | { type: 'cancelEdit' }
+  | { type: 'select'; selection: Selection | null };
 
 export type EditorEffect =
   | { type: 'applyOp'; op: TextOp }

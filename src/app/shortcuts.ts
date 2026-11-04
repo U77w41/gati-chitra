@@ -30,6 +30,9 @@ export const SHORTCUT_HELP: {
   { keys: 'Drag canvas', action: 'pan', text: 'Pan the diagram view' },
   { keys: 'Arrow keys in present mode', action: 'navigate', text: 'Next or previous present step' },
   { keys: 'Arrow keys on splitter', action: 'nudge', text: 'Resize panels' },
+  { keys: 'Arrow keys on canvas', action: 'navigate', text: 'Select node in direction' },
+  { keys: '[ / ] on canvas', action: 'navigate', text: 'Cycle arrows of selected node' },
+  { keys: 'Shift+Arrow on canvas', action: 'nudge', text: 'Nudge selected node position' },
 ];
 
 export interface KeyInfo {

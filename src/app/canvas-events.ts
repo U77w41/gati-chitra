@@ -2,6 +2,9 @@ import { wheelFactor, zoomAt } from '../editor/view';
 import type { EditorEvent } from '../editor/controller';
 import { screenToWorld } from '../editor/view';
 import type { AppState } from './state';
+import type { TextOp } from '../core/types';
+import { KEYBOARD } from '../core/constants';
+import { edgeCycle, nextNodeInDirection, type Dir } from '../editor/keyboard-nav';
 
 export interface CanvasEventsEnv {
   canvasEl: HTMLCanvasElement;
@@ -9,6 +12,9 @@ export interface CanvasEventsEnv {
   dispatch: (event: EditorEvent) => void;
   updateView: (fn: (v: AppState['view']) => AppState['view']) => void;
   isPresenting?: () => boolean;
+  executeOp?: (op: TextOp, opts?: { coalesce?: boolean }) => void;
+  isInlineEditing?: () => boolean;
+  requestRedraw?: () => void;
 }
 
 export function setupCanvasEvents(env: CanvasEventsEnv): void {
@@ -103,5 +109,97 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
       type: 'dblClick',
       world,
     });
+  });
+
+  let lastNudgeTime = 0;
+  let lastSelectedNodeId: string | null = null;
+
+  canvasEl.addEventListener('keydown', (e) => {
+    if (env.isInlineEditing?.() || env.isPresenting?.()) return;
+    const state = getState();
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      dispatch({ type: 'keyDown', key: 'Enter' });
+      return;
+    }
+
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      dispatch({ type: 'keyDown', key: 'Delete' });
+      return;
+    }
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      dispatch({ type: 'keyDown', key: 'Escape' });
+      return;
+    }
+
+    if (e.key === '[' || e.key === ']') {
+      e.preventDefault();
+      const sel = state.editor.selection;
+      let nodeId: string | null = null;
+      let currentEdgeIdx: number | null = null;
+      if (sel?.kind === 'node') {
+        nodeId = sel.id;
+        lastSelectedNodeId = sel.id;
+      } else if (sel?.kind === 'edge') {
+        currentEdgeIdx = Number(sel.id.slice(1));
+        const edge = state.doc.edges[currentEdgeIdx];
+        if (edge) nodeId = lastSelectedNodeId ?? edge.from;
+      }
+      if (nodeId && state.doc.ok) {
+        const step = e.key === ']' ? 1 : -1;
+        const nextEdge = edgeCycle(state.doc, nodeId, currentEdgeIdx, step);
+        if (nextEdge !== null) {
+          dispatch({ type: 'select', selection: { kind: 'edge', id: `e${nextEdge}` } });
+          env.requestRedraw?.();
+        }
+      }
+      return;
+    }
+
+    if (e.shiftKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      const sel = state.editor.selection;
+      if (sel?.kind === 'node' && state.doc.ok && state.scene && env.executeOp) {
+        const nodeBox = state.scene.layout.nodes[sel.id];
+        if (nodeBox) {
+          let dx = 0, dy = 0;
+          if (e.key === 'ArrowUp') dy = -KEYBOARD.nudge;
+          else if (e.key === 'ArrowDown') dy = KEYBOARD.nudge;
+          else if (e.key === 'ArrowLeft') dx = -KEYBOARD.nudge;
+          else if (e.key === 'ArrowRight') dx = KEYBOARD.nudge;
+          const now = Date.now();
+          const coalesce = now - lastNudgeTime < 1000;
+          lastNudgeTime = now;
+          const newPos = { x: nodeBox.center.x + dx, y: nodeBox.center.y + dy };
+          env.executeOp({ type: 'setPin', id: sel.id, x: newPos.x, y: newPos.y }, { coalesce });
+        }
+      }
+      return;
+    }
+
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      if (!state.scene || !state.doc.ok) return;
+      const dirMap: Record<string, Dir> = {
+        ArrowUp: 'up',
+        ArrowDown: 'down',
+        ArrowLeft: 'left',
+        ArrowRight: 'right',
+      };
+      const dir = dirMap[e.key];
+      const currentId = state.editor.selection?.kind === 'node' ? state.editor.selection.id : null;
+      const order = state.doc.nodes.map((n) => n.id);
+      const nextId = nextNodeInDirection(state.scene.layout, order, currentId, dir);
+      if (nextId) {
+        lastSelectedNodeId = nextId;
+        dispatch({ type: 'select', selection: { kind: 'node', id: nextId } });
+        env.requestRedraw?.();
+      }
+      return;
+    }
   });
 }
