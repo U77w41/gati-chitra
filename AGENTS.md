@@ -4,6 +4,7 @@ These instructions apply to every AI coding agent that works in this repository.
 
 ## 1. Read first
 
+- The current build plan is `plan.md` (Tasks 64 to 103: more Mermaid diagram types). Read its "Start here" and Part 0 first.
 - The build plan is `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60). Before you change anything, read its "Start here" section and its Part 0. If you are Gemini CLI, also read its "Running this plan with Gemini CLI" section.
 - The first plan, `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23, all done), is the reference for every contract the new plan does not change. Do not work from it.
 - Work through the plan's tasks in order, one task at a time, with one commit per task and the commit message the plan gives.

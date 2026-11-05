@@ -38,6 +38,9 @@ it('has a lint script, an engines field and a Node version file', () => {
 it('points agents at the improvements plan', () => {
   expect(readFileSync('AGENTS.md', 'utf8')).toContain('docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md');
 });
+it('points agents at plan.md', () => {
+  expect(readFileSync('AGENTS.md', 'utf8')).toContain('`plan.md`');
+});
 
 function walk(dir: string): string[] {
   const files: string[] = [];

@@ -9,20 +9,14 @@ import type {
 import { handlePoint, pointOnPath } from '../layout/geometry';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
 import { drawGrid } from './grid';
-import { drawNodeLines, drawRuns } from './draw-runs';
-import { traceNodePath } from './node-path';
-import {
-  drawPipelineNode,
-  traceRoundedDiamond,
-} from './pipeline-cards';
+import { drawNodes } from './draw-nodes';
+import { drawRuns } from './draw-runs';
 import { prepare } from './prepared';
-import { drawNodeInnerLines } from './shapes-extra';
 import { edgeStyle, nodeStyle } from './style';
-import { drawWorkflowTile } from './workflow-cards';
 
 export type Ctx2D = CanvasRenderingContext2D;
 
-export { edgeStyle, nodeStyle, drawGrid, drawRuns };
+export { edgeStyle, nodeStyle, drawGrid, drawRuns, drawNodes };
 
 export function emptyFrame(): FrameState {
   return { particles: [], dashOffset: null, nodeGlow: {} };
@@ -126,96 +120,7 @@ export function drawScene(
   }
 
   // 7. Nodes
-  for (const node of scene.doc.nodes) {
-    const box = scene.layout.nodes[node.id];
-    if (!box) continue;
-
-    const alpha = frame.nodeAlpha?.[node.id] ?? 1;
-    if (alpha <= 0) continue;
-
-    const isDimmed = options.focus !== null && !options.focus.nodes.includes(node.id);
-    const baseAlpha = isDimmed ? ANIM.dimAlpha : 1;
-    ctx.globalAlpha = baseAlpha * alpha;
-
-    const st = nodeStyle(node, theme);
-    const glow = frame.nodeGlow[node.id] ?? 0;
-    const hasGlow = options.showGlow && glow > 0;
-    const textProg = frame.nodeTextProgress?.[node.id];
-
-    if (options.cardMode === 'workflow') {
-      const isTrigger = !scene.doc.edges.some((e) => e.to === node.id);
-      drawWorkflowTile(
-        ctx,
-        box,
-        node.label,
-        isTrigger,
-        st.fill,
-        st.stroke,
-        st.text,
-        textProg,
-        ctx.globalAlpha,
-      );
-    } else if (options.cardMode === 'pipeline') {
-      drawPipelineNode(
-        ctx,
-        box,
-        node.shape,
-        node.label,
-        st,
-        hasGlow,
-        glow,
-        theme,
-        textProg,
-        ctx.globalAlpha,
-      );
-    } else {
-      if (node.shape !== 'text') {
-        ctx.beginPath();
-        traceNodePath(ctx, box, node.shape);
-        if (hasGlow) {
-          ctx.shadowColor = theme.glow;
-          ctx.shadowBlur = ANIM.glowBlur * glow;
-        }
-        ctx.fillStyle =
-          node.shape === 'filledCircle' || node.shape === 'forkBar' ? st.stroke : st.fill;
-        ctx.fill();
-        if (hasGlow) ctx.shadowBlur = 0;
-        ctx.lineWidth = st.strokeWidth;
-        ctx.strokeStyle = st.stroke;
-        ctx.stroke();
-        drawNodeInnerLines(ctx, box, node.shape);
-      }
-
-      if (
-        node.shape !== 'smallCircle' &&
-        node.shape !== 'filledCircle' &&
-        node.shape !== 'forkBar'
-      ) {
-        ctx.fillStyle = st.text;
-        if (box.runs) {
-          drawRuns(ctx, box.runs, box.center, LAYOUT.fontSize, LAYOUT.lineHeight);
-        } else {
-          drawNodeLines(ctx, box, textProg);
-        }
-      }
-    }
-
-    if (options.selection?.kind === 'node' && options.selection.id === node.id) {
-      ctx.beginPath();
-      if (options.cardMode === 'workflow') {
-        ctx.roundRect(box.center.x - 32, box.center.y - 32, 64, 64, 16);
-      } else if (options.cardMode === 'pipeline' && node.shape === 'diamond') {
-        traceRoundedDiamond(ctx, box, 10);
-      } else {
-        traceNodePath(ctx, box, node.shape);
-      }
-      ctx.strokeStyle = theme.selection;
-      ctx.lineWidth = 3;
-      ctx.stroke();
-    }
-
-    ctx.globalAlpha = 1;
-  }
+  drawNodes(ctx, scene, theme, frame, options);
 
   // 8. Selection of edge or group
   if (options.selection?.kind === 'edge') {

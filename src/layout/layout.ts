@@ -2,6 +2,7 @@ import dagre from '@dagrejs/dagre';
 import { LAYOUT } from '../core/constants';
 import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout, TextRun } from '../core/types';
 import { sizeNode, type MeasureText } from './measure';
+import { placeTitle } from './title';
 import {
   layoutSealedSubgraphs,
   placeSealedGroup,
@@ -249,13 +250,6 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
     measure,
   );
 
-  let title = null;
-  if (doc.title) {
-    title = { text: doc.title, center: { x: bounds.x + bounds.width / 2, y: bounds.y - LAYOUT.titleH / 2 } };
-    const tW = measure(doc.title, LAYOUT.titleFontSize);
-    if (tW > bounds.width) { bounds.x -= (tW - bounds.width) / 2; bounds.width = tW; }
-    bounds.y -= LAYOUT.titleH;
-    bounds.height += LAYOUT.titleH;
-  }
-  return { nodes, groups, edges: {}, bounds, title };
+  const { bounds: finalBounds, title } = placeTitle(bounds, doc.title, measure);
+  return { nodes, groups, edges: {}, bounds: finalBounds, title };
 }

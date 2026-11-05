@@ -27,6 +27,7 @@ import { createCodeEditor } from './code-editor';
 import { setupSplitter } from './splitter';
 import { setupFileLaunch } from './file-launch';
 import { registerServiceWorker, setupPreloadErrorHandler } from './sw-register';
+import { setupWrapToggle } from './wrap-toggle';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
@@ -64,15 +65,12 @@ export async function initApp(): Promise<void> {
     onUndo: doUndo, onRedo: doRedo, onPaste: (text) => stripFences(text),
   });
 
-  const wrapEl = document.querySelector<HTMLInputElement>('#editor-wrap');
-  if (wrapEl) {
-    wrapEl.checked = Boolean(state.settings.wordWrap);
-    wrapEl.addEventListener('change', () => {
-      state.settings.wordWrap = wrapEl.checked;
-      editor.setWordWrap(wrapEl.checked);
-      saveSettings(store, state.settings);
-    });
-  }
+  setupWrapToggle({
+    el: document.querySelector<HTMLInputElement>('#editor-wrap'),
+    getSettings: () => state.settings,
+    editor,
+    save: () => saveSettings(store, state.settings),
+  });
 
   const updateDiagnostics = setupDiagnostics(diagnosticsEl, (line) => editor.revealLine(line));
 

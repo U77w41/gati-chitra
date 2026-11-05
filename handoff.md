@@ -18,6 +18,7 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ## 2. Current State (v0.6.0)
 
+- **Current plan**: `plan.md` (Tasks 64 to 103).
 - **Last verified**: 2026-11-04, locally. The WebKit animation test is skipped in CI; see section 6.
 - **Branch**: `main` (HEAD, pushed to `origin/main`). The local `improvements` branch is an older pointer at `821d484` and does not carry the two commits after it.
 - **Release commit**: `5cb55d7` (`chore: release v0.6.0`). The `v0.6.0` tag currently points at `821d484` (the commit that added this handoff), not at the release commit. Fixing the tag needs the owner's decision, because the tag may already exist on the remote.
