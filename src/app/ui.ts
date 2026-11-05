@@ -237,8 +237,8 @@ export async function initApp(): Promise<void> {
     animStyleEl: document.querySelector('#anim-style')!, animSpeedEl: document.querySelector('#anim-speed')!,
     animDensityEl: document.querySelector('#anim-density')!, animGlowEl: document.querySelector('#anim-glow')!,
     animPauseEl: document.querySelector('#anim-pause')!, themeEl: document.querySelector('#theme')!,
-    canvasGridEl: document.querySelector('#canvas-grid'), themeStripEl: document.querySelector('#theme-strip'),
-    bgThemeEl: document.querySelector('#bg-theme'), bgStripEl: document.querySelector('#bg-strip'),
+    canvasGridEl: document.querySelector('#canvas-grid'),
+    bgThemeEl: document.querySelector('#bg-theme'),
     bgLockEl: document.querySelector('#bg-lock'),
   }, () => state, store, (paused) => {
     if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);

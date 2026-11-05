@@ -145,7 +145,7 @@
                 </div>
               </div>
               <div class="canvas-controls-tier theming-tier">
-                <div class="theme-row">
+                <div class="theming-control-group">
                   <label for="theme" class="theme-row-label">Diagram</label>
                   <select id="theme">
                     <option value="auto">Match page</option>
@@ -162,11 +162,9 @@
                     <option value="lagoon">Lagoon</option>
                     <option value="ember">Ember</option>
                   </select>
-                  <div id="theme-strip" class="theme-strip" role="radiogroup" aria-label="Flow diagram theme"></div>
                 </div>
-                <div class="theme-row">
+                <div class="theming-control-group">
                   <label for="bg-theme" class="theme-row-label">Background</label>
-                  <button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>
                   <select id="bg-theme" aria-label="Canvas background">
                     <option value="match">Match diagram</option>
                     <option value="auto">Match page</option>
@@ -183,8 +181,8 @@
                     <option value="lagoon">Lagoon</option>
                     <option value="ember">Ember</option>
                   </select>
-                  <div id="bg-strip" class="bg-strip" role="radiogroup" aria-label="Canvas background"></div>
                 </div>
+                <button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>
               </div>
             </div>
             <div id="present-step" hidden></div>

@@ -98,42 +98,27 @@
   border-color: var(--focus-ring); background: color-mix(in srgb, var(--focus-ring) 14%, transparent);
 }
 .theming-tier {
-  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px;
-  background: color-mix(in srgb, var(--border) 18%, transparent); border: 1px solid var(--border);
-  border-radius: var(--radius-control);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 12px 20px;
+  padding: 8px 12px; background: color-mix(in srgb, var(--border) 18%, transparent);
+  border: 1px solid var(--border); border-radius: var(--radius-control);
 }
-.theme-row {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; max-width: 100%;
+.theming-control-group {
+  display: inline-flex; align-items: center; gap: 8px;
 }
-.theme-row-label {
-  min-width: 78px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-main);
+.theming-control-group label {
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-main);
 }
-.theme-strip, .bg-strip {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1; min-width: 0; max-width: 100%;
+.theming-tier select {
+  font-size: 13px; padding: 4px 8px; min-width: 130px;
 }
 .bg-lock-btn {
-  padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+  padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border); background: var(--card-background); color: var(--text-main);
+  transition: all 0.15s ease;
 }
+.bg-lock-btn:hover { border-color: var(--focus-ring); }
 .bg-lock-btn[aria-pressed="true"] {
-  background: var(--accent); color: var(--accent-text); border-color: var(--accent);
-}
-.theme-chip, .bg-chip {
-  display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 7px;
-  min-height: 30px; border-radius: 999px; border: 1px solid var(--border);
-  background: var(--card-background); font-size: 12px; font-weight: 500; cursor: pointer;
-  transition: all 0.15s ease; color: var(--text-main);
-}
-.theme-chip:hover, .bg-chip:hover { border-color: var(--focus-ring); }
-.theme-chip[aria-checked="true"], .bg-chip[aria-checked="true"],
-.theme-chip[aria-pressed="true"], .bg-chip[aria-pressed="true"] {
-  border-color: var(--focus-ring); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-ring) 25%, transparent); font-weight: 600;
-}
-.theme-swatch-dot {
-  width: 14px; height: 14px; border-radius: 50%; display: inline-flex; align-items: center;
-  justify-content: center; border: 1px solid rgba(128,128,128,0.35); flex-shrink: 0;
-}
-.theme-swatch-inner {
-  width: 6px; height: 6px; border-radius: 50%; display: block;
+  background: var(--brand); color: #fff; border-color: var(--brand);
 }
 
 #props {
@@ -228,8 +213,9 @@ body.presenting #workspace { grid-template-columns: 1fr; }
   #add-shape { max-width: 100px; }
   .canvas-controls-tier.playback-tier { flex-direction: column; align-items: stretch; gap: 8px; }
   .control-cluster { justify-content: flex-start; }
-  .theme-row { flex-direction: column; align-items: flex-start; }
-  .theme-strip, .bg-strip { max-width: 100%; }
+  .theming-tier { gap: 8px; }
+  .theming-control-group { width: 100%; justify-content: space-between; }
+  .theming-control-group select { flex: 1; max-width: 200px; }
   #workspace { grid-template-columns: 1fr !important; gap: 8px; min-height: auto; }
   #splitter { display: none !important; }
   #text-panel[hidden], #canvas-panel[hidden] { display: none !important; }

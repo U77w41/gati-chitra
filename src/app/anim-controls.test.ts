@@ -95,7 +95,7 @@ function makeFake(id = '', _tag = 'div'): FakeNode {
 }
 
 describe('anim-controls', () => {
-  it('initializes and binds background lock and swatches', () => {
+  it('initializes and binds background lock and dropdown selections', () => {
     // Provide a minimal fake document for createElement
     const origDoc = (globalThis as unknown as { document: unknown }).document;
     (globalThis as unknown as { document: unknown }).document = {
@@ -117,9 +117,7 @@ describe('anim-controls', () => {
       const animPauseEl = makeFake('anim-pause', 'button') as unknown as HTMLButtonElement;
       const themeEl = makeFake('theme', 'select') as unknown as HTMLSelectElement;
       const canvasGridEl = makeFake('canvas-grid', 'input') as unknown as HTMLInputElement;
-      const themeStripEl = makeFake('theme-strip', 'div') as unknown as HTMLElement;
       const bgThemeEl = makeFake('bg-theme', 'select') as unknown as HTMLSelectElement;
-      const bgStripEl = makeFake('bg-strip', 'div') as unknown as HTMLElement;
       const bgLockEl = makeFake('bg-lock', 'button') as unknown as HTMLButtonElement;
 
       const els = {
@@ -130,9 +128,7 @@ describe('anim-controls', () => {
         animPauseEl,
         themeEl,
         canvasGridEl,
-        themeStripEl,
         bgThemeEl,
-        bgStripEl,
         bgLockEl,
       };
 
@@ -157,10 +153,9 @@ describe('anim-controls', () => {
       expect(state.settings.bgTheme).toBe('daylight');
       expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('true');
 
-      // Click theme chip
-      const obsidianChip = (themeStripEl as unknown as FakeNode).querySelector('[data-theme="obsidian"]');
-      expect(obsidianChip).not.toBeNull();
-      obsidianChip?.click();
+      // Select diagram theme via dropdown
+      els.themeEl.value = 'obsidian';
+      (els.themeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
       expect(state.settings.theme).toBe('obsidian');
       // Background remains locked to daylight
       expect(state.settings.bgTheme).toBe('daylight');
@@ -172,18 +167,16 @@ describe('anim-controls', () => {
       expect(state.settings.bgTheme).toBe('match');
       expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('false');
 
-      // Click background chip
-      const paperBgChip = (bgStripEl as unknown as FakeNode).querySelector('[data-bg="paper"]');
-      expect(paperBgChip).not.toBeNull();
-      paperBgChip?.click();
+      // Select background via dropdown
+      els.bgThemeEl.value = 'paper';
+      (els.bgThemeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
       expect(state.settings.bgTheme).toBe('paper');
       expect(state.settings.bgLocked).toBe(true);
       expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('true');
 
-      // Click match chip
-      const matchBgChip = (bgStripEl as unknown as FakeNode).querySelector('[data-bg="match"]');
-      expect(matchBgChip).not.toBeNull();
-      matchBgChip?.click();
+      // Select match background via dropdown
+      els.bgThemeEl.value = 'match';
+      (els.bgThemeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
       expect(state.settings.bgTheme).toBe('match');
       expect(state.settings.bgLocked).toBe(false);
       expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('false');

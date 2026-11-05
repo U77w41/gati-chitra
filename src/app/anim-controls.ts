@@ -1,5 +1,5 @@
 import type { AnimStyle, BackgroundChoice, ThemeChoice } from '../core/types';
-import { THEMES, THEME_IDS, resolveTheme } from '../render/themes';
+import { THEMES, resolveTheme } from '../render/themes';
 import { requestRedraw } from './render-loop';
 import type { AppState } from './state';
 import { saveSettings, type KeyValueStore } from './storage';
@@ -12,9 +12,7 @@ export interface AnimControlElements {
   animPauseEl: HTMLButtonElement;
   themeEl: HTMLSelectElement;
   canvasGridEl?: HTMLInputElement | null;
-  themeStripEl?: HTMLElement | null;
   bgThemeEl?: HTMLSelectElement | null;
-  bgStripEl?: HTMLElement | null;
   bgLockEl?: HTMLButtonElement | null;
 }
 
@@ -37,9 +35,7 @@ export function setupAnimControls(
     animPauseEl,
     themeEl,
     canvasGridEl,
-    themeStripEl,
     bgThemeEl,
-    bgStripEl,
     bgLockEl,
   } = els;
   const state = getState();
@@ -76,19 +72,6 @@ export function setupAnimControls(
     }
     if (canvasGridEl) {
       canvasGridEl.checked = Boolean(state.settings.grid);
-    }
-    if (themeStripEl) {
-      themeStripEl.querySelectorAll<HTMLButtonElement>('.theme-chip').forEach((btn) => {
-        const isActive = btn.dataset.theme === state.settings.theme;
-        btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-      });
-    }
-    if (bgStripEl) {
-      const curBg = state.settings.bgTheme ?? 'match';
-      bgStripEl.querySelectorAll<HTMLButtonElement>('.bg-chip').forEach((btn) => {
-        const isActive = btn.dataset.bg === curBg;
-        btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
-      });
     }
   }
 
@@ -130,73 +113,6 @@ export function setupAnimControls(
     saveSettings(store, state.settings);
     updateThemingUI();
     requestRedraw();
-  }
-
-  function makeChip(
-    cls: string,
-    key: 'theme' | 'bg',
-    val: string,
-    label: string,
-    dotBg: string,
-    dotBorder: string,
-    innerBg?: string,
-  ): HTMLButtonElement {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = cls;
-    chip.dataset[key] = val;
-    chip.setAttribute('role', 'radio');
-    chip.setAttribute('aria-label', label);
-
-    const dot = document.createElement('span');
-    dot.className = 'theme-swatch-dot';
-    dot.style.backgroundColor = dotBg;
-    dot.style.borderColor = dotBorder;
-
-    if (innerBg) {
-      const inner = document.createElement('span');
-      inner.className = 'theme-swatch-inner';
-      inner.style.backgroundColor = innerBg;
-      dot.appendChild(inner);
-    }
-
-    const text = document.createElement('span');
-    text.textContent = label;
-    chip.appendChild(dot);
-    chip.appendChild(text);
-    return chip;
-  }
-
-  // Populate theme strip buttons
-  if (themeStripEl) {
-    themeStripEl.replaceChildren();
-    for (const id of THEME_IDS) {
-      const t = THEMES[id];
-      const chip = makeChip('theme-chip', 'theme', id, `${t.name} diagram theme`, t.nodeFill, t.nodeStroke, t.particle);
-      chip.addEventListener('click', () => applyTheme(id));
-      themeStripEl.appendChild(chip);
-    }
-  }
-
-  // Populate background strip buttons
-  if (bgStripEl) {
-    bgStripEl.replaceChildren();
-    const matchChip = document.createElement('button');
-    matchChip.type = 'button';
-    matchChip.className = 'bg-chip';
-    matchChip.dataset.bg = 'match';
-    matchChip.setAttribute('role', 'radio');
-    matchChip.setAttribute('aria-label', 'Match diagram background');
-    matchChip.textContent = 'Match';
-    matchChip.addEventListener('click', () => applyBg('match'));
-    bgStripEl.appendChild(matchChip);
-
-    for (const id of THEME_IDS) {
-      const t = THEMES[id];
-      const chip = makeChip('bg-chip', 'bg', id, `${t.name} background`, t.background, t.nodeStroke);
-      chip.addEventListener('click', () => applyBg(id));
-      bgStripEl.appendChild(chip);
-    }
   }
 
   updatePauseButton();
