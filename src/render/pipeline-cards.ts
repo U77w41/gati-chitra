@@ -56,9 +56,9 @@ export function drawPipelineNode(
   if (shape === 'diamond') {
     drawDiamondQuestionBadge(ctx, box, st.stroke);
   } else {
-    drawPipelineIcon(ctx, box.center.x - box.width / 2 + 18, box.center.y, label, st.stroke);
+    drawPipelineIcon(ctx, box.center.x - box.width / 2 + 16, box.center.y, label, st.stroke);
   }
-  drawPipelineText(ctx, box, textProg, st.text, alpha);
+  drawPipelineText(ctx, box, textProg, st.text, alpha, shape === 'diamond');
 }
 
 export function drawDiamondQuestionBadge(
@@ -170,45 +170,61 @@ export function drawPipelineIcon(
   ctx.restore();
 }
 
+// The badge sits in the diamond's top corner, so the label block drops a little to clear it.
+const DIAMOND_TEXT_SHIFT = 3;
+const TITLE_ROW = 17;
+const SUB_ROW = 14;
+const CARD_TEXT_INSET = 32;
+const CARD_TEXT_PAD_RIGHT = 8;
+const DIAMOND_TEXT_PAD = 12;
+
+function revealLines(lines: string[], textProgress: number | undefined): string[] {
+  if (textProgress === undefined) return lines;
+  const total = lines.reduce((acc, l) => acc + l.length, 0);
+  let left = Math.floor(total * Math.max(0, Math.min(1, textProgress)));
+  return lines.map((line) => {
+    const shown = line.slice(0, Math.max(0, left));
+    left -= line.length;
+    return shown;
+  });
+}
+
 export function drawPipelineText(
   ctx: CanvasRenderingContext2D,
   box: NodeBox,
   textProgress: number | undefined,
   textColor: string,
   baseAlpha: number,
+  diamond = false,
 ): void {
-  const line1 = box.lines[0] ?? '';
-  const line2 = box.lines.length > 1 ? box.lines.slice(1).join(' ') : '';
-  const totalChars = line1.length + line2.length;
+  const lines = box.lines;
+  if (lines.length === 0) return;
+  const shown = revealLines(lines, textProgress);
+  const blockH = TITLE_ROW + (lines.length - 1) * SUB_ROW;
+  const left = box.center.x - box.width / 2;
+  const right = box.center.x + box.width / 2;
+  let rowTop = box.center.y - blockH / 2 + (diamond ? DIAMOND_TEXT_SHIFT : 0);
 
-  let disp1 = line1;
-  let disp2 = line2;
-
-  if (textProgress !== undefined) {
-    const p = Math.max(0, Math.min(1, textProgress));
-    const visibleChars = Math.floor(totalChars * p);
-    disp1 = line1.slice(0, Math.min(line1.length, visibleChars));
-    disp2 = visibleChars > line1.length ? line2.slice(0, visibleChars - line1.length) : '';
-  }
-
-  const startX = box.center.x - box.width / 2 + 36;
-  ctx.textAlign = 'left';
+  ctx.save();
+  ctx.textAlign = diamond ? 'center' : 'left';
   ctx.textBaseline = 'middle';
-
-  if (disp1) {
-    ctx.save();
-    ctx.font = `bold 13.5px ${FONT_STACK_SANS}`;
-    ctx.fillStyle = textColor;
-    ctx.fillText(disp1, startX, line2 ? box.center.y - 7 : box.center.y);
-    ctx.restore();
+  ctx.fillStyle = textColor;
+  for (let k = 0; k < lines.length; k++) {
+    const rowH = k === 0 ? TITLE_ROW : SUB_ROW;
+    const y = rowTop + rowH / 2;
+    rowTop += rowH;
+    const text = shown[k];
+    if (!text) continue;
+    ctx.font = k === 0 ? `bold 13.5px ${FONT_STACK_SANS}` : `11px ${FONT_STACK_SANS}`;
+    ctx.globalAlpha = k === 0 ? baseAlpha : baseAlpha * 0.62;
+    if (diamond) {
+      // A diamond narrows away from its middle row, so each line gets the width available at its own y.
+      const span = box.width * (1 - (2 * Math.abs(y - box.center.y)) / box.height);
+      ctx.fillText(text, box.center.x, y, Math.max(10, span - 2 * DIAMOND_TEXT_PAD));
+    } else {
+      const x = left + CARD_TEXT_INSET;
+      ctx.fillText(text, x, y, Math.max(10, right - CARD_TEXT_PAD_RIGHT - x));
+    }
   }
-
-  if (disp2) {
-    ctx.save();
-    ctx.globalAlpha = baseAlpha * 0.62;
-    ctx.font = `11px ${FONT_STACK_SANS}`;
-    ctx.fillStyle = textColor;
-    ctx.fillText(disp2, startX, box.center.y + 9);
-    ctx.restore();
-  }
+  ctx.restore();
 }

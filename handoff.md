@@ -1,3 +1,4 @@
+
 # Gati-chitra Agent Handoff
 
 This document summarizes the repository state, architecture, and operational rules for AI coding agents continuing work on Gati-chitra.
@@ -7,6 +8,7 @@ This document summarizes the repository state, architecture, and operational rul
 ## 1. Project Overview
 
 Gati-chitra is an interactive, browser-based Mermaid flowchart editor that animates edges in real time. It is a static single-page application hosted on GitHub Pages:
+
 - No backend server, no database, no external telemetry or tracking.
 - All rendering (Canvas 2D and SVG), layout computation (dagre + custom geometry), and exports (PNG, SVG, GIF, MP4/WebM) happen client-side in the browser.
 - Progressive Web App (PWA) with full offline functionality via service worker.
@@ -32,6 +34,39 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
+## 2a. Latest Session (2026-11-05): Pipeline Card Text Alignment
+
+**Status: uncommitted.** The owner asked that nothing be committed or pushed. Every change below is in the working tree on `main`, on top of `82db4a4`.
+
+**Bug:** With Card set to Pipeline, node labels did not line up with their nodes. Diamond labels started near the diamond's left tip and ran outside the slanted edges. On cards, every wrapped line after the first was joined into one row, so long subtitles ran past the card's right edge (for example "F. Alerted, but Bank marked it FP before the complaint").
+
+**Root cause:** `drawPipelineText` in `src/render/pipeline-cards.ts` drew every shape's label left-aligned at `left + 36`, and joined `box.lines[1..]` into a single row. The layout (`src/layout/measure.ts`) sizes boxes for one 16px row per wrapped line, so the joined row could be much wider than the box, and a fixed left inset does not work for a diamond, which narrows away from its middle row.
+
+**Fix (only `src/render/pipeline-cards.ts`):**
+
+- Each wrapped line gets its own row: a 17px bold title row, then 14px subtitle rows. The block is centred vertically on the node.
+- Diamonds: lines are centred on the diamond's centre and moved down 3px to clear the `?` badge. Each line's `fillText` `maxWidth` is the diamond's width at that row's y, minus 12px padding on each side.
+- Other shapes: the icon moved to `left + 16`, text starts at `left + 32`, and `maxWidth` stops 8px short of the right edge.
+- The typewriter reveal now runs line by line (`revealLines`).
+- SVG export does not use pipeline cards, so it is unchanged.
+
+**Tests:** new `src/render/pipeline-cards.test.ts` (3 tests): diamond lines are centred and fit inside the slanted edges; card lines are drawn one per row, inside the card and centred vertically; typewriter reveal runs line by line. The first two failed before the fix, for the reason described above.
+
+**Instruction files:** `AGENTS.md` now says to read and update `handoff.md` every session, to treat user-reported bugs with `systematic-debugging` and `test-driven-development`, and to commit or push only when the user asks. `CLAUDE.md` and `GEMINI.md` each have one matching line. `DECISIONS.md` has one new line for this fix.
+
+**Checks run on 2026-11-05:**
+
+- `npm test`: 417 tests passing across 62 files.
+- `npm run lint`: clean.
+- `npm run build` with `BASE_PATH=/gati-chitra/`: passes.
+- `npm run check:dist`: initial JS 132.02 KB gzip, largest lazy chunk 57.27 KB gzip, `OK`.
+- `npm run test:e2e`: 309 passed, 16 skipped (conditional cases, as before), 0 failed.
+- Checked by eye in the dev server with the screenshot's flowchart in Pipeline mode: diamond labels are centred and card subtitles wrap inside their cards.
+
+**Open:** commit these changes when the owner asks. Suggested message: `fix: align pipeline card labels with their nodes`.
+
+---
+
 ## 3. Core Invariants and Rules
 
 Every agent working on this repository must follow these rules without exception:
@@ -49,6 +84,8 @@ Every agent working on this repository must follow these rules without exception
    - Work through tasks one by one with a dedicated commit per task.
    - Use conventional commit messages (`feat: ...`, `fix: ...`, `chore: ...`, `perf: ...`, `ci: ...`).
    - Do not push to remote or open pull requests unless explicitly requested by the user.
+   - Commit only when the user asks. If the user says not to commit, leave changes in the working tree and list them in this file (see `AGENTS.md` section 5).
+   - Update this file at the end of every session that changes code or docs (see `AGENTS.md` section 1).
 5. **Decisions log**:
    - When resolving any architectural choice or design ambiguity, record a single-line entry in `DECISIONS.md` in the format: `Task N: chose X because Y`.
 6. **Agent instructions & Skills**:
@@ -61,16 +98,16 @@ Every agent working on this repository must follow these rules without exception
 
 ## 4. Key Architecture and File Map
 
-| Subsystem | Key Files | Description |
-| --- | --- | --- |
-| **Core & Constants** | `src/core/constants.ts`<br>`src/core/types.ts`<br>`src/core/shapes.ts` | Numerical limits, token palettes, animation rates, touch timings, and shape metadata. |
-| **Parser & AST** | `src/mermaid/parse.ts`<br>`src/mermaid/ops.ts`<br>`src/mermaid/compat.ts`<br>`src/mermaid/positions.ts` | Custom parser for Mermaid flowcharts, statement splitters, and AST operation modifiers (add/delete/rename/pin). |
-| **Layout** | `src/layout/layout.ts`<br>`src/layout/geometry.ts`<br>`src/layout/subgraph-layout.ts`<br>`src/layout/polygon.ts` | Dagre layout wrapper, hit testing, edge routing, pin coordinates, and subgraph bounding boxes. |
-| **Canvas & Render** | `src/render/draw.ts`<br>`src/render/svg.ts`<br>`src/render/themes.ts`<br>`src/anim/anim.ts`<br>`src/app/render-loop.ts` | Canvas 2D rendering loop, SVG generation, Daylight/Nord/Monokai/Slate themes, and flow particle animation. |
-| **Editor & App UI** | `src/app/ui.ts`<br>`src/app/canvas-events.ts`<br>`src/editor/controller.ts`<br>`src/app/properties.ts`<br>`src/app/splitter.ts` | CodeMirror 6 editor wiring, canvas mouse/keyboard events, properties panel, and resizable layout splitter. |
-| **Mobile & Touch** | `src/editor/gestures.ts`<br>`src/app/touch-wiring.ts`<br>`src/app/narrow.ts`<br>`src/app/share-file.ts` | Gesture recognizer (pan, pinch, tap, double-tap, long-press), narrow viewport tabs (Diagram/Text), bottom properties sheet, and Web Share API integration. |
-| **Exports** | `src/export/png.ts`<br>`src/export/svg.ts`<br>`src/export/gif.ts`<br>`src/export/video.ts` | Raster PNG, vector SVG, animated GIF (`gifenc`), and hardware-accelerated MP4/WebM (`mediabunny` + WebCodecs) with GIF fallback. |
-| **PWA & Offline** | `src/sw/sw.ts`<br>`src/sw/sw-logic.ts`<br>`src/app/sw-register.ts` | Service worker for offline asset caching and `.mmd` file launch handling. |
+| Subsystem                  | Key Files                                                                                                         | Description                                                                                                                                                |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Core & Constants** | `src/core/constants.tssrc/core/types.ts``src/core/shapes.ts`                                                  | Numerical limits, token palettes, animation rates, touch timings, and shape metadata.                                                                      |
+| **Parser & AST**     | `src/mermaid/parse.tssrc/mermaid/ops.ts``src/mermaid/compat.tssrc/mermaid/positions.ts`                       | Custom parser for Mermaid flowcharts, statement splitters, and AST operation modifiers (add/delete/rename/pin).                                            |
+| **Layout**           | `src/layout/layout.tssrc/layout/geometry.ts``src/layout/subgraph-layout.tssrc/layout/polygon.ts`              | Dagre layout wrapper, hit testing, edge routing, pin coordinates, and subgraph bounding boxes.                                                             |
+| **Canvas & Render**  | `src/render/draw.tssrc/render/svg.ts``src/render/themes.tssrc/anim/anim.ts``src/app/render-loop.ts`         | Canvas 2D rendering loop, SVG generation, Daylight/Nord/Monokai/Slate themes, and flow particle animation.                                                 |
+| **Editor & App UI**  | `src/app/ui.tssrc/app/canvas-events.ts``src/editor/controller.tssrc/app/properties.ts``src/app/splitter.ts` | CodeMirror 6 editor wiring, canvas mouse/keyboard events, properties panel, and resizable layout splitter.                                                 |
+| **Mobile & Touch**   | `src/editor/gestures.tssrc/app/touch-wiring.ts``src/app/narrow.tssrc/app/share-file.ts`                       | Gesture recognizer (pan, pinch, tap, double-tap, long-press), narrow viewport tabs (Diagram/Text), bottom properties sheet, and Web Share API integration. |
+| **Exports**          | `src/export/png.tssrc/export/svg.ts``src/export/gif.tssrc/export/video.ts`                                    | Raster PNG, vector SVG, animated GIF (`gifenc`), and hardware-accelerated MP4/WebM (`mediabunny` + WebCodecs) with GIF fallback.                       |
+| **PWA & Offline**    | `src/sw/sw.tssrc/sw/sw-logic.ts``src/app/sw-register.ts`                                                      | Service worker for offline asset caching and `.mmd` file launch handling.                                                                                |
 
 ---
 

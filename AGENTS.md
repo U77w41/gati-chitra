@@ -8,7 +8,9 @@ These instructions apply to every AI coding agent that works in this repository.
 - The first plan, `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23, all done), is the reference for every contract the new plan does not change. Do not work from it.
 - Work through the plan's tasks in order, one task at a time, with one commit per task and the commit message the plan gives.
 - When the plan leaves something open, choose the simplest option and add one line to `DECISIONS.md` in the form `Task N: chose X because Y`.
-- To find where you are: run `git log --oneline`, read `DECISIONS.md`, and continue with the first task in the plan that has no commit yet. Tick the checkboxes in the plan copy as you finish steps.
+- To find where you are: run `git log --oneline`, read `DECISIONS.md` and `handoff.md`, and continue with the first task in the plan that has no commit yet. Tick the checkboxes in the plan copy as you finish steps.
+- `handoff.md` is the running state of the project for the next agent. Read it at the start of a session. At the end of every session that changes code or docs, update it: what changed, which files, which checks you ran and their results, and what is left open.
+- A bug the user reports outside the plan (for example from a screenshot) is still a task: use `systematic-debugging` to find the root cause, then `test-driven-development` for the fix, add one line to `DECISIONS.md`, and record it in `handoff.md`.
 
 ## 2. Skills
 
@@ -58,7 +60,8 @@ Run `npm test` after every task. Run the other three before you finish a task th
 
 - `.gitignore` must exist from the first commit. It keeps out `node_modules/`, `dist/`, test output, local environment files (`.env.local`), editor and system files, and each tool's local state. Never commit secrets. `.env` holds only public defaults and is committed.
 - If you add a new kind of generated or local file, add it to `.gitignore` in the same commit.
-- The plan (`docs/superpowers/plans/`), `DECISIONS.md`, `README.md` and the existing custom `SECURITY.md` are committed.
+- The plan (`docs/superpowers/plans/`), `DECISIONS.md`, `handoff.md`, `README.md` and the existing custom `SECURITY.md` are committed.
+- Commit and push only when the user asks. If the user says not to commit or push, leave every change in the working tree, even where the plan says "one commit per task", and say in `handoff.md` that the changes are uncommitted. Never push to GitHub without an explicit request.
 
 ## 6. Install commands for tools without their own file
 

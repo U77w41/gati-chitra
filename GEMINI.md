@@ -17,4 +17,5 @@ Check: ask "Which skills can you use?" and confirm that `brainstorming`, `writin
 
 - Start every code or planning task by naming the skill: "Use the superpowers brainstorming skill, then writing-plans."
 - Before you commit any README, docs page or wiki page, ask for the humanizer: "Humanize the prose in README.md." Keep commands, numbers and code blocks exactly as written. Leave the existing custom `SECURITY.md` untouched.
+- At the end of a session that changed anything, update `handoff.md` (see `AGENTS.md` section 1). Do not commit or push unless the user asks.
 - Keep this file short. Shared rules belong in `AGENTS.md`.

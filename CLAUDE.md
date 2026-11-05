@@ -17,4 +17,5 @@ Check: run `/plugin` and confirm both are listed, or ask "Which skills can you u
 
 - Start every code or planning task by naming the skill: "Use the superpowers brainstorming skill, then writing-plans."
 - Before you commit any README, docs page or wiki page, run the humanizer: `/humanizer:humanizer` followed by the file path. Keep commands, numbers and code blocks exactly as written. Leave the existing custom `SECURITY.md` untouched.
+- At the end of a session that changed anything, update `handoff.md` (see `AGENTS.md` section 1). Do not commit or push unless the user asks.
 - Keep this file short. Shared rules belong in `AGENTS.md`.
