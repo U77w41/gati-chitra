@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { LIMITS, LAYOUT, ANIM, EXPORT, SHARE, MESSAGES, SCHEME, BRAND, TOUCH } from './constants';
+import { LIMITS, LAYOUT, ANIM, EXPORT, SHARE, MESSAGES, SCHEME, BRAND, TOUCH, ARCH, BLOCK, GIT, JOURNEY, MINDMAP, SEQ, TIMELINE } from './constants';
 
 it('pins the limits', () => {
   expect(LIMITS.maxNodes).toBe(300);
@@ -41,3 +41,24 @@ it('builds messages', () => {
   expect(TOUCH.slop).toBe(8);
   expect(TOUCH.doubleTapMs).toBe(300);
 });
+
+it('has the diagram layout constants', () => {
+  expect(LAYOUT.sectionLineH).toBe(18);
+  expect(LAYOUT.iconSize).toBe(32);
+  expect(SEQ.participantGap).toBe(40);
+  expect(SEQ.minParticipantW).toBe(100);
+  expect(GIT.commitGap).toBe(60);
+  expect(ARCH.gapX).toBe(80);
+  expect(MINDMAP.levelGap).toBe(80);
+  expect(BLOCK.minUnitW).toBe(80);
+  expect(JOURNEY.scoreStep).toBe(36);
+  expect(TIMELINE.colMinW).toBe(150);
+});
+
+it('has the diagram messages', () => {
+  expect(MESSAGES.unsupportedDiagram('Pie chart')).toBe('Pie chart is not supported yet. Supported types: flowchart, sequence, class, state, ER, requirement, use case, architecture, block, gitGraph, journey, timeline and mindmap.');
+  expect(MESSAGES.loadingDiagram('Sequence')).toBe('Loading support for Sequence diagrams.');
+  expect(MESSAGES.opUnsupported).toBe('This change is not available for this diagram type. Edit the text instead.');
+  expect(MESSAGES.notFlowchart).toBe("Not a diagram this app can read. Start with a type such as 'flowchart TD' or 'sequenceDiagram'.");
+});
+

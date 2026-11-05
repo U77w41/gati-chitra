@@ -62,7 +62,80 @@ export const LAYOUT = {
   asymmetricNotch: 14,
   titleFontSize: 20,
   titleH: 36,
+  sectionFontSize: 14,
+  sectionLineH: 18,
+  sectionPadX: 12,
+  sectionPadY: 6,
+  sectionColGap: 12,
+  sectionMinH: 12,
+  iconSize: 32,
+  iconGap: 6,
+  noteFold: 10,
+  actorFigureH: 56,
+  actorMinW: 40,
+  ellipseScale: 1.3,
+  cloudScale: 1.35,
+  bangScale: 1.4,
+  blockArrowHead: 40,
+  endLabelFontSize: 12,
+  endLabelAlong: 18,
+  endLabelAcross: 12,
 } as const;
+
+export const SEQ = {
+  participantGap: 40,
+  minParticipantW: 100,
+  participantH: 44,
+  firstRowGap: 24,
+  rowH: 44,
+  selfRowH: 56,
+  selfLoopW: 48,
+  messageLabelPad: 16,
+  labelLift: 12,
+  noteGap: 10,
+  noteRowGap: 12,
+  frameHeaderH: 28,
+  framePad: 12,
+  frameSide: 60,
+  frameInset: 8,
+  dividerH: 28,
+  activationW: 10,
+  activationStep: 4,
+  bottomPad: 24,
+  boxPad: 12,
+} as const;
+
+export const GIT = {
+  laneGap: 60,
+  commitGap: 60,
+  labelColW: 110,
+  commitD: 20,
+  highlightD: 24,
+  mergeD: 22,
+  tagLift: 22,
+  captionDrop: 22,
+} as const;
+
+export const ARCH = { gapX: 80, gapY: 60, junctionD: 12 } as const;
+
+export const MINDMAP = { levelGap: 80, siblingGap: 16 } as const;
+
+export const BLOCK = { gap: 16, pad: 12, minUnitW: 80 } as const;
+
+export const JOURNEY = {
+  legendW: 140,
+  taskMinW: 150,
+  taskGap: 20,
+  sectionH: 36,
+  cardGap: 10,
+  faceGap: 40,
+  scoreStep: 36,
+  faceD: 36,
+  actorRowH: 20,
+  actorDot: 12,
+} as const;
+
+export const TIMELINE = { colMinW: 150, colGap: 24, sectionH: 36, rowGap: 20, eventGap: 16 } as const;
 
 export const VIEW = { zoomMin: 0.1, zoomMax: 4, wheelSensitivity: 0.002, fitMargin: 48 } as const;
 
@@ -137,7 +210,25 @@ export const TOUCH = {
 } as const;
 
 export const MESSAGES = {
-  notFlowchart: "Only flowchart diagrams are supported. Start with 'flowchart TD' or 'graph LR'.",
+  notFlowchart: "Not a diagram this app can read. Start with a type such as 'flowchart TD' or 'sequenceDiagram'.",
+  unsupportedDiagram: (name: string) => `${name} is not supported yet. Supported types: flowchart, sequence, class, state, ER, requirement, use case, architecture, block, gitGraph, journey, timeline and mindmap.`,
+  loadingDiagram: (name: string) => `Loading support for ${name} diagrams.`,
+  diagramLoadFailed: (name: string) => `Support for ${name} diagrams could not be loaded. Check the connection, then reload the page.`,
+  opUnsupported: 'This change is not available for this diagram type. Edit the text instead.',
+  syntaxIgnored: (what: string) => `${what} is not supported; it is ignored.`,
+  unclosedBlock: (keyword: string) => `"${keyword}" is not closed with end.`,
+  strayBlockEnd: '`end` without a matching block.',
+  unclosedBrace: (name: string) => `"${name}" is not closed with }.`,
+  crossScope: 'These states are in different composite states. Connect them in the text.',
+  gitBranchExists: (name: string) => `Branch "${name}" already exists.`,
+  gitNoBranch: (name: string) => `Branch "${name}" does not exist.`,
+  gitMergeInvalid: (name: string) => `Branch "${name}" cannot be merged here.`,
+  gitNoCommit: (id: string) => `Commit "${id}" does not exist.`,
+  journeyScore: 'A journey score must be a whole number from 1 to 5.',
+  mindmapTwoRoots: 'A mindmap has one root. Indent this line under the root.',
+  mindmapCycle: 'A node cannot be moved under its own branch.',
+  iconFallback: (name: string) => `Icon "${name}" is not built in; a generic icon is drawn.`,
+  nameTaken: (name: string) => `"${name}" is already used.`,
   tooManyNodes: 'Too many nodes (limit 300).',
   tooManyEdges: 'Too many arrows (limit 600).',
   textTooLong: 'The text is too long (limit 20000 characters).',
