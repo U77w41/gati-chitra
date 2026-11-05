@@ -214,4 +214,21 @@ describe('controller', () => {
     expect(res.state.pan).toEqual({ last: { x: 100, y: 100 } });
     expect(res.state.selection).toBeNull();
   });
+
+  const NO_EDIT = { add: false, connect: false, rename: false, delete: false, move: false, shape: false, style: false, edgeVariant: false, reverse: false };
+  it('respects capabilities', () => {
+    const scene = buildScene(parseMermaid('flowchart TD\nA-->B'), testMeasure);
+    const env = { scene, ok: true, measure: testMeasure, caps: NO_EDIT };
+    const a = scene.layout.nodes.A.center;
+    const down = reduce(createEditorState(), { type: 'pointerDown', world: a, screen: a, button: 0, space: false }, env);
+    expect(down.state.selection).toEqual({ kind: 'node', id: 'A' });
+    expect(down.state.drag).toBeNull();
+    expect(reduce(down.state, { type: 'keyDown', key: 'Delete' }, env).effects).toEqual([]);
+    expect(reduce(down.state, { type: 'keyDown', key: 'Enter' }, env).effects).toEqual([]);
+    expect(reduce(createEditorState(), { type: 'dblClick', world: a }, env).effects).toEqual([]);
+    const far = { x: 9999, y: 9999 };
+    expect(reduce(createEditorState(), { type: 'dblClick', world: far }, env).effects).toEqual([]);
+    const addEnv = { ...env, caps: { ...NO_EDIT, add: true }, defaultShape: 'round' as const };
+    expect(reduce(createEditorState(), { type: 'dblClick', world: far }, addEnv).effects).toEqual([{ type: 'addNodeAt', at: far, shape: 'round' }]);
+  });
 });

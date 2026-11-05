@@ -1,9 +1,26 @@
 import { SHORTCUT_HELP } from './shortcuts-help';
+import { KIND_NAMES } from '../diagrams/kinds';
 
 export interface HelpEnv {
   dialogEl: HTMLDialogElement;
   btnHelp: HTMLButtonElement;
 }
+
+const DIAGRAM_TYPES: { name: string; header: string }[] = [
+  { name: KIND_NAMES.flowchart, header: 'flowchart TD' },
+  { name: KIND_NAMES.sequence, header: 'sequenceDiagram' },
+  { name: KIND_NAMES.class, header: 'classDiagram' },
+  { name: KIND_NAMES.state, header: 'stateDiagram-v2' },
+  { name: KIND_NAMES.er, header: 'erDiagram' },
+  { name: KIND_NAMES.requirement, header: 'requirementDiagram' },
+  { name: KIND_NAMES.usecase, header: 'usecase-beta' },
+  { name: KIND_NAMES.architecture, header: 'architecture-beta' },
+  { name: KIND_NAMES.block, header: 'block' },
+  { name: KIND_NAMES.gitgraph, header: 'gitGraph' },
+  { name: KIND_NAMES.journey, header: 'journey' },
+  { name: KIND_NAMES.timeline, header: 'timeline' },
+  { name: KIND_NAMES.mindmap, header: 'mindmap' },
+];
 
 export function setupHelpDialog(env: HelpEnv): {
   open: () => void;
@@ -51,6 +68,14 @@ export function setupHelpDialog(env: HelpEnv): {
           <tr><td>Links</td><td><code>click A "https://example.com"</code></td></tr>
         </tbody>
       </table>
+    </section>
+    <section>
+      <h3>Diagram types</h3>
+      <ul class="help-list">
+        ${DIAGRAM_TYPES.map(
+          (t) => `<li>${t.name}: <code>${t.header}</code></li>`
+        ).join('')}
+      </ul>
     </section>
   `;
 

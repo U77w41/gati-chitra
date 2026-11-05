@@ -5,6 +5,7 @@ import type { AppState } from './state';
 import type { TextOp } from '../core/types';
 import { KEYBOARD } from '../core/constants';
 import { edgeCycle, nextNodeInDirection, type Dir } from '../editor/keyboard-nav';
+import { capsOf } from './kind-ui';
 import type { TouchWiring } from './touch-wiring';
 
 export interface CanvasEventsEnv {
@@ -213,7 +214,7 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
     if (e.shiftKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       e.preventDefault();
       const sel = state.editor.selection;
-      if (sel?.kind === 'node' && state.doc.ok && state.scene && env.executeOp) {
+      if (sel?.kind === 'node' && state.doc.ok && state.scene && env.executeOp && capsOf(state.doc).move) {
         const nodeBox = state.scene.layout.nodes[sel.id];
         if (nodeBox) {
           let dx = 0, dy = 0;

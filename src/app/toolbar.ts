@@ -3,6 +3,7 @@ import type { ShapeKind, TextOp } from '../core/types';
 import { canRedo, canUndo } from '../editor/history';
 import { stripFences } from '../mermaid/fences';
 import { downloadText } from './download';
+import { syncKindControls } from './kind-ui';
 import type { AppState, CommitSource } from './state';
 
 export interface ToolbarEnv {
@@ -75,5 +76,6 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     btnUndo.disabled = !canUndo(state.history);
     btnRedo.disabled = !canRedo(state.history);
     btnAutolayout.disabled = Object.keys(state.doc.pins).length === 0;
+    syncKindControls(state.doc);
   };
 }

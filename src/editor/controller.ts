@@ -27,7 +27,9 @@ export function reduce(
         return { state: { ...state, pan: { last: event.screen } }, effects: [] };
       }
       if (event.button === 0) {
-        const selectedNodeId = state.selection?.kind === 'node' ? state.selection.id : null;
+        const canConnect = env.caps ? env.caps.connect : true;
+        const selectedNodeId =
+          canConnect && state.selection?.kind === 'node' ? state.selection.id : null;
         const hit = hitTest(env.scene, event.world, selectedNodeId);
 
         if (hit?.kind === 'handle') {
@@ -39,10 +41,14 @@ export function reduce(
           if (!env.ok) {
             return { state: { ...state, selection, drag: null }, effects: [{ type: 'message', text: MESSAGES.fixTextFirst }] };
           }
-          const nodeBox = env.scene.layout.nodes[hit.id];
-          const nodeCenter = nodeBox ? nodeBox.center : event.world;
-          const grab = { x: event.world.x - nodeCenter.x, y: event.world.y - nodeCenter.y };
-          const drag = { nodeId: hit.id, grab, start: event.world, current: event.world, moved: false };
+          const canMove = env.caps ? env.caps.move : true;
+          let drag = null;
+          if (canMove) {
+            const nodeBox = env.scene.layout.nodes[hit.id];
+            const nodeCenter = nodeBox ? nodeBox.center : event.world;
+            const grab = { x: event.world.x - nodeCenter.x, y: event.world.y - nodeCenter.y };
+            drag = { nodeId: hit.id, grab, start: event.world, current: event.world, moved: false };
+          }
           return { state: { ...state, selection, drag, pan: null }, effects: [] };
         }
         if (hit?.kind === 'edge' || hit?.kind === 'group') {
@@ -114,6 +120,8 @@ export function reduce(
       if (!env.ok) return { state, effects: [{ type: 'message', text: MESSAGES.fixTextFirst }] };
       const hit = hitTest(env.scene, event.world, null);
       if (hit?.kind === 'node' || hit?.kind === 'edge' || hit?.kind === 'group') {
+        const canRename = env.caps ? env.caps.rename : true;
+        if (!canRename) return { state, effects: [] };
         const initial = getItemLabel(env, hit.kind, hit.id);
         const editing = { kind: hit.kind, id: hit.id, initial };
         return {
@@ -121,7 +129,10 @@ export function reduce(
           effects: [{ type: 'startEdit', kind: hit.kind, id: hit.id, initial }],
         };
       }
-      return { state, effects: [{ type: 'addNodeAt', at: event.world, shape: 'rect' }] };
+      const canAdd = env.caps ? env.caps.add : true;
+      if (!canAdd) return { state, effects: [] };
+      const shape = env.defaultShape ?? 'rect';
+      return { state, effects: [{ type: 'addNodeAt', at: event.world, shape }] };
     }
 
     case 'keyDown': {
@@ -129,6 +140,8 @@ export function reduce(
       if (event.key === 'Escape') return { state: { ...state, selection: null, drag: null, pan: null }, effects: [] };
       if (event.key === 'Delete' || event.key === 'Backspace') {
         if (!state.selection) return { state, effects: [] };
+        const canDelete = env.caps ? env.caps.delete : true;
+        if (!canDelete) return { state, effects: [] };
         if (!env.ok) return { state, effects: [{ type: 'message', text: MESSAGES.fixTextFirst }] };
         if (state.selection.kind === 'node') {
           return { state: { ...state, selection: null }, effects: [{ type: 'applyOp', op: { type: 'deleteNode', id: state.selection.id } }] };
@@ -143,6 +156,8 @@ export function reduce(
       }
       if (event.key === 'Enter') {
         if (!state.selection) return { state, effects: [] };
+        const canRename = env.caps ? env.caps.rename : true;
+        if (!canRename) return { state, effects: [] };
         if (!env.ok) return { state, effects: [{ type: 'message', text: MESSAGES.fixTextFirst }] };
         const { kind, id } = state.selection;
         const initial = getItemLabel(env, kind, id);

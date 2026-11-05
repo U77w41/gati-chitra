@@ -21,4 +21,9 @@ describe('describeDiagram', () => {
       describeDiagram(parseMermaid('flowchart TD\nA ~~~ B')).description,
     ).toBe('2 nodes, 0 arrows.');
   });
+
+  it('names other diagram types', () => {
+    expect(describeDiagram({ ...parseMermaid('flowchart TD\nA'), kind: 'sequence' }).name).toBe('Sequence diagram');
+    expect(describeDiagram(parseMermaid('flowchart TD\nA')).name).toBe('Flowchart');
+  });
 });

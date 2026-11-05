@@ -8,6 +8,7 @@ import {
 } from '../editor/gestures';
 import { panBy, screenToWorld, zoomAt } from '../editor/view';
 import { hitTest } from '../layout/geometry';
+import { capsOf } from './kind-ui';
 import type { CanvasEventsEnv } from './canvas-events';
 
 export interface TouchWiring {
@@ -39,8 +40,9 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
     switch (ev.type) {
       case 'tap': {
         const world = screenToWorld(state.view, ev.at);
+        const caps = capsOf(state.doc);
         const selNodeId =
-          state.editor.selection?.kind === 'node' ? state.editor.selection.id : null;
+          state.editor.selection?.kind === 'node' && caps.connect ? state.editor.selection.id : null;
         const hit = state.scene
           ? hitTest(state.scene, world, selNodeId, TOUCH.hitTolerance)
           : null;
@@ -58,13 +60,14 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
 
       case 'dragStart': {
         const world = screenToWorld(state.view, ev.at);
+        const caps = capsOf(state.doc);
         const selNodeId =
-          state.editor.selection?.kind === 'node' ? state.editor.selection.id : null;
+          state.editor.selection?.kind === 'node' && caps.connect ? state.editor.selection.id : null;
         const hit = state.scene
           ? hitTest(state.scene, world, selNodeId, TOUCH.hitTolerance)
           : null;
 
-        if (hit?.kind === 'node' || hit?.kind === 'handle') {
+        if ((hit?.kind === 'node' && caps.move) || (hit?.kind === 'handle' && caps.connect)) {
           dragMode = 'controller';
           dispatch({
             type: 'pointerDown',
@@ -131,8 +134,9 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
 
       case 'longPress': {
         const world = screenToWorld(state.view, ev.at);
+        const caps = capsOf(state.doc);
         const selNodeId =
-          state.editor.selection?.kind === 'node' ? state.editor.selection.id : null;
+          state.editor.selection?.kind === 'node' && caps.connect ? state.editor.selection.id : null;
         const hit = state.scene
           ? hitTest(state.scene, world, selNodeId, TOUCH.hitTolerance)
           : null;
@@ -142,7 +146,9 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
           if (propsEl) propsEl.hidden = false;
           dispatch({ type: 'select', selection: { kind: hit.kind, id: hit.id } });
           const firstInput = propsEl?.querySelector<HTMLInputElement>('#prop-label');
-          firstInput?.focus();
+          if (caps.rename) {
+            firstInput?.focus();
+          }
           env.requestRedraw?.();
         }
         break;

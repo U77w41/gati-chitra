@@ -1,8 +1,13 @@
 import type { ParsedDoc, Selection } from '../core/types';
 import { SHAPE_NAMES } from '../core/shapes';
+import { KIND_NAMES } from '../diagrams/kinds';
 
 export function describeDiagram(doc: ParsedDoc): { name: string; description: string } {
-  const name = doc.accTitle ?? doc.title ?? 'Flowchart';
+  const kind = doc.kind ?? 'flowchart';
+  const name =
+    doc.accTitle ??
+    doc.title ??
+    (kind === 'flowchart' ? 'Flowchart' : `${KIND_NAMES[kind]} diagram`);
   const nNodes = doc.nodes.length;
   const nArrows = doc.edges.filter((e) => e.kind !== 'invisible').length;
   const nodeStr = `${nNodes} ${nNodes === 1 ? 'node' : 'nodes'}`;

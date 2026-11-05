@@ -55,4 +55,10 @@ describe('mermaid-lang', () => {
       ])
     ).toEqual([{ from: 2, to: 4, severity: 'warning', message: 'm' }]);
   });
+
+  it('highlights keywords of other diagram types only in other modes', () => {
+    expect(tokenizeLine('participant A as Alice', 'other')[0]).toMatchObject({ type: 'keyword' });
+    expect(tokenizeLine('participant A as Alice')[0]).toMatchObject({ type: 'id' });
+    expect(tokenizeLine('A->>B: hi', 'other').some((t) => t.type === 'operator')).toBe(true);
+  });
 });

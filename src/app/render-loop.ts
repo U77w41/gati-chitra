@@ -5,6 +5,7 @@ import type { MeasureText } from '../layout/measure';
 import { withNodeAt } from '../layout/scene';
 import { drawBackground, drawScene } from '../render/draw';
 import { composeTheme } from '../render/themes';
+import { capsOf } from './kind-ui';
 import type { AppState } from './state';
 //
 
@@ -137,7 +138,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
         transparent: false,
         selection: state.editor.selection,
         handleNodeId:
-          state.editor.selection?.kind === 'node'
+          state.editor.selection?.kind === 'node' && capsOf(state.doc).connect
             ? state.editor.selection.id
             : null,
         connectPreview,

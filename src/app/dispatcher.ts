@@ -7,6 +7,7 @@ import {
   type EditorEvent,
 } from '../editor/controller';
 import type { MeasureText } from '../layout/measure';
+import { capsOf, engineOf } from './kind-ui';
 import type { AppState, CommitSource } from './state';
 import { showMessage } from './message';
 import { createConnectedNode, createNodeAt } from './node-creator';
@@ -117,6 +118,8 @@ export function createDispatcher(env: DispatcherEnv): {
       },
       ok: state.doc.ok,
       measure,
+      caps: capsOf(state.doc),
+      defaultShape: engineOf(state.doc).addChoices[0]?.value ?? 'rect',
     };
     const { state: nextEditor, effects } = reduce(state.editor, event, editorEnv);
     state.editor = nextEditor;

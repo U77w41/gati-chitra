@@ -18,6 +18,7 @@ import {
   type EditorEnv,
   type EditorState,
 } from '../editor/controller';
+import { capsOf, engineOf } from './kind-ui';
 
 export type CommitSource =
   | 'typing'
@@ -134,6 +135,8 @@ export function commitText(
       },
       ok: newState.doc.ok,
       measure,
+      caps: capsOf(newState.doc),
+      defaultShape: engineOf(newState.doc).addChoices[0]?.value ?? 'rect',
     };
     editor = reduce(editor, { type: 'textChanged' }, env).state;
   }

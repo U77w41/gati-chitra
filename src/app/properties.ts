@@ -3,6 +3,7 @@ import type { EdgeKind, ShapeKind, TextOp } from '../core/types';
 import { resolveTheme, THEMES } from '../render/themes';
 import { UI } from '../core/constants';
 import { announceSelection } from './describe';
+import { applyCapsToProps, capsOf } from './kind-ui';
 import type { AppState } from './state';
 
 export interface PropertiesEnv {
@@ -136,7 +137,13 @@ export function setupProperties(env: PropertiesEnv): () => void {
     const state = getState();
     const sel = state.editor.selection;
     if (sel?.kind === 'edge' && state.doc.ok) {
-      executeOp({ type: 'setEdgeKind', index: Number(sel.id.slice(1)), kind: propKind.value as EdgeKind });
+      const idx = Number(sel.id.slice(1));
+      const isFlowchart = (state.doc.kind ?? 'flowchart') === 'flowchart';
+      if (isFlowchart) {
+        executeOp({ type: 'setEdgeKind', index: idx, kind: propKind.value as EdgeKind });
+      } else {
+        executeOp({ type: 'setEdgeVariant', index: idx, variant: propKind.value });
+      }
     }
   });
 
@@ -225,7 +232,10 @@ export function setupProperties(env: PropertiesEnv): () => void {
       const edge = state.doc.edges[idx];
       if (edge) {
         if (document.activeElement !== propLabel) propLabel.value = edge.label ?? '';
-        if (document.activeElement !== propKind) propKind.value = edge.kind;
+        const isFlowchart = (state.doc.kind ?? 'flowchart') === 'flowchart';
+        if (document.activeElement !== propKind) {
+          propKind.value = isFlowchart ? edge.kind : (edge.variant ?? '');
+        }
       }
     } else if (sel.kind === 'group') {
       nodeSection.hidden = true;
@@ -236,5 +246,7 @@ export function setupProperties(env: PropertiesEnv): () => void {
         if (document.activeElement !== propLabel) propLabel.value = grp.title;
       }
     }
+    const isFlowchart = (state.doc.kind ?? 'flowchart') === 'flowchart';
+    applyCapsToProps(panelEl, capsOf(state.doc), isFlowchart);
   };
 }

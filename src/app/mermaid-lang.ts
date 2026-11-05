@@ -3,6 +3,7 @@ import type { Diagnostic as CmDiagnostic } from '@codemirror/lint';
 import type { Text } from '@codemirror/state';
 import { tags } from '@lezer/highlight';
 import type { Diagnostic } from '../core/types';
+import { HEADER_PATTERNS } from '../diagrams/kinds';
 
 export type TokenType =
   | 'keyword'
@@ -25,10 +26,21 @@ const KEYWORDS = new Set([
   'accTitle', 'accDescr', 'TB', 'TD', 'BT', 'RL', 'LR', 'default',
 ]);
 
+const OTHER_KEYWORDS = new Set(
+  'sequenceDiagram classDiagram classDiagram-v2 stateDiagram stateDiagram-v2 erDiagram requirementDiagram usecase-beta architecture-beta block block-beta gitGraph journey timeline mindmap participant actor as activate deactivate Note note over left right of loop alt else opt par and critical option break rect box end autonumber title class namespace direction classDef style cssClass state requirement functionalRequirement interfaceRequirement performanceRequirement physicalRequirement designConstraint element contains copies derives satisfies verifies refines traces systemBoundary group service junction in columns space commit branch checkout switch merge cherry-pick id type tag order section accTitle accDescr TB TD BT RL LR'.split(' ')
+);
+
 const OPERATOR_REGEXES = [
   /^:::/, /^&/, /^<-\.+->/, /^<={2,}>/, /^o-{2,}o/, /^x-{2,}x/,
   /^~{3,}/, /^<-{2,}>/, /^o-{2,}/, /^x-{2,}/, /^-{2,}o/, /^-{2,}x/,
   /^-\.+->/, /^-\.+-/, /^={2,}>/, /^={2,}/, /^-{2,}>/, /^-{2,}/,
+];
+
+const OTHER_OPERATORS = [
+  /^<<-->>/, /^<<->>/, /^-->>/, /^->>/, /^--x/, /^-x/, /^--\)/, /^-\)/,
+  /^<\|--/, /^--\|>/, /^<\|\.\./, /^\.\.\|>/, /^\*--/, /^--\*/, /^o--/, /^--o/,
+  /^\.\.>/, /^<\.\./, /^[|}][o|](?:--|\.\.)[o|][|{]/, /^<?-->?/, /^\.\./,
+  /^->/, /^<-/, /^:/,
 ];
 
 const BRACKET_PAIRS = [
@@ -51,11 +63,16 @@ const TOKEN_NAMES: Record<TokenType, string> = {
   property: 'propertyName',
 };
 
-export function tokenizeLine(line: string): Token[] {
+export function tokenizeLine(
+  line: string,
+  mode: 'flowchart' | 'other' = 'flowchart',
+): Token[] {
   const tokens: Token[] = [];
   let pos = 0;
   let firstKeyword: string | null = null;
   let styleIdCount = 0;
+  const kwSet = mode === 'other' ? OTHER_KEYWORDS : KEYWORDS;
+  const opList = mode === 'other' ? [...OTHER_OPERATORS, ...OPERATOR_REGEXES] : OPERATOR_REGEXES;
 
   while (pos < line.length) {
     if (/\s/.test(line[pos])) {
@@ -138,7 +155,7 @@ export function tokenizeLine(line: string): Token[] {
     }
 
     let opMatched = false;
-    for (const r of OPERATOR_REGEXES) {
+    for (const r of opList) {
       const m = r.exec(line.slice(pos));
       if (m) {
         tokens.push({ from: pos, to: pos + m[0].length, type: 'operator' });
@@ -152,7 +169,7 @@ export function tokenizeLine(line: string): Token[] {
     const idMatch = /^[\p{L}\p{N}_]+(?:-[\p{L}\p{N}_]+)*/u.exec(line.slice(pos));
     if (idMatch) {
       const text = idMatch[0];
-      const isKw = KEYWORDS.has(text);
+      const isKw = kwSet.has(text);
       if (!firstKeyword && isKw) firstKeyword = text;
       if (!isKw && firstKeyword) styleIdCount++;
       tokens.push({ from: pos, to: pos + text.length, type: isKw ? 'keyword' : 'id' });
@@ -168,13 +185,21 @@ export function tokenizeLine(line: string): Token[] {
 export const mermaidLanguage: StreamLanguage<unknown> = StreamLanguage.define<{
   tokens: Token[];
   index: number;
+  mode: 'flowchart' | 'other';
 }>({
   startState() {
-    return { tokens: [], index: 0 };
+    return { tokens: [], index: 0, mode: 'flowchart' };
   },
   token(stream, state) {
     if (stream.pos === 0) {
-      state.tokens = tokenizeLine(stream.string);
+      const trimmed = stream.string.trim();
+      for (const [kind, pattern] of HEADER_PATTERNS) {
+        if (pattern.test(trimmed)) {
+          state.mode = kind === 'flowchart' ? 'flowchart' : 'other';
+          break;
+        }
+      }
+      state.tokens = tokenizeLine(stream.string, state.mode);
       state.index = 0;
     }
     while (state.index < state.tokens.length) {

@@ -1,5 +1,6 @@
 import type { Point, Scene, Selection, ShapeKind, TextOp } from '../core/types';
 import type { MeasureText } from '../layout/measure';
+import type { EditCaps } from '../core/diagram-types';
 
 export interface EditorState {
   selection: Selection | null;
@@ -38,6 +39,8 @@ export interface EditorEnv {
   scene: Scene;
   ok: boolean;
   measure: MeasureText;
+  caps?: EditCaps;
+  defaultShape?: ShapeKind;
 }
 
 export function createEditorState(): EditorState {
