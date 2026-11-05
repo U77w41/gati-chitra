@@ -67,7 +67,7 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ## 2b. Latest Session, Part 2 (2026-11-05): Pause/Play and Build Connectors
 
-**Status: uncommitted.** The owner asked that agents not commit or push. These changes are in the working tree on `main`, on top of `9f3f4e2`.
+**Status: committed by the owner** as `9d84c87` ("v0.8.1 minor fixes").
 
 **Bug 1, Pause/Play in build and typewriter modes:** Pause froze the frame, but Play did not continue from it. The render loop computed the phase from wall-clock time (`performance.now() - startTime`), so after a pause of N seconds the animation skipped N seconds ahead. In pulse, traffic or dash mode that is barely visible. In build and typewriter modes it jumps to a different stage, or restarts the build, so Play looked broken.
 
@@ -91,7 +91,22 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 **Not checked by eye:** the browser pane was hidden during this session, which throttles animation frames, so the build-connector fix is covered by the unit test only.
 
-**Open:** commit when the owner asks. Suggested message: `fix: resume build animations from the paused frame and hide ungrown connectors`.
+## 2c. Latest Session, Part 3 (2026-11-05): Plan for More Mermaid Diagram Types
+
+**Status: uncommitted.** `plan.md` (repository root) is new and not committed. No code changed in this part.
+
+**What it is:** an implementation plan for coding agents (Gemini via Antigravity CLI, DeepSeek via Freebuff CLI, or Claude Code) to add twelve Mermaid diagram types: state, class, ER, requirement, use case (`usecase-beta`), architecture (`architecture-beta`), sequence, git graph, block, mindmap, user journey and timeline. It covers parsing, layout, theming, all five animation styles, exports and full visual editing on the canvas. Tasks 64 to 103, in five milestones (D1 foundation, then D2 to D5 with two or three types each).
+
+**Left out, with reasons in Part 1.2 of the plan:** Gantt, pie, quadrant, XY, radar, treemap, packet, Venn, Sankey, Kanban, C4, ZenUML and the newest betas. They are charts with no arrows to animate, need layout code the project does not have, or are still changing.
+
+**Key design points:**
+- Each type is a lazy-loaded engine chunk. The initial bundle stays under 150 KB (it was 131 KB).
+- Engines output the existing `ParsedDoc` and `SceneLayout`, plus optional fields (compartments, icons, markers, decorations, colour indexes, animation stages), so flowchart behaviour does not change.
+- Edits are text patches located by spans that the parsers record. Moves reuse `%% studio:pos` lines.
+
+**Before an agent starts:** Task 64 adds the `plan.md` pointer to `AGENTS.md`. Until then, tell the agent to read `plan.md` directly (the plan's "Running this plan" section has the prompts). Three existing tests use `sequenceDiagram` as their example of invalid input; Task 66 names the exact changes to them.
+
+**Mermaid reference used:** mermaid.js.org at version 12.3.0, read on 2026-11-05. Part 5.5 tells the agent to recheck the beta use case syntax online if it can.
 
 ---
 
