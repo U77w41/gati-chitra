@@ -54,4 +54,9 @@ describe('buildSteps and focusAt', () => {
     ]);
     expect(buildSteps(parseMermaid('flowchart TD'))).toEqual([]);
   });
+
+  it('puts staged edges in their own step', () => {
+    const doc = { ...parseMermaid('flowchart LR\nA-->B\nB-->A'), stages: { nodes: { A: 0, B: 0 }, edges: { e0: 1, e1: 2 } } };
+    expect(buildSteps(doc)).toEqual([{ nodes: ['A', 'B'], edges: [] }, { nodes: [], edges: ['e0'] }, { nodes: [], edges: ['e1'] }]);
+  });
 });

@@ -8,8 +8,9 @@ import type {
   Scene,
 } from '../core/types';
 import { hash32 } from './hash';
-import { computeDepths, prepare } from '../render/prepared';
+import { computeDepths } from '../render/prepared';
 import { frameStateBuild, frameStateTypewriter } from './build-anim';
+import { animStages } from './stages';
 
 export { computeDepths };
 
@@ -75,10 +76,10 @@ export function frameState(
   const particles: Particle[] = [];
 
   if (settings.style === 'pulse') {
-    const nodeDepths = prepare(scene).depths;
+    const edgeStages = animStages(scene.doc).edge;
     let maxD = 0;
     for (const edge of validEdges) {
-      const d = nodeDepths[edge.from] ?? 0;
+      const d = edgeStages[edge.id] ?? 0;
       if (d > maxD) maxD = d;
     }
     const slots = maxD + 1;
@@ -87,7 +88,7 @@ export function frameState(
       const factor = edgeSpeedFactor(edge, scene.doc);
       let edgeP = ((p * factor) % 1 + 1) % 1;
       if (edgeP === 1) edgeP = 0;
-      const d = nodeDepths[edge.from] ?? 0;
+      const d = edgeStages[edge.id] ?? 0;
       const start = d / slots;
       const end = (d + 1) / slots;
       if (edgeP >= start && edgeP < end) {

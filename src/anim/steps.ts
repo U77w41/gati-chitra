@@ -1,5 +1,5 @@
 import type { Focus, ParsedDoc } from '../core/types';
-import { computeDepths } from './anim';
+import { animStages } from './stages';
 
 export interface Step {
   nodes: string[];
@@ -8,27 +8,24 @@ export interface Step {
 
 export function buildSteps(doc: ParsedDoc): Step[] {
   if (doc.nodes.length === 0) return [];
-  const depths = computeDepths(doc);
-  let maxD = 0;
-  for (const id of Object.keys(depths)) {
-    if (depths[id] > maxD) maxD = depths[id];
-  }
+  const st = animStages(doc);
 
-  const steps: Step[] = Array.from({ length: maxD + 1 }, () => ({
+  const steps: Step[] = Array.from({ length: st.count }, () => ({
     nodes: [],
     edges: [],
   }));
 
   for (const node of doc.nodes) {
-    const d = depths[node.id] ?? 0;
-    steps[d].nodes.push(node.id);
+    const s = st.node[node.id] ?? 0;
+    if (steps[s]) steps[s].nodes.push(node.id);
   }
 
   for (const edge of doc.edges) {
     if (edge.kind === 'invisible') continue;
-    const fromDepth = depths[edge.from] ?? 0;
-    const targetStep = Math.min(fromDepth + 1, maxD);
-    steps[targetStep].edges.push(edge.id);
+    const targetStep = doc.stages
+      ? st.edge[edge.id] ?? 0
+      : Math.min((st.node[edge.from] ?? 0) + 1, st.count - 1);
+    if (steps[targetStep]) steps[targetStep].edges.push(edge.id);
   }
 
   return steps;

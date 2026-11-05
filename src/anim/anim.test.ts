@@ -162,4 +162,26 @@ describe('anim', () => {
     const doc = parseMermaid('flowchart LR\nA e1@--> B\ne1@{ animation: fast }');
     expect(edgeSpeedFactor(doc.edges[0], doc)).toBe(2);
   });
+
+  const staged = () => {
+    const doc = { ...parseMermaid('flowchart LR\nA-->B\nB-->A'), stages: { nodes: { A: 0, B: 0 }, edges: { e0: 1, e1: 2 } } };
+    return buildScene(doc, testMeasure);
+  };
+  it('builds staged docs in stage order', () => {
+    const s = staged();
+    const early = frameState(s, { ...DEFAULT_ANIM, style: 'build' }, 0.45);
+    expect(early.edgeGrow?.e0).toBeGreaterThan(0);
+    expect(early.edgeGrow?.e1).toBe(0);
+    const late = frameState(s, { ...DEFAULT_ANIM, style: 'build' }, 0.74);
+    expect(late.edgeGrow?.e1).toBeGreaterThan(0);
+  });
+  it('typewriter follows the build stages for staged docs', () => {
+    const s = staged();
+    expect(frameState(s, { ...DEFAULT_ANIM, style: 'typewriter' }, 0.45)).toEqual(frameState(s, { ...DEFAULT_ANIM, style: 'build' }, 0.45));
+  });
+  it('pulses one staged edge at a time', () => {
+    const s = staged();
+    const ids = frameState(s, { ...DEFAULT_ANIM, style: 'pulse' }, 0.9).particles.map((p) => p.edgeId);
+    expect(ids).toEqual(['e1']);
+  });
 });

@@ -1,6 +1,7 @@
 import { ANIM } from '../core/constants';
 import type { AnimSettings, FrameState, Scene } from '../core/types';
 import { computeDepths } from '../render/prepared';
+import { animStages } from './stages';
 
 function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
@@ -11,13 +12,8 @@ export function frameStateBuild(
   _settings: AnimSettings,
   p: number,
 ): FrameState {
-  const depths = computeDepths(scene.doc);
-  let maxD = 0;
-  for (const node of scene.doc.nodes) {
-    const d = depths[node.id] ?? 0;
-    if (d > maxD) maxD = d;
-  }
-  const stages = maxD + 1;
+  const st = animStages(scene.doc);
+  const stages = st.count;
   const stageDuration = 0.75 / stages;
   const titleChars = clamp(p / 0.05, 0, 1);
   const nodeAlpha: Record<string, number> = {};
@@ -26,7 +22,7 @@ export function frameStateBuild(
   const edgeTextProgress: Record<string, number> = {};
 
   for (const node of scene.doc.nodes) {
-    const d = depths[node.id] ?? 0;
+    const d = st.node[node.id] ?? 0;
     const sStage = d * stageDuration;
     const eStage = (d + 1) * stageDuration;
     if (p < sStage) {
@@ -43,9 +39,9 @@ export function frameStateBuild(
   }
 
   for (const edge of scene.doc.edges) {
-    const fromDepth = depths[edge.from] ?? 0;
-    const sStage = fromDepth * stageDuration;
-    const eStage = (fromDepth + 1) * stageDuration;
+    const edgeStage = st.edge[edge.id] ?? 0;
+    const sStage = edgeStage * stageDuration;
+    const eStage = (edgeStage + 1) * stageDuration;
     const edgeStart = sStage + 0.45 * stageDuration;
     if (p < edgeStart) {
       edgeGrow[edge.id] = 0;
@@ -78,6 +74,7 @@ export function frameStateTypewriter(
   _settings: AnimSettings,
   p: number,
 ): FrameState {
+  if (scene.doc.stages) return frameStateBuild(scene, _settings, p);
   const depths = computeDepths(scene.doc);
   const sortedNodes = [...scene.doc.nodes].sort((a, b) => {
     const da = depths[a.id] ?? 0;

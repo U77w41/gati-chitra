@@ -23,10 +23,11 @@ export function computeDepths(doc: ParsedDoc): Record<string, number> {
   }
 
   const depths: Record<string, number> = {};
+  const inDegree = new Map(incoming);
   const queue: string[] = [];
 
   for (const node of doc.nodes) {
-    if ((incoming.get(node.id) ?? 0) === 0) {
+    if ((inDegree.get(node.id) ?? 0) === 0) {
       depths[node.id] = 0;
       queue.push(node.id);
     }
@@ -34,10 +35,12 @@ export function computeDepths(doc: ParsedDoc): Record<string, number> {
 
   while (queue.length > 0) {
     const u = queue.shift()!;
-    const currDepth = depths[u];
+    const currDepth = depths[u] ?? 0;
     for (const v of adj.get(u) ?? []) {
-      if (depths[v] === undefined) {
-        depths[v] = currDepth + 1;
+      depths[v] = Math.max(depths[v] ?? 0, currDepth + 1);
+      const remaining = (inDegree.get(v) ?? 1) - 1;
+      inDegree.set(v, remaining);
+      if (remaining === 0) {
         queue.push(v);
       }
     }
