@@ -1,24 +1,32 @@
-# Gati-Chitra Architecture & Implementation Plan: Independent Flow Diagram & Canvas Background Theming, Background Lock, Auto-Excluded Canvas Grids, Mermaid Editor Text Wrapping, and Control Bar Ergonomics
+# Gati-Chitra Architecture & Implementation Plan: Independent Flow Diagram & Canvas Background Theming, Multi-Shade Node & Shape Palettes, Background Lock, Auto-Excluded Canvas Grids, Mermaid Editor Text Wrapping, Control Bar Ergonomics, and Advanced Workflow & Pipeline Animations
 
 **Target Repository:** [U77w41/gati-chitra](https://github.com/U77w41/gati-chitra)
 **Live Deployment:** [https://u77w41.github.io/gati-chitra/](https://u77w41.github.io/gati-chitra/)
+**Recommended Plan Path in Repo:** `docs/superpowers/plans/gati_chitra_improvement_plan.md`
 **Target Executor:** Autonomous LLM Coding Agent (Antigravity CLI / Agentic IDE)
 
 ## 1. Executive Instructions & Operating Rules for the Coding Agent
 
-You are tasked with implementing five cohesive upgrades in the **Gati-Chitra** repository:
+You are tasked with implementing seven cohesive upgrades in the **Gati-Chitra** repository:
 
-1. **Single-Click Modern & Minimal Flow Diagram Theming:** Upgrade the diagram dashboard from a basic two-click dropdown with 4 themes to an instant, **single-click visual theme swatch bar** featuring 12 modern, minimal light and dark palettes (while maintaining full backward compatibility with `<select id="theme">` tests and `localStorage` persistence).
-2. **Independent Canvas Background Theming & One-Click Background Lock:** Decouple the **Canvas Background** from the **Flow Diagram Theme** so users can either:
-   * Pick a dedicated **Canvas Background** independently of the node/edge/particle diagram theme (e.g., placing dark obsidian nodes with glowing cyan particles onto a warm paper or pure white canvas, or placing crisp white nodes onto a carbon-black canvas).
+1. **Single-Click Modern & Minimal Flow Diagram Theming (16 Curated Palettes):** Upgrade the diagram dashboard from a basic two-click dropdown with 4 themes to an instant, **single-click visual theme swatch bar** featuring **16 palettes** (the 4 existing themes for backward compatibility + **12 new designer-curated modern & minimal palettes** inspired by Vercel Geist, Flexoki Paper, Catppuccin Latte, Kyoto Sage, Terracotta Clay, Swiss Grid, Linear Obsidian, Raycast Graphite, Tokyo Night, Nordic Frost, Rosé Pine, and Espresso Warm).
+2. **Multi-Shade & Semantic Status Node/Shape Theming (`By Shape` | `Semantic Status` | `By Node` | `Uniform`):** Give each of the 16 themes a 4-tier harmonious node shade palette (`nodeShades`) plus semantic status detection (`semantic` mode: Blue = Process, Purple = Decision Diamond, Orange = Dispatch/Async, Green = Success/Delivered, Red = Error/Declined/Failure/Cancelled) wired through `nodeStyle(node, theme)` in `src/render/style.ts`—while still honoring explicit per-node color overrides (`node.style.fill`, `node.style.stroke`, `node.style.color`).
+3. **Independent Canvas Background Theming & One-Click Background Lock:** Decouple the **Canvas Background** from the **Flow Diagram Theme** so users can either:
+   * Pick a dedicated **Canvas Background** independently of the node/edge/particle diagram theme.
    * Click a **Lock Background** toggle (`#bg-lock`) so that clicking through different flow diagram themes changes **only** the diagram (nodes, subgraphs, edges, and animated flow particles) while keeping the current canvas background locked in place.
-3. **Diagram Dashboard Canvas Grid (Auto-Removed on Export):** Add a single-click canvas grid toggle (`#canvas-grid`) in the diagram dashboard (`#canvas-controls`) that renders a zoom- and pan-aware alignment grid whose color automatically adapts to the active **Canvas Background**, and **automatically excludes** the grid whenever the user exports to PNG, SVG, Animated GIF, WebM, or MP4.
-4. **Mermaid Script Writing Section Text Wrapping (Word Wrap) Toggle:** Add a single-click **Wrap Text** toggle (`#editor-wrap`) inside the Mermaid script writing panel (`#text-panel`) that dynamically reconfigures the CodeMirror 6 editor (`src/app/code-editor.ts`) using a `Compartment` with `EditorView.lineWrapping`, persisting the user's preference in `localStorage`.
-5. **De-Cluttering & Ergonomic Redesign of All Cramped Buttons and Controls (`#toolbar`, `#canvas-controls`, `#props`, and `#text-panel`):** Transform the currently squashed, flat `gap: 4px / 8px` button strips into a spacious, visually grouped, modern studio layout with segmented button clusters, structured multi-row canvas control decks, pill-styled checkboxes, aligned range sliders, and a clean node/edge properties inspector—while strictly preserving every DOM ID, role, header height (`>= 72px`), and mobile no-overflow invariant enforced by Vitest and Playwright E2E tests.
+4. **Diagram Dashboard Canvas Grid (Auto-Removed on Export):** Add a single-click canvas grid toggle (`#canvas-grid`) in the diagram dashboard (`#canvas-controls`) that renders a zoom- and pan-aware alignment grid whose color automatically adapts to the active **Canvas Background**, and **automatically excludes** the grid whenever the user exports to PNG, SVG, Animated GIF, WebM, or MP4.
+5. **Mermaid Script Writing Section Text Wrapping (Word Wrap) Toggle:** Add a single-click **Wrap Text** toggle (`#editor-wrap`) inside the Mermaid script writing panel (`#text-panel`) that dynamically reconfigures the CodeMirror 6 editor (`src/app/code-editor.ts`) using a `Compartment` with `EditorView.lineWrapping`, persisting the user's preference in `localStorage`.
+6. **De-Cluttering & Ergonomic Redesign of All Cramped Buttons and Controls (`#toolbar`, `#canvas-controls`, `#props`, and `#text-panel`):** Transform the currently squashed, flat `gap: 4px / 8px` button strips into a spacious, visually grouped, modern studio layout with segmented button clusters, structured multi-row canvas control decks, pill-styled checkboxes, aligned range sliders, and a clean node/edge properties inspector—while strictly preserving every DOM ID, role, header height (`>= 72px`), and mobile no-overflow invariant enforced by Vitest and Playwright E2E tests.
+7. **Two New Signature Animation & Card Styles (n8n Approval Workflow + Food Delivery Pipeline Typewriter Reveal):**
+   * **Animation Style 1 — `build` ("Cascade Build"):** Progressively reveals nodes and grows outgoing curves stage-by-stage by topological depth ($d = 0, 1, 2, \dots$), with optional **n8n-style Workflow Tile mode (`cardMode: 'workflow'`)** featuring `64×64` rounded icon tiles, `⚡` trigger badges on root nodes, output port rings (`o`), external titles + subtitles below the tile, and emerald-green (`true`) / coral-red (`false`) dashed branches.
+   * **Animation Style 2 — `typewriter` ("Pipeline Typewriter Reveal" — Food Delivery Pipeline Style):**
+     * Reveals the diagram Title/Subtitle at the top-left with a smooth character-by-character typewriter effect.
+     * For each stage in sequence: first pops in the node's rounded card (or **rounded-corner decision diamond** via `arcTo` with a top `?` badge) and its **inline left semantic icon** (shopping bag, credit card, utensils, delivery truck, check circle, error/cancel icon), then **types in the node's bold primary title and muted subtitle character-by-character**, then grows the outgoing arrow while **typing in the edge label character-by-character**, and finally transitions all completed edges into a **smooth flowing dashed line animation** for the remainder of the cycle!
+     * Includes both **"Approval Workflow"** and **"Food Delivery Pipeline"** as built-in starter templates in `src/share/templates.ts`.
 
 ### Mandatory Guardrails for Agent Execution
 
-* **Zero External Runtime Dependencies:** Gati-Chitra is a pure Vanilla TypeScript + Vite SPA (`package.json` uses `@codemirror/*`, `@dagrejs/dagre`, `gifenc`, `mediabunny`, and `@fontsource/lato`). Do **not** install React, Tailwind, Lucide, or any npm packages.
+* **Zero External Runtime Dependencies:** Gati-Chitra is a pure Vanilla TypeScript + Vite SPA (`package.json` uses `@codemirror/*`, `@dagrejs/dagre`, `gifenc`, `mediabunny`, and `@fontsource/lato`). Do **not** install React, Tailwind, Lucide, or any npm packages. All icons, rounded diamonds, and typewriter effects must be drawn with pure Canvas 2D primitives and SVG paths.
 * **Strict Layer Separation (`AGENTS.md`):** Pure rendering logic belongs strictly in `src/render/` and must never read from `document`, `window`, or `localStorage`. DOM wiring belongs in `src/app/`. Export framing belongs in `src/export/`.
 * **TypeScript Strictness:** `tsconfig.json` enforces strict mode, `noImplicitAny`, strict null checks, and explicit return types on exported functions.
 * **Think Before Editing:** Before modifying any file, you **must** execute the `<THINKING_CHECKPOINT>` listed in each phase using your thinking/reasoning tool and read the target file from disk first. Never guess line numbers or variable names without reading the current file content.
@@ -26,400 +34,298 @@ You are tasked with implementing five cohesive upgrades in the **Gati-Chitra** r
 
 ## 2. Repository Architecture & File Map
 
-Before planning your edits, orient yourself using this exact map of the files involved in diagram theming, background theming/locking, dashboard controls, canvas rendering, exporting, the CodeMirror 6 Mermaid script editor, and UI layout styling.
-
 | Subsystem | File Path | Existing Responsibility | Planned Modification |
 | :--- | :--- | :--- | :--- |
-| **Core Types** | `src/core/types.ts` | Defines `ThemeId`, `ThemeChoice`, `Theme`, `ViewState`, `AnimSettings`, and `DrawOptions` | Expand `ThemeId` with 8 new modern minimal theme IDs; add `BackgroundChoice` (`'match' \| ThemeChoice`); add `gridColor` and `titleText` to `Theme`; add optional `showGrid?: boolean` to `DrawOptions` |
-| **Theme & Background Palettes** | `src/render/themes.ts` | Exports `THEME_IDS`, `THEME_CHOICES`, `THEMES`, and `resolveTheme` | Register 12 flow diagram themes in `THEMES`, export `BACKGROUND_CHOICES`, and export `composeTheme(diagramChoice, bgChoice, pageDark)` so any diagram theme + any locked/custom background merges into a single `Theme` object |
-| **Settings Storage** | `src/app/storage.ts` | Defines `Settings` interface (`theme`, `anim`, `split`), `loadSettings`, and `saveSettings` | Add optional `bgTheme?: BackgroundChoice`, `bgLocked?: boolean`, `grid?: boolean`, and `wordWrap?: boolean` to `Settings` with safe defaults in `loadSettings` |
-| **Mermaid Code Editor** | `src/app/code-editor.ts` | Exports `CodeEditorEnv`, `CodeEditor`, and `createCodeEditor(parent, env)` using CodeMirror 6 (`@codemirror/view` & `@codemirror/state`) | Add `wordWrap?: boolean` to `CodeEditorEnv` and `setWordWrap(wrap: boolean): void` to `CodeEditor` using a CodeMirror `Compartment` and `EditorView.lineWrapping` |
-| **Dashboard & Editor HTML** | `index.html` | Defines `#toolbar`, `#text-panel` (`#source`, `#diagnostics-summary`, `#diagnostics`), `#canvas-controls`, and `#props` | Add `#text-panel-bar` with `#editor-wrap` inside `#text-panel`; structure `#canvas-controls` into two ergonomic tiers (`.controls-row-playback` and `.controls-row-theming`) housing `#canvas-grid`, `#theme-strip`, `#bg-lock`, `#bg-strip`, and `#bg-theme` while keeping all existing IDs intact |
-| **Dashboard & Control Styling** | `src/app/style.css` & `src/app/tokens.css` | Styles `#toolbar`, `#text-panel`, `#canvas-panel`, `#canvas`, `#canvas-controls`, and `#props` | De-clutter and redesign `#toolbar` groups, `#canvas-controls` tiers, `#props` inspector sections, range sliders, color inputs, and pill toggles so controls have generous breathing room and clear visual hierarchy |
-| **Controls & App Wiring** | `src/app/anim-controls.ts` & `src/app/ui.ts` | Initializes `createCodeEditor` in `ui.ts` and binds `#anim-*` / `#theme` in `anim-controls.ts` | Wire `#editor-wrap` checkbox to `editor.setWordWrap(...)` + `saveSettings` in `ui.ts`; wire single-click diagram theme chips, `#bg-theme` / `.bg-chip`, `#bg-lock`, and `#canvas-grid` in `anim-controls.ts` |
-| **Canvas Renderer** | `src/render/draw.ts` | Exports `drawBackground` and `drawScene` | Add a pure `drawGrid` function that renders pan/zoom-transformed minimal hairlines using `theme.gridColor`; update title color in `drawScene` to use `theme.titleText ?? theme.nodeText` |
-| **Live Render Loop & Export Callers** | `src/app/render-loop.ts` & `src/app/ui.ts` | Resolves current `Theme` and calls `drawBackground` / `drawScene` / export dialogs | Use `composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme)` in both the live render loop and when passing `theme` into the export pipeline (`exportPng`, `exportSvg`, `exportGif`, `exportVideo`) |
-| **Export Pipeline** | `src/export/draw-frame.ts`, `src/export/png.ts`, `src/export/gif.ts`, `src/export/video.ts`, `src/render/svg.ts` | Renders offscreen frames for PNG, GIF, WebM/MP4, and generates SVG XML | Ensure `drawExportFrame` and `svg.ts` **never** call `drawGrid` and always enforce `showGrid: false`, while automatically respecting the user's composed diagram + background theme |
-| **Test Suite** | `src/app/storage.test.ts`, `src/app/scheme.test.ts`, `src/app/narrow.test.ts`, `src/export/draw-frame.test.ts`, `tests/e2e/*.spec.ts` | Unit tests and Playwright E2E tests | Add unit tests for all 12 themes, `composeTheme` separation, background locking, `wordWrap` & `grid` storage persistence, `editor.setWordWrap`, export grid removal, and verify E2E layout assertions pass |
+| **Core Types** | `src/core/types.ts` | Defines `ShapeKind`, `AnimStyle`, `FrameState`, `ThemeId`, `ThemeChoice`, `Theme`, `ViewState`, `AnimSettings`, and `DrawOptions` | Expand `ThemeId` to 16 themes; add `'build'` and `'typewriter'` to `AnimStyle`; add optional `titleChars?: number`, `nodeAlpha?: Record<string, number>`, `nodeTextProgress?: Record<string, number>`, `edgeGrow?: Record<string, number>`, and `edgeTextProgress?: Record<string, number>` to `FrameState`; add `BackgroundChoice`, `NodeShadeMode` (`'shape' \| 'semantic' \| 'node' \| 'off'`), `CardStyleMode` (`'classic' \| 'pipeline' \| 'workflow'`), and `NodeShade`; add `nodeShades`, `shadingMode?`, `gridColor`, and `titleText` to `Theme`; add `showGrid?: boolean` and `cardMode?: CardStyleMode` to `DrawOptions` |
+| **Theme & Background Palettes** | `src/render/themes.ts` | Exports `THEME_IDS`, `THEME_CHOICES`, `THEMES`, and `resolveTheme` | Register 16 flow diagram themes in `THEMES` (each with a 4-tier `nodeShades` array), export `BACKGROUND_CHOICES`, and export `composeTheme(diagramChoice, bgChoice, pageDark, shadingMode)` |
+| **Node & Edge Style Resolver** | `src/render/style.ts` | Exports `nodeStyle(node, theme)` and `edgeStyle(edge, theme)` | Upgrade `nodeStyle` with `shapeShadeTier`, `semanticStatusShade` (Blue Process, Purple Decision, Orange Dispatch, Green Success/Delivered, Red Error/Declined/Failure), and `hashNodeId`; upgrade `edgeStyle` to auto-style `true`/`yes` and `false`/`no` branch edges |
+| **Animation Engine** | `src/anim/anim.ts` & `src/anim/steps.ts` | Computes `phaseAt`, `computeDepths`, and `frameState(scene, settings, phase)` | Add `'build'` (Cascade Build) and `'typewriter'` (Pipeline Typewriter Reveal + Post-Build Flowing Dashes) modes to `frameState` |
+| **Canvas Node & Edge Renderers** | `src/render/draw.ts` & `src/render/draw-edges.ts` | Renders background, groups, nodes, edges, labels, and particles | Add `drawGrid`; implement rounded-corner diamonds (`arcTo`); support `nodeAlpha`, `nodeTextProgress` (character-by-character typewriter slicing + two-line Bold Title / Muted Subtitle hierarchy), `edgeGrow`, and `edgeTextProgress`; implement `cardMode: 'pipeline'` (inline left vector icons & top `?` diamond badge) and `cardMode: 'workflow'` (n8n `64×64` icon tiles, `⚡` trigger badge, output port ring `o`) |
+| **Templates** | `src/share/templates.ts` | Defines built-in Mermaid starter templates | Add both the `"Approval Workflow"` template and the `"Food Delivery Pipeline"` template |
+| **Settings Storage** | `src/app/storage.ts` | Defines `Settings` interface (`theme`, `anim`, `split`), `loadSettings`, and `saveSettings` | Add optional `bgTheme?: BackgroundChoice`, `bgLocked?: boolean`, `nodeShading?: NodeShadeMode`, `cardMode?: CardStyleMode`, `grid?: boolean`, and `wordWrap?: boolean` to `Settings`; allow `'build'` and `'typewriter'` in `anim.style` validation |
+| **Mermaid Code Editor** | `src/app/code-editor.ts` | Exports `CodeEditorEnv`, `CodeEditor`, and `createCodeEditor(parent, env)` | Add `wordWrap?: boolean` to `CodeEditorEnv` and `setWordWrap(wrap: boolean): void` to `CodeEditor` using a CodeMirror `Compartment` and `EditorView.lineWrapping` |
+| **Dashboard & Editor HTML** | `index.html` | Defines `#toolbar`, `#text-panel`, `#canvas-controls`, and `#props` | Add `#text-panel-bar` with `#editor-wrap` inside `#text-panel`; add `<option value="build">build</option>` and `<option value="typewriter">typewriter</option>` to `#anim-style`; structure `#canvas-controls` into two ergonomic tiers housing `#canvas-grid`, `#card-mode`, `#node-shading`, `#theme-strip`, `#bg-lock`, `#bg-strip`, and `#bg-theme` |
+| **Dashboard & Control Styling** | `src/app/style.css` & `src/app/tokens.css` | Styles `#toolbar`, `#text-panel`, `#canvas-panel`, `#canvas`, `#canvas-controls`, and `#props` | De-clutter and redesign `#toolbar` groups, `#canvas-controls` tiers, `#props` inspector sections, range sliders, color inputs, and pill toggles |
+| **Controls & App Wiring** | `src/app/anim-controls.ts` & `src/app/ui.ts` | Wires editor and canvas controls | Wire `#editor-wrap` in `ui.ts`; wire `#theme-strip`, `#node-shading`, `#card-mode`, `#bg-theme` / `.bg-chip`, `#bg-lock`, and `#canvas-grid` in `anim-controls.ts` |
+| **Export Pipeline** | `src/export/draw-frame.ts`, `src/export/png.ts`, `src/export/gif.ts`, `src/export/video.ts`, `src/render/svg.ts` | Renders offscreen frames for PNG, GIF, WebM/MP4, and generates SVG XML | Ensure `drawExportFrame` and `svg.ts` **never** call `drawGrid` (`showGrid: false`), while passing `cardMode` and the composed `theme` so exports include the pipeline/workflow cards and `build` / `typewriter` animations! |
 
 ## 3. Pre-Implementation Discovery Protocol (Mandatory First Step)
 
 > **[THINKING_CHECKPOINT_0: Codebase Verification]**
 > Before modifying a single line of code, use your file-reading tool to inspect the exact current versions of:
-> 1. `src/core/types.ts`
-> 2. `src/render/themes.ts`
-> 3. `src/app/storage.ts`
-> 4. `src/app/code-editor.ts`
-> 5. `src/app/anim-controls.ts`
-> 6. `src/app/ui.ts` and `src/app/narrow.ts`
-> 7. `src/render/draw.ts`
-> 8. `src/app/render-loop.ts`
-> 9. `src/export/draw-frame.ts` and `src/app/export-dialog.ts`
-> 10. `src/render/svg.ts`
-> 11. `index.html`, `src/app/style.css`, `src/app/chrome.css`, and `src/app/tokens.css`
+> 1. `src/core/types.ts` and `src/core/shapes.ts`
+> 2. `src/render/themes.ts` and `src/render/style.ts`
+> 3. `src/anim/anim.ts` and `src/anim/steps.ts`
+> 4. `src/render/draw.ts`, `src/render/draw-edges.ts`, and `src/render/node-path.ts`
+> 5. `src/app/storage.ts` and `src/app/storage.test.ts`
+> 6. `src/app/code-editor.ts`
+> 7. `src/app/anim-controls.ts`, `src/app/ui.ts`, and `src/app/narrow.ts`
+> 8. `src/app/render-loop.ts`, `src/export/draw-frame.ts`, and `src/render/svg.ts`
+> 9. `src/share/templates.ts`
+> 10. `index.html` and `src/app/style.css`
 >
 > **In your thinking tool, explicitly write down:**
-> * What is the exact signature and return type of `resolveTheme` in `src/render/themes.ts`?
-> * Where in `src/app/ui.ts` or `src/app/export-dialog.ts` is `resolveTheme` called when the user triggers an export (PNG, SVG, GIF, Video)?
-> * How does `src/app/narrow.ts` inspect `#toolbar` and its `[role="group"]` children to move overflowing buttons into `#more-menu`? (Understanding this guarantees your `#toolbar` CSS/HTML polish will never break `narrow.test.ts`!)
+> * What values are currently in `AnimStyle` in `src/core/types.ts` and validated in `loadSettings` (`src/app/storage.ts`)?
+> * How does `frameState` in `src/anim/anim.ts` use `computeDepths` for `'pulse'` mode?
+> * How does `drawNode` in `src/render/draw.ts` render multi-line node labels (`box.lines` / `box.runs`) and how does `drawEdges` in `src/render/draw-edges.ts` render edge labels?
 > * Run `npm test` once before editing anything to confirm the baseline test suite passes.
 
-## 4. Feature Specification A: Decoupled Flow Diagram Themes & Canvas Background Themes (with Background Lock)
+## 4. Feature Specification A: Modern + Minimal Color Theory, Decoupled Background/Diagram Theming & Multi-Shade / Semantic Node Palettes
 
-### 4.1 Why `composeTheme` is the Key Architectural Secret for Smaller Models
+### 4.1 The 60-30-10 Minimalist Color Principle for Animated Flowcharts
 
-In Gati-Chitra, every rendering and export function (`drawBackground`, `drawScene`, `drawExportFrame`, `exportPng`, `exportSvg`, `exportGif`, `exportVideo`) accepts a **single** `theme: Theme` parameter.
+* **60% Calm Architectural Surface (`background` & `groupFill`):** Desaturated, low-glare surfaces (warm unbleached paper, pure zinc alabaster, deep carbon-indigo, or polar slate) that never fatigue the eye.
+* **30% Whisper-Soft Tonal Node Hierarchy (`nodeShades[0..3]` & `edge`):** Different node shapes or semantic statuses receive **5%–12% micro-tinted surface fills** paired with crisp, medium-contrast semantic borders (`stroke`) and quiet structural connectors (`edge`).
+* **10% Kinetic Focal Point (`particle` & `glow`):** Keeping nodes and edges restrained makes the **animated flow particles**, **typewriter reveals**, and **flowing dashed connectors** pop with jewel-like clarity.
 
-* **What NOT to do:** Do **not** change `drawScene`, `drawExportFrame`, `exportPng`, `exportSvg`, `exportGif`, or `exportVideo` to take two separate theme arguments (`diagramTheme`, `bgTheme`). Doing so would break dozens of existing function signatures and unit tests across the codebase.
-* **What TO do (`composeTheme` Pattern):** Keep `Theme` as the single unified runtime object passed to renderers, and create a pure function `composeTheme(diagramChoice: ThemeChoice, bgChoice: BackgroundChoice, scheme: 'light' | 'dark'): Theme` in `src/render/themes.ts`!
-  * When `bgChoice === 'match'` (default when unlocked), `composeTheme` simply returns the full `Theme` resolved from `diagramChoice`.
-  * When `bgChoice` is set to a specific background ID (either because the user clicked the **Lock Background** button or selected a standalone background swatch), `composeTheme` takes:
-    * **From the Flow Diagram Theme (`diagramChoice`):** `nodeFill`, `nodeStroke`, `nodeText`, `edge`, `groupFill`, `groupStroke`, `groupTitle`, `particle`, `glow`, `selection`, `glowDefault`
-    * **From the Canvas Background Theme (`bgChoice`):** `background`, `backgroundGradient`, `gridColor`, `edgeLabelBg`, `edgeLabelText`, and `titleText`
+### 4.2 `composeTheme` + `nodeStyle` Architecture
 
-### 4.2 Why `edgeLabelBg`, `edgeLabelText`, and `titleText` Must Follow the Canvas Background
+Keep `Theme` as the single unified runtime object passed to renderers, and create `composeTheme(diagramChoice, bgChoice, scheme, shadingMode): Theme` in `src/render/themes.ts`:
+* **From the Flow Diagram Theme (`diagramChoice`):** `nodeFill`, `nodeStroke`, `nodeText`, `nodeShades`, `edge`, `groupFill`, `groupStroke`, `groupTitle`, `particle`, `glow`, `selection`, `glowDefault`
+* **From the Canvas Background Theme (`bgChoice`):** `background`, `backgroundGradient`, `gridColor`, `edgeLabelBg`, `edgeLabelText`, and `titleText`
+* **Active Node Shading Mode (`shadingMode`):** `shadingMode: NodeShadeMode` (`'shape' | 'semantic' | 'node' | 'off'`)
 
-Think about what happens visually when a user separates the background from the flow diagram:
-* Suppose the user picks a **Dark Flow Diagram Theme** (e.g., `obsidian` where nodes are dark `#141622` with white text `#f3f4f6`) but locks a **Light Canvas Background** (e.g., `paper` `#faf8f5` or `daylight` `#ffffff`).
-* Inside nodes, `nodeText` (`#f3f4f6`) sits on `nodeFill` (`#141622`), so node text is 100% readable.
-* However, the **diagram title** (`scene.layout.title`) and **edge labels** sit directly on top of the **Canvas Background**!
-* Therefore, in `composeTheme(diagramChoice, bgChoice, scheme)`:
-  * `edgeLabelBg` must come from the **Background Theme** (`bgTheme.edgeLabelBg`, which matches `bgTheme.background`) and `edgeLabelText` must come from the **Background Theme** (`bgTheme.edgeLabelText`, dark ink on light backgrounds, crisp light text on dark backgrounds).
-  * Add `titleText: string` to `Theme` (coming from `bgTheme.edgeLabelText`), and in `src/render/draw.ts` (under `// 1. Title`) and `src/render/svg.ts`, use `theme.titleText || theme.nodeText` for the diagram title fill!
-  * This guarantees that **any** of the 12 flow diagram themes combined with **any** of the 12 canvas backgrounds has 100% legible titles, edge labels, nodes, groups, and animated particles!
+### 4.3 Multi-Shade & Semantic Status Node Theming (`src/render/style.ts`)
 
-### 4.3 Curated 12-Theme Palette Table (Used for Both Flow Diagram Themes & Background Presets)
+Support 4 `NodeShadeMode` options in `#node-shading`:
 
-Preserve the 4 existing `ThemeId` values (`daylight`, `midnight`, `lagoon`, `ember`) so zero existing tests break, and add 8 modern, minimal themes (`geist`, `paper`, `matcha`, `lavender`, `obsidian`, `graphite`, `nordic`, `rosepine`).
+1. **`'shape'` (By Shape Geometry):** Maps the 20 `ShapeKind` values to the theme's 4 `nodeShades` tiers:
+   * **Tier `0` (Process):** `'rect'`, `'round'`, `'subroutine'`, `'text'`
+   * **Tier `1` (Terminals / Pills):** `'stadium'`, `'circle'`, `'doubleCircle'`, `'smallCircle'`, `'filledCircle'`, `'framedCircle'`, `'forkBar'`
+   * **Tier `2` (Decisions / Gateways):** `'diamond'`, `'hexagon'`, `'asymmetric'`
+   * **Tier `3` (Storage / Data / I/O):** `'cylinder'`, `'parallelogram'`, `'parallelogramAlt'`, `'trapezoid'`, `'trapezoidAlt'`, `'document'`
+2. **`'semantic'` (Semantic Status — Food Delivery Pipeline Style!):**
+   Inspects `node.shape` and `node.label.toLowerCase()` to assign semantic status colors (matching the **Food Delivery Pipeline** reference video, automatically adapted for light vs. dark themes):
+   * **Decision / Question (`node.shape === 'diamond' || node.shape === 'hexagon' || label.includes('?')`):**
+     * Light theme: `fill: '#faf5ff'`, `stroke: '#9333ea'` (Soft Lavender fill, Vivid Purple border)
+     * Dark theme: `fill: '#231829'`, `stroke: '#c084fc'`
+   * **Error / Declined / Failure / Cancelled (`/declin|fail|cancel|error|reject|timeout|issue/i.test(label)`):**
+     * Light theme: `fill: '#fef2f2'`, `stroke: '#ef4444'` (Soft Rose fill, Coral Red border)
+     * Dark theme: `fill: '#2d1519'`, `stroke: '#f87171'`
+   * **Success / Delivered / Completed / Approved (`/deliver|success|complet|approv|done|pass/i.test(label)`):**
+     * Light theme: `fill: '#f0fdf4'`, `stroke: '#22c55e'` (Soft Mint fill, Emerald Green border)
+     * Dark theme: `fill: '#0f291e'`, `stroke: '#4ade80'`
+   * **Dispatch / Courier / Queue / Warning (`/dispatch|courier|wait|pend|queue|assign/i.test(label)`):**
+     * Light theme: `fill: '#fff7ed'`, `stroke: '#ea580c'` (Soft Warm Peach fill, Burnt Orange border)
+     * Dark theme: `fill: '#2b1d12'`, `stroke: '#fb923c'`
+   * **Standard Process / Action (Default):**
+     * Light theme: `fill: '#eff6ff'`, `stroke: '#3b82f6'` (Soft Ice Blue fill, Royal Blue border) or `theme.nodeShades[0]`
+     * Dark theme: `fill: '#172033'`, `stroke: '#60a5fa'` or `theme.nodeShades[0]`
+3. **`'node'` (By Node Hash):** Cycles across `theme.nodeShades[hashNodeId(node.id) % 4]`.
+4. **`'off'` (Uniform):** Uses base `theme.nodeFill` and `theme.nodeStroke`.
 
-Every entry in `THEMES` (`src/render/themes.ts`) uses these exact tokens:
+*Note:* In all modes, explicit user overrides (`node.style.fill`, `node.style.stroke`, `node.style.color`) always take top priority!
 
-| Theme ID (`ThemeId`) | Display Name (`name`) | Mode | `background` | `backgroundGradient` | `nodeFill` | `nodeStroke` | `nodeText` | `edge` | `edgeLabelBg` | `edgeLabelText` / `titleText` | `groupFill` | `groupStroke` | `groupTitle` | `particle` / `glow` / `selection` | `glowDefault` | `gridColor` |
+### 4.4 Complete 16-Theme Modern & Minimal Palette Table (`src/render/themes.ts`)
+
+| Theme ID (`ThemeId`) | Display Name (`name`) | Mode & Design Inspiration | `background` | `backgroundGradient` | `nodeFill` (Tier 0) | `nodeStroke` (Tier 0) | `nodeText` | `edge` | `edgeLabelBg` | `edgeLabelText` / `titleText` | `groupFill` | `groupStroke` | `groupTitle` | `particle` / `glow` / `selection` | `glowDefault` | `gridColor` |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `daylight` *(existing)* | `Daylight` | Light | `#ffffff` | `null` | `#f7f7fb` | `#34495e` | `#111418` | `#4f5660` | `#ffffff` | `#111418` | `#f5f5fa` | `#cfd1dc` | `#34495e` | `#3b82f6` | `false` | `rgba(15, 23, 42, 0.08)` |
-| `geist` *(new)* | `Mono Light` | Light | `#fafafa` | `null` | `#ffffff` | `#18181b` | `#09090b` | `#71717a` | `#fafafa` | `#09090b` | `#f4f4f5` | `#d4d4d8` | `#27272a` | `#2563eb` | `false` | `rgba(24, 24, 27, 0.08)` |
-| `paper` *(new)* | `Warm Paper` | Light | `#faf8f5` | `null` | `#f3efea` | `#44403c` | `#1c1917` | `#78716c` | `#faf8f5` | `#1c1917` | `#f5f2ed` | `#d6d3d1` | `#57534e` | `#d97706` | `false` | `rgba(68, 64, 60, 0.08)` |
-| `matcha` *(new)* | `Sage Minimal` | Light | `#f4f7f4` | `null` | `#ffffff` | `#2d4a3e` | `#16261f` | `#5c7c6d` | `#f4f7f4` | `#16261f` | `#ebf1ec` | `#c5d6c8` | `#2d4a3e` | `#10b981` | `false` | `rgba(45, 74, 62, 0.08)` |
-| `lavender` *(new)* | `Soft Mist` | Light | `#f8f7ff` | `null` | `#ffffff` | `#4338ca` | `#1e1b4b` | `#6366f1` | `#f8f7ff` | `#1e1b4b` | `#f0eeff` | `#c7d2fe` | `#3730a3` | `#7c3aed` | `false` | `rgba(67, 56, 202, 0.08)` |
-| `midnight` *(existing)* | `Midnight` | Dark | `#0f172a` | `null` | `#1e293b` | `#475569` | `#f8fafc` | `#64748b` | `#0f172a` | `#f8fafc` | `#1e293b` | `#334155` | `#94a3b8` | `#38bdf8` | `true` | `rgba(248, 250, 252, 0.07)` |
-| `obsidian` *(new)* | `Linear Dark` | Dark | `#090a0f` | `['#090a0f', '#10121a']` | `#141622` | `#26293d` | `#f3f4f6` | `#4b5278` | `#090a0f` | `#f3f4f6` | `#0e1018` | `#1f2233` | `#9ca3af` | `#818cf8` | `true` | `rgba(129, 140, 248, 0.08)` |
-| `graphite` *(new)* | `Graphite Mono` | Dark | `#121212` | `null` | `#1e1e1e` | `#383838` | `#e5e5e5` | `#666666` | `#121212` | `#e5e5e5` | `#171717` | `#2e2e2e` | `#a3a3a3` | `#a3e635` | `false` | `rgba(255, 255, 255, 0.07)` |
-| `nordic` *(new)* | `Nordic Frost` | Dark | `#242933` | `['#242933', '#2e3440']` | `#3b4252` | `#4c566a` | `#eceff4` | `#616e88` | `#242933` | `#eceff4` | `#292e39` | `#434c5e` | `#d8dee9` | `#88c0d0` | `false` | `rgba(216, 222, 233, 0.07)` |
-| `rosepine` *(new)* | `Rosé Velvet` | Dark | `#191724` | `['#191724', '#1f1d2e']` | `#26233a` | `#403d52` | `#e0def4` | `#6e6a86` | `#191724` | `#e0def4` | `#1f1d2e` | `#393552` | `#908caa` | `#f6c177` | `true` | `rgba(224, 222, 244, 0.07)` |
-| `lagoon` *(existing)* | `Lagoon` | Dark | `#041e2b` | `['#041e2b', '#0a2e3f']` | `#0b3548` | `#14536b` | `#e0f2fe` | `#0ea5e9` | `#041e2b` | `#e0f2fe` | `#082a3a` | `#0f4459` | `#38bdf8` | `#22d3ee` | `true` | `rgba(56, 189, 248, 0.09)` |
-| `ember` *(existing)* | `Ember` | Dark | `#180c0e` | `['#180c0e', '#2a1215']` | `#2d1519` | `#4a2026` | `#fef2f2` | `#f43f5e` | `#180c0e` | `#fef2f2` | `#241013` | `#3d181d` | `#fb7185` | `#fb923c` | `true` | `rgba(251, 113, 133, 0.08)` |
+| `daylight` *(existing)* | `Daylight` | Classic Light | `#ffffff` | `null` | `#f7f7fb` | `#34495e` | `#111418` | `#4f5660` | `#ffffff` | `#111418` | `#f5f5fa` | `#cfd1dc` | `#34495e` | `#3b82f6` | `false` | `rgba(15, 23, 42, 0.08)` |
+| `geist` *(new)* | `Vercel Mono` | Light — Architectural Zinc Monochrome | `#fafafa` | `null` | `#ffffff` | `#18181b` | `#09090b` | `#71717a` | `#fafafa` | `#09090b` | `#f4f4f5` | `#d4d4d8` | `#27272a` | `#2563eb` | `false` | `rgba(24, 24, 27, 0.07)` |
+| `flexoki` *(new)* | `Flexoki Paper` | Light — Warm Unbleached Ink (Steph Ango) | `#fffcf0` | `null` | `#f2f0e5` | `#403e3c` | `#100f0f` | `#6f6e69` | `#fffcf0` | `#100f0f` | `#f7f5ea` | `#dad8ce` | `#575653` | `#da702c` | `false` | `rgba(16, 15, 15, 0.07)` |
+| `latte` *(new)* | `Catppuccin Latte` | Light — Soft Editorial Pastel | `#eff1f5` | `null` | `#ffffff` | `#4c4f69` | `#4c4f69` | `#7c7f93` | `#eff1f5` | `#4c4f69` | `#e6e9ef` | `#bcc0cc` | `#5c5f77` | `#8839ef` | `false` | `rgba(76, 79, 105, 0.08)` |
+| `matcha` *(new)* | `Kyoto Sage` | Light — Botanical Ceramic Minimal | `#f4f7f4` | `null` | `#ffffff` | `#2d4a3e` | `#16261f` | `#5c7c6d` | `#f4f7f4` | `#16261f` | `#ebf1ec` | `#c5d6c8` | `#2d4a3e` | `#10b981` | `false` | `rgba(45, 74, 62, 0.08)` |
+| `clay` *(new)* | `Terracotta Sand` | Light — Warm Earth & Linen Minimal | `#fbf7f4` | `null` | `#f5ebe6` | `#5c4033` | `#291d18` | `#8c6d5e` | `#fbf7f4` | `#291d18` | `#f7efe9` | `#e0cec4` | `#6e4f41` | `#ea580c` | `false` | `rgba(92, 64, 51, 0.08)` |
+| `swiss` *(new)* | `Swiss Grid` | Light — Bauhaus / International Typographic | `#f6f6f6` | `null` | `#ffffff` | `#111111` | `#111111` | `#555555` | `#f6f6f6` | `#111111` | `#eeeeee` | `#cccccc` | `#111111` | `#e11d48` | `false` | `rgba(17, 17, 17, 0.09)` |
+| `midnight` *(existing)* | `Midnight` | Classic Dark | `#0f172a` | `null` | `#1e293b` | `#475569` | `#f8fafc` | `#64748b` | `#0f172a` | `#f8fafc` | `#1e293b` | `#334155` | `#94a3b8` | `#38bdf8` | `true` | `rgba(248, 250, 252, 0.07)` |
+| `obsidian` *(new)* | `Linear Carbon` | Dark — Deep Carbon & Electric Indigo | `#090a0f` | `['#090a0f', '#10121a']` | `#141622` | `#26293d` | `#f3f4f6` | `#4b5278` | `#090a0f` | `#f3f4f6` | `#0e1018` | `#1f2233` | `#9ca3af` | `#818cf8` | `true` | `rgba(129, 140, 248, 0.08)` |
+| `graphite` *(new)* | `Raycast Matte` | Dark — Pure Neutral Dark & Kinetic Lime | `#111113` | `null` | `#18181b` | `#3f3f46` | `#f4f4f5` | `#71717a` | `#111113` | `#f4f4f5` | `#141417` | `#27272a` | `#a1a1aa` | `#a3e635` | `false` | `rgba(255, 255, 255, 0.07)` |
+| `tokyonight` *(new)* | `Tokyo Night` | Dark — Nocturnal Dusk & Cyber Cyan | `#1a1b26` | `['#1a1b26', '#16161e']` | `#24283b` | `#414868` | `#c0caf5` | `#565f89` | `#1a1b26` | `#c0caf5` | `#1f2335` | `#3b4261` | `#7aa2f7` | `#7dcfff` | `true` | `rgba(192, 202, 245, 0.07)` |
+| `nordic` *(new)* | `Nordic Frost` | Dark — Arctic Polar Slate | `#242933` | `['#242933', '#2e3440']` | `#3b4252` | `#4c566a` | `#eceff4` | `#616e88` | `#242933` | `#eceff4` | `#292e39` | `#434c5e` | `#d8dee9` | `#88c0d0` | `false` | `rgba(216, 222, 233, 0.07)` |
+| `rosepine` *(new)* | `Rosé Velvet` | Dark — Soho Muted Plum & Rose Gold | `#191724` | `['#191724', '#1f1d2e']` | `#26233a` | `#403d52` | `#e0def4` | `#6e6a86` | `#191724` | `#e0def4` | `#1f1d2e` | `#393552` | `#908caa` | `#f6c177` | `true` | `rgba(224, 222, 244, 0.07)` |
+| `monokai` *(new)* | `Espresso Warm` | Dark — Roasted Charcoal & Amber Gold | `#1c1917` | `['#1c1917', '#24201d']` | `#292524` | `#44403c` | `#f5f5f4` | `#78716c` | `#1c1917` | `#f5f5f4` | `#211e1c` | `#383330` | `#a8a29e` | `#f59e0b` | `true` | `rgba(245, 245, 244, 0.07)` |
+| `lagoon` *(existing)* | `Lagoon` | Deep Ocean Dark | `#041e2b` | `['#041e2b', '#0a2e3f']` | `#0b3548` | `#14536b` | `#e0f2fe` | `#0ea5e9` | `#041e2b` | `#e0f2fe` | `#082a3a` | `#0f4459` | `#38bdf8` | `#22d3ee` | `true` | `rgba(56, 189, 248, 0.09)` |
+| `ember` *(existing)* | `Ember` | Warm Crimson Dark | `#180c0e` | `['#180c0e', '#2a1215']` | `#2d1519` | `#4a2026` | `#fef2f2` | `#f43f5e` | `#180c0e` | `#fef2f2` | `#241013` | `#3d181d` | `#fb7185` | `#fb923c` | `true` | `rgba(251, 113, 133, 0.08)` |
 
-### 4.4 How Background Lock & Separate Background Selection Work Together
+### 4.5 Curated 4-Tier `nodeShades` Specification Table for All 16 Themes
 
-Define `BackgroundChoice` in `src/core/types.ts` as:
-* `export type BackgroundChoice = 'match' | 'auto' | ThemeId;`
-  * `'match'` *(Default when Background is unlocked)*: The canvas background automatically uses the background of whatever **Flow Diagram Theme** is currently selected.
-  * `'auto'`: The canvas background always follows the page's system/UI light or dark scheme (`daylight` background in light mode, `midnight` background in dark mode), regardless of which flow diagram theme is chosen.
-  * Any `ThemeId` (`'daylight'`, `'geist'`, `'paper'`, `'matcha'`, `'lavender'`, `'midnight'`, `'obsidian'`, `'graphite'`, `'nordic'`, `'rosepine'`, `'lagoon'`, `'ember'`): The canvas background is explicitly pinned to that palette's background surface (`background`, `backgroundGradient`, `gridColor`, `edgeLabelBg`, `edgeLabelText`, `titleText`), while the diagram nodes, edges, subgraphs, and animated particles use the selected `state.settings.theme`!
+| Theme ID | **Tier 0: Process / Action** (`fill`, `stroke`) | **Tier 1: Terminal / Stadium / Circle** (`fill`, `stroke`) | **Tier 2: Decision / Diamond / Hexagon** (`fill`, `stroke`) | **Tier 3: Data / Cylinder / I/O** (`fill`, `stroke`) |
+| :--- | :--- | :--- | :--- | :--- |
+| `daylight` | `fill: '#eff6ff'`, `stroke: '#3b82f6'` | `fill: '#f0fdf4'`, `stroke: '#22c55e'` | `fill: '#faf5ff'`, `stroke: '#9333ea'` | `fill: '#fff7ed'`, `stroke: '#ea580c'` |
+| `geist` | `fill: '#ffffff'`, `stroke: '#18181b'` | `fill: '#f4f4f5'`, `stroke: '#3f3f46'` | `fill: '#eff6ff'`, `stroke: '#1d4ed8'` | `fill: '#f5f3ff'`, `stroke: '#6d28d9'` |
+| `flexoki` | `fill: '#f2f0e5'`, `stroke: '#403e3c'` | `fill: '#e2ece9'`, `stroke: '#24837b'` | `fill: '#efe9d5'`, `stroke: '#ad8301'` | `fill: '#e6e4d9'`, `stroke: '#205ea6'` |
+| `latte` | `fill: '#ffffff'`, `stroke: '#4c4f69'` | `fill: '#e0f2f1'`, `stroke: '#179299'` | `fill: '#ffedd5'`, `stroke: '#fe640b'` | `fill: '#f3e8ff'`, `stroke: '#8839ef'` |
+| `matcha` | `fill: '#ffffff'`, `stroke: '#2d4a3e'` | `fill: '#dcfce7'`, `stroke: '#15803d'` | `fill: '#fef9c3'`, `stroke: '#a16207'` | `fill: '#e0f2fe'`, `stroke: '#0369a1'` |
+| `clay` | `fill: '#f5ebe6'`, `stroke: '#5c4033'` | `fill: '#e9f0ec'`, `stroke: '#3d6b58'` | `fill: '#f7eed6'`, `stroke: '#b45309'` | `fill: '#fae5dc'`, `stroke: '#c2410c'` |
+| `swiss` | `fill: '#ffffff'`, `stroke: '#111111'` | `fill: '#eaeaea'`, `stroke: '#111111'` | `fill: '#fee2e2'`, `stroke: '#b91c1c'` | `fill: '#dbeafe'`, `stroke: '#1d4ed8'` |
+| `midnight` | `fill: '#1e293b'`, `stroke: '#475569'` | `fill: '#0f292a'`, `stroke: '#14b8a6'` | `fill: '#2b2118'`, `stroke: '#f59e0b'` | `fill: '#1e1b4b'`, `stroke: '#6366f1'` |
+| `obsidian` | `fill: '#141622'`, `stroke: '#26293d'` | `fill: '#112229'`, `stroke: '#22d3ee'` | `fill: '#231829'`, `stroke: '#c084fc'` | `fill: '#171c30'`, `stroke: '#818cf8'` |
+| `graphite` | `fill: '#18181b'`, `stroke: '#3f3f46'` | `fill: '#1a2418'`, `stroke: '#84cc16'` | `fill: '#27272a'`, `stroke: '#71717a'` | `fill: '#172026'`, `stroke: '#38bdf8'` |
+| `tokyonight` | `fill: '#24283b'`, `stroke: '#414868'` | `fill: '#1d2b2f'`, `stroke: '#73daca'` | `fill: '#2e2624'`, `stroke: '#ff9e64'` | `fill: '#292338'`, `stroke: '#bb9af7'` |
+| `nordic` | `fill: '#3b4252'`, `stroke: '#4c566a'` | `fill: '#2e3d3b'`, `stroke: '#8fbcbb'` | `fill: '#3d3733'`, `stroke: '#ebcb8b'` | `fill: '#333b4d'`, `stroke: '#81a1c1'` |
+| `rosepine` | `fill: '#26233a'`, `stroke: '#403d52'` | `fill: '#212e34'`, `stroke: '#9ccfd8'` | `fill: '#332732'`, `stroke: '#f6c177'` | `fill: '#2c253f'`, `stroke: '#c4a7e7'` |
+| `monokai` | `fill: '#292524'`, `stroke: '#44403c'` | `fill: '#1f2922'`, `stroke: '#84cc16'` | `fill: '#30261c'`, `stroke: '#f59e0b'` | `fill: '#2b2129'`, `stroke: '#ec4899'` |
+| `lagoon` | `fill: '#0b3548'`, `stroke: '#14536b'` | `fill: '#083b3e'`, `stroke: '#2dd4bf'` | `fill: '#102e4a'`, `stroke: '#38bdf8'` | `fill: '#16284c'`, `stroke: '#818cf8'` |
+| `ember` | `fill: '#2d1519'`, `stroke: '#4a2026'` | `fill: '#2b1d12'`, `stroke: '#fb923c'` | `fill: '#361520'`, `stroke: '#fb7185'` | `fill: '#261726'`, `stroke: '#e879f9'` |
 
-#### Exact State Machine for the "Lock Background" Button (`#bg-lock`) & Background Swatches (`#bg-strip` / `#bg-theme`)
+### 4.6 Background Lock & Separate Background Selection State Machine
 
 | User Action in Dashboard | State Transition in `state.settings` | Visual Result on Canvas |
 | :--- | :--- | :--- |
-| **1. Initial Default State** | `theme: 'auto'`, `bgTheme: 'match'`, `bgLocked: false` | Clicking a Diagram Theme chip changes **both** the flow diagram and the canvas background together. |
-| **2. User Clicks `Lock BG` Button (`#bg-lock`) to Lock** | `bgLocked` becomes `true`. If `bgTheme === 'match'`, resolve the currently visible background's `ThemeId` (via `resolveTheme(state.settings.theme, currentScheme)`) and set `state.settings.bgTheme = currentResolvedThemeId`. | The current background is now **locked**! When the user clicks any Flow Diagram Theme chip in `#theme-strip`, **only** the nodes, edges, groups, and particles change; the canvas background stays locked. |
-| **3. User Clicks Any Background Swatch in `#bg-strip` (or chooses a background in `#bg-theme`)** | Sets `state.settings.bgTheme = chosenBgId` and automatically sets `state.settings.bgLocked = (chosenBgId !== 'match')`. | Immediately applies the chosen canvas background while leaving the flow diagram theme (`state.settings.theme`) untouched! Because picking a specific background implies wanting that background to stay put, `bgLocked` automatically activates so subsequent clicks on Diagram Theme chips don't overwrite the chosen background. |
-| **4. User Clicks `Lock BG` Button (`#bg-lock`) to Unlock (or clicks `Match Diagram` in `#bg-strip`)** | Sets `state.settings.bgLocked = false` and `state.settings.bgTheme = 'match'`. | The canvas background unlocks and snaps back to matching the active Flow Diagram Theme. |
-
-> **[THINKING_CHECKPOINT_1: Verifying the Separation Logic]**
-> Trace this scenario in your thinking tool to confirm your understanding:
-> * Scenario: The user selects the `paper` ("Warm Paper") theme. Currently `bgLocked` is `false` and `bgTheme` is `'match'`, so both the canvas background and diagram are `paper`.
-> * Next, the user clicks the **Lock BG** button (`#bg-lock`). What happens?
->   * `state.settings.bgLocked` becomes `true`, and `state.settings.bgTheme` is pinned to `'paper'`.
-> * Next, the user single-clicks the `obsidian` ("Linear Dark") chip in the **Diagram Theme** bar (`#theme-strip`). What happens?
->   * `state.settings.theme` becomes `'obsidian'`.
->   * Because `state.settings.bgTheme` is `'paper'`, `composeTheme('obsidian', 'paper', scheme)` returns a `Theme` with `paper`'s warm `#faf8f5` background, warm grid color, and readable dark title/edge-label text, combined with `obsidian`'s sleek carbon nodes (`#141622`), white node text (`#f3f4f6`), and glowing electric indigo animated flow particles (`#818cf8`)!
-> * Next, the user clicks a different background swatch in the **Background** bar (`#bg-strip`), such as `midnight` or `geist`. What happens?
->   * `state.settings.bgTheme` updates to that background in one click, while `state.settings.theme` remains `'obsidian'`!
+| **1. Initial Default State** | `theme: 'auto'`, `bgTheme: 'match'`, `bgLocked: false`, `nodeShading: 'shape'` | Clicking a Diagram Theme chip changes **both** the multi-shaded flow diagram and the canvas background together. |
+| **2. User Clicks `Lock BG` Button (`#bg-lock`) to Lock** | `bgLocked` becomes `true`. If `bgTheme === 'match'`, resolve the currently visible background's `ThemeId` and set `state.settings.bgTheme = currentResolvedThemeId`. | The current background is now **locked**! Clicking any Flow Diagram Theme chip in `#theme-strip` changes **only** the nodes, node shades, edges, groups, and particles while the canvas background stays locked. |
+| **3. User Clicks Any Background Swatch in `#bg-strip` (or chooses a background in `#bg-theme`)** | Sets `state.settings.bgTheme = chosenBgId` and automatically sets `state.settings.bgLocked = (chosenBgId !== 'match')`. | Immediately applies the chosen canvas background while leaving the flow diagram theme untouched. |
+| **4. User Clicks `Lock BG` Button (`#bg-lock`) to Unlock (or clicks `Match` in `#bg-strip`)** | Sets `state.settings.bgLocked = false` and `state.settings.bgTheme = 'match'`. | The canvas background unlocks and snaps back to matching the active Flow Diagram Theme. |
 
 ## 5. Feature Specification B: Diagram Dashboard Grid & Automatic Removal on Export
 
-### 5.1 Grid & Editor Wrap State Persistence Contract (`src/app/storage.ts`)
-
-1. **Settings Interface (`src/app/storage.ts`):**
-   Extend `Settings` with optional properties so existing unit test fixtures don't break on missing fields:
-   * `bgTheme?: BackgroundChoice;` (defaults to `'match'` in `loadSettings`)
-   * `bgLocked?: boolean;` (defaults to `false` in `loadSettings`)
-   * `grid?: boolean;` (defaults to `false` in `loadSettings`)
-   * `wordWrap?: boolean;` (defaults to `false` in `loadSettings`)
-2. **Validation in `loadSettings`:**
-   * Validate `bgTheme` against `BACKGROUND_CHOICES` (`['match', 'auto', ...THEME_IDS]`); fallback to `'match'` if invalid or absent.
-   * Validate `bgLocked` with `typeof parsed?.bgLocked === 'boolean' ? parsed.bgLocked : (bgTheme !== 'match')`.
-   * Validate `grid` with `typeof parsed?.grid === 'boolean' ? parsed.grid : false`.
-   * Validate `wordWrap` with `typeof parsed?.wordWrap === 'boolean' ? parsed.wordWrap : false`.
-
-### 5.2 Pan & Zoom Infinite Canvas Grid Rendering (`src/render/draw.ts`)
-
-Create and export a pure function `drawGrid` in `src/render/draw.ts`:
-
-* **Function Signature:**
-  `export function drawGrid(ctx: Ctx2D, theme: Theme, view: ViewState, viewportWidth: number, viewportHeight: number): void`
-* **Step-by-Step Mathematical Algorithm:**
-  1. **Base World Grid Spacing:** Start with `let step = 24`.
-  2. **Adaptive Level-of-Detail (LOD) Scaling:**
-     * Compute `let scaledStep = step * view.zoom`.
-     * If the user zooms far out (`while (scaledStep < 12)`), double the step (`step *= 2; scaledStep = step * view.zoom;`) so the canvas never draws thousands of dense lines.
-     * If the user zooms far in (`while (scaledStep > 96)`), halve the step (`step /= 2; scaledStep = step * view.zoom;`) so the grid subdivides cleanly.
-  3. **Screen-Space Modulo Offset:**
-     * `const offsetX = ((view.panX % scaledStep) + scaledStep) % scaledStep;`
-     * `const offsetY = ((view.panY % scaledStep) + scaledStep) % scaledStep;`
-  4. **Single-Pass Batched Stroke Rendering:**
-     * Call `ctx.save()`.
-     * Set `ctx.strokeStyle = theme.gridColor` (which comes from the **Canvas Background Theme** via `composeTheme`, so the grid always has the exact right subtle contrast against the active background!).
-     * Set `ctx.lineWidth = 1`.
-     * Call `ctx.beginPath()`.
-     * Loop `for (let x = offsetX; x <= viewportWidth; x += scaledStep)` -> `ctx.moveTo(x, 0); ctx.lineTo(x, viewportHeight);`.
-     * Loop `for (let y = offsetY; y <= viewportHeight; y += scaledStep)` -> `ctx.moveTo(0, y); ctx.lineTo(viewportWidth, y);`.
-     * Call `ctx.stroke()` once and `ctx.restore()`.
-
-### 5.3 Automatic Grid Removal During Export (All 5 Export Paths)
-
-The user explicitly requires: **"in the diagram dashboard, add an option to apply grids (while exporting the grids should be removed automatically)."**
-
-Enforce this across all rendering paths as follows:
-
-| Rendering Path | File Path | Uses `composeTheme` (Separated BG + Diagram)? | Renders Grid? | Exact Enforcement Mechanism |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Live Dashboard Canvas** | `src/app/render-loop.ts` | **YES** | **YES** (when `state.settings.grid === true`) | `render-loop.ts` calls `composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme)` and passes `showGrid: Boolean(state.settings.grid)` in `DrawOptions` to `drawScene`. |
-| **2. PNG Export** | `src/export/png.ts` & `src/export/draw-frame.ts` | **YES** | **NO (Never)** | Passes `showGrid: false` in `DrawOptions`. Grid is automatically excluded. |
-| **3. Animated GIF Export** | `src/export/gif.ts` & `src/export/draw-frame.ts` | **YES** | **NO (Never)** | Calls `drawExportFrame`, which hardcodes `showGrid: false`. Grid is automatically excluded. |
-| **4. Video Export (WebM/MP4)** | `src/export/video.ts` & `src/export/draw-frame.ts` | **YES** | **NO (Never)** | Calls `drawExportFrame`, which hardcodes `showGrid: false`. Grid is automatically excluded. |
-| **5. Static & Animated SVG Export** | `src/render/svg.ts` | **YES** | **NO (Never)** | `svg.ts` uses the composed `theme` (so separated background + diagram colors export accurately) and never emits grid SVG elements. |
+1. **Settings Persistence (`src/app/storage.ts`):**
+   Add optional `bgTheme?: BackgroundChoice`, `bgLocked?: boolean`, `nodeShading?: NodeShadeMode`, `cardMode?: CardStyleMode`, `grid?: boolean`, and `wordWrap?: boolean` to `Settings`.
+2. **Pan & Zoom Infinite Canvas Grid (`drawGrid` in `src/render/draw.ts`):**
+   * Base step `step = 24`, adaptive LOD (`while (scaledStep < 12) step *= 2; while (scaledStep > 96) step /= 2;`), screen-space modulo offsets `offsetX` / `offsetY`, single-pass batched hairline stroke in `theme.gridColor`.
+3. **Automatic Grid Removal on Export:**
+   * Only `src/app/render-loop.ts` passes `showGrid: Boolean(state.settings.grid)`.
+   * `src/export/draw-frame.ts`, `src/export/png.ts`, and `src/render/svg.ts` always enforce `showGrid: false`, guaranteeing exports never contain grid lines.
 
 ## 6. Feature Specification C: Mermaid Script Writing Section Text Wrapping (Word Wrap) Toggle
 
-### 6.1 How CodeMirror 6 Handles Dynamic Line Wrapping (`src/app/code-editor.ts`)
-
-`src/app/code-editor.ts` already uses `@codemirror/state` (`Compartment`, `EditorState`, `Prec`) and `@codemirror/view` (`EditorView`, `lineNumbers`, `drawSelection`, `highlightActiveLine`, `keymap`).
-
-To support live toggling of text wrapping without recreating the editor or losing undo history/cursor position:
-
-1. **Extend `CodeEditorEnv` (`src/app/code-editor.ts`):**
-   * Add optional `wordWrap?: boolean;` to `export interface CodeEditorEnv`.
-2. **Extend `CodeEditor` (`src/app/code-editor.ts`):**
-   * Add `setWordWrap(wrap: boolean): void;` to `export interface CodeEditor`.
-3. **Configure the Wrapping `Compartment` inside `createCodeEditor` (`src/app/code-editor.ts`):**
-   * Instantiate a dedicated compartment alongside `lintConf` and `langConf`:
-     `const wrapConf = new Compartment();`
-   * Inside the `extensions` array passed to `EditorState.create(...)`, include:
-     `wrapConf.of(env.wordWrap ? EditorView.lineWrapping : [])`
-   * On the returned `CodeEditor` object, implement `setWordWrap(wrap: boolean): void` by dispatching a compartment reconfiguration effect on `view`:
-     `view.dispatch({ effects: wrapConf.reconfigure(wrap ? EditorView.lineWrapping : []) });`
-
-### 6.2 Mermaid Script Section Toggle UI & Wiring (`index.html`, `src/app/ui.ts`, `src/app/style.css`)
-
-1. **DOM Structure in `index.html` inside `#text-panel`:**
-   * Insert a compact header bar `<div id="text-panel-bar" class="text-panel-bar">` right above `<div id="source"></div>` inside `#text-panel`:
-     * Left side: `<span class="text-panel-title">Mermaid Script</span>`
-     * Right side: `<label class="control-pill-toggle" title="Toggle line wrapping in the Mermaid editor"><input id="editor-wrap" type="checkbox" /> <span>Wrap text</span></label>`
-2. **Wiring in `src/app/ui.ts`:**
-   * Pass `wordWrap: Boolean(state.settings.wordWrap)` into `createCodeEditor(sourceParent, { ... })`.
-   * Query `const editorWrapEl = document.querySelector<HTMLInputElement>('#editor-wrap');`.
-   * If `editorWrapEl` is present, initialize `editorWrapEl.checked = Boolean(state.settings.wordWrap);` and on `'change'`, set `state.settings.wordWrap = editorWrapEl.checked`, call `editor.setWordWrap(state.settings.wordWrap)`, and call `saveSettings(store, state.settings)`.
+1. In `src/app/code-editor.ts`, add `wordWrap?: boolean` to `CodeEditorEnv` and `setWordWrap(wrap: boolean): void` to `CodeEditor` using `const wrapConf = new Compartment()` and `EditorView.lineWrapping`.
+2. In `index.html` & `src/app/ui.ts`, add `#text-panel-bar` with `<input id="editor-wrap" type="checkbox" />` above `#source` inside `#text-panel` and wire it to `editor.setWordWrap` and `saveSettings`.
 
 ## 7. Feature Specification D: De-Cluttering & Ergonomic Redesign of All Cramped Buttons and Controls
 
-### 7.1 Root-Cause Diagnosis of the Live UI (`https://u77w41.github.io/gati-chitra/`)
+Apply the two-tier control deck layout (`.canvas-controls-tier.playback-tier` and `.canvas-controls-tier.theming-tier`), segmented `#toolbar > [role="group"]` pill clusters, tabular-num slider readouts (`min-width: 3.2ch`), `.control-pill-toggle` checkboxes, and sectioned `#props` inspector styling while preserving `.site-header` height (`>= 72px`), direct `#toolbar > [role="group"]` children for `src/app/narrow.ts`, and `flex-wrap: wrap; min-width: 0; max-width: 100%` for mobile no-overflow (`tests/e2e/mobile.spec.ts`).
 
-Currently, across the live application, buttons and controls look squashed and visually fatiguing for four specific CSS/DOM reasons:
+## 8. Feature Specification E: Two Advanced Workflow & Pipeline Animation/Graphics Systems
 
-1. **Top Toolbar (`#toolbar`):** All three `<div role="group">` clusters (*File*, *Edit*, *View*) sit in a bare `gap: 8px` flex row with only `gap: 4px` between buttons, zero surface elevation, zero visual dividers between groups, and tight `6px 10px` padding. Every button looks identical and runs into its neighbors.
-2. **Canvas Controls (`#canvas-controls`):** Mixes dropdown selects (`#anim-style`, `#theme`), range sliders (`#anim-speed`, `#anim-density`), dynamic value readouts (`#anim-speed-value`, `#anim-density-value`), checkboxes (`#anim-glow`), and action buttons (`#anim-pause`) into a single flat `display: flex; flex-wrap: wrap; gap: 8px;` row with no grouping cards, no vertical alignment polish, and no visual separation between **Animation Controls** and **Theme/Background Controls**.
-3. **Node/Edge Properties Panel (`#props`):** Packs 10+ form elements (`#props-close`, `#prop-label`, `#prop-shape`, `#prop-fill`, `#prop-stroke`, `#prop-text-color`, `#prop-clear-colours`, `#prop-connect`, `#prop-connect-go`, `#prop-delete`) into a raw `gap: 8px` flex wrap list without section dividers or aligned color swatch pills.
-4. **Text Panel (`#text-panel`) & Canvas Panel (`#canvas-panel`):** Tight `gap: 8px; padding: 12px;` leaves almost no breathing room between the canvas viewport and the control strip below it.
+Gati-Chitra will now support both reference video styles via two new `AnimStyle` modes (`'build'` and `'typewriter'`) and a **Card Style selector (`#card-mode`: `'classic' | 'pipeline' | 'workflow'`)** in `#canvas-controls`:
 
-### 7.2 Mandatory Test Compatibility Guardrails for Layout & CSS Changes
+### 8.1 Style 1: "Food Delivery Pipeline" Style (`cardMode: 'pipeline'` + `anim.style: 'typewriter'`)
 
-Before changing any HTML wrapper or CSS rule, you **must** honor these exact test invariants from `src/app/chrome.test.ts`, `src/app/narrow.test.ts`, `tests/e2e/chrome.spec.ts`, and `tests/e2e/mobile.spec.ts`:
+This reproduces every visual and kinetic detail of the **Food Delivery Pipeline** reference video:
 
-* **Invariant 1 — Preserve Every Existing Element ID and `role="group"` Hierarchy in `#toolbar`:**
-  * `src/app/narrow.ts` measures direct children of `#toolbar` (`#toolbar > [role="group"]`, `.toolbar-spacer`, `#btn-more`, `#more-menu`, `#btn-export`). Do **not** wrap `#toolbar > [role="group"]` inside extra intermediate `<div>` tags! Style `#toolbar` and `#toolbar > [role="group"]` directly via CSS.
-* **Invariant 2 — Preserve `.site-header` Height (`>= 72px`):**
-  * `tests/e2e/chrome.spec.ts` asserts `expect(box!.height).toBeGreaterThanOrEqual(72)` on `.site-header`. Do not reduce `.site-header` min-height or vertical padding.
-* **Invariant 3 — Zero Horizontal Page Overflow on Mobile (`scrollWidth <= innerWidth`):**
-  * `tests/e2e/mobile.spec.ts` asserts `document.scrollingElement.scrollWidth <= innerWidth` on mobile screens. Any multi-item control bar (`#toolbar`, `#canvas-controls`, `#theme-strip`, `#bg-strip`, `#props`) must use `flex-wrap: wrap`, `max-width: 100%`, and `min-width: 0` so no child ever forces horizontal page scrolling.
+1. **Choreographed Typewriter Reveal + Post-Build Flowing Dashes (`style: 'typewriter'` in `src/anim/anim.ts`):**
+   * Extend `FrameState` in `src/core/types.ts` with:
+     * `titleChars?: number;` (fraction `[0, 1]` of diagram title/subtitle characters revealed)
+     * `nodeAlpha?: Record<string, number>;` (card box & icon fade/scale-in `[0, 1]`)
+     * `nodeTextProgress?: Record<string, number>;` (fraction `[0, 1]` of node title/subtitle characters typed in)
+     * `edgeGrow?: Record<string, number>;` (fraction `[0, 1]` of outgoing connector line drawn)
+     * `edgeTextProgress?: Record<string, number>;` (fraction `[0, 1]` of edge label characters typed in)
+   * **Exact Timeline Allocation across Normalized Phase $p \in [0, 1)$ in `frameState`:**
+     * **Phase `0.00 -> 0.06` (Header Typewriter Reveal):** `titleChars = clamp(p / 0.06, 0, 1)`. The diagram title (e.g., `"Food Delivery Pipeline"`) types in character-by-character from left to right!
+     * **Phase `0.06 -> 0.78` (Sequential Node-by-Node & Edge-by-Edge Choreography):**
+       Order nodes topologically (by `computeDepths(scene.doc)` and appearance order in `scene.doc.nodes`, $k = 0, 1, \dots, K-1$). Each step $k$ gets an equal slice $[s_k, e_k]$ of `[0.06, 0.78]`:
+       1. **First 35% of slice (`localP` in `[0, 0.35]`):** The node card box (`nodeAlpha[id] = clamp(localP / 0.30, 0, 1)`) and its inline left icon (or top `?` icon on diamonds) appear first while `nodeTextProgress[id]` is `0`!
+       2. **25% to 75% of slice (`localP` in `[0.25, 0.75]`):** The node's primary title and subtitle **type in character-by-character** (`nodeTextProgress[id] = clamp((localP - 0.25) / 0.50, 0, 1)`)!
+       3. **65% to 100% of slice (`localP` in `[0.65, 1.00]`):** Outgoing edges from this node grow toward their target (`edgeGrow[edge.id] = clamp((localP - 0.65) / 0.30, 0, 1)`) while the edge label above/beside the arrow **types in character-by-character** (`edgeTextProgress[edge.id] = clamp((localP - 0.70) / 0.30, 0, 1)`)!
+     * **Phase `0.78 -> 1.00` (Post-Build Flowing Dashed Connectors — matching `00:20–00:24` of the video!):**
+       Once `p >= 0.78`, all nodes and edges have `alpha = 1`, `textProgress = 1`, `edgeGrow = 1`, and `frameState` activates continuous flowing dashes (`dashOffset = 0 - ((p - 0.78) / 0.22) * ANIM.dashCycles * 24`) across all edges so the completed pipeline pulses with live data flow!
 
-### 7.3 Exact UI Ergonomics & Styling Blueprint (`index.html` & `src/app/style.css`)
+2. **Pipeline Card Graphics (`cardMode: 'pipeline'` in `src/render/draw.ts`):**
+   When `options.cardMode === 'pipeline'`:
+   * **Rounded-Corner Decision Diamonds (`node.shape === 'diamond'`):**
+     Instead of sharp 90° corners, draw the 4 diamond vertices `(top, right, bottom, left)` using `ctx.arcTo(v1.x, v1.y, v2.x, v2.y, 10)` so every decision diamond has smooth `10px` rounded corners! Draw a `16px` circle with a centered `?` question mark near the top vertex inside the diamond in `st.stroke` color!
+   * **Two-Line Bold Title + Muted Subtitle Typography inside Process Cards:**
+     When a node has 2+ lines (or a subtitle separated by `\n` or ` — ` / `: `), render Line 1 in **bold `13.5px`** (`st.text`) and Line 2 in **regular `11px` muted text** (`ctx.globalAlpha = 0.62`), left-aligned next to the inline icon!
+     When `frame.nodeTextProgress?.[node.id]` is `< 1`, slice the total character count across lines (`visibleChars = Math.floor(totalChars * progress)`) so Line 1 types in first, followed seamlessly by Line 2!
+   * **Inline Left Semantic Line Icon (`18px × 18px` in `st.stroke` color):**
+     Draw a clean vector icon on the left side inside rectangular/rounded cards (`box.center.x - box.width / 2 + 18, box.center.y`) matched from `node.label.toLowerCase()`:
+     * `order` / `placed` / `cart` / `bag`: Shopping bag outline with handle arch.
+     * `payment` / `auth` / `stripe` / `card`: Credit card rectangle with horizontal magnetic stripe.
+     * `kitchen` / `prep` / `restaurant` / `food`: Fork & knife / utensils outline.
+     * `courier` / `dispatch` / `delivery` / `truck`: Delivery van / truck outline with two wheels.
+     * `declined` / `cancel` / `error` / `fail` / `timeout`: Circle or triangle with `!` / `×` mark.
+     * `delivered` / `success` / `complete` / `approved`: Circle with `✓` checkmark.
 
-Apply the following exact structural and CSS upgrades across the 4 control zones:
+### 8.2 Style 2: "Approval Process Workflow" Style (`cardMode: 'workflow'` + `anim.style: 'build'`)
 
-| UI Control Zone | Structural & Visual Upgrade Specification (`index.html` & `src/app/style.css`) |
-| :--- | :--- |
-| **1. Top Action Toolbar (`#toolbar`)** | - **Container Surface:** Give `#toolbar` a clean card surface: `background: var(--card-background); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 8px 12px; gap: 10px; box-shadow: var(--shadow-l1);`<br>- **Segmented Button Clusters (`#toolbar > [role="group"]`):** Style each group (*File*, *Edit*, *View*) as a cohesive pill cluster: `display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 4px 6px; background: color-mix(in srgb, var(--border) 28%, transparent); border-radius: var(--radius-control);`<br>- **Button Ergonomics:** Give toolbar buttons and `#add-shape` select consistent height and breathing room: `min-height: 34px; padding: 6px 12px; font-weight: 500; line-height: 1.2;`<br>- **Primary Export CTA (`#btn-export`):** Give `#btn-export` `padding: 6px 16px; min-height: 34px; font-weight: 600;` so the primary action stands out clearly on the far right. |
-| **2. Two-Tier Canvas Dashboard Deck (`#canvas-controls`)** | Organize `#canvas-controls` (`display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding-top: 8px; border-top: 1px solid var(--border);`) into **two clean horizontal tiers** inside `#canvas-controls`:<br>- **Tier 1 — `.canvas-controls-tier.playback-tier`:** Contains 3 visually distinct clusters (`display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;`):<br>  1. **Transport & Mode Cluster (`.control-cluster`):** `#anim-pause` button (`min-width: 88px; font-weight: 600;`) + `Animation` label & `#anim-style` select.<br>  2. **Sliders Cluster (`.control-cluster.sliders-cluster`):** Pairs `Speed` (`#anim-speed` + `#anim-speed-value`) and `Density` (`#anim-density` + `#anim-density-value`) inside clean sub-pills (`display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; background: color-mix(in srgb, var(--border) 22%, transparent); border-radius: var(--radius-control);`). Give `#anim-speed-value` and `#anim-density-value` `display: inline-block; min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600;` so dragging sliders never causes horizontal layout jitter!<br>  3. **Canvas Toggles Cluster (`.control-cluster`):** Houses the **Glow** (`#anim-glow`) and **Grid** (`#canvas-grid`) checkboxes styled as modern interactive pill toggles (`.control-pill-toggle`: `display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 999px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 500;`). Use `:has(input:checked)` (with standard fallback) to highlight active toggle pills (`border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent);`).<br>- **Tier 2 — `.canvas-controls-tier.theming-tier`:** A dedicated, well-spaced palette deck (`display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; background: color-mix(in srgb, var(--border) 18%, transparent); border: 1px solid var(--border); border-radius: var(--radius-control);`):<br>  1. **Flow Diagram Theme Row (`.theme-row`):** Left label `<span class="theme-row-label">Diagram</span>` (`min-width: 78px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);`) + `#theme-strip` (`display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1; min-width: 0;`).<br>  2. **Canvas Background Row (`.theme-row`):** Left label `<span class="theme-row-label">Background</span>` + `#bg-lock` button (`padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;`) + `#bg-strip` (`display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1; min-width: 0;`). |
-| **3. Theme & Background Pill Swatches (`.theme-chip` & `.bg-chip`)** | - **`.theme-chip`:** `display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px 5px 7px; min-height: 30px; border-radius: 999px; border: 1px solid var(--border); background: var(--card-background); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s ease;`<br>- **`.theme-chip[aria-pressed="true"]`, `.bg-chip[aria-pressed="true"]`:** `border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); font-weight: 600;`<br>- **`.theme-swatch-dot`:** `width: 14px; height: 14px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(128,128,128,0.35); flex-shrink: 0;` with an inner 6px particle accent dot (`border-radius: 50%`). |
-| **4. Node & Edge Properties Inspector (`#props`)** | - **Inspector Card Surface:** Style `#props` as a structured floating/bottom inspector bar (`margin-top: 4px; padding: 10px 14px; background: color-mix(in srgb, var(--border) 22%, var(--card-background)); border: 1px solid var(--border); border-radius: var(--radius-control); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;`).<br>- **Section Dividers:** Style `#prop-section-label`, `#prop-section-node`, and `#prop-section-edge` with `display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px; padding-right: 14px; border-right: 1px solid var(--border);`.<br>- **Color Picker Inputs (`#prop-fill`, `#prop-stroke`, `#prop-text-color`):** Style `input[type="color"]` inside `#props` with `width: 30px; height: 30px; padding: 2px; border-radius: 6px; border: 1px solid var(--border); background: var(--card-background); cursor: pointer;` and align each `<label>` with `display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;`.<br>- **Right-Aligned Destructive / Close Actions:** Give `#prop-delete` subtle danger styling and push `#props-close` cleanly with comfortable `padding: 6px 12px;`. |
-| **5. Mermaid Script Panel Header (`#text-panel-bar`)** | - Place `#text-panel-bar` at the top of `#text-panel` (`display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px 6px 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;`) with `<span class="text-panel-title">Mermaid Script</span>` (`font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted);`) and the `.control-pill-toggle` wrapping `#editor-wrap`. |
+This reproduces the dark **n8n / Zapier Approval Process Workflow** reference video:
+1. **Cascade Build Animation (`style: 'build'` in `src/anim/anim.ts`):**
+   * Reveals nodes stage-by-stage by topological depth $d = 0, 1, \dots, \text{maxD}$ (`nodeAlpha`), followed immediately by `edgeGrow` (`0 -> 1`) and continuous `dashOffset` on `true` (emerald `#10b981`) and `false` (coral `#ef4444`) dashed branch curves.
+2. **Compact `64×64` Rounded-Square Icon Tiles (`cardMode: 'workflow'` in `src/render/draw.ts`):**
+   * Draws a `64px × 64px` rounded square (`radius: 16px`) with a centered vector icon (Google Drive triangle, Form/Doc sheet, Approval/Slack cross, Git-branch condition fork, 2×2 Sheet grid, Envelope, or `+` circle), a top-left red-orange lightning badge (`⚡`) on root trigger nodes (`inDegree === 0`), a right-side output port ring (`o`), and the bold title + muted subtitle positioned **below** the square tile.
 
-> **[THINKING_CHECKPOINT_3: Checking Child Selectors Before Restructuring `#canvas-controls`]**
-> Pause and verify in your thinking tool before editing `index.html`:
-> * Does `src/app/ui.ts` or `src/app/anim-controls.ts` use direct child selectors like `#canvas-controls > #anim-style`, or does it use descendant queries like `document.querySelector('#anim-style')`?
->   * In `src/app/ui.ts`, it uses `document.querySelector('#anim-style')!`, `document.querySelector('#anim-speed')!`, etc. (descendant/ID queries!).
->   * Therefore, grouping controls inside `.canvas-controls-tier` and `.control-cluster` divs inside `#canvas-controls` is 100% compatible with `ui.ts`, `anim-controls.ts`, and all unit/E2E tests—while transforming the visual layout from a cramped line of ungrouped inputs into a clean, spacious two-tier studio control deck!
-> * What about `<select id="theme">` and `<select id="bg-theme">`?
->   * Keep `<select id="theme">` and `<select id="bg-theme">` inside `#canvas-controls`! You can either display them cleanly as compact fallback dropdowns or visually hide them on desktop when `#theme-strip` and `#bg-strip` are shown—Wait: check if any Playwright test in `tests/e2e/` interacts with `#theme` via `page.selectOption('#theme', ...)`!
->   * **Crucial Playwright Tip:** In Playwright, `page.selectOption('#theme', ...)` requires `#theme` to be visible (not `display: none` or `hidden`) unless force-selected! Therefore, keep `<select id="theme">` **visible** as a neat compact preset dropdown right next to the `Diagram` row label (or at the start of `.theme-row`), while `#theme-strip` provides the instant 1-click visual swatch pills right beside it! That way, both human users (1-click swatch pills) and automated Playwright tests (`selectOption('#theme')`) work seamlessly!
+### 8.3 Built-In Starter Templates (`src/share/templates.ts`)
 
-## 8. Step-by-Step Atomic Execution Plan for the Coding Agent
+Add both reference diagrams to `src/share/templates.ts`:
 
-Follow these 8 sequential phases. Complete and verify each phase before starting the next.
+1. **`"Food Delivery Pipeline"` Template:**
+   * `title: Food Delivery Pipeline — From tap to doorstep`
+   * `order["Order Placed\nCustomer App Request"] --> auth["Payment Auth\nStripe Gateway Sync"]`
+   * `auth --> checkPay{"Payment\nAuthorized?"}`
+   * `checkPay -->|Declined| declined["Payment Declined\nTransaction Failed"]`
+   * `checkPay -->|Pre-Dispatch| dispatch["Courier Dispatch\nProximity Matching"]`
+   * `checkPay -->|Success| kitchen["Kitchen Preparation\nRestaurant Processing"]`
+   * `dispatch --> assigned{"Courier\nAssigned?"}`
+   * `assigned -->|Found| kitchen`
+   * `assigned -->|Timeout| fail["Dispatch Failure\nNo Courier Found"]`
+   * `kitchen --> onTime{"Prepared\non Time?"}`
+   * `onTime -->|Issue| cancelled["Order Cancelled\nItem Out of Stock"]`
+   * `onTime -->|En Route| delivered["Order Delivered\nCustomer Handover"]`
+2. **`"Approval Workflow"` Template:**
+   * The 7-stage n8n Approval Process graph from **Section 8.2**.
+
+## 9. Step-by-Step Atomic Execution Plan for the Coding Agent
+
+Follow these 9 sequential phases. Complete and verify each phase before starting the next.
 
 ### Phase 1: Update Core Types (`src/core/types.ts`)
 
-1. Read `src/core/types.ts` completely.
-2. Expand `export type ThemeId` to include all 12 theme IDs:
-   * `'daylight' | 'geist' | 'paper' | 'matcha' | 'lavender' | 'midnight' | 'obsidian' | 'graphite' | 'nordic' | 'rosepine' | 'lagoon' | 'ember'`
-3. Keep `export type ThemeChoice = ThemeId | 'auto';`.
-4. Add `export type BackgroundChoice = 'match' | ThemeChoice;` (where `'match'` means "follow the active diagram theme", `'auto'` means "follow page light/dark mode", and any `ThemeId` locks/sets that specific background).
-5. On `export interface Theme`, add:
-   * `gridColor: string;`
-   * `titleText?: string;`
-6. On `export interface DrawOptions` (in `src/core/types.ts` or `src/render/draw.ts`), add `showGrid?: boolean;`.
+1. Expand `ThemeId` to all 16 theme IDs.
+2. Expand `AnimStyle` to `'pulse' | 'traffic' | 'dash' | 'build' | 'typewriter' | 'off'`.
+3. Add `titleChars?: number`, `nodeAlpha?: Record<string, number>`, `nodeTextProgress?: Record<string, number>`, `edgeGrow?: Record<string, number>`, and `edgeTextProgress?: Record<string, number>` to `FrameState`.
+4. Add `BackgroundChoice`, `NodeShadeMode` (`'shape' | 'semantic' | 'node' | 'off'`), `CardStyleMode` (`'classic' | 'pipeline' | 'workflow'`), and `NodeShade`.
+5. Add `nodeShades`, `shadingMode?`, `gridColor`, and `titleText?` to `Theme`.
+6. Add `showGrid?: boolean` and `cardMode?: CardStyleMode` to `DrawOptions`.
 
-### Phase 2: Implement the 12 Modern Minimal Themes & `composeTheme` (`src/render/themes.ts`)
+### Phase 2: Implement the 16 Modern Minimal Themes, 4-Tier `nodeShades` & `composeTheme` (`src/render/themes.ts`)
 
-1. Read `src/render/themes.ts` and `src/app/scheme.test.ts`.
-2. Update `THEME_IDS` and `THEME_CHOICES` with all 12 theme IDs.
-3. Export `BACKGROUND_CHOICES: BackgroundChoice[] = ['match', 'auto', ...THEME_IDS]`.
-4. Populate all 12 themes in `THEMES` using the exact hex and RGBA specifications from **Section 4.3** (including `gridColor` and `titleText: edgeLabelText`).
-5. Keep `resolveTheme(choice: ThemeChoice, scheme: ...)` with its exact existing parameter and return types so no existing unit tests break.
-6. Add and export `composeTheme`:
-   * Parameters: `diagramChoice: ThemeChoice`, `bgChoice: BackgroundChoice | undefined`, `scheme: 'light' | 'dark'` (or boolean `pageDark`—match the exact second parameter type used by `resolveTheme` in `src/render/themes.ts`!).
-   * Logic:
-     1. Resolve the diagram theme object `dTheme` using `resolveTheme(diagramChoice, scheme)`.
-     2. If `!bgChoice || bgChoice === 'match'`, return `dTheme`.
-     3. Otherwise, resolve the background theme object `bTheme` using `resolveTheme(bgChoice, scheme)`.
-     4. Return a merged `Theme` object `{ ...dTheme, background: bTheme.background, backgroundGradient: bTheme.backgroundGradient, gridColor: bTheme.gridColor, edgeLabelBg: bTheme.edgeLabelBg, edgeLabelText: bTheme.edgeLabelText, titleText: bTheme.titleText ?? bTheme.edgeLabelText }`.
+1. Populate all 16 themes in `THEMES` using **Section 4.4** and **Section 4.5**.
+2. Export `BACKGROUND_CHOICES` and `composeTheme(diagramChoice, bgChoice, scheme, shadingMode)`.
 
-### Phase 3: Persist Background Theme, Background Lock, Grid & Word Wrap Settings (`src/app/storage.ts`)
+### Phase 3: Upgrade `nodeStyle` & `edgeStyle` (`src/render/style.ts`)
 
-1. Read `src/app/storage.ts` and `src/app/storage.test.ts`.
-2. Add optional fields to `export interface Settings`:
-   * `bgTheme?: BackgroundChoice;`
-   * `bgLocked?: boolean;`
-   * `grid?: boolean;`
-   * `wordWrap?: boolean;`
-3. In `loadSettings(store)`:
-   * Validate `bgTheme`: `const bgTheme: BackgroundChoice = BACKGROUND_CHOICES.includes(parsed?.bgTheme) ? parsed.bgTheme : 'match';`
-   * Validate `bgLocked`: `const bgLocked = typeof parsed?.bgLocked === 'boolean' ? parsed.bgLocked : (bgTheme !== 'match');`
-   * Validate `grid`: `const grid = typeof parsed?.grid === 'boolean' ? parsed.grid : false;`
-   * Validate `wordWrap`: `const wordWrap = typeof parsed?.wordWrap === 'boolean' ? parsed.wordWrap : false;`
-   * Include `bgTheme`, `bgLocked`, `grid`, and `wordWrap` in the returned `Settings` object.
-4. Run `npm test` to verify all existing storage tests pass.
+1. Implement `shapeShadeTier`, `semanticStatusShade` (Blue Process, Purple Decision, Orange Dispatch, Green Success, Red Failure/Declined), and `hashNodeId` in `src/render/style.ts` and wire them into `nodeStyle(node, theme)`.
+2. In `edgeStyle(edge, theme)`, auto-color `true`/`yes`/`approved` edge labels with `#10b981` + `[6, 4]` dash, and `false`/`no`/`rejected` edge labels with `#ef4444` + `[6, 4]` dash when not overridden by `edge.style.stroke`.
 
-### Phase 4: Add Dynamic Text Wrapping to the Mermaid Code Editor (`src/app/code-editor.ts`)
+### Phase 4: Implement `'build'` & `'typewriter'` Animations and Starter Templates (`src/anim/anim.ts` & `src/share/templates.ts`)
 
-1. Read `src/app/code-editor.ts`.
-2. Add `wordWrap?: boolean;` to `export interface CodeEditorEnv`.
-3. Add `setWordWrap(wrap: boolean): void;` to `export interface CodeEditor`.
-4. Inside `createCodeEditor(parent: HTMLElement, env: CodeEditorEnv): CodeEditor`:
-   * Create `const wrapConf = new Compartment();`.
-   * Add `wrapConf.of(env.wordWrap ? EditorView.lineWrapping : [])` to the `extensions` array in `EditorState.create(...)`.
-   * Add `setWordWrap(wrap: boolean): void { view.dispatch({ effects: wrapConf.reconfigure(wrap ? EditorView.lineWrapping : []) }); }` to the returned object.
+1. In `src/anim/anim.ts`, add `'build'` and `'typewriter'` mode support inside `frameState(scene, settings, phase)` using **Section 8.1** and **Section 8.2**.
+2. In `src/share/templates.ts`, add both `"Food Delivery Pipeline"` and `"Approval Workflow"` templates from **Section 8.3**.
 
-### Phase 5: Implement `drawGrid` and Title Contrast in `src/render/draw.ts` & `src/render/svg.ts`
+### Phase 5: Persist New Settings (`src/app/storage.ts`) & Editor Word Wrap (`src/app/code-editor.ts`)
 
-1. Read `src/render/draw.ts` and `src/render/svg.ts`.
-2. In `src/render/draw.ts`:
-   * Export `drawGrid(ctx: Ctx2D, theme: Theme, view: ViewState, viewportWidth: number, viewportHeight: number): void` using the exact algorithm in **Section 5.2**.
-   * Inside `drawScene(ctx, scene, theme, view, frame, options)`:
-     * Right after `ctx.save()` and **before** `ctx.translate(view.panX, view.panY)`, check:
-       `if (options.showGrid && !options.transparent)`
-     * Safely compute viewport dimensions (guarding for mock test contexts):
-       `const dpr = typeof ctx.getTransform === 'function' ? (ctx.getTransform().a || 1) : 1;`
-       `const vw = ctx.canvas ? ctx.canvas.width / dpr : 800;`
-       `const vh = ctx.canvas ? ctx.canvas.height / dpr : 600;`
-     * Call `drawGrid(ctx, theme, view, vw, vh);`.
-     * Under `// 1. Title` in `drawScene`, update `ctx.fillStyle = theme.titleText ?? theme.nodeText;` so diagram titles stay legible when background and diagram themes are separated.
-3. In `src/render/svg.ts`:
-   * Where the diagram title `<text>` element is emitted (if present), use `theme.titleText ?? theme.nodeText` for its fill color.
-   * Confirm no grid elements are added to `svg.ts`.
-4. In `src/app/render-loop.ts`:
-   * Replace the `resolveTheme(state.settings.theme, scheme)` lookup with `composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme)`.
-   * Pass `showGrid: Boolean(state.settings.grid)` in `drawScene(...)` options.
-5. In `src/export/draw-frame.ts` (and `src/export/png.ts` if it calls `drawScene` directly):
-   * Ensure `showGrid: false` is passed in `DrawOptions`.
-6. Check `src/app/ui.ts` / `src/app/export-dialog.ts` where exports are triggered:
-   * Ensure the `theme` passed to `exportPng`, `exportSvg`, `exportGif`, and `exportVideo` is resolved via `composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme)` so exported files reflect the user's separated background and flow diagram themes!
+1. In `src/app/storage.ts`, add `bgTheme`, `bgLocked`, `nodeShading`, `cardMode`, `grid`, and `wordWrap` to `Settings`, and include `'build'` and `'typewriter'` in valid `anim.style` values in `loadSettings`.
+2. In `src/app/code-editor.ts`, add `wordWrap?: boolean` to `CodeEditorEnv` and `setWordWrap(wrap: boolean): void` using a CodeMirror `Compartment` and `EditorView.lineWrapping`.
 
-### Phase 6: Upgrade & De-Clutter Dashboard, Toolbar, Properties & Editor UI (`index.html`, `src/app/anim-controls.ts`, `src/app/ui.ts`, `src/app/style.css`)
+### Phase 6: Implement `drawGrid`, Typewriter/Build Rendering, Rounded Diamonds & Card Modes (`src/render/draw.ts`, `src/render/draw-edges.ts`, `src/render/svg.ts`)
 
-1. Read `index.html`, `src/app/anim-controls.ts`, `src/app/ui.ts`, and `src/app/style.css`.
-2. **Update `index.html` inside `#text-panel`:**
-   * Immediately above `<div id="source"></div>`, add:
-     `<div id="text-panel-bar" class="text-panel-bar"><span class="text-panel-title">Mermaid Script</span><label class="control-pill-toggle"><input id="editor-wrap" type="checkbox" /> <span>Wrap text</span></label></div>`
-3. **Restructure `index.html` inside `#canvas-controls` into Two Ergonomic Tiers (preserving all existing IDs):**
-   * **Tier 1 (`.canvas-controls-tier.playback-tier`):**
-     * **Transport & Mode Cluster (`.control-cluster`):** `<button id="anim-pause">Pause</button>`, `<label for="anim-style">Animation</label>`, `<select id="anim-style">...</select>`
-     * **Sliders Cluster (`.control-cluster.sliders-cluster`):**
-       * `<div class="slider-group"><label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1x</output></label><input id="anim-speed" type="range" ... /></div>`
-       * `<div class="slider-group"><label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label><input id="anim-density" type="range" ... /></div>`
-     * **Toggles Cluster (`.control-cluster.toggles-cluster`):**
-       * `<label class="control-pill-toggle"><input id="anim-glow" type="checkbox" /> <span>Glow</span></label>`
-       * `<label class="control-pill-toggle"><input id="canvas-grid" type="checkbox" /> <span>Grid</span></label>`
-   * **Tier 2 (`.canvas-controls-tier.theming-tier`):**
-     * **Diagram Theme Row (`.theme-row`):**
-       * `<label for="theme" class="theme-row-label">Diagram</label>`
-       * `<select id="theme">...</select>`
-       * `<div id="theme-strip" class="theme-strip" role="radiogroup" aria-label="Flow diagram theme"></div>`
-     * **Canvas Background Row (`.theme-row`):**
-       * `<label for="bg-theme" class="theme-row-label">Background</label>`
-       * `<button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>`
-       * `<select id="bg-theme" aria-label="Canvas background"><option value="match">Match diagram</option></select>`
-       * `<div id="bg-strip" class="bg-strip" role="radiogroup" aria-label="Canvas background"></div>`
-4. **Update `src/app/ui.ts` and `src/app/anim-controls.ts`:**
-   * In `src/app/ui.ts`:
-     * Pass `wordWrap: Boolean(state.settings.wordWrap)` into `createCodeEditor(sourceParent, { ... })`.
-     * Bind `#editor-wrap` checkbox: initialize `editorWrapEl.checked = Boolean(state.settings.wordWrap)`, and on `'change'`, update `state.settings.wordWrap = editorWrapEl.checked`, call `editor.setWordWrap(state.settings.wordWrap)`, and call `saveSettings(store, state.settings)`.
-   * In `src/app/anim-controls.ts`:
-     * Add optional properties to `AnimControlElements`:
-       * `canvasGridEl?: HTMLInputElement | null;`
-       * `themeStripEl?: HTMLElement | null;`
-       * `bgThemeEl?: HTMLSelectElement | null;`
-       * `bgStripEl?: HTMLElement | null;`
-       * `bgLockEl?: HTMLButtonElement | null;`
-     * Pass these elements from `src/app/ui.ts` when calling `setupAnimControls`.
-     * Wire `#theme-strip`, `#bg-lock`, `#bg-strip`, `#bg-theme`, and `#canvas-grid` following the state transitions in **Section 4.4** and **Section 5**.
-5. **Apply Ergonomic De-Cluttering CSS in `src/app/style.css`:**
-   * Implement all styling rules from **Section 7.3** for `#toolbar`, `#toolbar > [role="group"]`, `#canvas-controls`, `.canvas-controls-tier`, `.control-cluster`, `.slider-group`, `.control-pill-toggle`, `.theming-tier`, `.theme-row`, `.theme-chip`, `.bg-chip`, `.bg-lock-btn`, `#props`, and `#text-panel-bar`.
+1. In `src/render/draw.ts`:
+   * Implement `drawGrid` (called only when `options.showGrid && !options.transparent`).
+   * Slice diagram title by `frame.titleChars` when defined.
+   * Apply `frame.nodeAlpha` and `frame.nodeTextProgress` (character-by-character typewriter reveal).
+   * Render rounded-corner diamonds (`arcTo` radius `10px`) + top `?` icon, inline left pipeline icons + two-line bold/muted text (`cardMode === 'pipeline'`), and `64×64` n8n icon tiles + `⚡` trigger badge (`cardMode === 'workflow'`).
+2. In `src/render/draw-edges.ts`:
+   * Apply `frame.edgeGrow` progressive path drawing, `frame.edgeTextProgress` typewriter edge labels, and post-build flowing dashes (`frame.dashOffset`).
+3. In `src/app/render-loop.ts` and export callers (`src/export/draw-frame.ts`, `src/app/ui.ts`):
+   * Pass `composeTheme(...)`, `cardMode: state.settings.cardMode ?? 'classic'`, and enforce `showGrid: false` on all exports.
 
-### Phase 7: Write Unit & Integration Tests
+### Phase 7: Upgrade & De-Clutter Dashboard, Toolbar, Properties & Editor UI (`index.html`, `src/app/anim-controls.ts`, `src/app/ui.ts`, `src/app/style.css`)
 
-1. **Theme Composition & Separation Tests (`src/app/scheme.test.ts`):**
-   * Test that all 12 `THEME_IDS` exist in `THEMES` and have valid color strings including `gridColor` and `titleText`.
-   * Test `composeTheme(diagramChoice, bgChoice, scheme)` for both `'match'` and decoupled light/dark combinations (`'obsidian'` diagram on `'paper'` background, `'geist'` diagram on `'midnight'` background).
-2. **Storage Persistence Tests (`src/app/storage.test.ts`):**
-   * Verify `bgTheme`, `bgLocked`, `grid`, and `wordWrap` round-trip through `saveSettings` and `loadSettings`, and default safely to `bgTheme: 'match'`, `bgLocked: false`, `grid: false`, `wordWrap: false` when absent.
-3. **Code Editor Word Wrap Tests (`src/app/code-editor.test.ts` or `src/app/chrome.test.ts`):**
-   * Verify `createCodeEditor` accepts `wordWrap: true/false` and `editor.setWordWrap(true)` / `editor.setWordWrap(false)` reconfigures the editor cleanly without throwing or resetting `editor.getText()`.
-4. **Export Grid Exclusion Tests (`src/export/draw-frame.test.ts`):**
-   * Verify `drawExportFrame` renders with `showGrid: false` so exported frames never include dashboard grid lines.
+1. Add `#text-panel-bar` with `#editor-wrap` inside `#text-panel` in `index.html`.
+2. Add `<option value="build">build</option>` and `<option value="typewriter">typewriter</option>` to `#anim-style` in `index.html`.
+3. Structure `#canvas-controls` into the two ergonomic tiers (`.playback-tier` and `.theming-tier`) with `#card-mode` (`Classic` | `Pipeline` | `Workflow`), `#node-shading` (`By shape` | `Semantic` | `By node` | `Uniform`), `#canvas-grid` (`Grid` pill toggle), `#theme-strip`, `#bg-lock`, and `#bg-strip`.
+4. Wire all controls in `src/app/ui.ts` and `src/app/anim-controls.ts`, and apply the ergonomic CSS rules in `src/app/style.css`.
 
-### Phase 8: Full Validation & Quality Gate Checklist
+### Phase 8: Write Unit & Integration Tests
 
-Run each command sequentially and resolve any errors or warnings before finishing:
+1. Add unit tests for all 16 themes, `composeTheme`, `nodeStyle` (`'shape'`, `'semantic'`, `'node'`, `'off'`), `edgeStyle` semantic `true`/`false` branches, `frameState` with `style: 'build'` and `style: 'typewriter'`, storage persistence (`bgTheme`, `bgLocked`, `nodeShading`, `cardMode`, `grid`, `wordWrap`), `editor.setWordWrap`, and `drawExportFrame` grid exclusion.
+
+### Phase 9: Full Validation & Quality Gate Checklist
 
 | Step | Command | Expected Outcome |
 | :--- | :--- | :--- |
 | **1. Typecheck & Build** | `npm run build` | `tsc --noEmit` and `vite build` succeed with zero errors |
 | **2. Linter** | `npm run lint` | `oxlint` passes with 0 warnings and 0 errors |
 | **3. Unit Tests** | `npm run test` | All Vitest unit test suites pass (`0 failed`) |
-| **4. E2E Tests (if browser installed)** | `npm run test:e2e` | Playwright tests in `tests/e2e/` pass (including `chrome.spec.ts` and `mobile.spec.ts`) |
+| **4. E2E Tests (if browser installed)** | `npm run test:e2e` | Playwright tests in `tests/e2e/` pass |
 
-## 9. Common Pitfalls & Troubleshooting Guide for the Coding Agent
+## 10. Common Pitfalls & Troubleshooting Guide for the Coding Agent
 
 | Symptom / Error | Root Cause | Exact Fix |
 | :--- | :--- | :--- |
-| `tests/e2e/mobile.spec.ts` fails on `scrollWidth <= innerWidth` | A new control strip (`#theme-strip`, `#bg-strip`, or `.slider-group`) has `white-space: nowrap` without `flex-wrap: wrap` or `min-width: 0` | Ensure `.theme-strip`, `.bg-strip`, `.theme-row`, and `.canvas-controls-tier` all have `flex-wrap: wrap; min-width: 0; max-width: 100%;` so controls wrap cleanly on narrow mobile screens! |
+| Selecting `build` or `typewriter` animation style resets to `pulse` on page reload | `loadSettings` in `src/app/storage.ts` only checked `['pulse', 'traffic', 'dash', 'off']` | Add `'build'` and `'typewriter'` to the allowed `animRaw?.style` array in `loadSettings()` in `src/app/storage.ts`! |
+| Existing unit tests calling `nodeStyle(node, THEMES.daylight)` fail | `THEMES.daylight` had `shadingMode` hardcoded on the static object | Keep `shadingMode` `undefined` on the raw `THEMES` objects in `src/render/themes.ts`, and only attach `shadingMode` inside `composeTheme(...)`! |
+| `tests/e2e/mobile.spec.ts` fails on `scrollWidth <= innerWidth` | A new control strip (`#theme-strip`, `#bg-strip`, or `.slider-group`) has `white-space: nowrap` without `flex-wrap: wrap` or `min-width: 0` | Ensure `.theme-strip`, `.bg-strip`, `.theme-row`, and `.canvas-controls-tier` all have `flex-wrap: wrap; min-width: 0; max-width: 100%;`! |
 | `src/app/narrow.test.ts` fails after editing `#toolbar` | Added wrapper `<div>` elements around `#toolbar > [role="group"]` | Keep `<div role="group">` elements as direct children of `#toolbar` and style them purely via `#toolbar > [role="group"]` in `src/app/style.css`. |
-| Toggling `Wrap text` in `#text-panel` resets undo history or cursor position | Recreated `EditorState` from scratch instead of using a CodeMirror `Compartment` | Use `const wrapConf = new Compartment()` at editor creation and call `view.dispatch({ effects: wrapConf.reconfigure(wrap ? EditorView.lineWrapping : []) })` inside `setWordWrap(wrap)`! |
-| Clicking a Flow Diagram theme still changes the background even when `Lock BG` was clicked | `bgLocked` was set to `true`, but `bgTheme` was left as `'match'` | When `#bg-lock` is toggled from `false` to `true`, immediately resolve the current effective background ID (e.g., if `state.settings.theme === 'auto'`, resolve `'daylight'` or `'midnight'`, else `state.settings.theme`) and assign `state.settings.bgTheme = currentId`! |
-| Edge labels or diagram title become invisible when combining a dark diagram theme with a light locked background | `edgeLabelBg`, `edgeLabelText`, or `titleText` came from the diagram theme instead of the background theme | In `composeTheme`, always copy `edgeLabelBg`, `edgeLabelText`, and `titleText` from `bTheme` (the resolved background theme), because the title and edge labels sit on the canvas background, not inside nodes! |
-| Exported PNG/GIF/Video/SVG uses the diagram theme's default background instead of the locked/separate background | The export caller in `src/app/ui.ts` or `src/app/export-dialog.ts` called `resolveTheme(state.settings.theme, scheme)` instead of `composeTheme(...)` | Update the export caller in `src/app/` to resolve the export `Theme` via `composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme)`. |
-| `oxlint` fails with missing return type warning | New exported function (`composeTheme`, `drawGrid`, or `setWordWrap`) lacks an explicit TypeScript return type | Always write `: Theme` on `composeTheme` and `: void` on `drawGrid` and `setWordWrap`. |
-| Unit test in `draw-frame.test.ts` throws `ctx.getTransform is not a function` | Mock canvas context in Vitest only implements basic drawing primitives | Guard `typeof ctx.getTransform === 'function'` inside `drawScene` / `drawGrid`. |
+| `oxlint` fails with missing return type warning | New exported function lacks an explicit TypeScript return type | Always add explicit return types (`: Theme`, `: 0 \| 1 \| 2 \| 3`, `: number`, `: void`) to every exported function. |
