@@ -228,5 +228,6 @@ export type TextOp =
   | { type: 'setNodeStyle'; id: string; style: StyleMap }
   | { type: 'setPin'; id: string; x: number; y: number }
   | { type: 'clearPins' }
-  | { type: 'setDirection'; direction: Direction };
+  | { type: 'setDirection'; direction: Direction }
+  | { type: 'setEdgeVariant'; index: number; variant: string };
 export type TextOpResult = { text: string; createdId?: string } | { error: string };

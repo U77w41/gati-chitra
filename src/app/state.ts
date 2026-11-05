@@ -1,6 +1,6 @@
 import type { ParsedDoc, Scene, ViewState } from '../core/types';
 import type { Settings } from './storage';
-import { parseMermaid } from '../mermaid/parse';
+import { parseDocument } from '../diagrams/parse-any';
 import { tryBuildScene } from '../layout/scene';
 import type { MeasureText } from '../layout/measure';
 import { canvasMeasure } from '../layout/measure';
@@ -41,7 +41,7 @@ export interface AppState {
 }
 
 export function createState(text: string, settings: Settings): AppState {
-  const doc = parseMermaid(text);
+  const doc = parseDocument(text);
   const measure = canvasMeasure();
   let scene: Scene | null = null;
   if (doc.ok) {
@@ -73,7 +73,7 @@ export function applyText(
   text: string,
   measure: MeasureText,
 ): AppState {
-  const doc = parseMermaid(text);
+  const doc = parseDocument(text);
   let scene = state.scene;
   if (doc.ok) {
     const nextScene = tryBuildScene(doc, measure);
@@ -145,3 +145,8 @@ export function commitText(
     lastTypingTime: source === 'typing' ? now : 0,
   };
 }
+
+export function reparseCurrent(state: AppState, measure: MeasureText): AppState {
+  return applyText(state, state.text, measure);
+}
+

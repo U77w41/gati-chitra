@@ -3,7 +3,8 @@ import type { TextOp } from '../core/types';
 import { createAnimClock } from '../anim/clock';
 import { fitView, screenToWorld, zoomAt } from '../editor/view';
 import { canvasMeasure } from '../layout/measure';
-import { applyOp } from '../mermaid/ops';
+import { applyAnyOp } from '../diagrams/apply-op';
+import { onEngineChange } from '../diagrams/registry';
 import { setupAnimControls } from './anim-controls';
 import { setupCanvasEvents } from './canvas-events';
 import { setupDiagnostics } from './diagnostics';
@@ -14,7 +15,7 @@ import { setupProperties } from './properties';
 import { requestRedraw, startRenderLoop } from './render-loop';
 import { SAMPLE_TEXT } from './sample';
 import { setupKeyboardShortcuts } from './shortcuts';
-import { commitText, createState, type AppState, type CommitSource } from './state';
+import { commitText, createState, reparseCurrent, type AppState, type CommitSource } from './state';
 import { loadDoc, loadSettings, safeStore, saveSettings, setupAutosave, setupDocSync } from './storage';
 import { setMessageElement, showMessage } from './message';
 import { setupStudioApi } from './studio';
@@ -164,7 +165,7 @@ export async function initApp(): Promise<void> {
   }
 
   function executeOp(op: TextOp): void {
-    const res = applyOp(state.text, op);
+    const res = applyAnyOp(state.text, op);
     if ('error' in res) {
       showMessage(res.error);
     } else {
@@ -180,6 +181,7 @@ export async function initApp(): Promise<void> {
     setFreshlyCreatedNodeId: (id) => { freshlyCreatedNodeId = id; },
   });
   const dispatch: typeof rawDispatch = (event) => { rawDispatch(event); requestRedraw(); };
+  onEngineChange(() => { state = reparseCurrent(state, measure); updateAfterCommit(); });
 
   refreshDiagnostics(); updateAriaLabel(); updateButtons(); updateProps();
   if (state.scene) { triggerFit(); hasFitted = true; }

@@ -4,6 +4,9 @@ import { buildScene, tryBuildScene, withNodeAt } from './scene';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
 import { LAYOUT } from '../core/constants';
+import { fakeEngine } from '../../tests/support/fake-engine';
+import { parseDocument } from '../diagrams/parse-any';
+import { loadEngine, setLoaderForTest } from '../diagrams/registry';
 
 describe('scene', () => {
   it('returns null instead of throwing', () => {
@@ -83,5 +86,14 @@ describe('scene', () => {
     expect(duration).toBeLessThan(2000);
     expect(Object.keys(scene.layout.nodes).length).toBe(300);
     expect(Object.keys(scene.layout.edges).length).toBe(299);
+  });
+
+  it('uses an engine layout when the engine has one', async () => {
+    setLoaderForTest('sequence', async () => fakeEngine('sequence'));
+    await loadEngine('sequence');
+    const doc = parseDocument('sequenceDiagram');
+    const scene = buildScene(doc, testMeasure);
+    expect(scene.layout.nodes.F).toMatchObject({ center: { x: 0, y: 0 }, width: 80, height: 40 });
+    setLoaderForTest('sequence', null);
   });
 });

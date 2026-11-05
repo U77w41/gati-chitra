@@ -50,12 +50,12 @@ test.describe('Live preview and app shell', () => {
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
-      (window as any).__studio.setText('sequenceDiagram');
+      (window as any).__studio.setText('pie title Pets');
     });
     await page.waitForTimeout(400);
 
     const diag = page.locator('#diagnostics li');
-    await expect(diag).toContainText("Line 1: Only flowchart diagrams are supported");
+    await expect(diag).toContainText('Line 1: Pie chart is not supported yet');
 
     // The good picture is redrawn asynchronously, so wait for it to appear.
     await expect.poll(() => nonBgPixels(page)).toBeGreaterThan(100);

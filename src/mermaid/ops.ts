@@ -266,5 +266,9 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
     return setDirectionInternal(text, op.direction);
   }
 
+  if (op.type === 'setEdgeVariant') {
+    return { error: MESSAGES.opUnsupported };
+  }
+
   return { error: 'Unsupported operation' };
 }

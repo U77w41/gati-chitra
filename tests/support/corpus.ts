@@ -83,7 +83,7 @@ flowchart TD
     nodes: 0,
     edges: 0,
     groups: 0,
-    text: `sequenceDiagram
-  A->>B: hi`,
+    text: `pie title Pets
+  "Dogs" : 3`,
   },
 ];

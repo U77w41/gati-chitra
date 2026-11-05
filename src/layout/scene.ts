@@ -1,4 +1,5 @@
 import type { ParsedDoc, Point, Scene } from '../core/types';
+import { getEngine } from '../diagrams/registry';
 import { computeBounds, computeGroups, layoutDoc } from './layout';
 import { routeEdges } from './geometry';
 import type { MeasureText } from './measure';
@@ -12,6 +13,12 @@ export function tryBuildScene(doc: ParsedDoc, measure: MeasureText): Scene | nul
 }
 
 export function buildScene(doc: ParsedDoc, measure: MeasureText): Scene {
+  const kind = doc.kind ?? 'flowchart';
+  if (kind !== 'flowchart') {
+    const engine = getEngine(kind);
+    if (engine?.layout) return { doc, layout: engine.layout(doc, measure) };
+  }
+
   if (doc.nodes.length === 0) {
     const layout = layoutDoc(doc, measure);
     return { doc, layout };

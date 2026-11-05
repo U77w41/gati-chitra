@@ -1,7 +1,7 @@
 import { MESSAGES } from '../core/constants';
 import type { Point, ShapeKind } from '../core/types';
-import { parseMermaid } from '../mermaid/parse';
-import { applyOp } from '../mermaid/ops';
+import { parseDocument } from '../diagrams/parse-any';
+import { applyAnyOp } from '../diagrams/apply-op';
 import type { AppState, CommitSource } from './state';
 
 export function createNodeAt(
@@ -11,7 +11,7 @@ export function createNodeAt(
   commit: (text: string, source: CommitSource) => void,
 ): { newId?: string; error?: string } {
   if (!state.doc.ok) return { error: MESSAGES.fixTextFirst };
-  const res = applyOp(state.text, {
+  const res = applyAnyOp(state.text, {
     type: 'addNode',
     label: 'New',
     shape,
@@ -19,7 +19,7 @@ export function createNodeAt(
   });
   if ('error' in res) return { error: res.error };
   const prevIds = new Set(state.doc.nodes.map((n) => n.id));
-  const newDoc = parseMermaid(res.text);
+  const newDoc = parseDocument(res.text);
   const newId = newDoc.nodes.find((n) => !prevIds.has(n.id))?.id;
   commit(res.text, 'op');
   return { newId };
@@ -32,7 +32,7 @@ export function createConnectedNode(
   commit: (text: string, source: CommitSource) => void,
 ): { newId?: string; error?: string } {
   if (!state.doc.ok) return { error: MESSAGES.fixTextFirst };
-  const addNodeRes = applyOp(state.text, {
+  const addNodeRes = applyAnyOp(state.text, {
     type: 'addNode',
     label: 'New',
     shape: 'rect',
@@ -40,12 +40,12 @@ export function createConnectedNode(
   });
   if ('error' in addNodeRes) return { error: addNodeRes.error };
 
-  const tempDoc = parseMermaid(addNodeRes.text);
+  const tempDoc = parseDocument(addNodeRes.text);
   const prevIds = new Set(state.doc.nodes.map((n) => n.id));
   const newId = tempDoc.nodes.find((n) => !prevIds.has(n.id))?.id;
   if (!newId) return { error: 'Failed to create node' };
 
-  const addEdgeRes = applyOp(addNodeRes.text, {
+  const addEdgeRes = applyAnyOp(addNodeRes.text, {
     type: 'addEdge',
     from: fromId,
     to: newId,
