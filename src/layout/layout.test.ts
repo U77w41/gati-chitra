@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { LAYOUT } from '../core/constants';
 import { parseMermaid } from '../mermaid/parse';
-import { dagreRunCount, layoutDoc } from './layout';
+import { dagreRunCount, layoutDoc, structureKey } from './layout';
 import { testMeasure } from '../../tests/support/measure';
 import { CORPUS } from '../../tests/support/corpus';
 import type { SceneLayout } from '../core/types';
@@ -149,5 +149,13 @@ describe('layout', () => {
     const l = L('---\ntitle: Checkout\n---\nflowchart TD\nA');
     expect(l.title!.center.y).toBeLessThan(l.nodes.A.center.y - l.nodes.A.height / 2);
     expect(l.bounds.y).toBeLessThanOrEqual(l.title!.center.y - LAYOUT.titleFontSize / 2);
+  });
+
+  it('relayouts when compartments change', () => {
+    const a = parseMermaid('flowchart TD\nA');
+    const b = parseMermaid('flowchart TD\nA');
+    b.nodes[0].sections = [{ rows: [['x']], align: 'left', weight: 'normal', divider: false }];
+    expect(structureKey(a, testMeasure)).not.toBe(structureKey(b, testMeasure));
+    expect(layoutDoc(b, testMeasure).nodes.A.sections?.length).toBe(1);
   });
 });

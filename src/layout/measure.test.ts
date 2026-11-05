@@ -3,6 +3,7 @@ import { fontString, wrapLabel, sizeNode } from './measure';
 import { FONT_STACK_SANS } from '../core/constants';
 import { testMeasure } from '../../tests/support/measure';
 import type { ShapeKind } from '../core/types';
+import { parseMermaid } from '../mermaid/parse';
 
 describe('measure', () => {
   it('wraps labels according to greedy maxWidth algorithm', () => {
@@ -46,5 +47,13 @@ describe('measure', () => {
   it('builds the canvas font with weight and style', () => {
     expect(fontString(16)).toBe(`16px ${FONT_STACK_SANS}`);
     expect(fontString(16, { bold: true, italic: true })).toBe(`italic bold 16px ${FONT_STACK_SANS}`);
+  });
+
+  it('keeps a fixed size and makes room for an icon', () => {
+    const base = parseMermaid('flowchart TD\nA[Server]').nodes[0];
+    expect(sizeNode({ ...base, size: { width: 20, height: 20 } }, testMeasure, 'TB')).toMatchObject({ width: 20, height: 20 });
+    const plain = sizeNode(base, testMeasure, 'TB');
+    const iconned = sizeNode({ ...base, icon: 'server' }, testMeasure, 'TB');
+    expect(iconned.height).toBe(plain.height + 38);
   });
 });

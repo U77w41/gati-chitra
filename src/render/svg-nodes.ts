@@ -2,6 +2,9 @@ import { LAYOUT } from '../core/constants';
 import type { Scene, Theme } from '../core/types';
 import { shapePolygon } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
+import { svgIcon } from './icons';
+import { labelCenter } from './label-pos';
+import { svgSections } from './sections';
 import { documentPathData, ringRadii } from './shapes-extra';
 import { nodeStyle } from './style';
 import { fmt } from './svg';
@@ -102,7 +105,41 @@ export function svgNodes(
         break;
     }
 
-    if (
+    if (box.sections && box.sections.length > 0) {
+      out += svgSections(box, st);
+    } else if (node.icon) {
+      const iconSize = Math.min(LAYOUT.iconSize, box.width * 0.6);
+      const top = cy - box.height / 2;
+      const iconCenterY =
+        node.label.length === 0
+          ? cy
+          : top + LAYOUT.nodePadY + iconSize / 2;
+      const iconColor = node.shape === 'filledCircle' ? st.fill : st.stroke;
+      out += svgIcon(node.icon, cx, iconCenterY, iconSize, iconColor);
+      if (node.label.length > 0) {
+        const center = labelCenter(node, box);
+        if (box.runs) {
+          const nLines = box.runs.length;
+          for (let k = 0; k < nLines; k++) {
+            const lineY = center.y + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+            out += `<text x="${fmt(center.x)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">`;
+            for (const run of box.runs[k]) {
+              let attrs = '';
+              if (run.bold) attrs += ' font-weight="bold"';
+              if (run.italic) attrs += ' font-style="italic"';
+              out += `<tspan${attrs}>${escapeXml(run.text)}</tspan>`;
+            }
+            out += '</text>';
+          }
+        } else {
+          const nLines = box.lines.length;
+          for (let k = 0; k < nLines; k++) {
+            const lineY = center.y + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+            out += `<text x="${fmt(center.x)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+          }
+        }
+      }
+    } else if (
       node.shape !== 'smallCircle' &&
       node.shape !== 'filledCircle' &&
       node.shape !== 'forkBar'

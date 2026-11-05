@@ -1,6 +1,6 @@
 import dagre from '@dagrejs/dagre';
 import { LAYOUT } from '../core/constants';
-import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout, TextRun } from '../core/types';
+import type { GraphGroup, GroupBox, NodeBox, ParsedDoc, Rect, SceneLayout, SectionBox, TextRun } from '../core/types';
 import { sizeNode, type MeasureText } from './measure';
 import { placeTitle } from './title';
 import {
@@ -166,16 +166,16 @@ export function computeBounds(
 
 export function structureKey(doc: ParsedDoc, measure: MeasureText): string {
   const mSample = measure('W', 14);
-  const nKey = doc.nodes.map((n) => `${n.id}\0${n.shape}\0${n.label}`).join('\x01');
+  const nKey = doc.nodes.map((n) => `${n.id}\0${n.shape}\0${n.label}\0${JSON.stringify(n.sections ?? null)}\0${n.icon ?? ''}\0${n.size ? `${n.size.width}x${n.size.height}` : ''}\0${n.arrowDir ?? ''}`).join('\x01');
   const eKey = doc.edges.map((e) => `${e.from}\0${e.to}\0${e.kind}\0${e.label}\0${(e as unknown as { length?: number }).length ?? 1}`).join('\x01');
   const gKey = doc.groups.map((g) => `${g.id}\0${g.parent ?? ''}\0${g.title}\0${g.direction ?? ''}`).join('\x01');
-  return `${doc.direction}|${doc.title ?? ''}|${mSample}|${nKey}|${eKey}|${gKey}`;
+  return `${doc.direction}|${doc.title ?? ''}|${mSample}|${nKey}|${eKey}|${gKey}|${doc.kind ?? ''}`;
 }
 
 interface LayoutCacheEntry {
   key: string;
   dagrePositions: Record<string, { x: number; y: number }>;
-  sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][] }>;
+  sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][]; sections?: SectionBox[] }>;
 }
 
 let lastEntry: LayoutCacheEntry | null = null;
@@ -187,7 +187,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
 
   const key = structureKey(doc, measure);
   let dagrePositions: Record<string, { x: number; y: number }>;
-  let sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][] }>;
+  let sizedNodes: Record<string, { width: number; height: number; lines: string[]; runs?: TextRun[][]; sections?: SectionBox[] }>;
 
   if (lastEntry && lastEntry.key === key) {
     dagrePositions = lastEntry.dagrePositions;
@@ -239,6 +239,7 @@ export function layoutDoc(doc: ParsedDoc, measure: MeasureText): SceneLayout {
       height: sized.height,
       lines: sized.lines,
       ...(sized.runs ? { runs: sized.runs } : {}),
+      ...(sized.sections ? { sections: sized.sections } : {}),
     };
   }
 

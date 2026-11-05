@@ -1,4 +1,5 @@
 import type { DiagramData } from './diagram-types';
+export type { DiagramData };
 
 export type Direction = 'TB' | 'BT' | 'LR' | 'RL'; // "TD" in the text is read as 'TB'
 

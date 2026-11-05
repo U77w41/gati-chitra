@@ -1,8 +1,11 @@
 import { ANIM, LAYOUT } from '../core/constants';
 import type { DrawOptions, FrameState, Scene, Theme } from '../core/types';
 import { drawNodeLines, drawRuns } from './draw-runs';
+import { drawIcon } from './icons';
+import { labelCenter } from './label-pos';
 import { traceNodePath } from './node-path';
 import { drawPipelineNode, traceRoundedDiamond } from './pipeline-cards';
+import { drawSections } from './sections';
 import { drawNodeInnerLines } from './shapes-extra';
 import { nodeStyle } from './style';
 import { drawWorkflowTile } from './workflow-cards';
@@ -74,7 +77,27 @@ export function drawNodes(
         drawNodeInnerLines(ctx, box, node.shape);
       }
 
-      if (
+      if (box.sections && box.sections.length > 0) {
+        drawSections(ctx, box, st, textProg);
+      } else if (node.icon) {
+        const iconSize = Math.min(LAYOUT.iconSize, box.width * 0.6);
+        const top = box.center.y - box.height / 2;
+        const iconCenterY =
+          node.label.length === 0
+            ? box.center.y
+            : top + LAYOUT.nodePadY + iconSize / 2;
+        const iconColor = node.shape === 'filledCircle' ? st.fill : st.stroke;
+        drawIcon(ctx, node.icon, box.center.x, iconCenterY, iconSize, iconColor);
+        if (node.label.length > 0) {
+          ctx.fillStyle = st.text;
+          const center = labelCenter(node, box);
+          if (box.runs) {
+            drawRuns(ctx, box.runs, center, LAYOUT.fontSize, LAYOUT.lineHeight);
+          } else {
+            drawNodeLines(ctx, box, textProg, center);
+          }
+        }
+      } else if (
         node.shape !== 'smallCircle' &&
         node.shape !== 'filledCircle' &&
         node.shape !== 'forkBar'

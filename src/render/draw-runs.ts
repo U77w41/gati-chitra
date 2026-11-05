@@ -32,6 +32,7 @@ export function drawNodeLines(
   ctx: CanvasRenderingContext2D,
   box: NodeBox,
   textProg: number | undefined,
+  center: Point = box.center,
 ): void {
   ctx.font = `16px ${FONT_STACK_SANS}`;
   ctx.textAlign = 'center';
@@ -53,8 +54,8 @@ export function drawNodeLines(
       charAcc += line.length;
     }
     if (dispLine) {
-      const y = box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
-      ctx.fillText(dispLine, box.center.x, y);
+      const y = center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
+      ctx.fillText(dispLine, center.x, y);
     }
   }
 }

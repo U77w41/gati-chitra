@@ -1,6 +1,7 @@
 import { LIMITS, MESSAGES } from '../../core/constants';
+import type { DiagramData } from '../../core/diagram-types';
 import type {
-  DiagramData, DiagramKind, Direction, DocStages, EdgeKind, GraphEdge, GraphGroup,
+  DiagramKind, Direction, DocStages, EdgeKind, GraphEdge, GraphGroup,
   GraphNode, ParsedDoc, Point, ShapeKind, SourceLine, Span, StyleMap,
 } from '../../core/types';
 import { PIN_LINE_RE } from '../../mermaid/positions';

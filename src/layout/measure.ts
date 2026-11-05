@@ -1,6 +1,7 @@
 import { FONT_STACK_SANS, LAYOUT } from '../core/constants';
-import type { Direction, FontStyle, GraphNode, MeasureText, TextRun } from '../core/types';
+import type { Direction, FontStyle, GraphNode, MeasureText, SectionBox, TextRun } from '../core/types';
 import { parseInlineMarkdown, wrapRuns } from './rich-text';
+import { sizeSections } from './sections';
 
 export type { MeasureText };
 
@@ -45,7 +46,21 @@ export function sizeNode(
   node: GraphNode,
   measure: MeasureText,
   direction: Direction = 'TB',
-): { width: number; height: number; lines: string[]; runs?: TextRun[][] } {
+): { width: number; height: number; lines: string[]; runs?: TextRun[][]; sections?: SectionBox[] } {
+  if (node.size) {
+    return {
+      width: node.size.width,
+      height: node.size.height,
+      lines: node.label ? wrapLabel(node.label, LAYOUT.labelWrapWidth, measure) : [],
+    };
+  }
+  if (node.sections) {
+    return {
+      ...sizeSections(node.sections, measure),
+      lines: [],
+    };
+  }
+
   if (node.shape === 'smallCircle' || node.shape === 'filledCircle') {
     return { width: LAYOUT.smallCircleD, height: LAYOUT.smallCircleD, lines: [] };
   }
@@ -124,6 +139,11 @@ export function sizeNode(
       break;
     default:
       break;
+  }
+
+  if (node.icon) {
+    height += LAYOUT.iconSize + LAYOUT.iconGap;
+    width = Math.max(width, LAYOUT.iconSize + 2 * LAYOUT.nodePadX);
   }
 
   return {
