@@ -54,7 +54,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
 
   function getTheme(state: AppState) {
     const scheme = document.documentElement.getAttribute('data-scheme') === 'dark' ? 'dark' : 'light';
-    return composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme);
+    return composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme, state.settings.nodeShading);
   }
 
   function open(): void {

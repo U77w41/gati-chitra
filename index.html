@@ -126,6 +126,8 @@
                     <option value="pulse">pulse</option>
                     <option value="traffic">traffic</option>
                     <option value="dash">dash</option>
+                    <option value="build">build</option>
+                    <option value="typewriter">typewriter</option>
                     <option value="off">off</option>
                   </select>
                 </div>
@@ -145,44 +147,69 @@
                 </div>
               </div>
               <div class="canvas-controls-tier theming-tier">
-                <div class="theming-control-group">
+                <div id="theme-strip" class="theming-control-group">
                   <label for="theme" class="theme-row-label">Diagram</label>
                   <select id="theme">
                     <option value="auto">Match page</option>
                     <option value="daylight">Daylight</option>
-                    <option value="geist">Mono Light</option>
-                    <option value="paper">Warm Paper</option>
-                    <option value="matcha">Sage Minimal</option>
-                    <option value="lavender">Soft Mist</option>
+                    <option value="geist">Geist</option>
+                    <option value="flexoki">Flexoki</option>
+                    <option value="latte">Latte</option>
+                    <option value="matcha">Matcha</option>
+                    <option value="clay">Clay</option>
+                    <option value="swiss">Swiss</option>
                     <option value="midnight">Midnight</option>
-                    <option value="obsidian">Linear Dark</option>
-                    <option value="graphite">Graphite Mono</option>
-                    <option value="nordic">Nordic Frost</option>
-                    <option value="rosepine">Rosé Velvet</option>
+                    <option value="obsidian">Obsidian</option>
+                    <option value="graphite">Graphite</option>
+                    <option value="tokyonight">Tokyo Night</option>
+                    <option value="nordic">Nordic</option>
+                    <option value="rosepine">Rosé Pine</option>
+                    <option value="monokai">Monokai</option>
                     <option value="lagoon">Lagoon</option>
                     <option value="ember">Ember</option>
                   </select>
                 </div>
-                <div class="theming-control-group">
+                <div id="bg-strip" class="theming-control-group">
                   <label for="bg-theme" class="theme-row-label">Background</label>
                   <select id="bg-theme" aria-label="Canvas background">
                     <option value="match">Match diagram</option>
                     <option value="auto">Match page</option>
                     <option value="daylight">Daylight</option>
-                    <option value="geist">Mono Light</option>
-                    <option value="paper">Warm Paper</option>
-                    <option value="matcha">Sage Minimal</option>
-                    <option value="lavender">Soft Mist</option>
+                    <option value="geist">Geist</option>
+                    <option value="flexoki">Flexoki</option>
+                    <option value="latte">Latte</option>
+                    <option value="matcha">Matcha</option>
+                    <option value="clay">Clay</option>
+                    <option value="swiss">Swiss</option>
                     <option value="midnight">Midnight</option>
-                    <option value="obsidian">Linear Dark</option>
-                    <option value="graphite">Graphite Mono</option>
-                    <option value="nordic">Nordic Frost</option>
-                    <option value="rosepine">Rosé Velvet</option>
+                    <option value="obsidian">Obsidian</option>
+                    <option value="graphite">Graphite</option>
+                    <option value="tokyonight">Tokyo Night</option>
+                    <option value="nordic">Nordic</option>
+                    <option value="rosepine">Rosé Pine</option>
+                    <option value="monokai">Monokai</option>
                     <option value="lagoon">Lagoon</option>
                     <option value="ember">Ember</option>
                   </select>
                 </div>
                 <button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>
+                <div class="theming-control-group">
+                  <label for="node-shading" class="theme-row-label">Shading</label>
+                  <select id="node-shading" aria-label="Node shading">
+                    <option value="shape">By shape</option>
+                    <option value="semantic">Semantic</option>
+                    <option value="node">By node</option>
+                    <option value="off">Uniform</option>
+                  </select>
+                </div>
+                <div class="theming-control-group">
+                  <label for="card-mode" class="theme-row-label">Card</label>
+                  <select id="card-mode" aria-label="Card style">
+                    <option value="classic">Classic</option>
+                    <option value="pipeline">Pipeline</option>
+                    <option value="workflow">Workflow</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div id="present-step" hidden></div>

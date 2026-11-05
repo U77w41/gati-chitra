@@ -1,4 +1,10 @@
-import type { AnimStyle, BackgroundChoice, ThemeChoice } from '../core/types';
+import type {
+  AnimStyle,
+  BackgroundChoice,
+  CardStyleMode,
+  NodeShadeMode,
+  ThemeChoice,
+} from '../core/types';
 import { THEMES, resolveTheme } from '../render/themes';
 import { requestRedraw } from './render-loop';
 import type { AppState } from './state';
@@ -14,6 +20,8 @@ export interface AnimControlElements {
   canvasGridEl?: HTMLInputElement | null;
   bgThemeEl?: HTMLSelectElement | null;
   bgLockEl?: HTMLButtonElement | null;
+  nodeShadingEl?: HTMLSelectElement | null;
+  cardModeEl?: HTMLSelectElement | null;
 }
 
 export interface AnimControlsManager {
@@ -37,6 +45,8 @@ export function setupAnimControls(
     canvasGridEl,
     bgThemeEl,
     bgLockEl,
+    nodeShadingEl,
+    cardModeEl,
   } = els;
   const state = getState();
 
@@ -72,6 +82,12 @@ export function setupAnimControls(
     }
     if (canvasGridEl) {
       canvasGridEl.checked = Boolean(state.settings.grid);
+    }
+    if (nodeShadingEl) {
+      nodeShadingEl.value = state.settings.nodeShading ?? 'shape';
+    }
+    if (cardModeEl) {
+      cardModeEl.value = state.settings.cardMode ?? 'classic';
     }
   }
 
@@ -162,6 +178,22 @@ export function setupAnimControls(
   if (bgThemeEl) {
     bgThemeEl.addEventListener('change', () => {
       applyBg(bgThemeEl.value as BackgroundChoice);
+    });
+  }
+
+  if (nodeShadingEl) {
+    nodeShadingEl.addEventListener('change', () => {
+      state.settings.nodeShading = nodeShadingEl.value as NodeShadeMode;
+      saveSettings(store, state.settings);
+      requestRedraw();
+    });
+  }
+
+  if (cardModeEl) {
+    cardModeEl.addEventListener('change', () => {
+      state.settings.cardMode = cardModeEl.value as CardStyleMode;
+      saveSettings(store, state.settings);
+      requestRedraw();
     });
   }
 

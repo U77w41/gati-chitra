@@ -50,3 +50,34 @@ export function ringRadii(box: NodeBox, gap: number = LAYOUT.doubleCircleGap): {
   const inner = Math.max(0, outer - gap);
   return { outer, inner };
 }
+
+export function drawNodeInnerLines(
+  ctx: CanvasRenderingContext2D,
+  box: NodeBox,
+  shape: string,
+): void {
+  if (shape === 'cylinder') {
+    const rx = box.width / 2;
+    const ry = 8;
+    const t = box.center.y - box.height / 2;
+    ctx.beginPath();
+    ctx.ellipse(box.center.x, t + ry, rx, ry, 0, 0, Math.PI);
+    ctx.stroke();
+  } else if (shape === 'subroutine') {
+    const l = box.center.x - box.width / 2;
+    const r = box.center.x + box.width / 2;
+    const t = box.center.y - box.height / 2;
+    const b = box.center.y + box.height / 2;
+    ctx.beginPath();
+    ctx.moveTo(l + 8, t);
+    ctx.lineTo(l + 8, b);
+    ctx.moveTo(r - 8, t);
+    ctx.lineTo(r - 8, b);
+    ctx.stroke();
+  } else if (shape === 'doubleCircle' || shape === 'framedCircle') {
+    const rInner = Math.max(0, box.width / 2 - LAYOUT.doubleCircleGap);
+    ctx.beginPath();
+    ctx.arc(box.center.x, box.center.y, rInner, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+}

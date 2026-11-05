@@ -14,14 +14,18 @@ describe('themes', () => {
     expect(THEME_IDS).toEqual([
       'daylight',
       'geist',
-      'paper',
+      'flexoki',
+      'latte',
       'matcha',
-      'lavender',
+      'clay',
+      'swiss',
       'midnight',
       'obsidian',
       'graphite',
+      'tokyonight',
       'nordic',
       'rosepine',
+      'monokai',
       'lagoon',
       'ember',
     ]);
@@ -29,7 +33,7 @@ describe('themes', () => {
     expect(BACKGROUND_CHOICES).toEqual(['match', 'auto', ...THEME_IDS]);
   });
 
-  it('contains complete definitions for each of the 12 themes', () => {
+  it('contains complete definitions for each of the 16 themes with 4-tier nodeShades', () => {
     const requiredFields: (keyof Theme)[] = [
       'id',
       'name',
@@ -38,6 +42,7 @@ describe('themes', () => {
       'nodeFill',
       'nodeStroke',
       'nodeText',
+      'nodeShades',
       'edge',
       'edgeLabelBg',
       'edgeLabelText',
@@ -51,7 +56,7 @@ describe('themes', () => {
       'gridColor',
     ];
 
-    expect(THEME_IDS.length).toBe(12);
+    expect(THEME_IDS.length).toBe(16);
 
     for (const id of THEME_IDS) {
       const theme = THEMES[id];
@@ -61,6 +66,12 @@ describe('themes', () => {
       }
       expect(typeof theme.gridColor).toBe('string');
       expect(theme.gridColor.length).toBeGreaterThan(0);
+      expect(theme.nodeShades).toBeDefined();
+      expect(theme.nodeShades?.length).toBe(4);
+      for (let tier = 0; tier < 4; tier++) {
+        expect(theme.nodeShades?.[tier].fill).toBeDefined();
+        expect(theme.nodeShades?.[tier].stroke).toBeDefined();
+      }
     }
 
     expect(THEMES.lagoon.backgroundGradient).toEqual(['#041e2b', '#0a2e3f']);
@@ -68,6 +79,8 @@ describe('themes', () => {
     expect(THEMES.obsidian.backgroundGradient).toEqual(['#090a0f', '#10121a']);
     expect(THEMES.nordic.backgroundGradient).toEqual(['#242933', '#2e3440']);
     expect(THEMES.rosepine.backgroundGradient).toEqual(['#191724', '#1f1d2e']);
+    expect(THEMES.tokyonight.backgroundGradient).toEqual(['#1a1b26', '#16161e']);
+    expect(THEMES.monokai.backgroundGradient).toEqual(['#1c1917', '#24201d']);
     expect(THEMES.daylight.backgroundGradient).toBeNull();
     expect(THEMES.midnight.backgroundGradient).toBeNull();
 
@@ -77,6 +90,8 @@ describe('themes', () => {
     expect(THEMES.ember.glowDefault).toBe(true);
     expect(THEMES.obsidian.glowDefault).toBe(true);
     expect(THEMES.rosepine.glowDefault).toBe(true);
+    expect(THEMES.tokyonight.glowDefault).toBe(true);
+    expect(THEMES.monokai.glowDefault).toBe(true);
   });
 
   it('resolves theme choices according to scheme', () => {
@@ -87,19 +102,26 @@ describe('themes', () => {
     expect(resolveTheme('daylight', 'dark')).toBe('daylight');
     expect(resolveTheme('midnight', 'light')).toBe('midnight');
     expect(resolveTheme('obsidian', 'light')).toBe('obsidian');
-    expect(resolveTheme('paper', 'dark')).toBe('paper');
+    expect(resolveTheme('flexoki', 'dark')).toBe('flexoki');
+    expect(resolveTheme('paper', 'dark')).toBe('flexoki');
+    expect(resolveTheme('lavender', 'light')).toBe('latte');
   });
 
   it('composes theme correctly when background is match or undefined', () => {
     const dTheme = composeTheme('obsidian', 'match', 'dark');
-    expect(dTheme).toEqual(THEMES.obsidian);
+    expect(dTheme.nodeFill).toEqual(THEMES.obsidian.nodeFill);
+    expect(dTheme.background).toEqual(THEMES.obsidian.background);
 
     const autoTheme = composeTheme('auto', undefined, 'light');
-    expect(autoTheme).toEqual(THEMES.daylight);
+    expect(autoTheme.nodeFill).toEqual(THEMES.daylight.nodeFill);
+    expect(autoTheme.background).toEqual(THEMES.daylight.background);
+
+    const shadedTheme = composeTheme('daylight', undefined, 'light', 'semantic');
+    expect(shadedTheme.shadingMode).toBe('semantic');
   });
 
   it('composes theme correctly with decoupled diagram and background', () => {
-    const composed = composeTheme('obsidian', 'paper', 'light');
+    const composed = composeTheme('obsidian', 'flexoki', 'light', 'shape');
 
     // Diagram elements come from obsidian
     expect(composed.nodeFill).toBe(THEMES.obsidian.nodeFill);
@@ -112,21 +134,22 @@ describe('themes', () => {
     expect(composed.groupFill).toBe(THEMES.obsidian.groupFill);
     expect(composed.groupStroke).toBe(THEMES.obsidian.groupStroke);
     expect(composed.groupTitle).toBe(THEMES.obsidian.groupTitle);
+    expect(composed.shadingMode).toBe('shape');
 
-    // Background elements come from paper
-    expect(composed.background).toBe(THEMES.paper.background);
-    expect(composed.backgroundGradient).toBe(THEMES.paper.backgroundGradient);
-    expect(composed.gridColor).toBe(THEMES.paper.gridColor);
-    expect(composed.edgeLabelBg).toBe(THEMES.paper.edgeLabelBg);
-    expect(composed.edgeLabelText).toBe(THEMES.paper.edgeLabelText);
-    expect(composed.titleText).toBe(THEMES.paper.titleText ?? THEMES.paper.edgeLabelText);
+    // Background elements come from flexoki
+    expect(composed.background).toBe(THEMES.flexoki.background);
+    expect(composed.backgroundGradient).toBe(THEMES.flexoki.backgroundGradient);
+    expect(composed.gridColor).toBe(THEMES.flexoki.gridColor);
+    expect(composed.edgeLabelBg).toBe(THEMES.flexoki.edgeLabelBg);
+    expect(composed.edgeLabelText).toBe(THEMES.flexoki.edgeLabelText);
+    expect(composed.titleText).toBe(THEMES.flexoki.titleText ?? THEMES.flexoki.edgeLabelText);
   });
 
   it('composes theme correctly with auto background', () => {
-    const darkComposed = composeTheme('paper', 'auto', 'dark');
+    const darkComposed = composeTheme('flexoki', 'auto', 'dark');
     expect(darkComposed.background).toBe(THEMES.midnight.background);
     expect(darkComposed.gridColor).toBe(THEMES.midnight.gridColor);
-    expect(darkComposed.nodeFill).toBe(THEMES.paper.nodeFill);
+    expect(darkComposed.nodeFill).toBe(THEMES.flexoki.nodeFill);
 
     const lightComposed = composeTheme('obsidian', 'auto', 'light');
     expect(lightComposed.background).toBe(THEMES.daylight.background);

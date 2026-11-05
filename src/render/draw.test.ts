@@ -249,4 +249,24 @@ describe('draw', () => {
     const calls = draw('---\ntitle: Diagram Title\n---\nflowchart TD\nA --> B', {}, {}, customTheme);
     expect(calls).toContainEqual({ name: 'set:fillStyle', args: ['#ff00ff'] });
   });
+
+  it('slices title text when frame.titleChars is defined', () => {
+    const text = '---\ntitle: Food Delivery Pipeline\n---\nflowchart TD\nA --> B';
+    const callsFull = draw(text, {}, { titleChars: 4 });
+    expect(callsFull.some((c) => c.name === 'fillText' && c.args[0] === 'Food')).toBe(true);
+  });
+
+  it('renders pipeline cards and rounded diamonds in pipeline cardMode', () => {
+    const text = 'flowchart TD\nA["Order Placed"] --> B{Authorized?}';
+    const calls = draw(text, { cardMode: 'pipeline' });
+    expect(calls.some((c) => c.name === 'arcTo')).toBe(true);
+    expect(calls.some((c) => c.name === 'fillText' && c.args[0] === '?')).toBe(true);
+  });
+
+  it('renders 64x64 icon tiles with trigger badge in workflow cardMode', () => {
+    const text = 'flowchart TD\nA["Form Submitted"] --> B["Approval"]';
+    const calls = draw(text, { cardMode: 'workflow' });
+    expect(calls.some((c) => c.name === 'fillText' && c.args[0] === '⚡')).toBe(true);
+    expect(calls.some((c) => c.name === 'roundRect' && c.args[2] === 64 && c.args[3] === 64)).toBe(true);
+  });
 });

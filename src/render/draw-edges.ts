@@ -1,5 +1,5 @@
 import { ANIM, FONT_STACK_SANS, LAYOUT } from '../core/constants';
-import type { DrawOptions, Scene, Theme } from '../core/types';
+import type { DrawOptions, FrameState, Scene, Theme } from '../core/types';
 import { tangentAt } from '../layout/geometry';
 import { fontString } from '../layout/measure';
 import { parseInlineMarkdown } from '../layout/rich-text';
@@ -10,11 +10,18 @@ export function drawEdges(
   scene: Scene,
   theme: Theme,
   options: DrawOptions,
+  frame?: FrameState,
 ): void {
   for (const edge of scene.doc.edges) {
     if (edge.kind === 'invisible') continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
+
+    const grow =
+      frame?.edgeGrow?.[edge.id] !== undefined
+        ? Math.max(0, Math.min(1, frame.edgeGrow[edge.id]))
+        : 1;
+    if (grow <= 0) continue;
 
     const st = edgeStyle(edge, theme);
     const isDimmed = options.focus !== null && !options.focus.edges.includes(edge.id);
@@ -24,10 +31,35 @@ export function drawEdges(
 
     ctx.beginPath();
     ctx.moveTo(path.from.x, path.from.y);
+
+    let to = path.to;
+    let t = tangentAt(path, 1);
+
     if (path.kind === 'straight' || !path.control) {
-      ctx.lineTo(path.to.x, path.to.y);
+      if (grow < 1) {
+        to = {
+          x: path.from.x + (path.to.x - path.from.x) * grow,
+          y: path.from.y + (path.to.y - path.from.y) * grow,
+        };
+      }
+      ctx.lineTo(to.x, to.y);
     } else {
-      ctx.quadraticCurveTo(path.control.x, path.control.y, path.to.x, path.to.y);
+      if (grow < 1) {
+        const u = grow;
+        const p0 = path.from;
+        const p1 = path.control;
+        const p2 = path.to;
+        const q1 = { x: (1 - u) * p0.x + u * p1.x, y: (1 - u) * p0.y + u * p1.y };
+        const q2 = {
+          x: (1 - u) * (1 - u) * p0.x + 2 * (1 - u) * u * p1.x + u * u * p2.x,
+          y: (1 - u) * (1 - u) * p0.y + 2 * (1 - u) * u * p1.y + u * u * p2.y,
+        };
+        ctx.quadraticCurveTo(q1.x, q1.y, q2.x, q2.y);
+        to = q2;
+        t = tangentAt(path, u);
+      } else {
+        ctx.quadraticCurveTo(path.control.x, path.control.y, path.to.x, path.to.y);
+      }
     }
 
     ctx.lineWidth = st.width;
@@ -37,9 +69,7 @@ export function drawEdges(
     ctx.stroke();
     ctx.setLineDash([]);
 
-    const t = tangentAt(path, 1);
     const n = { x: -t.y, y: t.x };
-    const to = path.to;
     const arrowSize = LAYOUT.arrowSize;
 
     if (st.endMarker === 'arrow') {
@@ -125,14 +155,28 @@ export function drawEdgeLabels(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
   theme: Theme,
+  frame?: FrameState,
 ): void {
   for (const edge of scene.doc.edges) {
     if (edge.label && edge.label.length > 0) {
+      if (frame?.edgeTextProgress?.[edge.id] !== undefined) {
+        const prog = Math.max(0, Math.min(1, frame.edgeTextProgress[edge.id]));
+        if (prog <= 0) continue;
+      }
       const path = scene.layout.edges[edge.id];
       if (!path) continue;
+
+      let labelText = edge.label;
+      if (frame?.edgeTextProgress?.[edge.id] !== undefined) {
+        const prog = Math.max(0, Math.min(1, frame.edgeTextProgress[edge.id]));
+        const count = Math.floor(edge.label.length * prog);
+        if (count <= 0) continue;
+        labelText = edge.label.slice(0, count);
+      }
+
       let w = 0;
       if (edge.markdown) {
-        const runs = parseInlineMarkdown(edge.label);
+        const runs = parseInlineMarkdown(labelText);
         for (const r of runs) {
           ctx.font = fontString(13, r);
           w += ctx.measureText(r.text).width;
@@ -140,7 +184,7 @@ export function drawEdgeLabels(
         w += 2 * LAYOUT.edgeLabelPadX;
       } else {
         ctx.font = `13px ${FONT_STACK_SANS}`;
-        w = ctx.measureText(edge.label).width + 2 * LAYOUT.edgeLabelPadX;
+        w = ctx.measureText(labelText).width + 2 * LAYOUT.edgeLabelPadX;
       }
       const h = LAYOUT.edgeLabelH;
       ctx.beginPath();
@@ -155,7 +199,7 @@ export function drawEdgeLabels(
 
       ctx.fillStyle = theme.edgeLabelText;
       if (edge.markdown) {
-        const runs = parseInlineMarkdown(edge.label);
+        const runs = parseInlineMarkdown(labelText);
         let curX = path.labelPoint.x - (w - 2 * LAYOUT.edgeLabelPadX) / 2;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
@@ -168,7 +212,7 @@ export function drawEdgeLabels(
         ctx.font = `13px ${FONT_STACK_SANS}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(edge.label, path.labelPoint.x, path.labelPoint.y);
+        ctx.fillText(labelText, path.labelPoint.x, path.labelPoint.y);
       }
     }
   }
@@ -191,8 +235,9 @@ export function drawEdgeDashOverlay(
     } else {
       ctx.quadraticCurveTo(path.control.x, path.control.y, path.to.x, path.to.y);
     }
-    ctx.strokeStyle = theme.particle;
-    ctx.lineWidth = LAYOUT.edgeWidth;
+    const st = edgeStyle(edge, theme);
+    ctx.strokeStyle = st.stroke !== theme.edge ? st.stroke : theme.particle;
+    ctx.lineWidth = st.width || LAYOUT.edgeWidth;
     ctx.setLineDash([...ANIM.dashPattern]);
     ctx.lineDashOffset = dashOffset;
     ctx.stroke();

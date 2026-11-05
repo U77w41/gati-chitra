@@ -1,5 +1,11 @@
 import { ANIM, STORAGE, UI } from '../core/constants';
-import type { AnimSettings, BackgroundChoice, ThemeChoice } from '../core/types';
+import type {
+  AnimSettings,
+  BackgroundChoice,
+  CardStyleMode,
+  NodeShadeMode,
+  ThemeChoice,
+} from '../core/types';
 import { DEFAULT_ANIM } from '../anim/anim';
 import { BACKGROUND_CHOICES, THEME_CHOICES } from '../render/themes';
 import { clampSplit } from './splitter';
@@ -16,6 +22,8 @@ export interface Settings {
   split: number;
   bgTheme?: BackgroundChoice;
   bgLocked?: boolean;
+  nodeShading?: NodeShadeMode;
+  cardMode?: CardStyleMode;
   grid?: boolean;
   wordWrap?: boolean;
 }
@@ -60,6 +68,8 @@ export function loadSettings(store: KeyValueStore | null): Settings {
     split: UI.splitDefault,
     bgTheme: 'match',
     bgLocked: false,
+    nodeShading: 'shape',
+    cardMode: 'classic',
     grid: false,
     wordWrap: false,
   };
@@ -76,7 +86,7 @@ export function loadSettings(store: KeyValueStore | null): Settings {
       : defaults.theme;
 
     const animRaw = parsed?.anim;
-    const styleValid = ['pulse', 'traffic', 'dash', 'off'].includes(
+    const styleValid = ['pulse', 'traffic', 'dash', 'build', 'typewriter', 'off'].includes(
       animRaw?.style,
     );
     const style = styleValid ? animRaw.style : defaults.anim.style;
@@ -108,6 +118,16 @@ export function loadSettings(store: KeyValueStore | null): Settings {
         ? parsed.bgLocked
         : bgTheme !== 'match';
 
+    const nodeShadingValid = ['shape', 'semantic', 'node', 'off'].includes(parsed?.nodeShading);
+    const nodeShading: NodeShadeMode = nodeShadingValid
+      ? parsed.nodeShading
+      : defaults.nodeShading!;
+
+    const cardModeValid = ['classic', 'pipeline', 'workflow'].includes(parsed?.cardMode);
+    const cardMode: CardStyleMode = cardModeValid
+      ? parsed.cardMode
+      : defaults.cardMode!;
+
     const grid =
       typeof parsed?.grid === 'boolean'
         ? parsed.grid
@@ -124,6 +144,8 @@ export function loadSettings(store: KeyValueStore | null): Settings {
       split,
       bgTheme,
       bgLocked,
+      nodeShading,
+      cardMode,
       grid,
       wordWrap,
     };

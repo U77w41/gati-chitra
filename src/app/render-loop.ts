@@ -105,6 +105,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
       state.settings.theme,
       state.settings.bgTheme ?? 'match',
       scheme,
+      state.settings.nodeShading,
     );
     const dpr = window.devicePixelRatio || 1;
 
@@ -146,6 +147,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
         focus: getFocus ? getFocus() : null,
         showGlow: state.settings.anim.glow,
         showGrid: Boolean(state.settings.grid),
+        cardMode: state.settings.cardMode,
       });
     }
 

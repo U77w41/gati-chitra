@@ -84,22 +84,36 @@ export interface Scene { doc: ParsedDoc; layout: SceneLayout }
 export type ThemeId =
   | 'daylight'
   | 'geist'
-  | 'paper'
+  | 'flexoki'
+  | 'latte'
   | 'matcha'
-  | 'lavender'
+  | 'clay'
+  | 'swiss'
   | 'midnight'
   | 'obsidian'
   | 'graphite'
+  | 'tokyonight'
   | 'nordic'
   | 'rosepine'
+  | 'monokai'
   | 'lagoon'
-  | 'ember';
+  | 'ember'
+  | 'paper'
+  | 'lavender';
 export type ThemeChoice = ThemeId | 'auto'; // 'auto' ("Match page") is Daylight in the light page scheme and Midnight in the dark one
 export type BackgroundChoice = 'match' | ThemeChoice;
 export type SchemePref = 'light' | 'dark' | 'auto'; // the saved choice of page colour scheme
+export type NodeShadeMode = 'shape' | 'semantic' | 'node' | 'off';
+export type CardStyleMode = 'classic' | 'pipeline' | 'workflow';
+export interface NodeShade {
+  fill: string;
+  stroke: string;
+}
 export interface Theme {
   id: ThemeId; name: string; background: string; backgroundGradient: [string, string] | null;
   nodeFill: string; nodeStroke: string; nodeText: string;
+  nodeShades?: [NodeShade, NodeShade, NodeShade, NodeShade];
+  shadingMode?: NodeShadeMode;
   edge: string; edgeLabelBg: string; edgeLabelText: string;
   groupFill: string; groupStroke: string; groupTitle: string;
   particle: string; glow: string; selection: string; glowDefault: boolean;
@@ -107,13 +121,18 @@ export interface Theme {
   titleText?: string;
 }
 
-export type AnimStyle = 'pulse' | 'traffic' | 'dash' | 'off';
+export type AnimStyle = 'pulse' | 'traffic' | 'dash' | 'build' | 'typewriter' | 'off';
 export interface AnimSettings { style: AnimStyle; speed: number; density: number; glow: boolean }
 export interface Particle { edgeId: string; u: number; alpha: number } // u: 0 at the start of the arrow, 1 at its head
 export interface FrameState {
   particles: Particle[];
-  dashOffset: number | null;         // a number only for style 'dash'; null otherwise
+  dashOffset: number | null;         // a number only for style 'dash' or post-build flowing dashes; null otherwise
   nodeGlow: Record<string, number>;  // node id -> 0..1; absent means 0
+  titleChars?: number;
+  nodeAlpha?: Record<string, number>;
+  nodeTextProgress?: Record<string, number>;
+  edgeGrow?: Record<string, number>;
+  edgeTextProgress?: Record<string, number>;
 }
 
 export interface ViewState { zoom: number; panX: number; panY: number }
@@ -123,6 +142,7 @@ export interface DrawOptions {
   transparent: boolean; selection: Selection | null; handleNodeId: string | null;
   connectPreview: { from: Point; to: Point } | null; focus: Focus | null; showGlow: boolean;
   showGrid?: boolean;
+  cardMode?: CardStyleMode;
 }
 
 export type ExportMode = 'content' | 'slide';

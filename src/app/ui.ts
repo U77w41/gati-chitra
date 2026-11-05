@@ -240,6 +240,8 @@ export async function initApp(): Promise<void> {
     canvasGridEl: document.querySelector('#canvas-grid'),
     bgThemeEl: document.querySelector('#bg-theme'),
     bgLockEl: document.querySelector('#bg-lock'),
+    nodeShadingEl: document.querySelector('#node-shading'),
+    cardModeEl: document.querySelector('#card-mode'),
   }, () => state, store, (paused) => {
     if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
   });

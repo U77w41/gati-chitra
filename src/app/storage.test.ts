@@ -52,6 +52,8 @@ describe('storage', () => {
       split: 0.33,
       bgTheme: 'match',
       bgLocked: false,
+      nodeShading: 'shape',
+      cardMode: 'classic',
       grid: false,
       wordWrap: false,
     });
@@ -63,6 +65,8 @@ describe('storage', () => {
       split: 0.33,
       bgTheme: 'match',
       bgLocked: false,
+      nodeShading: 'shape',
+      cardMode: 'classic',
       grid: false,
       wordWrap: false,
     });
@@ -73,6 +77,8 @@ describe('storage', () => {
         anim: { style: 'dash', speed: 99, density: 0, glow: true },
         bgTheme: 'invalid-bg',
         bgLocked: 'not-a-bool',
+        nodeShading: 'invalid-shade',
+        cardMode: 'invalid-card',
         grid: 'yes',
         wordWrap: 123,
       }),
@@ -83,6 +89,8 @@ describe('storage', () => {
       split: 0.33,
       bgTheme: 'match',
       bgLocked: false,
+      nodeShading: 'shape',
+      cardMode: 'classic',
       grid: false,
       wordWrap: false,
     });
@@ -90,17 +98,22 @@ describe('storage', () => {
     const validStore = createMemoryStore({
       'gati-chitra:v1:settings': JSON.stringify({
         theme: 'lagoon',
-        anim: { style: 'pulse', speed: 1, density: 4, glow: false },
-        bgTheme: 'paper',
+        anim: { style: 'typewriter', speed: 1, density: 4, glow: false },
+        bgTheme: 'flexoki',
         bgLocked: true,
+        nodeShading: 'semantic',
+        cardMode: 'pipeline',
         grid: true,
         wordWrap: true,
       }),
     });
     const loaded = loadSettings(validStore);
     expect(loaded.theme).toBe('lagoon');
-    expect(loaded.bgTheme).toBe('paper');
+    expect(loaded.anim.style).toBe('typewriter');
+    expect(loaded.bgTheme).toBe('flexoki');
     expect(loaded.bgLocked).toBe(true);
+    expect(loaded.nodeShading).toBe('semantic');
+    expect(loaded.cardMode).toBe('pipeline');
     expect(loaded.grid).toBe(true);
     expect(loaded.wordWrap).toBe(true);
     expect(saveSettings(throwingStore, loaded)).toBe(false);

@@ -119,6 +119,8 @@ describe('anim-controls', () => {
       const canvasGridEl = makeFake('canvas-grid', 'input') as unknown as HTMLInputElement;
       const bgThemeEl = makeFake('bg-theme', 'select') as unknown as HTMLSelectElement;
       const bgLockEl = makeFake('bg-lock', 'button') as unknown as HTMLButtonElement;
+      const nodeShadingEl = makeFake('node-shading', 'select') as unknown as HTMLSelectElement;
+      const cardModeEl = makeFake('card-mode', 'select') as unknown as HTMLSelectElement;
 
       const els = {
         animStyleEl,
@@ -130,6 +132,8 @@ describe('anim-controls', () => {
         canvasGridEl,
         bgThemeEl,
         bgLockEl,
+        nodeShadingEl,
+        cardModeEl,
       };
 
       const store = memStore();
@@ -141,6 +145,18 @@ describe('anim-controls', () => {
       expect(state.settings.theme).toBe('auto');
       expect(state.settings.bgTheme).toBe('match');
       expect(state.settings.bgLocked).toBe(false);
+      expect(state.settings.nodeShading).toBe('shape');
+      expect(state.settings.cardMode).toBe('classic');
+
+      // Node shading toggle
+      els.nodeShadingEl.value = 'semantic';
+      (els.nodeShadingEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
+      expect(state.settings.nodeShading).toBe('semantic');
+
+      // Card mode toggle
+      els.cardModeEl.value = 'workflow';
+      (els.cardModeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
+      expect(state.settings.cardMode).toBe('workflow');
 
       // Grid toggle
       els.canvasGridEl.checked = true;

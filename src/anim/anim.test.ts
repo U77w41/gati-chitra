@@ -94,7 +94,7 @@ describe('anim', () => {
 
   it('provides seamless loops and determinism', () => {
     const chain = scene('flowchart TD\nA-->B\nB-->C');
-    const styles: AnimStyle[] = ['pulse', 'traffic', 'dash', 'off'];
+    const styles: AnimStyle[] = ['pulse', 'traffic', 'dash', 'build', 'typewriter', 'off'];
     const phases = [0, 0.25, 0.5, 0.75];
 
     for (const style of styles) {
@@ -104,6 +104,42 @@ describe('anim', () => {
         expect(frameState(chain, st, ph)).toEqual(frameState(chain, st, ph));
       }
     }
+  });
+
+  it('handles cascade build animation style', () => {
+    const chain = scene('flowchart TD\nA-->B\nB-->C');
+    const build = { ...DEFAULT_ANIM, style: 'build' as const };
+
+    const early = frameState(chain, build, 0.05);
+    expect(early.nodeAlpha?.A).toBeGreaterThan(0);
+    expect(early.nodeAlpha?.C).toBe(0);
+
+    const late = frameState(chain, build, 0.85);
+    expect(late.nodeAlpha?.A).toBe(1);
+    expect(late.nodeAlpha?.B).toBe(1);
+    expect(late.nodeAlpha?.C).toBe(1);
+    expect(late.edgeGrow?.e0).toBe(1);
+    expect(late.edgeGrow?.e1).toBe(1);
+    expect(typeof late.dashOffset).toBe('number');
+  });
+
+  it('handles pipeline typewriter reveal animation style', () => {
+    const chain = scene('flowchart TD\nA-->B\nB-->C');
+    const typewriter = { ...DEFAULT_ANIM, style: 'typewriter' as const };
+
+    const titlePhase = frameState(chain, typewriter, 0.03);
+    expect(titlePhase.titleChars).toBeCloseTo(0.5, 1);
+
+    const postBuild = frameState(chain, typewriter, 0.85);
+    expect(postBuild.titleChars).toBe(1);
+    expect(postBuild.nodeAlpha?.A).toBe(1);
+    expect(postBuild.nodeTextProgress?.A).toBe(1);
+    expect(postBuild.nodeAlpha?.C).toBe(1);
+    expect(postBuild.nodeTextProgress?.C).toBe(1);
+    expect(postBuild.edgeGrow?.e0).toBe(1);
+    expect(postBuild.edgeTextProgress?.e0).toBe(1);
+    expect(typeof postBuild.dashOffset).toBe('number');
+    expect(postBuild.dashOffset).toBeLessThan(0);
   });
 
   it('caps particles on large diagrams', () => {

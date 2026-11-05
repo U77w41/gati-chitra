@@ -9,6 +9,7 @@ import type {
 } from '../core/types';
 import { hash32 } from './hash';
 import { computeDepths, prepare } from '../render/prepared';
+import { frameStateBuild, frameStateTypewriter } from './build-anim';
 
 export { computeDepths };
 
@@ -48,6 +49,14 @@ export function frameState(
 
   if (settings.style === 'off') {
     return { particles: [], dashOffset: null, nodeGlow: {} };
+  }
+
+  if (settings.style === 'build') {
+    return frameStateBuild(scene, settings, p);
+  }
+
+  if (settings.style === 'typewriter') {
+    return frameStateTypewriter(scene, settings, p);
   }
 
   const validEdges = scene.doc.edges.filter(

@@ -1,4 +1,4 @@
-import type { AnimSettings, Scene, Theme, ViewState } from '../core/types';
+import type { AnimSettings, CardStyleMode, Scene, Theme, ViewState } from '../core/types';
 import { frameState } from '../anim/anim';
 import { drawBackground, drawScene } from '../render/draw';
 
@@ -11,6 +11,7 @@ export function drawExportFrame(
   phase: number,
   width: number,
   height: number,
+  cardMode?: CardStyleMode,
 ): void {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   drawBackground(ctx, theme, width, height, false);
@@ -22,5 +23,6 @@ export function drawExportFrame(
     focus: null,
     showGlow: anim.glow,
     showGrid: false,
+    cardMode,
   });
 }

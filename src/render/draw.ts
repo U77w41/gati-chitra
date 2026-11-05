@@ -9,10 +9,16 @@ import type {
 import { handlePoint, pointOnPath } from '../layout/geometry';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
 import { drawGrid } from './grid';
-import { drawRuns } from './draw-runs';
+import { drawNodeLines, drawRuns } from './draw-runs';
 import { traceNodePath } from './node-path';
+import {
+  drawPipelineNode,
+  traceRoundedDiamond,
+} from './pipeline-cards';
 import { prepare } from './prepared';
+import { drawNodeInnerLines } from './shapes-extra';
 import { edgeStyle, nodeStyle } from './style';
+import { drawWorkflowTile } from './workflow-cards';
 
 export type Ctx2D = CanvasRenderingContext2D;
 
@@ -54,7 +60,7 @@ export function drawScene(
   ctx.save();
   if (options.showGrid && !options.transparent) {
     const t = typeof ctx.getTransform === 'function' ? ctx.getTransform() : null;
-    const dpr = (t && typeof t.a === 'number' && t.a > 0) ? t.a : 1;
+    const dpr = t && typeof t.a === 'number' && t.a > 0 ? t.a : 1;
     const vw = ctx.canvas ? ctx.canvas.width / dpr : 800;
     const vh = ctx.canvas ? ctx.canvas.height / dpr : 600;
     drawGrid(ctx, theme, view, vw, vh);
@@ -64,15 +70,16 @@ export function drawScene(
 
   // 1. Title
   if (scene.layout.title) {
-    ctx.font = `bold ${LAYOUT.titleFontSize}px ${FONT_STACK_SANS}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = theme.titleText ?? theme.nodeText;
-    ctx.fillText(
-      scene.layout.title.text,
-      scene.layout.title.center.x,
-      scene.layout.title.center.y,
-    );
+    const titleChars = frame.titleChars;
+    const fullText = scene.layout.title.text;
+    const disp = titleChars !== undefined ? fullText.slice(0, titleChars) : fullText;
+    if (disp) {
+      ctx.font = `bold ${LAYOUT.titleFontSize}px ${FONT_STACK_SANS}`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = theme.titleText ?? theme.nodeText;
+      ctx.fillText(disp, scene.layout.title.center.x, scene.layout.title.center.y);
+    }
   }
 
   // 2. Groups
@@ -95,11 +102,9 @@ export function drawScene(
     ctx.fillText(g.title, g.rect.x + 12, g.rect.y + LAYOUT.groupTitleH / 2);
   }
 
-  // 3. Edges
-  drawEdges(ctx, scene, theme, options);
-
-  // 4. Edge labels
-  drawEdgeLabels(ctx, scene, theme);
+  // 3. Edges & 4. Edge labels
+  drawEdges(ctx, scene, theme, options, frame);
+  drawEdgeLabels(ctx, scene, theme, frame);
 
   // 5. Dash overlay
   if (frame.dashOffset !== null) {
@@ -125,95 +130,91 @@ export function drawScene(
     const box = scene.layout.nodes[node.id];
     if (!box) continue;
 
+    const alpha = frame.nodeAlpha?.[node.id] ?? 1;
+    if (alpha <= 0) continue;
+
     const isDimmed = options.focus !== null && !options.focus.nodes.includes(node.id);
-    if (isDimmed) {
-      ctx.globalAlpha = ANIM.dimAlpha;
-    }
+    const baseAlpha = isDimmed ? ANIM.dimAlpha : 1;
+    ctx.globalAlpha = baseAlpha * alpha;
 
     const st = nodeStyle(node, theme);
     const glow = frame.nodeGlow[node.id] ?? 0;
     const hasGlow = options.showGlow && glow > 0;
+    const textProg = frame.nodeTextProgress?.[node.id];
 
-    if (node.shape !== 'text') {
-      ctx.beginPath();
-      traceNodePath(ctx, box, node.shape);
-
-      if (hasGlow) {
-        ctx.shadowColor = theme.glow;
-        ctx.shadowBlur = ANIM.glowBlur * glow;
+    if (options.cardMode === 'workflow') {
+      const isTrigger = !scene.doc.edges.some((e) => e.to === node.id);
+      drawWorkflowTile(
+        ctx,
+        box,
+        node.label,
+        isTrigger,
+        st.fill,
+        st.stroke,
+        st.text,
+        textProg,
+        ctx.globalAlpha,
+      );
+    } else if (options.cardMode === 'pipeline') {
+      drawPipelineNode(
+        ctx,
+        box,
+        node.shape,
+        node.label,
+        st,
+        hasGlow,
+        glow,
+        theme,
+        textProg,
+        ctx.globalAlpha,
+      );
+    } else {
+      if (node.shape !== 'text') {
+        ctx.beginPath();
+        traceNodePath(ctx, box, node.shape);
+        if (hasGlow) {
+          ctx.shadowColor = theme.glow;
+          ctx.shadowBlur = ANIM.glowBlur * glow;
+        }
+        ctx.fillStyle =
+          node.shape === 'filledCircle' || node.shape === 'forkBar' ? st.stroke : st.fill;
+        ctx.fill();
+        if (hasGlow) ctx.shadowBlur = 0;
+        ctx.lineWidth = st.strokeWidth;
+        ctx.strokeStyle = st.stroke;
+        ctx.stroke();
+        drawNodeInnerLines(ctx, box, node.shape);
       }
 
-      ctx.fillStyle =
-        node.shape === 'filledCircle' || node.shape === 'forkBar'
-          ? st.stroke
-          : st.fill;
-      ctx.fill();
-
-      if (hasGlow) {
-        ctx.shadowBlur = 0;
-      }
-
-      ctx.lineWidth = st.strokeWidth;
-      ctx.strokeStyle = st.stroke;
-      ctx.stroke();
-
-      if (node.shape === 'cylinder') {
-        const rx = box.width / 2;
-        const ry = 8;
-        const t = box.center.y - box.height / 2;
-        ctx.beginPath();
-        ctx.ellipse(box.center.x, t + ry, rx, ry, 0, 0, Math.PI);
-        ctx.stroke();
-      } else if (node.shape === 'subroutine') {
-        const l = box.center.x - box.width / 2;
-        const r = box.center.x + box.width / 2;
-        const t = box.center.y - box.height / 2;
-        const b = box.center.y + box.height / 2;
-        ctx.beginPath();
-        ctx.moveTo(l + 8, t);
-        ctx.lineTo(l + 8, b);
-        ctx.moveTo(r - 8, t);
-        ctx.lineTo(r - 8, b);
-        ctx.stroke();
-      } else if (node.shape === 'doubleCircle' || node.shape === 'framedCircle') {
-        const rInner = Math.max(0, box.width / 2 - LAYOUT.doubleCircleGap);
-        ctx.beginPath();
-        ctx.arc(box.center.x, box.center.y, rInner, 0, 2 * Math.PI);
-        ctx.stroke();
-      }
-    }
-
-    if (
-      node.shape !== 'smallCircle' &&
-      node.shape !== 'filledCircle' &&
-      node.shape !== 'forkBar'
-    ) {
-      ctx.fillStyle = st.text;
-      if (box.runs) {
-        drawRuns(ctx, box.runs, box.center, LAYOUT.fontSize, LAYOUT.lineHeight);
-      } else {
-        ctx.font = `16px ${FONT_STACK_SANS}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        for (let k = 0; k < box.lines.length; k++) {
-          const y =
-            box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
-          ctx.fillText(box.lines[k], box.center.x, y);
+      if (
+        node.shape !== 'smallCircle' &&
+        node.shape !== 'filledCircle' &&
+        node.shape !== 'forkBar'
+      ) {
+        ctx.fillStyle = st.text;
+        if (box.runs) {
+          drawRuns(ctx, box.runs, box.center, LAYOUT.fontSize, LAYOUT.lineHeight);
+        } else {
+          drawNodeLines(ctx, box, textProg);
         }
       }
     }
 
     if (options.selection?.kind === 'node' && options.selection.id === node.id) {
       ctx.beginPath();
-      traceNodePath(ctx, box, node.shape);
+      if (options.cardMode === 'workflow') {
+        ctx.roundRect(box.center.x - 32, box.center.y - 32, 64, 64, 16);
+      } else if (options.cardMode === 'pipeline' && node.shape === 'diamond') {
+        traceRoundedDiamond(ctx, box, 10);
+      } else {
+        traceNodePath(ctx, box, node.shape);
+      }
       ctx.strokeStyle = theme.selection;
       ctx.lineWidth = 3;
       ctx.stroke();
     }
 
-    if (isDimmed) {
-      ctx.globalAlpha = 1;
-    }
+    ctx.globalAlpha = 1;
   }
 
   // 8. Selection of edge or group

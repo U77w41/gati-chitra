@@ -1,4 +1,5 @@
-import type { Point, TextRun } from '../core/types';
+import { FONT_STACK_SANS, LAYOUT } from '../core/constants';
+import type { NodeBox, Point, TextRun } from '../core/types';
 import { fontString } from '../layout/measure';
 
 export function drawRuns(
@@ -23,6 +24,37 @@ export function drawRuns(
       ctx.font = fontString(fontSize, r);
       ctx.fillText(r.text, curX, y);
       curX += ctx.measureText(r.text).width;
+    }
+  }
+}
+
+export function drawNodeLines(
+  ctx: CanvasRenderingContext2D,
+  box: NodeBox,
+  textProg: number | undefined,
+): void {
+  ctx.font = `16px ${FONT_STACK_SANS}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const totalChars = box.lines.reduce((acc, l) => acc + l.length, 0);
+  const visibleChars =
+    textProg !== undefined
+      ? Math.floor(totalChars * Math.max(0, Math.min(1, textProg)))
+      : totalChars;
+  let charAcc = 0;
+  for (let k = 0; k < box.lines.length; k++) {
+    const line = box.lines[k];
+    let dispLine = line;
+    if (textProg !== undefined) {
+      const start = charAcc;
+      const end = charAcc + line.length;
+      if (visibleChars <= start) dispLine = '';
+      else if (visibleChars < end) dispLine = line.slice(0, visibleChars - start);
+      charAcc += line.length;
+    }
+    if (dispLine) {
+      const y = box.center.y + (k - (box.lines.length - 1) / 2) * LAYOUT.lineHeight;
+      ctx.fillText(dispLine, box.center.x, y);
     }
   }
 }
