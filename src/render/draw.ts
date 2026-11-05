@@ -108,7 +108,7 @@ export function drawScene(
 
   // 5. Dash overlay
   if (frame.dashOffset !== null) {
-    drawEdgeDashOverlay(ctx, scene, theme, frame.dashOffset);
+    drawEdgeDashOverlay(ctx, scene, theme, frame.dashOffset, frame.edgeGrow);
   }
 
   // 6. Particles

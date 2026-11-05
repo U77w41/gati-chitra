@@ -263,6 +263,21 @@ describe('draw', () => {
     expect(calls.some((c) => c.name === 'fillText' && c.args[0] === '?')).toBe(true);
   });
 
+  it('does not draw the dash overlay over edges that have not grown in yet', () => {
+    const text = 'flowchart LR\nA --> B';
+    const dashCount = (frame: Partial<FrameState>) =>
+      draw(text, {}, { dashOffset: -5, ...frame }).filter(
+        (c) => c.name === 'set:lineDashOffset' && c.args[0] === -5,
+      ).length;
+    const scene = buildScene(parseMermaid(text), testMeasure);
+    const edgeId = scene.doc.edges[0].id;
+
+    expect(dashCount({ edgeGrow: { [edgeId]: 0 } })).toBe(0);
+    expect(dashCount({ edgeGrow: { [edgeId]: 0.5 } })).toBe(0);
+    expect(dashCount({ edgeGrow: { [edgeId]: 1 } })).toBe(1);
+    expect(dashCount({})).toBe(1);
+  });
+
   it('renders 64x64 icon tiles with trigger badge in workflow cardMode', () => {
     const text = 'flowchart TD\nA["Form Submitted"] --> B["Approval"]';
     const calls = draw(text, { cardMode: 'workflow' });

@@ -6,9 +6,11 @@ import { withNodeAt } from '../layout/scene';
 import { drawBackground, drawScene } from '../render/draw';
 import { composeTheme } from '../render/themes';
 import type { AppState } from './state';
+//
 
 let dirty = true;
 let drawCount = 0;
+//
 
 export function shouldDraw(s: {
   dirty: boolean;
@@ -36,8 +38,7 @@ export interface RenderLoopEnv {
   ctx: CanvasRenderingContext2D;
   getState: () => AppState;
   measure: MeasureText;
-  startTime: number;
-  getPausedPhase: () => number;
+  getElapsed: () => number;
   getFocus?: () => Focus | null;
   isPresenting?: () => boolean;
   onResize?: () => void;
@@ -49,8 +50,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
     ctx,
     getState,
     measure,
-    startTime,
-    getPausedPhase,
+    getElapsed,
     getFocus,
     isPresenting,
     onResize,
@@ -121,10 +121,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
 
     if (sceneToDraw) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const elapsed = (performance.now() - startTime) / 1000;
-      const phase = state.paused
-        ? getPausedPhase()
-        : phaseAt(elapsed, state.settings.anim);
+      const phase = phaseAt(getElapsed(), state.settings.anim);
       const frame = frameState(sceneToDraw, state.settings.anim, phase);
       const connectPreview =
         state.editor.connect && sceneToDraw.layout.nodes[state.editor.connect.fromId]

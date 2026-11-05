@@ -36,7 +36,7 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ## 2a. Latest Session (2026-11-05): Pipeline Card Text Alignment
 
-**Status: uncommitted.** The owner asked that nothing be committed or pushed. Every change below is in the working tree on `main`, on top of `82db4a4`.
+**Status: committed by the owner** as `9f3f4e2` ("v0.8.0 minor improvements") and pushed to `origin/main`.
 
 **Bug:** With Card set to Pipeline, node labels did not line up with their nodes. Diamond labels started near the diamond's left tip and ran outside the slanted edges. On cards, every wrapped line after the first was joined into one row, so long subtitles ran past the card's right edge (for example "F. Alerted, but Bank marked it FP before the complaint").
 
@@ -63,7 +63,35 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 - `npm run test:e2e`: 309 passed, 16 skipped (conditional cases, as before), 0 failed.
 - Checked by eye in the dev server with the screenshot's flowchart in Pipeline mode: diamond labels are centred and card subtitles wrap inside their cards.
 
-**Open:** commit these changes when the owner asks. Suggested message: `fix: align pipeline card labels with their nodes`.
+---
+
+## 2b. Latest Session, Part 2 (2026-11-05): Pause/Play and Build Connectors
+
+**Status: uncommitted.** The owner asked that agents not commit or push. These changes are in the working tree on `main`, on top of `9f3f4e2`.
+
+**Bug 1, Pause/Play in build and typewriter modes:** Pause froze the frame, but Play did not continue from it. The render loop computed the phase from wall-clock time (`performance.now() - startTime`), so after a pause of N seconds the animation skipped N seconds ahead. In pulse, traffic or dash mode that is barely visible. In build and typewriter modes it jumps to a different stage, or restarts the build, so Play looked broken.
+
+**Fix:** new `src/anim/clock.ts` (`createAnimClock`), which leaves paused time out of `elapsed()`. `src/app/ui.ts` pauses and resumes the clock from the Pause button's callback, and pauses it at startup when reduced motion starts the app paused. `RenderLoopEnv` in `src/app/render-loop.ts` now takes `getElapsed` instead of `startTime` and `getPausedPhase`.
+
+**Bug 2, connectors always visible in build mode:** `frameStateBuild` always returns a `dashOffset`, and `drawEdgeDashOverlay` (`src/render/draw-edges.ts`) stroked every edge at full length, whatever its `edgeGrow`. Connectors showed before their nodes appeared. Typewriter returns a `dashOffset` only after p 0.78, when every edge has grown, so it was unaffected.
+
+**Fix:** `drawEdgeDashOverlay` takes `frame.edgeGrow` and skips any edge whose grow value is below 1. Edges in non-build styles have no `edgeGrow`, so they are drawn as before.
+
+**Tests:**
+- `src/anim/clock.test.ts` (4 tests): runs, freezes when paused, resumes without skipping ahead, ignores repeated calls.
+- `src/render/draw.test.ts`: a new test checks that no dash overlay is drawn for edges with grow 0 or 0.5, and one is drawn at grow 1 or with no grow value.
+- `tests/e2e/preview.spec.ts`: a new test, "build animation resumes from the paused frame instead of skipping ahead", pauses build mode for 2 s, presses Play, and checks that under 0.4% of pixels changed. Measured on Chromium and Firefox: under 0.1% with the fix, about 1.1% with the old render loop (it failed 6 of 6 runs without the fix). Skipped on WebKit for the same reason as the existing animation test (section 6).
+
+**Checks run on 2026-11-05 after this part:**
+- `npm test`: 422 tests passing across 63 files.
+- `npm run lint`: clean.
+- `npm run build` with `BASE_PATH=/gati-chitra/`: passes.
+- `npm run check:dist`: initial JS 131.33 KB gzip, largest lazy chunk 57.27 KB gzip, `OK`.
+- `npm run test:e2e`: 311 passed, 17 skipped (the earlier 16 plus the new test on WebKit), 0 failed.
+
+**Not checked by eye:** the browser pane was hidden during this session, which throttles animation frames, so the build-connector fix is covered by the unit test only.
+
+**Open:** commit when the owner asks. Suggested message: `fix: resume build animations from the paused frame and hide ungrown connectors`.
 
 ---
 

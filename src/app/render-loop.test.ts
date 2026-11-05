@@ -31,8 +31,7 @@ describe('render-loop', () => {
         ctx: {} as unknown as CanvasRenderingContext2D,
         getState: () => createState('flowchart TD\nA-->B', { theme: 'auto', anim: DEFAULT_ANIM, split: 0.33 }),
         measure: () => 10,
-        startTime: 0,
-        getPausedPhase: () => 0,
+        getElapsed: () => 0,
       });
 
       expect(fakeCanvas.width).toBe(640);

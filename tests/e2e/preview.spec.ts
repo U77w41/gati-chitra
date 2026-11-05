@@ -120,6 +120,37 @@ test.describe('Live preview and app shell', () => {
     expect(snapPaused1).toEqual(snapPaused2);
   });
 
+  test('build animation resumes from the paused frame instead of skipping ahead', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit canvas readback is blank under CI CPU contention (see handoff.md section 6)');
+    await page.goto('./?e2e=1');
+    await page.selectOption('#anim-style', 'build');
+    await page.waitForTimeout(300);
+
+    await page.click('#anim-pause');
+    await page.waitForTimeout(100);
+    await page.evaluate(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
+      (window as any).__pausedPixels = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+    });
+    // Half of the 4 s loop: before the fix, Play jumped this far into the build.
+    await page.waitForTimeout(2000);
+    await page.click('#anim-pause');
+    await page.waitForTimeout(30);
+
+    const changedShare = await page.evaluate(() => {
+      const c = document.querySelector<HTMLCanvasElement>('#canvas')!;
+      const now = c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data;
+      const before = (window as any).__pausedPixels as Uint8ClampedArray;
+      let changed = 0;
+      for (let i = 0; i < now.length; i += 4) {
+        if (Math.abs(now[i] - before[i]) + Math.abs(now[i + 1] - before[i + 1]) + Math.abs(now[i + 2] - before[i + 2]) > 30) changed++;
+      }
+      return changed / (now.length / 4);
+    });
+    // Measured: under 0.001 with the fix, about 0.011 when Play skipped ahead.
+    expect(changedShare).toBeLessThan(0.004);
+  });
+
   test('wheel zoom over canvas changes view zoom', async ({ page }) => {
     await page.goto('./?e2e=1');
 

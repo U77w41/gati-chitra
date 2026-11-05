@@ -1,6 +1,6 @@
 import { MESSAGES, TIMING } from '../core/constants';
 import type { TextOp } from '../core/types';
-import { phaseAt } from '../anim/anim';
+import { createAnimClock } from '../anim/clock';
 import { fitView, screenToWorld, zoomAt } from '../editor/view';
 import { canvasMeasure } from '../layout/measure';
 import { applyOp } from '../mermaid/ops';
@@ -50,8 +50,7 @@ export async function initApp(): Promise<void> {
 
   let hasFitted = false;
   let parseTimer: ReturnType<typeof setTimeout> | null = null;
-  let pausedPhase = 0;
-  const startTime = performance.now();
+  const clock = createAnimClock(() => performance.now());
 
   function doUndo(): void { commit('', 'undo'); }
   function doRedo(): void { commit('', 'redo'); }
@@ -243,8 +242,10 @@ export async function initApp(): Promise<void> {
     nodeShadingEl: document.querySelector('#node-shading'),
     cardModeEl: document.querySelector('#card-mode'),
   }, () => state, store, (paused) => {
-    if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
+    if (paused) clock.pause();
+    else clock.resume();
   });
+  if (state.paused) clock.pause();
 
   setupKeyboardShortcuts({
     onUndo: doUndo, onRedo: doRedo, onFit: triggerFit,
@@ -266,8 +267,8 @@ export async function initApp(): Promise<void> {
   });
 
   startRenderLoop({
-    canvasEl, ctx, getState: () => state, measure, startTime,
-    getPausedPhase: () => pausedPhase, getFocus: present.getCurrentFocus,
+    canvasEl, ctx, getState: () => state, measure,
+    getElapsed: clock.elapsed, getFocus: present.getCurrentFocus,
     isPresenting: present.isPresenting,
     onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });

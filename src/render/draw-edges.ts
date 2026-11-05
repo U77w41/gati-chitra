@@ -223,9 +223,13 @@ export function drawEdgeDashOverlay(
   scene: Scene,
   theme: Theme,
   dashOffset: number,
+  edgeGrow?: Record<string, number>,
 ): void {
   for (const edge of scene.doc.edges) {
     if (edge.kind === 'invisible') continue;
+    // A full-length dashed stroke over a half-grown edge would reveal it before the build reaches it.
+    const grow = edgeGrow?.[edge.id];
+    if (grow !== undefined && grow < 1) continue;
     const path = scene.layout.edges[edge.id];
     if (!path) continue;
     ctx.beginPath();
