@@ -16,6 +16,8 @@ describe('chrome', () => {
       expect(h).toContain('class="brand-name">Gati Chitra<');
       expect(h).toContain('aria-label="Gati-chitra home"');
       expect(h).toContain('id="theme-toggle"');
+      expect(h).toContain('id="btn-install"');
+      expect(h).toContain('id="btn-help"');
       expect(h).toContain('aria-label="Main"');
       expect(h).toContain('href="https://u77w41.github.io/resume/"');
       expect(h).toContain('Support my work');

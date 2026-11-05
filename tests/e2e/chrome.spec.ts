@@ -23,6 +23,20 @@ test.describe('Site Chrome and Scheme', () => {
 
     const themeToggle = page.locator('#theme-toggle');
     await expect(themeToggle).toHaveAttribute('aria-label', /colour scheme/i);
+
+    const installBtn = page.locator('#btn-install');
+    await expect(installBtn).toBeVisible();
+    await expect(installBtn).toContainText('Install');
+    await expect(installBtn.locator('svg.icon-install')).toBeVisible();
+
+    const helpBtn = page.locator('#btn-help');
+    await expect(helpBtn).toBeVisible();
+    await expect(helpBtn).toContainText('Help');
+    await expect(helpBtn.locator('svg.icon-help')).toBeVisible();
+
+    await helpBtn.click();
+    await expect(page.locator('#help-dialog')).toBeVisible();
+    await page.locator('#help-close').click();
   });
 
   test('footer renders copyright, meta, and navigation links', async ({ page }) => {

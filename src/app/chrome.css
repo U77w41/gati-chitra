@@ -90,14 +90,17 @@ button { font: inherit; color: inherit; }
 
 .site-nav { grid-area: nav; }
 .site-nav ul { display: flex; gap: 4px; margin: 0; padding: 0; list-style: none; }
-.site-nav a {
+.site-nav a,
+.site-nav-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 7px 12px; border: none; border-radius: var(--radius-control);
   background: transparent; color: var(--text-body);
   font-family: inherit; font-size: 15px; white-space: nowrap; text-decoration: none; cursor: pointer;
   transition: background-color .2s, color .2s, border-color .2s;
 }
-.site-nav a:hover { color: var(--text-main); background: var(--card-background-muted); }
+.site-nav a:hover,
+.site-nav-btn:hover { color: var(--text-main); background: var(--card-background-muted); }
+.site-nav-btn[hidden] { display: none !important; }
 .nav-icon { flex-shrink: 0; width: 18px; height: 18px; }
 .support-link-item .heart-icon,
 .footer-support .heart-icon { fill: none; transition: fill .2s, stroke .2s; }
@@ -166,12 +169,15 @@ button { font: inherit; color: inherit; }
 @media (width <= 768px) {
   .header-inner { grid-template-columns: 1fr auto; grid-template-areas: "brand toggle" "nav nav"; min-height: 0; padding-bottom: 8px; }
   .site-nav { padding-top: 8px; }
-  .site-nav a.nav-text-desktop .nav-label { display: none; }
-  .site-nav a.nav-text-desktop {
+  .site-nav a.nav-text-desktop .nav-label,
+  .site-nav .site-nav-btn.nav-text-desktop .nav-label { display: none; }
+  .site-nav a.nav-text-desktop,
+  .site-nav .site-nav-btn.nav-text-desktop {
     justify-content: center; width: 40px; height: 40px; padding: 0;
     border: 1px solid var(--border); border-radius: 50%;
   }
-  .site-nav a.nav-text-desktop:hover { border-color: var(--border-strong); }
+  .site-nav a.nav-text-desktop:hover,
+  .site-nav .site-nav-btn.nav-text-desktop:hover { border-color: var(--border-strong); }
   .mobile-hide { display: none !important; }
   .menu-social-dropdown { position: static; }
   .menu-social-dropdown-toggle {

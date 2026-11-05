@@ -49,6 +49,12 @@ export function headerHtml(): string {
     '<nav class="site-nav" aria-label="Main">' +
     '<ul>' +
     '<li>' +
+    `<button type="button" class="site-nav-btn nav-text-desktop" id="btn-install" title="Install Gati-chitra as an app" aria-label="Install Gati-chitra as an app">${ICONS.install}<span class="nav-label">Install</span></button>` +
+    '</li>' +
+    '<li>' +
+    `<button type="button" class="site-nav-btn nav-text-desktop" id="btn-help" title="Help and keyboard shortcuts (?)" aria-label="Help and keyboard shortcuts">${ICONS.help}<span class="nav-label">Help</span></button>` +
+    '</li>' +
+    '<li>' +
     '<div class="menu-social-dropdown">' +
     '<button type="button" class="menu-social-dropdown-toggle nav-text-desktop" id="tools-toggle" title="My Other Tools" aria-label="My Other Tools" aria-haspopup="true" aria-expanded="false" aria-controls="menu-social-dropdown-tools">' +
     ICONS.grid +
