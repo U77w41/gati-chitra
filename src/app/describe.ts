@@ -18,7 +18,7 @@ export function announceSelection(doc: ParsedDoc, sel: Selection | null): string
   if (sel.kind === 'node') {
     const node = doc.nodes.find((n) => n.id === sel.id);
     if (!node) return 'No selection.';
-    const shapeName = SHAPE_NAMES[node.shape] ?? 'Rectangle';
+    const shapeName = (SHAPE_NAMES as Record<string, string>)[node.shape] ?? 'Rectangle';
     const labelPart = node.label && node.label !== node.id ? `, ${node.label}` : '';
     const inCount = doc.edges.filter((e) => e.kind !== 'invisible' && e.to === node.id).length;
     const outCount = doc.edges.filter((e) => e.kind !== 'invisible' && e.from === node.id).length;

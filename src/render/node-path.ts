@@ -2,6 +2,7 @@ import { LAYOUT } from '../core/constants';
 import type { NodeBox, ShapeKind } from '../core/types';
 import { shapePolygon } from '../layout/geometry';
 import { traceDocument } from './shapes-extra';
+import { traceExtraShape } from './shapes-new';
 
 export function traceNodePath(
   ctx: CanvasPath,
@@ -69,6 +70,15 @@ export function traceNodePath(
       ctx.closePath();
       break;
     }
+    case 'note':
+    case 'ellipse':
+    case 'cloud':
+    case 'bang':
+    case 'blockArrow':
+      traceExtraShape(ctx, box, shape);
+      break;
+    case 'actor':
+      break;
     case 'subroutine':
     default:
       ctx.roundRect(l, t, w, h, LAYOUT.rectRadius);

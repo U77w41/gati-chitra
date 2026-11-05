@@ -13,7 +13,8 @@ export type FlowShapeKind =
   | 'hexagon' | 'parallelogram' | 'parallelogramAlt' | 'cylinder' | 'subroutine'
   | 'trapezoid' | 'trapezoidAlt' | 'doubleCircle' | 'asymmetric' | 'document'
   | 'smallCircle' | 'filledCircle' | 'framedCircle' | 'forkBar' | 'text';
-export type ShapeKind = FlowShapeKind;
+export type ExtraShapeKind = 'note' | 'actor' | 'ellipse' | 'cloud' | 'bang' | 'blockArrow';
+export type ShapeKind = FlowShapeKind | ExtraShapeKind;
 
 export type MarkerKind =
   | 'none' | 'arrow' | 'circle' | 'cross' | 'openArrow' | 'triangle' | 'diamond' | 'diamondFilled'

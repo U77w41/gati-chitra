@@ -90,6 +90,97 @@ export function shapePolygon(box: NodeBox, shape: ShapeKind): Point[] | null {
         { x: cx - w / 2 + notch, y: cy },
       ];
     }
+    case 'bang': {
+      const pts: Point[] = [];
+      const rx = w / 2;
+      const ry = h / 2;
+      for (let k = 0; k < 16; k++) {
+        const angle = (k * 2 * Math.PI) / 16;
+        const factor = k % 2 === 0 ? 1 : 0.75;
+        pts.push({
+          x: cx + Math.cos(angle) * rx * factor,
+          y: cy + Math.sin(angle) * ry * factor,
+        });
+      }
+      return pts;
+    }
+    case 'blockArrow': {
+      const dir = box.arrowDir ?? 'right';
+      const l = cx - w / 2;
+      const r = cx + w / 2;
+      const t = cy - h / 2;
+      const b = cy + h / 2;
+      if (dir === 'left') {
+        return [
+          { x: r, y: cy - h / 4 },
+          { x: l + h / 2, y: cy - h / 4 },
+          { x: l + h / 2, y: t },
+          { x: l, y: cy },
+          { x: l + h / 2, y: b },
+          { x: l + h / 2, y: cy + h / 4 },
+          { x: r, y: cy + h / 4 },
+        ];
+      }
+      if (dir === 'down') {
+        return [
+          { x: cx - w / 4, y: t },
+          { x: cx - w / 4, y: b - w / 2 },
+          { x: l, y: b - w / 2 },
+          { x: cx, y: b },
+          { x: r, y: b - w / 2 },
+          { x: cx + w / 4, y: b - w / 2 },
+          { x: cx + w / 4, y: t },
+        ];
+      }
+      if (dir === 'up') {
+        return [
+          { x: cx - w / 4, y: b },
+          { x: cx - w / 4, y: t + w / 2 },
+          { x: l, y: t + w / 2 },
+          { x: cx, y: t },
+          { x: r, y: t + w / 2 },
+          { x: cx + w / 4, y: t + w / 2 },
+          { x: cx + w / 4, y: b },
+        ];
+      }
+      if (dir === 'x') {
+        return [
+          { x: l, y: cy },
+          { x: l + h / 2, y: t },
+          { x: l + h / 2, y: cy - h / 4 },
+          { x: r - h / 2, y: cy - h / 4 },
+          { x: r - h / 2, y: t },
+          { x: r, y: cy },
+          { x: r - h / 2, y: b },
+          { x: r - h / 2, y: cy + h / 4 },
+          { x: l + h / 2, y: cy + h / 4 },
+          { x: l + h / 2, y: b },
+        ];
+      }
+      if (dir === 'y') {
+        return [
+          { x: cx, y: t },
+          { x: r, y: t + w / 2 },
+          { x: cx + w / 4, y: t + w / 2 },
+          { x: cx + w / 4, y: b - w / 2 },
+          { x: r, y: b - w / 2 },
+          { x: cx, y: b },
+          { x: l, y: b - w / 2 },
+          { x: cx - w / 4, y: b - w / 2 },
+          { x: cx - w / 4, y: t + w / 2 },
+          { x: l, y: t + w / 2 },
+        ];
+      }
+      return [
+        { x: l, y: cy - h / 4 },
+        { x: r - h / 2, y: cy - h / 4 },
+        { x: r - h / 2, y: t },
+        { x: r, y: cy },
+        { x: r - h / 2, y: b },
+        { x: r - h / 2, y: cy + h / 4 },
+        { x: l, y: cy + h / 4 },
+      ];
+    }
     default:
       return null;
   }
@@ -114,6 +205,13 @@ export function borderPoint(box: NodeBox, shape: ShapeKind, toward: Point): Poin
       x: c.x + (d.x / len) * (box.width / 2),
       y: c.y + (d.y / len) * (box.width / 2),
     };
+  }
+
+  if (shape === 'ellipse' || shape === 'cloud') {
+    const a = box.width / 2;
+    const b = box.height / 2;
+    const s = 1 / Math.sqrt((d.x / a) ** 2 + (d.y / b) ** 2);
+    return { x: c.x + d.x * s, y: c.y + d.y * s };
   }
 
   const poly = shapePolygon(box, shape);

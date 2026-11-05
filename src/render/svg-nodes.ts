@@ -6,6 +6,7 @@ import { svgIcon } from './icons';
 import { labelCenter } from './label-pos';
 import { svgSections } from './sections';
 import { documentPathData, ringRadii } from './shapes-extra';
+import { extraShapePath, svgActorFigure, svgNoteFold } from './shapes-new';
 import { nodeStyle } from './style';
 import { fmt } from './svg';
 import { escapeXml } from './xml';
@@ -100,6 +101,19 @@ export function svgNodes(
         out += `<line x1="${fmt(l + 8)}" y1="${fmt(t)}" x2="${fmt(l + 8)}" y2="${fmt(b)}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
         out += `<line x1="${fmt(r - 8)}" y1="${fmt(t)}" x2="${fmt(r - 8)}" y2="${fmt(b)}" stroke="${st.stroke}" stroke-width="${fmt(st.strokeWidth)}"/>`;
         break;
+      case 'actor':
+        out += svgActorFigure(box, st.stroke, st.strokeWidth);
+        break;
+      case 'note':
+        out += `<path d="${extraShapePath(box, 'note')}" ${strokeAttr}/>`;
+        out += svgNoteFold(box, st.stroke, st.strokeWidth);
+        break;
+      case 'ellipse':
+      case 'cloud':
+      case 'bang':
+      case 'blockArrow':
+        out += `<path d="${extraShapePath(box, node.shape)}" ${strokeAttr}/>`;
+        break;
       default:
         out += `<rect x="${fmt(l)}" y="${fmt(t)}" width="${fmt(w)}" height="${fmt(h)}" rx="4" ${strokeAttr}/>`;
         break;
@@ -144,11 +158,12 @@ export function svgNodes(
       node.shape !== 'filledCircle' &&
       node.shape !== 'forkBar'
     ) {
+      const center = node.shape === 'actor' ? labelCenter(node, box) : box.center;
       if (box.runs) {
         const nLines = box.runs.length;
         for (let k = 0; k < nLines; k++) {
-          const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
-          out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">`;
+          const lineY = center.y + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+          out += `<text x="${fmt(center.x)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">`;
           for (const run of box.runs[k]) {
             let attrs = '';
             if (run.bold) attrs += ' font-weight="bold"';
@@ -160,8 +175,8 @@ export function svgNodes(
       } else {
         const nLines = box.lines.length;
         for (let k = 0; k < nLines; k++) {
-          const lineY = cy + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
-          out += `<text x="${fmt(cx)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
+          const lineY = center.y + (k - (nLines - 1) / 2) * LAYOUT.lineHeight;
+          out += `<text x="${fmt(center.x)}" y="${fmt(lineY)}" dy="0.35em" text-anchor="middle" font-size="16" fill="${st.text}">${escapeXml(box.lines[k])}</text>`;
         }
       }
     }

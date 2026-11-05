@@ -190,7 +190,7 @@ export function applyOp(text: string, op: TextOp): TextOpResult {
     const { index, indent } = getInsertionInfo(doc);
     const nodeLine =
       tok === null
-        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[op.shape]}, label: "${formatLabel(op.label)}" }`
+        ? `${indent}${id}@{ shape: ${(SHAPE_SHORT as Record<string, string>)[op.shape]}, label: "${formatLabel(op.label)}" }`
         : `${indent}${id}${tok.open}${formatLabel(op.label)}${tok.close}`;
     lines.splice(index + 1, 0, nodeLine);
     const trailing = text.endsWith('\n') ? '\n' : '';

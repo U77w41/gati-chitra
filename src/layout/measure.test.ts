@@ -56,4 +56,16 @@ describe('measure', () => {
     const iconned = sizeNode({ ...base, icon: 'server' }, testMeasure, 'TB');
     expect(iconned.height).toBe(plain.height + 38);
   });
+
+  it.each([
+    ['note', 86, 44], ['ellipse', 99, 58], ['cloud', 103, 60], ['bang', 107, 62], ['blockArrow', 116, 44],
+  ] as const)('sizes %s', (shape, w, h) => {
+    const n = { ...parseMermaid('flowchart TD\nA[Login]').nodes[0], shape, arrowDir: 'right' as const };
+    expect(sizeNode(n, testMeasure, 'TB')).toMatchObject({ width: w, height: h });
+  });
+
+  it('sizes an actor around its figure and label', () => {
+    const n = { ...parseMermaid('flowchart TD\nA[User]').nodes[0], shape: 'actor' as const };
+    expect(sizeNode(n, testMeasure, 'TB')).toMatchObject({ width: 40, height: 80 });
+  });
 });

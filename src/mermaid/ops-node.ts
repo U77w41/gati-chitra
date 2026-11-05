@@ -162,7 +162,7 @@ export function renameNodeInternal(
                 const tokens = shapeTokens(tok.ref.shape);
                 replacement =
                   tokens === null
-                    ? `${id}@{ shape: ${SHAPE_SHORT[tok.ref.shape]}, label: "${newLabel}" }${classSuffix}`
+                    ? `${id}@{ shape: ${(SHAPE_SHORT as Record<string, string>)[tok.ref.shape]}, label: "${newLabel}" }${classSuffix}`
                     : `${id}${tokens.open}${newLabel}${tokens.close}${classSuffix}`;
               }
               edits.push({
@@ -186,7 +186,7 @@ export function renameNodeInternal(
     const indent = indentOf(lines[firstRefLineIndex]);
     const newLine =
       tokens === null
-        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[targetNode.shape]}, label: "${newLabel}" }`
+        ? `${indent}${id}@{ shape: ${(SHAPE_SHORT as Record<string, string>)[targetNode.shape]}, label: "${newLabel}" }`
         : `${indent}${id}${tokens.open}${newLabel}${tokens.close}`;
     lines.splice(firstRefLineIndex + 1, 0, newLine);
   }
@@ -229,12 +229,12 @@ export function setShapeInternal(
               if (tokText.includes('@{')) {
                 const shapeRegex = /shape\s*:\s*[A-Za-z0-9_-]+/;
                 if (shapeRegex.test(tokText)) {
-                  replacement = tokText.replace(shapeRegex, `shape: ${SHAPE_SHORT[shape]}`);
+                  replacement = tokText.replace(shapeRegex, `shape: ${(SHAPE_SHORT as Record<string, string>)[shape]}`);
                 } else {
-                  replacement = tokText.replace(/@\{\s*/, `@{ shape: ${SHAPE_SHORT[shape]}, `);
+                  replacement = tokText.replace(/@\{\s*/, `@{ shape: ${(SHAPE_SHORT as Record<string, string>)[shape]}, `);
                 }
               } else if (newTokens === null) {
-                replacement = `${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${formatLabel(rawLabel)}" }${classSuffix}`;
+                replacement = `${id}@{ shape: ${(SHAPE_SHORT as Record<string, string>)[shape]}, label: "${formatLabel(rawLabel)}" }${classSuffix}`;
               } else {
                 replacement = `${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}${classSuffix}`;
               }
@@ -259,7 +259,7 @@ export function setShapeInternal(
     const rawLabel = targetNode.label;
     const newLine =
       newTokens === null
-        ? `${indent}${id}@{ shape: ${SHAPE_SHORT[shape]}, label: "${rawLabel}" }`
+        ? `${indent}${id}@{ shape: ${(SHAPE_SHORT as Record<string, string>)[shape]}, label: "${rawLabel}" }`
         : `${indent}${id}${newTokens.open}${formatLabel(rawLabel)}${newTokens.close}`;
     lines.splice(firstRefLineIndex + 1, 0, newLine);
   }

@@ -155,4 +155,19 @@ describe('geometry', () => {
     expect(dist(pointOnPath(e0, 0.5), pointOnPath(e1, 0.5))).toBeGreaterThanOrEqual(LAYOUT.parallelOffset - 0.5);
     expect(dist(e0.from, e1.to)).toBeGreaterThanOrEqual(10);
   });
+
+  it('finds ellipse border points', () => {
+    const b = { id: 'A', center: { x: 0, y: 0 }, width: 100, height: 50, lines: [] };
+    expect(borderPoint(b, 'ellipse', { x: 100, y: 0 })).toEqual({ x: 50, y: 0 });
+    const p = borderPoint(b, 'ellipse', { x: 0, y: 100 });
+    expect(p.x).toBeCloseTo(0); expect(p.y).toBeCloseTo(25);
+  });
+
+  it('makes bang and block arrow polygons', () => {
+    const b = { id: 'A', center: { x: 0, y: 0 }, width: 120, height: 40, lines: [], arrowDir: 'right' as const };
+    expect(shapePolygon(b, 'bang')).toHaveLength(16);
+    const arrow = shapePolygon(b, 'blockArrow')!;
+    expect(arrow).toHaveLength(7);
+    expect(arrow[3]).toEqual({ x: 60, y: 0 });
+  });
 });

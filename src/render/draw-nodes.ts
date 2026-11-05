@@ -7,6 +7,7 @@ import { traceNodePath } from './node-path';
 import { drawPipelineNode, traceRoundedDiamond } from './pipeline-cards';
 import { drawSections } from './sections';
 import { drawNodeInnerLines } from './shapes-extra';
+import { drawActorFigure, drawNoteFold } from './shapes-new';
 import { nodeStyle } from './style';
 import { drawWorkflowTile } from './workflow-cards';
 
@@ -60,7 +61,9 @@ export function drawNodes(
         ctx.globalAlpha,
       );
     } else {
-      if (node.shape !== 'text') {
+      if (node.shape === 'actor') {
+        drawActorFigure(ctx, box, st.stroke, st.strokeWidth);
+      } else if (node.shape !== 'text') {
         ctx.beginPath();
         traceNodePath(ctx, box, node.shape);
         if (hasGlow) {
@@ -75,6 +78,9 @@ export function drawNodes(
         ctx.strokeStyle = st.stroke;
         ctx.stroke();
         drawNodeInnerLines(ctx, box, node.shape);
+        if (node.shape === 'note') {
+          drawNoteFold(ctx, box);
+        }
       }
 
       if (box.sections && box.sections.length > 0) {
@@ -103,10 +109,11 @@ export function drawNodes(
         node.shape !== 'forkBar'
       ) {
         ctx.fillStyle = st.text;
+        const center = node.shape === 'actor' ? labelCenter(node, box) : box.center;
         if (box.runs) {
-          drawRuns(ctx, box.runs, box.center, LAYOUT.fontSize, LAYOUT.lineHeight);
+          drawRuns(ctx, box.runs, center, LAYOUT.fontSize, LAYOUT.lineHeight);
         } else {
-          drawNodeLines(ctx, box, textProg);
+          drawNodeLines(ctx, box, textProg, center);
         }
       }
     }
@@ -117,6 +124,13 @@ export function drawNodes(
         ctx.roundRect(box.center.x - 32, box.center.y - 32, 64, 64, 16);
       } else if (options.cardMode === 'pipeline' && node.shape === 'diamond') {
         traceRoundedDiamond(ctx, box, 10);
+      } else if (node.shape === 'actor') {
+        ctx.rect(
+          box.center.x - box.width / 2,
+          box.center.y - box.height / 2,
+          box.width,
+          box.height,
+        );
       } else {
         traceNodePath(ctx, box, node.shape);
       }

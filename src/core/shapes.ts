@@ -1,6 +1,6 @@
-import type { EdgeKind, ShapeKind } from './types';
+import type { EdgeKind, FlowShapeKind, ShapeKind } from './types';
 
-export const SHAPE_NAMES: Record<ShapeKind, string> = {
+export const SHAPE_NAMES: Record<FlowShapeKind, string> = {
   rect: 'Rectangle',
   round: 'Rounded',
   stadium: 'Stadium',
@@ -23,7 +23,7 @@ export const SHAPE_NAMES: Record<ShapeKind, string> = {
   text: 'Text only',
 };
 
-export const SHAPE_SHORT: Record<ShapeKind, string> = {
+export const SHAPE_SHORT: Record<FlowShapeKind, string> = {
   rect: 'rect',
   round: 'rounded',
   stadium: 'stadium',

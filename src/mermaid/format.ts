@@ -36,6 +36,12 @@ export function shapeTokens(shape: ShapeKind): { open: string; close: string } |
     case 'framedCircle':
     case 'forkBar':
     case 'text':
+    case 'note':
+    case 'actor':
+    case 'ellipse':
+    case 'cloud':
+    case 'bang':
+    case 'blockArrow':
       return null;
   }
 }

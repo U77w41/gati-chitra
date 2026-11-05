@@ -10,10 +10,13 @@ export function shapeShadeTier(shape: ShapeKind): 0 | 1 | 2 | 3 {
     case 'filledCircle':
     case 'framedCircle':
     case 'forkBar':
+    case 'ellipse':
       return 1;
     case 'diamond':
     case 'hexagon':
     case 'asymmetric':
+    case 'cloud':
+    case 'blockArrow':
       return 2;
     case 'cylinder':
     case 'parallelogram':
@@ -21,11 +24,14 @@ export function shapeShadeTier(shape: ShapeKind): 0 | 1 | 2 | 3 {
     case 'trapezoid':
     case 'trapezoidAlt':
     case 'document':
+    case 'note':
+    case 'bang':
       return 3;
     case 'rect':
     case 'round':
     case 'subroutine':
     case 'text':
+    case 'actor':
     default:
       return 0;
   }

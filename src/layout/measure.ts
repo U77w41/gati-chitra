@@ -137,6 +137,34 @@ export function sizeNode(
     case 'document':
       height += LAYOUT.documentWave;
       break;
+    case 'note':
+      width += LAYOUT.noteFold;
+      break;
+    case 'actor':
+      width = Math.max(LAYOUT.actorMinW, textW + 8);
+      height = LAYOUT.actorFigureH + lines.length * LAYOUT.lineHeight + 4;
+      break;
+    case 'ellipse':
+      width *= LAYOUT.ellipseScale;
+      height *= LAYOUT.ellipseScale;
+      break;
+    case 'cloud':
+      width *= LAYOUT.cloudScale;
+      height *= LAYOUT.cloudScale;
+      break;
+    case 'bang':
+      width *= LAYOUT.bangScale;
+      height *= LAYOUT.bangScale;
+      break;
+    case 'blockArrow': {
+      const dir = node.arrowDir ?? 'right';
+      if (dir === 'up' || dir === 'down' || dir === 'y') {
+        height += LAYOUT.blockArrowHead;
+      } else {
+        width += LAYOUT.blockArrowHead;
+      }
+      break;
+    }
     default:
       break;
   }

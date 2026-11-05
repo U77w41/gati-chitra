@@ -56,7 +56,7 @@ export function readNodeRef(s: string, pos: number): { ref: NodeRef; end: number
       } else {
         shape = sh.shape;
         if (sh.approx) {
-          nList.push({ severity: 'info', message: MESSAGES.shapeApprox(propRes.props.shape, SHAPE_NAMES[sh.shape]) });
+          nList.push({ severity: 'info', message: MESSAGES.shapeApprox(propRes.props.shape, (SHAPE_NAMES as Record<string, string>)[sh.shape]) });
         }
       }
     }
