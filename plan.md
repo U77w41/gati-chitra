@@ -3967,8 +3967,8 @@ Tick a box only after you have checked it. "By hand" boxes are for the owner, in
 
 ### v0.9.0 (D1)
 
-- [ ] `npm test`, `npm run lint`, `npm run build`, `npm run check:dist`, `npm run test:e2e` all pass.
-- [ ] Initial JS ≤ 150 KB gzip (write the number in `handoff.md`).
+- [x] `npm test`, `npm run lint`, `npm run build`, `npm run check:dist`, `npm run test:e2e` all pass.
+- [x] Initial JS ≤ 150 KB gzip (write the number in `handoff.md`).
 - [ ] By hand: every template in the gallery still opens and animates exactly as before, in light and dark mode.
 - [ ] By hand: typing `pie title Pets` shows "Pie chart is not supported yet…" on line 1, and the last picture stays.
 

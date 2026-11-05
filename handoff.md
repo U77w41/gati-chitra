@@ -16,22 +16,22 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
-## 2. Current State (v0.6.0)
+## 2. Current State (v0.9.0)
 
-- **Current plan**: `plan.md` (Tasks 64 to 103).
-- **Last verified**: 2026-11-04, locally. The WebKit animation test is skipped in CI; see section 6.
-- **Branch**: `main` (HEAD, pushed to `origin/main`). The local `improvements` branch is an older pointer at `821d484` and does not carry the two commits after it.
-- **Release commit**: `5cb55d7` (`chore: release v0.6.0`). The `v0.6.0` tag currently points at `821d484` (the commit that added this handoff), not at the release commit. Fixing the tag needs the owner's decision, because the tag may already exist on the remote.
+- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74) is complete; next is Milestone D2 (Tasks 75 to 81).
+- **Last verified**: 2026-11-05, locally.
+- **Branch**: `main` (ahead of origin by unpushed commits; never push without explicit user request).
+- **Release commit**: `chore: release v0.9.0` (tag `v0.9.0`).
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
-  - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked, with no task steps left open. The automated boxes in Part 7 are now ticked too. The remaining open boxes are by-hand, real-device, deployed-site and owner items.
-- **Checks run on 2026-11-04**:
-  - `npm test`: 389 tests passing across 57 files.
-  - `npm run lint`: 0 warnings, 0 errors across 154 files.
-  - `npm run build` with `BASE_PATH=/gati-chitra/`: passes, including both TypeScript configs.
-  - `npm run check:dist` on that build: initial JS 149.81 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
-  - `npm run test:e2e`: 310 passed, 15 skipped across `chromium` (103), `firefox` (103), `webkit` (103), `mobile-chrome` (8) and `mobile-safari` (8). The skipped tests are conditional mobile cases, not failures.
-  - Targeted re-run after the `a75627d` test change: `npx playwright test tests/e2e/perf.spec.ts tests/e2e/preview.spec.ts --project=chromium --project=firefox --project=webkit --repeat-each=3` gave 99 passed, and `npm run lint` stayed clean. None of it reproduced the CI failure; see section 6.
+  - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked.
+  - `plan.md` (Tasks 64 to 103): Milestone D1 (Tasks 64 to 74) complete; Task 74 automated boxes ticked in Part 10.
+- **Checks run on 2026-11-05 (v0.9.0 release)**:
+  - `npm test`: 507 tests passing across 80 files.
+  - `npm run lint`: 0 warnings, 0 errors across 215 files.
+  - `npm run build` with `BASE_PATH=/gati-chitra/`: passes, including service worker TypeScript config.
+  - `npm run check:dist` on that build: initial JS 136.47 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
+  - `npm run test:e2e`: 311 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
 
 ---
 
@@ -108,6 +108,39 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 **Before an agent starts:** Task 64 adds the `plan.md` pointer to `AGENTS.md`. Until then, tell the agent to read `plan.md` directly (the plan's "Running this plan" section has the prompts). Three existing tests use `sequenceDiagram` as their example of invalid input; Task 66 names the exact changes to them.
 
 **Mermaid reference used:** mermaid.js.org at version 12.3.0, read on 2026-11-05. Part 5.5 tells the agent to recheck the beta use case syntax online if it can.
+
+---
+
+## 2d. Milestone D1 Completion (Tasks 64 to 74) - v0.9.0
+
+**Status: complete and committed locally.**
+
+**What changed across Tasks 64 to 74:**
+- **Task 64:** Split node drawing (`src/render/draw-nodes.ts`), title placement (`src/layout/title.ts`), and wrap toggle (`src/app/wrap-toggle.ts`).
+- **Task 65:** Added core diagram types (`src/core/diagram-types.ts`, `src/core/types.ts`), layout constants (`src/core/constants.ts`), and error messages.
+- **Task 66:** Added diagram type detection (`src/diagrams/detect.ts`, `kinds.ts`), dynamic engine registry and lazy loading (`src/diagrams/registry.ts`, `flowchart-engine.ts`), parse dispatch (`src/diagrams/parse-any.ts`), op dispatch (`src/diagrams/apply-op.ts`), app state/scene wiring, and test corpus/e2e updates.
+- **Task 67:** Implemented shared parser prelude kit (`src/diagrams/common/prelude.ts`) and shared text edit kit (`src/diagrams/common/edit.ts`).
+- **Task 68:** Added node compartments (`src/layout/sections.ts`, `src/render/sections.ts`), icon primitives and rendering (`src/render/icons.ts`), label positioning (`src/render/label-pos.ts`), fixed size nodes, and section/icon rendering in canvas (`src/render/draw-nodes.ts`, `src/render/draw-runs.ts`) and SVG (`src/render/svg-nodes.ts`).
+- **Task 69:** Added 10 new shapes (`src/render/shapes-new.ts`, `src/layout/polygon.ts`, `src/layout/measure.ts`, `src/core/types.ts`, `src/core/shapes.ts`, `src/mermaid/format.ts`, `src/render/draw-nodes.ts`, `src/render/svg-nodes.ts`, `src/render/style.ts`, `src/app/describe.ts`).
+- **Task 70:** Added new edge markers and end labels (`src/render/markers.ts`, `src/render/edge-extras.ts`, `src/render/style.ts`, `src/render/draw-edges.ts`, `src/render/draw.ts`, `src/render/svg.ts`).
+- **Task 71:** Added decorations, colour indexes, and layout helpers (`src/render/decorations.ts`, `src/layout/path.ts`, `src/layout/decor-bounds.ts`, `src/layout/node-box.ts`, `src/render/style.ts`, `src/render/draw.ts`, `src/render/svg.ts`, `src/render/draw-nodes.ts`).
+- **Task 72:** Supported custom diagram animation ordering (`src/anim/stages.ts`, `src/anim/build-anim.ts`, `src/anim/anim.ts`, `src/anim/steps.ts`, `src/render/prepared.ts`).
+- **Task 73:** Gated editor, toolbar and properties capabilities by diagram kind, highlighted non-flowchart diagram keywords, and added diagram types in Help (`src/app/kind-ui.ts`, `src/editor/controller.ts`, `src/app/dispatcher.ts`, `src/app/state.ts`, `src/app/render-loop.ts`, `src/app/canvas-events.ts`, `src/app/touch-wiring.ts`, `src/app/toolbar.ts`, `src/app/properties.ts`, `src/app/describe.ts`, `src/app/mermaid-lang.ts`, `src/app/help.ts`).
+- **Task 74:** Bumped package.json and repo test version to `0.9.0`, updated `RELEASE_CHECKLIST.md` and `plan.md` Part 10 release checklists.
+
+**Checks run for v0.9.0:**
+- `npm test`: 507 unit tests passed across 80 files.
+- `npm run lint`: 0 warnings, 0 errors across 215 files.
+- `BASE_PATH=/gati-chitra/ npm run build`: passes.
+- `BASE_PATH=/gati-chitra/ npm run check:dist`:
+  - Total initial JS: 136.47 KB gzip (≤ 150 KB budget)
+  - Largest lazy chunk: 57.27 KB gzip (≤ 80 KB budget)
+  - Result: OK
+- `npm run test:e2e`: 311 passed, 17 skipped (0 failed).
+
+**Left open:**
+- Part 10 v0.9.0 by-hand browser verification checklist items (to be executed by owner).
+- Milestone D2 (Tasks 75 to 81: State, class, and ER diagrams).
 
 ---
 

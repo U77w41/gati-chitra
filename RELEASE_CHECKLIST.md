@@ -107,5 +107,12 @@ Tick every box before the release tag.
 - [ ] Rotating the phone keeps the layout usable, with no sideways scrolling.
 - [ ] On desktop, quickly repeat the v0.4.0 keyboard and mouse checks; nothing has changed there.
 
+## v0.9.0 (D1)
+
+- [x] `npm test`, `npm run lint`, `npm run build`, `npm run check:dist`, `npm run test:e2e` all pass.
+- [x] Initial JS ≤ 150 KB gzip (write the number in `handoff.md`).
+- [ ] By hand: every template in the gallery still opens and animates exactly as before, in light and dark mode.
+- [ ] By hand: typing `pie title Pets` shows "Pie chart is not supported yet…" on line 1, and the last picture stays.
+
 
 
