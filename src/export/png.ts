@@ -32,6 +32,7 @@ export async function exportPng(
     connectPreview: null,
     focus: null,
     showGlow: false,
+    showGrid: false,
   });
 
   const blob = await new Promise<Blob | null>((resolve) =>

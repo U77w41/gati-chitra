@@ -1,0 +1,55 @@
+import type { Theme, ThemeId } from '../core/types';
+
+function defTheme(
+  id: ThemeId,
+  name: string,
+  background: string,
+  nodeFill: string,
+  nodeStroke: string,
+  nodeText: string,
+  edge: string,
+  groupFill: string,
+  groupStroke: string,
+  groupTitle: string,
+  particle: string,
+  gridColor: string,
+  glowDefault = false,
+  backgroundGradient: [string, string] | null = null,
+): Theme {
+  return {
+    id,
+    name,
+    background,
+    backgroundGradient,
+    nodeFill,
+    nodeStroke,
+    nodeText,
+    edge,
+    edgeLabelBg: background,
+    edgeLabelText: nodeText,
+    titleText: nodeText,
+    groupFill,
+    groupStroke,
+    groupTitle,
+    particle,
+    glow: particle,
+    selection: particle,
+    glowDefault,
+    gridColor,
+  };
+}
+
+export const THEMES: Record<ThemeId, Theme> = {
+  daylight: defTheme('daylight', 'Daylight', '#ffffff', '#f7f7fb', '#34495e', '#111418', '#4f5660', '#f5f5fa', '#cfd1dc', '#34495e', '#3b82f6', 'rgba(15, 23, 42, 0.08)'),
+  geist: defTheme('geist', 'Mono Light', '#fafafa', '#ffffff', '#18181b', '#09090b', '#71717a', '#f4f4f5', '#d4d4d8', '#27272a', '#2563eb', 'rgba(24, 24, 27, 0.08)'),
+  paper: defTheme('paper', 'Warm Paper', '#faf8f5', '#f3efea', '#44403c', '#1c1917', '#78716c', '#f5f2ed', '#d6d3d1', '#57534e', '#d97706', 'rgba(68, 64, 60, 0.08)'),
+  matcha: defTheme('matcha', 'Sage Minimal', '#f4f7f4', '#ffffff', '#2d4a3e', '#16261f', '#5c7c6d', '#ebf1ec', '#c5d6c8', '#2d4a3e', '#10b981', 'rgba(45, 74, 62, 0.08)'),
+  lavender: defTheme('lavender', 'Soft Mist', '#f8f7ff', '#ffffff', '#4338ca', '#1e1b4b', '#6366f1', '#f0eeff', '#c7d2fe', '#3730a3', '#7c3aed', 'rgba(67, 56, 202, 0.08)'),
+  midnight: defTheme('midnight', 'Midnight', '#0f172a', '#1e293b', '#475569', '#f8fafc', '#64748b', '#1e293b', '#334155', '#94a3b8', '#38bdf8', 'rgba(248, 250, 252, 0.07)', true),
+  obsidian: defTheme('obsidian', 'Linear Dark', '#090a0f', '#141622', '#26293d', '#f3f4f6', '#4b5278', '#0e1018', '#1f2233', '#9ca3af', '#818cf8', 'rgba(129, 140, 248, 0.08)', true, ['#090a0f', '#10121a']),
+  graphite: defTheme('graphite', 'Graphite Mono', '#121212', '#1e1e1e', '#383838', '#e5e5e5', '#666666', '#171717', '#2e2e2e', '#a3a3a3', '#a3e635', 'rgba(255, 255, 255, 0.07)'),
+  nordic: defTheme('nordic', 'Nordic Frost', '#242933', '#3b4252', '#4c566a', '#eceff4', '#616e88', '#292e39', '#434c5e', '#d8dee9', '#88c0d0', 'rgba(216, 222, 233, 0.07)', false, ['#242933', '#2e3440']),
+  rosepine: defTheme('rosepine', 'Rosé Velvet', '#191724', '#26233a', '#403d52', '#e0def4', '#6e6a86', '#1f1d2e', '#393552', '#908caa', '#f6c177', 'rgba(224, 222, 244, 0.07)', true, ['#191724', '#1f1d2e']),
+  lagoon: defTheme('lagoon', 'Lagoon', '#041e2b', '#0b3548', '#14536b', '#e0f2fe', '#0ea5e9', '#082a3a', '#0f4459', '#38bdf8', '#22d3ee', 'rgba(56, 189, 248, 0.09)', true, ['#041e2b', '#0a2e3f']),
+  ember: defTheme('ember', 'Ember', '#180c0e', '#2d1519', '#4a2026', '#fef2f2', '#f43f5e', '#241013', '#3d181d', '#fb7185', '#fb923c', 'rgba(251, 113, 133, 0.08)', true, ['#180c0e', '#2a1215']),
+};

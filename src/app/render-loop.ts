@@ -4,7 +4,7 @@ import { handlePoint } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { withNodeAt } from '../layout/scene';
 import { drawBackground, drawScene } from '../render/draw';
-import { THEMES, resolveTheme } from '../render/themes';
+import { composeTheme } from '../render/themes';
 import type { AppState } from './state';
 
 let dirty = true;
@@ -101,8 +101,11 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
       document.documentElement.getAttribute('data-scheme') === 'dark'
         ? 'dark'
         : 'light';
-    const themeId = resolveTheme(state.settings.theme, scheme);
-    const theme = THEMES[themeId];
+    const theme = composeTheme(
+      state.settings.theme,
+      state.settings.bgTheme ?? 'match',
+      scheme,
+    );
     const dpr = window.devicePixelRatio || 1;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -142,6 +145,7 @@ export function startRenderLoop(env: RenderLoopEnv): () => void {
         connectPreview,
         focus: getFocus ? getFocus() : null,
         showGlow: state.settings.anim.glow,
+        showGrid: Boolean(state.settings.grid),
       });
     }
 

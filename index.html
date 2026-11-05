@@ -73,6 +73,13 @@
         </div>
         <div id="workspace">
           <section id="text-panel" role="tabpanel" aria-labelledby="tab-text">
+            <div id="text-panel-bar" class="text-panel-bar">
+              <span class="text-panel-title">Mermaid Script</span>
+              <label class="control-pill-toggle" title="Toggle line wrapping in the Mermaid editor">
+                <input id="editor-wrap" type="checkbox" />
+                <span>Wrap text</span>
+              </label>
+            </div>
             <div id="source"></div>
             <div id="diagnostics-summary" aria-live="polite"></div>
             <ul id="diagnostics"></ul>
@@ -111,27 +118,74 @@
             </div>
             <textarea id="inline-edit" aria-label="Edit label" style="display: none;"></textarea>
             <div id="canvas-controls">
-              <label for="anim-style">Animation</label>
-              <select id="anim-style">
-                <option value="pulse">pulse</option>
-                <option value="traffic">traffic</option>
-                <option value="dash">dash</option>
-                <option value="off">off</option>
-              </select>
-              <label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1×</output></label>
-              <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
-              <label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label>
-              <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
-              <label><input id="anim-glow" type="checkbox" /> Glow</label>
-              <button id="anim-pause">Pause</button>
-              <label for="theme">Theme</label>
-              <select id="theme">
-                <option value="auto">Match page</option>
-                <option value="daylight">Daylight</option>
-                <option value="midnight">Midnight</option>
-                <option value="lagoon">Lagoon</option>
-                <option value="ember">Ember</option>
-              </select>
+              <div class="canvas-controls-tier playback-tier">
+                <div class="control-cluster transport-cluster">
+                  <button id="anim-pause">Pause</button>
+                  <label for="anim-style">Animation</label>
+                  <select id="anim-style">
+                    <option value="pulse">pulse</option>
+                    <option value="traffic">traffic</option>
+                    <option value="dash">dash</option>
+                    <option value="off">off</option>
+                  </select>
+                </div>
+                <div class="control-cluster sliders-cluster">
+                  <div class="slider-group">
+                    <label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1×</output></label>
+                    <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+                  </div>
+                  <div class="slider-group">
+                    <label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label>
+                    <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
+                  </div>
+                </div>
+                <div class="control-cluster toggles-cluster">
+                  <label class="control-pill-toggle"><input id="anim-glow" type="checkbox" /> <span>Glow</span></label>
+                  <label class="control-pill-toggle"><input id="canvas-grid" type="checkbox" /> <span>Grid</span></label>
+                </div>
+              </div>
+              <div class="canvas-controls-tier theming-tier">
+                <div class="theme-row">
+                  <label for="theme" class="theme-row-label">Diagram</label>
+                  <select id="theme">
+                    <option value="auto">Match page</option>
+                    <option value="daylight">Daylight</option>
+                    <option value="geist">Mono Light</option>
+                    <option value="paper">Warm Paper</option>
+                    <option value="matcha">Sage Minimal</option>
+                    <option value="lavender">Soft Mist</option>
+                    <option value="midnight">Midnight</option>
+                    <option value="obsidian">Linear Dark</option>
+                    <option value="graphite">Graphite Mono</option>
+                    <option value="nordic">Nordic Frost</option>
+                    <option value="rosepine">Rosé Velvet</option>
+                    <option value="lagoon">Lagoon</option>
+                    <option value="ember">Ember</option>
+                  </select>
+                  <div id="theme-strip" class="theme-strip" role="radiogroup" aria-label="Flow diagram theme"></div>
+                </div>
+                <div class="theme-row">
+                  <label for="bg-theme" class="theme-row-label">Background</label>
+                  <button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>
+                  <select id="bg-theme" aria-label="Canvas background">
+                    <option value="match">Match diagram</option>
+                    <option value="auto">Match page</option>
+                    <option value="daylight">Daylight</option>
+                    <option value="geist">Mono Light</option>
+                    <option value="paper">Warm Paper</option>
+                    <option value="matcha">Sage Minimal</option>
+                    <option value="lavender">Soft Mist</option>
+                    <option value="midnight">Midnight</option>
+                    <option value="obsidian">Linear Dark</option>
+                    <option value="graphite">Graphite Mono</option>
+                    <option value="nordic">Nordic Frost</option>
+                    <option value="rosepine">Rosé Velvet</option>
+                    <option value="lagoon">Lagoon</option>
+                    <option value="ember">Ember</option>
+                  </select>
+                  <div id="bg-strip" class="bg-strip" role="radiogroup" aria-label="Canvas background"></div>
+                </div>
+              </div>
             </div>
             <div id="present-step" hidden></div>
             <div id="message" aria-live="polite"></div>

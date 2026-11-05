@@ -221,4 +221,32 @@ describe('draw', () => {
     });
     expect(calls).toContainEqual({ name: 'set:globalAlpha', args: [0.3] });
   });
+
+  it('draws grid when showGrid is true and excludes it when false or transparent', () => {
+    const theme = THEMES.obsidian;
+    const callsWithGrid = draw('flowchart TD\nA --> B', { showGrid: true }, {}, theme);
+    expect(callsWithGrid).toContainEqual({ name: 'set:strokeStyle', args: [theme.gridColor] });
+
+    const callsWithoutGrid = draw('flowchart TD\nA --> B', { showGrid: false }, {}, theme);
+    const gridColorStroke = callsWithoutGrid.find(
+      (c) => c.name === 'set:strokeStyle' && c.args[0] === theme.gridColor,
+    );
+    expect(gridColorStroke).toBeUndefined();
+
+    const callsTransparent = draw('flowchart TD\nA --> B', { showGrid: true, transparent: true }, {}, theme);
+    const gridTransparentStroke = callsTransparent.find(
+      (c) => c.name === 'set:strokeStyle' && c.args[0] === theme.gridColor,
+    );
+    expect(gridTransparentStroke).toBeUndefined();
+  });
+
+  it('uses theme.titleText for title fill if defined', () => {
+    const customTheme: Theme = {
+      ...THEMES.daylight,
+      nodeText: '#111418',
+      titleText: '#ff00ff',
+    };
+    const calls = draw('---\ntitle: Diagram Title\n---\nflowchart TD\nA --> B', {}, {}, customTheme);
+    expect(calls).toContainEqual({ name: 'set:fillStyle', args: ['#ff00ff'] });
+  });
 });

@@ -39,7 +39,7 @@ export function renderSvg(
   out += `<title id="gc-title">${escapeXml(desc.name)}</title><desc id="gc-desc">${escapeXml(desc.description)}</desc>`;
 
   if (scene.layout.title) {
-    out += `<text x="${fmt(scene.layout.title.center.x)}" y="${fmt(scene.layout.title.center.y)}" dy="0.35em" text-anchor="middle" font-size="${LAYOUT.titleFontSize}" font-weight="bold" fill="${theme.nodeText}">${escapeXml(scene.layout.title.text)}</text>`;
+    out += `<text x="${fmt(scene.layout.title.center.x)}" y="${fmt(scene.layout.title.center.y)}" dy="0.35em" text-anchor="middle" font-size="${LAYOUT.titleFontSize}" font-weight="bold" fill="${theme.titleText ?? theme.nodeText}">${escapeXml(scene.layout.title.text)}</text>`;
   }
 
   if (!opts.transparent) {

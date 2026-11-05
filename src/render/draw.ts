@@ -2,48 +2,21 @@ import { ANIM, FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import type {
   DrawOptions,
   FrameState,
-  Point,
   Scene,
-  TextRun,
   Theme,
   ViewState,
 } from '../core/types';
 import { handlePoint, pointOnPath } from '../layout/geometry';
-import { fontString } from '../layout/measure';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
+import { drawGrid } from './grid';
+import { drawRuns } from './draw-runs';
 import { traceNodePath } from './node-path';
 import { prepare } from './prepared';
 import { edgeStyle, nodeStyle } from './style';
 
 export type Ctx2D = CanvasRenderingContext2D;
 
-export { edgeStyle, nodeStyle };
-
-export function drawRuns(
-  ctx: Ctx2D,
-  lines: TextRun[][],
-  center: Point,
-  fontSize: number,
-  lineHeight: number,
-): void {
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-  for (let k = 0; k < lines.length; k++) {
-    const line = lines[k];
-    let totalW = 0;
-    for (const r of line) {
-      ctx.font = fontString(fontSize, r);
-      totalW += ctx.measureText(r.text).width;
-    }
-    let curX = center.x - totalW / 2;
-    const y = center.y + (k - (lines.length - 1) / 2) * lineHeight;
-    for (const r of line) {
-      ctx.font = fontString(fontSize, r);
-      ctx.fillText(r.text, curX, y);
-      curX += ctx.measureText(r.text).width;
-    }
-  }
-}
+export { edgeStyle, nodeStyle, drawGrid, drawRuns };
 
 export function emptyFrame(): FrameState {
   return { particles: [], dashOffset: null, nodeGlow: {} };
@@ -79,6 +52,13 @@ export function drawScene(
   options: DrawOptions,
 ): void {
   ctx.save();
+  if (options.showGrid && !options.transparent) {
+    const t = typeof ctx.getTransform === 'function' ? ctx.getTransform() : null;
+    const dpr = (t && typeof t.a === 'number' && t.a > 0) ? t.a : 1;
+    const vw = ctx.canvas ? ctx.canvas.width / dpr : 800;
+    const vh = ctx.canvas ? ctx.canvas.height / dpr : 600;
+    drawGrid(ctx, theme, view, vw, vh);
+  }
   ctx.translate(view.panX, view.panY);
   ctx.scale(view.zoom, view.zoom);
 
@@ -87,7 +67,7 @@ export function drawScene(
     ctx.font = `bold ${LAYOUT.titleFontSize}px ${FONT_STACK_SANS}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = theme.nodeText;
+    ctx.fillStyle = theme.titleText ?? theme.nodeText;
     ctx.fillText(
       scene.layout.title.text,
       scene.layout.title.center.x,

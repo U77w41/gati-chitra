@@ -4,7 +4,7 @@ import { downloadBlob } from '../export/download';
 import { safeFilename } from '../export/filename';
 import { canvasMeasure } from '../layout/measure';
 import { isEmptyBounds } from '../render/frame';
-import { resolveTheme, THEMES } from '../render/themes';
+import { composeTheme } from '../render/themes';
 import type { AppState } from './state';
 import { canShareFile, shareFile } from './share-file';
 
@@ -54,7 +54,7 @@ export function setupExportPanel(env: ExportPanelEnv): void {
 
   function getTheme(state: AppState) {
     const scheme = document.documentElement.getAttribute('data-scheme') === 'dark' ? 'dark' : 'light';
-    return THEMES[resolveTheme(state.settings.theme, scheme)];
+    return composeTheme(state.settings.theme, state.settings.bgTheme ?? 'match', scheme);
   }
 
   function open(): void {

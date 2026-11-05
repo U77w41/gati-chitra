@@ -34,5 +34,11 @@ describe('drawExportFrame', () => {
 
     expect(calls).toContainEqual({ name: 'fillText', args: ['A', expect.any(Number), expect.any(Number)] });
     expect(calls).toContainEqual({ name: 'fillText', args: ['B', expect.any(Number), expect.any(Number)] });
+
+    // Grid must never be drawn in export frame
+    const gridStroke = calls.find(
+      (c) => c.name === 'set:strokeStyle' && c.args[0] === THEMES.daylight.gridColor,
+    );
+    expect(gridStroke).toBeUndefined();
   });
 });

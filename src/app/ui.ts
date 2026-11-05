@@ -19,7 +19,7 @@ import { loadDoc, loadSettings, safeStore, saveSettings, setupAutosave, setupDoc
 import { setMessageElement, showMessage } from './message';
 import { setupStudioApi } from './studio';
 import { setupToolbar } from './toolbar';
-import { checkInitialShare, setupHashChangeListener, setupShareHandler } from './share-handler';
+import { checkInitialShare, setupHashChangeListener } from './share-handler';
 import { mountChrome } from './chrome';
 import { describeDiagram } from './describe';
 import { stripFences } from '../mermaid/fences';
@@ -57,19 +57,23 @@ export async function initApp(): Promise<void> {
   function doRedo(): void { commit('', 'redo'); }
 
   const editor = createCodeEditor(sourceParent, {
-    initialText: state.text,
-    label: 'Mermaid text',
+    initialText: state.text, label: 'Mermaid text', wordWrap: Boolean(state.settings.wordWrap),
     onChange: (text) => {
       if (parseTimer) clearTimeout(parseTimer);
-      parseTimer = setTimeout(() => {
-        parseTimer = null;
-        commit(text, 'typing');
-      }, TIMING.parseDebounceMs);
+      parseTimer = setTimeout(() => { parseTimer = null; commit(text, 'typing'); }, TIMING.parseDebounceMs);
     },
-    onUndo: doUndo,
-    onRedo: doRedo,
-    onPaste: (text) => stripFences(text),
+    onUndo: doUndo, onRedo: doRedo, onPaste: (text) => stripFences(text),
   });
+
+  const wrapEl = document.querySelector<HTMLInputElement>('#editor-wrap');
+  if (wrapEl) {
+    wrapEl.checked = Boolean(state.settings.wordWrap);
+    wrapEl.addEventListener('change', () => {
+      state.settings.wordWrap = wrapEl.checked;
+      editor.setWordWrap(wrapEl.checked);
+      saveSettings(store, state.settings);
+    });
+  }
 
   const updateDiagnostics = setupDiagnostics(diagnosticsEl, (line) => editor.revealLine(line));
 
@@ -178,11 +182,7 @@ export async function initApp(): Promise<void> {
     getState: () => state, measure, commit, executeOp, messageEl, inlineEditor, updateProps,
     setFreshlyCreatedNodeId: (id) => { freshlyCreatedNodeId = id; },
   });
-  const dispatch: typeof rawDispatch = (event) => {
-    rawDispatch(event);
-    requestRedraw();
-  };
-
+  const dispatch: typeof rawDispatch = (event) => { rawDispatch(event); requestRedraw(); };
 
   refreshDiagnostics(); updateAriaLabel(); updateButtons(); updateProps();
   if (state.scene) { triggerFit(); hasFitted = true; }
@@ -237,6 +237,9 @@ export async function initApp(): Promise<void> {
     animStyleEl: document.querySelector('#anim-style')!, animSpeedEl: document.querySelector('#anim-speed')!,
     animDensityEl: document.querySelector('#anim-density')!, animGlowEl: document.querySelector('#anim-glow')!,
     animPauseEl: document.querySelector('#anim-pause')!, themeEl: document.querySelector('#theme')!,
+    canvasGridEl: document.querySelector('#canvas-grid'), themeStripEl: document.querySelector('#theme-strip'),
+    bgThemeEl: document.querySelector('#bg-theme'), bgStripEl: document.querySelector('#bg-strip'),
+    bgLockEl: document.querySelector('#bg-lock'),
   }, () => state, store, (paused) => {
     if (paused) pausedPhase = phaseAt((performance.now() - startTime) / 1000, state.settings.anim);
   });
@@ -267,17 +270,16 @@ export async function initApp(): Promise<void> {
     onResize: () => { if (!hasFitted && state.scene) triggerFit(); },
   });
 
-  setupShareHandler({
-    btnShare: document.querySelector('#btn-share')!, shareBox: document.querySelector('#share-box')!,
-    shareUrlInput: document.querySelector('#share-url')!, shareBoxClose: document.querySelector('#share-box-close'),
-    messageEl, getState: () => state,
-  });
-
-  import('./dialogs').then(({ setupHelpDialog, setupGallery, setupInstallPrompt, setupExportPanel }) => {
+  import('./dialogs').then(({ setupHelpDialog, setupGallery, setupInstallPrompt, setupExportPanel, setupShareHandler }) => {
     help = setupHelpDialog({ dialogEl: document.querySelector('#help-dialog')!, btnHelp: document.querySelector('#btn-help')! });
     setupGallery({ dialogEl: document.querySelector('#gallery')!, btnTemplates: document.querySelector('#btn-templates')!, baseUrl: import.meta.env.BASE_URL, commit, triggerFit, messageEl });
     setupExportPanel({ dialogEl: document.querySelector('#export-panel')!, getState: () => state, btnExport: document.querySelector('#btn-export')! });
     setupInstallPrompt(document.querySelector<HTMLButtonElement>('#btn-install'));
+    setupShareHandler({
+      btnShare: document.querySelector('#btn-share')!, shareBox: document.querySelector('#share-box')!,
+      shareUrlInput: document.querySelector('#share-url')!, shareBoxClose: document.querySelector('#share-box-close'),
+      messageEl, getState: () => state,
+    });
   });
 
   setupStudioApi({

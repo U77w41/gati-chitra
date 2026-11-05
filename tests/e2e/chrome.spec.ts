@@ -148,7 +148,7 @@ test.describe('Site Chrome and Scheme', () => {
       const ctx = c?.getContext('2d');
       if (!ctx || !c || c.width === 0) return false;
       const p = ctx.getImageData(0, 0, 1, 1).data;
-      return p[0] === 48 && p[1] === 48 && p[2] === 48;
+      return p[0] === 15 && p[1] === 23 && p[2] === 42;
     });
 
     const darkCorner = await page.evaluate(() => {
@@ -157,7 +157,7 @@ test.describe('Site Chrome and Scheme', () => {
       const p = ctx.getImageData(0, 0, 1, 1).data;
       return [p[0], p[1], p[2]];
     });
-    expect(darkCorner).toEqual([48, 48, 48]);
+    expect(darkCorner).toEqual([15, 23, 42]);
 
     // Explicit Lagoon theme does not change on page scheme toggle
     await page.selectOption('#theme', 'lagoon');
@@ -166,7 +166,7 @@ test.describe('Site Chrome and Scheme', () => {
       const ctx = c?.getContext('2d');
       if (!ctx || !c || c.width === 0) return false;
       const p = ctx.getImageData(0, 0, 1, 1).data;
-      return !(p[0] === 48 && p[1] === 48 && p[2] === 48);
+      return !(p[0] === 15 && p[1] === 23 && p[2] === 42);
     });
     const lagoonCorner1 = await page.evaluate(() => {
       const c = document.querySelector<HTMLCanvasElement>('#canvas')!;

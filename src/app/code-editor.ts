@@ -1,4 +1,3 @@
-import { defaultKeymap } from '@codemirror/commands';
 import { Compartment, Prec } from '@codemirror/state';
 import {
   drawSelection,
@@ -13,6 +12,7 @@ import { minimalChange } from '../editor/text-diff';
 export interface CodeEditorEnv {
   initialText: string;
   label: string;
+  wordWrap?: boolean;
   onChange(text: string): void;
   onUndo(): void;
   onRedo(): void;
@@ -22,6 +22,7 @@ export interface CodeEditorEnv {
 export interface CodeEditor {
   getText(): string;
   setText(text: string, how: 'replace' | 'patch'): void;
+  setWordWrap(wrap: boolean): void;
   revealLine(line: number): void;
   focus(): void;
   destroy(): void;
@@ -63,8 +64,10 @@ export function createCodeEditor(
     ])
   );
 
+  const wrapConf = new Compartment();
   const langConf = new Compartment();
   const lintConf = new Compartment();
+  const keymapConf = new Compartment();
   let pendingDiagnostics: Diagnostic[] | null = null;
   let cmHelper: {
     setDiagnostics(view: EditorView, diags: Diagnostic[]): void;
@@ -75,11 +78,12 @@ export function createCodeEditor(
     parent,
     extensions: [
       lineNumbers(),
+      wrapConf.of(env.wordWrap ? EditorView.lineWrapping : []),
       lintConf.of([]),
       langConf.of([]),
+      keymapConf.of([]),
       drawSelection(),
       highlightActiveLine(),
-      keymap.of(defaultKeymap),
       highestKeymap,
       EditorView.contentAttributes.of({ 'aria-label': env.label }),
       EditorView.domEventHandlers({
@@ -105,6 +109,7 @@ export function createCodeEditor(
       effects: [
         langConf.reconfigure([m.mermaidLanguage, m.mermaidHighlighting]),
         lintConf.reconfigure([m.lintGutter()]),
+        keymapConf.reconfigure([keymap.of(m.defaultKeymap)]),
       ],
     });
     cmHelper = {
@@ -145,6 +150,11 @@ export function createCodeEditor(
       } finally {
         isProgrammatic = false;
       }
+    },
+    setWordWrap(wrap: boolean): void {
+      view.dispatch({
+        effects: wrapConf.reconfigure(wrap ? EditorView.lineWrapping : []),
+      });
     },
     revealLine(line: number) {
       const l = Math.max(1, Math.min(line, view.state.doc.lines));

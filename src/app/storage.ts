@@ -1,7 +1,7 @@
 import { ANIM, STORAGE, UI } from '../core/constants';
-import type { AnimSettings, ThemeChoice } from '../core/types';
+import type { AnimSettings, BackgroundChoice, ThemeChoice } from '../core/types';
 import { DEFAULT_ANIM } from '../anim/anim';
-import { THEME_CHOICES } from '../render/themes';
+import { BACKGROUND_CHOICES, THEME_CHOICES } from '../render/themes';
 import { clampSplit } from './splitter';
 
 export interface KeyValueStore {
@@ -14,6 +14,10 @@ export interface Settings {
   theme: ThemeChoice;
   anim: AnimSettings;
   split: number;
+  bgTheme?: BackgroundChoice;
+  bgLocked?: boolean;
+  grid?: boolean;
+  wordWrap?: boolean;
 }
 
 export function safeStore(): KeyValueStore | null {
@@ -54,6 +58,10 @@ export function loadSettings(store: KeyValueStore | null): Settings {
     theme: 'auto',
     anim: { ...DEFAULT_ANIM },
     split: UI.splitDefault,
+    bgTheme: 'match',
+    bgLocked: false,
+    grid: false,
+    wordWrap: false,
   };
 
   if (!store) return defaults;
@@ -91,10 +99,33 @@ export function loadSettings(store: KeyValueStore | null): Settings {
         ? clampSplit(parsed.split)
         : defaults.split;
 
+    const bgTheme: BackgroundChoice = BACKGROUND_CHOICES.includes(parsed?.bgTheme)
+      ? parsed.bgTheme
+      : 'match';
+
+    const bgLocked =
+      typeof parsed?.bgLocked === 'boolean'
+        ? parsed.bgLocked
+        : bgTheme !== 'match';
+
+    const grid =
+      typeof parsed?.grid === 'boolean'
+        ? parsed.grid
+        : false;
+
+    const wordWrap =
+      typeof parsed?.wordWrap === 'boolean'
+        ? parsed.wordWrap
+        : false;
+
     return {
       theme,
       anim: { style, speed, density, glow },
       split,
+      bgTheme,
+      bgLocked,
+      grid,
+      wordWrap,
     };
   } catch {
     return defaults;

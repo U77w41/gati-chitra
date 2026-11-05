@@ -81,8 +81,21 @@ export interface SceneLayout {
 }
 export interface Scene { doc: ParsedDoc; layout: SceneLayout }
 
-export type ThemeId = 'daylight' | 'midnight' | 'lagoon' | 'ember';
+export type ThemeId =
+  | 'daylight'
+  | 'geist'
+  | 'paper'
+  | 'matcha'
+  | 'lavender'
+  | 'midnight'
+  | 'obsidian'
+  | 'graphite'
+  | 'nordic'
+  | 'rosepine'
+  | 'lagoon'
+  | 'ember';
 export type ThemeChoice = ThemeId | 'auto'; // 'auto' ("Match page") is Daylight in the light page scheme and Midnight in the dark one
+export type BackgroundChoice = 'match' | ThemeChoice;
 export type SchemePref = 'light' | 'dark' | 'auto'; // the saved choice of page colour scheme
 export interface Theme {
   id: ThemeId; name: string; background: string; backgroundGradient: [string, string] | null;
@@ -90,6 +103,8 @@ export interface Theme {
   edge: string; edgeLabelBg: string; edgeLabelText: string;
   groupFill: string; groupStroke: string; groupTitle: string;
   particle: string; glow: string; selection: string; glowDefault: boolean;
+  gridColor: string;
+  titleText?: string;
 }
 
 export type AnimStyle = 'pulse' | 'traffic' | 'dash' | 'off';
@@ -107,6 +122,7 @@ export interface Selection { kind: 'node' | 'edge' | 'group'; id: string }
 export interface DrawOptions {
   transparent: boolean; selection: Selection | null; handleNodeId: string | null;
   connectPreview: { from: Point; to: Point } | null; focus: Focus | null; showGlow: boolean;
+  showGrid?: boolean;
 }
 
 export type ExportMode = 'content' | 'slide';

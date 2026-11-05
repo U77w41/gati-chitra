@@ -21,5 +21,6 @@ export function drawExportFrame(
     connectPreview: null,
     focus: null,
     showGlow: anim.glow,
+    showGrid: false,
   });
 }

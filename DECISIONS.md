@@ -38,4 +38,5 @@ CI WebKit concurrency fix: chose to set workers: 1 for WebKit projects in CI and
 PWA install fix: chose to add #btn-install to toolbar with lazy-loaded beforeinstallprompt handler and fallback instructions to enable explicit PWA installation without exceeding the initial JS bundle budget.
 Bundle optimization fix: chose to consolidate dialog dynamic imports into dialogs.ts and extract SHORTCUT_HELP to shortcuts-help.ts to keep initial JS gzip at 149.40 KB (612 bytes under budget) across all platforms.
 Header install/help relocation: chose to move #btn-install and #btn-help into site-header navigation with install and help SVG icons and responsive label collapse to declutter editor toolbar and provide prominent app-level actions.
+Task 61 (Improvement Plan v0.7.0): chose to extract draw-runs, canvas grid renderer, theme palettes, and lazy-load share dialog/keymaps to keep initial JS at 128.07 KB gzip (well under 150 KB budget) while supporting 12 decoupled themes, canvas grid, word wrap toggle, and ergonomic controls.
 

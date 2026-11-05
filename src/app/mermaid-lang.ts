@@ -217,6 +217,7 @@ export const mermaidHighlightStyle = HighlightStyle.define([
 
 export const mermaidHighlighting = syntaxHighlighting(mermaidHighlightStyle);
 
+export { defaultKeymap } from '@codemirror/commands';
 export { lintGutter, setDiagnostics } from '@codemirror/lint';
 
 export function toCmDiagnostics(

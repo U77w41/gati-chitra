@@ -50,6 +50,10 @@ describe('storage', () => {
       theme: 'auto',
       anim: DEFAULT_ANIM,
       split: 0.33,
+      bgTheme: 'match',
+      bgLocked: false,
+      grid: false,
+      wordWrap: false,
     });
 
     const badJsonStore = createMemoryStore({ 'gati-chitra:v1:settings': '{bad json' });
@@ -57,28 +61,65 @@ describe('storage', () => {
       theme: 'auto',
       anim: DEFAULT_ANIM,
       split: 0.33,
+      bgTheme: 'match',
+      bgLocked: false,
+      grid: false,
+      wordWrap: false,
     });
 
     const invalidFieldsStore = createMemoryStore({
       'gati-chitra:v1:settings': JSON.stringify({
         theme: 'nope',
         anim: { style: 'dash', speed: 99, density: 0, glow: true },
+        bgTheme: 'invalid-bg',
+        bgLocked: 'not-a-bool',
+        grid: 'yes',
+        wordWrap: 123,
       }),
     });
     expect(loadSettings(invalidFieldsStore)).toEqual({
       theme: 'auto',
       anim: { style: 'dash', speed: 3, density: 1, glow: true },
       split: 0.33,
+      bgTheme: 'match',
+      bgLocked: false,
+      grid: false,
+      wordWrap: false,
     });
 
     const validStore = createMemoryStore({
       'gati-chitra:v1:settings': JSON.stringify({
         theme: 'lagoon',
         anim: { style: 'pulse', speed: 1, density: 4, glow: false },
+        bgTheme: 'paper',
+        bgLocked: true,
+        grid: true,
+        wordWrap: true,
       }),
     });
-    expect(loadSettings(validStore).theme).toBe('lagoon');
-    expect(saveSettings(throwingStore, loadSettings(validStore))).toBe(false);
+    const loaded = loadSettings(validStore);
+    expect(loaded.theme).toBe('lagoon');
+    expect(loaded.bgTheme).toBe('paper');
+    expect(loaded.bgLocked).toBe(true);
+    expect(loaded.grid).toBe(true);
+    expect(loaded.wordWrap).toBe(true);
+    expect(saveSettings(throwingStore, loaded)).toBe(false);
+  });
+
+  it('infers bgLocked when bgTheme is set but bgLocked is omitted', () => {
+    const customBgStore = createMemoryStore({
+      'gati-chitra:v1:settings': JSON.stringify({
+        bgTheme: 'obsidian',
+      }),
+    });
+    expect(loadSettings(customBgStore).bgLocked).toBe(true);
+
+    const matchBgStore = createMemoryStore({
+      'gati-chitra:v1:settings': JSON.stringify({
+        bgTheme: 'match',
+      }),
+    });
+    expect(loadSettings(matchBgStore).bgLocked).toBe(false);
   });
 
   it('loads the split from settings', () => {
