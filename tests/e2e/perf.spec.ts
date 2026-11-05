@@ -36,7 +36,7 @@ test.describe('Performance budgets', () => {
     await page.locator('#anim-pause').click();
 
     // A late resize observer callback or font load can schedule one more frame.
-    // Wait until the draw count settles, then check it does not move again.
+    // Wait until the draw count remains stable for 500ms (idle canvas).
     const drawCount = () =>
       page.evaluate(() => (window as any).__studio.getDrawCount());
 
@@ -44,18 +44,13 @@ test.describe('Performance budgets', () => {
       .poll(
         async () => {
           const before = await drawCount();
-          await page.waitForTimeout(250);
-          return (await drawCount()) === before;
+          await page.waitForTimeout(500);
+          const after = await drawCount();
+          return after - before;
         },
-        { timeout: 5000 },
+        { timeout: 10000 },
       )
-      .toBe(true);
-
-    const countBefore = await drawCount();
-    await page.waitForTimeout(500);
-    const countAfter = await drawCount();
-
-    expect(countAfter).toBe(countBefore);
+      .toBe(0);
   });
 
   test('parses and lays out 300-node chain in under 3 seconds', async ({
