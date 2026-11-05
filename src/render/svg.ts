@@ -4,6 +4,7 @@ import { describeDiagram } from '../app/describe';
 import { tangentAt } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { parseInlineMarkdown } from '../layout/rich-text';
+import { svgDecorations } from './decorations';
 import { svgEdgeEndLabels } from './edge-extras';
 import { exportFrame } from './frame';
 import { markerPrims, svgMarker } from './markers';
@@ -59,6 +60,10 @@ export function renderSvg(
   for (const g of groups) {
     out += `<rect x="${fmt(g.rect.x)}" y="${fmt(g.rect.y)}" width="${fmt(g.rect.width)}" height="${fmt(g.rect.height)}" rx="10" fill="${theme.groupFill}" stroke="${theme.groupStroke}" stroke-width="1.5"/>`;
     out += `<text x="${fmt(g.rect.x + 12)}" y="${fmt(g.rect.y + LAYOUT.groupTitleH / 2)}" dy="0.35em" font-size="14" font-weight="700" fill="${theme.groupTitle}">${escapeXml(g.title)}</text>`;
+  }
+
+  if (scene.layout.decorations && scene.layout.decorations.length > 0) {
+    out += svgDecorations(scene.layout.decorations, theme);
   }
 
   const arrowSize = LAYOUT.arrowSize;

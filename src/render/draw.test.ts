@@ -13,7 +13,7 @@ import {
   emptyFrame,
 } from './draw';
 import { CORPUS } from '../../tests/support/corpus';
-import type { DrawOptions, FrameState, Theme, ViewState } from '../core/types';
+import type { DrawOptions, FrameState, ParsedDoc, Theme, ViewState } from '../core/types';
 
 function bg(theme: Theme, width: number, height: number, transparent: boolean) {
   const { ctx, calls } = createRecordingContext(width, height);
@@ -32,6 +32,30 @@ function draw(
   theme: Theme = THEMES.daylight,
 ) {
   const scene = buildScene(parseMermaid(text), testMeasure);
+  const view: ViewState = { zoom: 1, panX: 0, panY: 0 };
+  const fullFrame: FrameState = { ...emptyFrame(), ...frame };
+  const fullOptions: DrawOptions = {
+    transparent: false,
+    selection: null,
+    handleNodeId: null,
+    connectPreview: null,
+    focus: null,
+    showGlow: false,
+    ...options,
+  };
+
+  const { ctx, calls } = createRecordingContext(800, 600);
+  drawScene(ctx, scene, theme, view, fullFrame, fullOptions);
+  return calls;
+}
+
+function drawDoc(
+  doc: ParsedDoc,
+  options: Partial<DrawOptions> = {},
+  frame: Partial<FrameState> = {},
+  theme: Theme = THEMES.daylight,
+) {
+  const scene = buildScene(doc, testMeasure);
   const view: ViewState = { zoom: 1, panX: 0, panY: 0 };
   const fullFrame: FrameState = { ...emptyFrame(), ...frame };
   const fullOptions: DrawOptions = {
@@ -293,5 +317,11 @@ describe('draw', () => {
     drawScene(ctx, buildScene(doc, testMeasure), THEMES.daylight, { zoom: 1, panX: 0, panY: 0 }, emptyFrame(), { transparent: false, selection: null, handleNodeId: null, connectPreview: null, focus: null, showGlow: false });
     expect(calls.filter((c) => c.name === 'fillText').map((c) => c.args[0])).toEqual(expect.arrayContaining(['1', '*']));
     expect(calls.some((c) => c.name === 'set:fillStyle' && c.args[0] === THEMES.daylight.edge)).toBe(true);
+  });
+
+  it('draws other diagram types with classic cards only', () => {
+    const doc = { ...parseMermaid('flowchart TD\nA["Form Submitted"]'), kind: 'class' as const };
+    const calls = drawDoc(doc, { cardMode: 'workflow' });
+    expect(calls.some((c) => c.name === 'roundRect' && c.args[2] === 64 && c.args[3] === 64)).toBe(false);
   });
 });

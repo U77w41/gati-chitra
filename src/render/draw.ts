@@ -7,6 +7,7 @@ import type {
   ViewState,
 } from '../core/types';
 import { handlePoint, pointOnPath } from '../layout/geometry';
+import { drawDecorations } from './decorations';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
 import { drawEdgeEndLabels } from './edge-extras';
 import { drawGrid } from './grid';
@@ -95,6 +96,10 @@ export function drawScene(
     ctx.textBaseline = 'middle';
     ctx.fillStyle = theme.groupTitle;
     ctx.fillText(g.title, g.rect.x + 12, g.rect.y + LAYOUT.groupTitleH / 2);
+  }
+
+  if (scene.layout.decorations && scene.layout.decorations.length > 0) {
+    drawDecorations(ctx, scene.layout.decorations, theme);
   }
 
   // 3. Edges & 4. Edge labels

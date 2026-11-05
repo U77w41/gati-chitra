@@ -18,6 +18,8 @@ export function drawNodes(
   frame: FrameState,
   options: DrawOptions,
 ): void {
+  const cardMode = (scene.doc.kind ?? 'flowchart') === 'flowchart' ? options.cardMode : 'classic';
+
   for (const node of scene.doc.nodes) {
     const box = scene.layout.nodes[node.id];
     if (!box) continue;
@@ -34,7 +36,7 @@ export function drawNodes(
     const hasGlow = options.showGlow && glow > 0;
     const textProg = frame.nodeTextProgress?.[node.id];
 
-    if (options.cardMode === 'workflow') {
+    if (cardMode === 'workflow') {
       const isTrigger = !scene.doc.edges.some((e) => e.to === node.id);
       drawWorkflowTile(
         ctx,
@@ -47,7 +49,7 @@ export function drawNodes(
         textProg,
         ctx.globalAlpha,
       );
-    } else if (options.cardMode === 'pipeline') {
+    } else if (cardMode === 'pipeline') {
       drawPipelineNode(
         ctx,
         box,
@@ -120,9 +122,9 @@ export function drawNodes(
 
     if (options.selection?.kind === 'node' && options.selection.id === node.id) {
       ctx.beginPath();
-      if (options.cardMode === 'workflow') {
+      if (cardMode === 'workflow') {
         ctx.roundRect(box.center.x - 32, box.center.y - 32, 64, 64, 16);
-      } else if (options.cardMode === 'pipeline' && node.shape === 'diamond') {
+      } else if (cardMode === 'pipeline' && node.shape === 'diamond') {
         traceRoundedDiamond(ctx, box, 10);
       } else if (node.shape === 'actor') {
         ctx.rect(

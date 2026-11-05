@@ -7,6 +7,7 @@ import {
   hashNodeId,
   nodeStyle,
   semanticStatusShade,
+  shadeFor,
   shapeShadeTier,
 } from './style';
 
@@ -159,5 +160,15 @@ describe('nodeStyle & edgeStyle upgrades', () => {
   it('lets explicit markers replace the markers of the edge kind', () => {
     const e = { ...parseMermaid('flowchart TD\nA-->B').edges[0], markers: { start: 'triangle' as const, end: 'none' as const } };
     expect(edgeStyle(e, THEMES.daylight)).toMatchObject({ startMarker: 'triangle', endMarker: 'none', startArrow: false });
+  });
+
+  it('colours nodes and edges by colour index unless shading is off', () => {
+    const t = { ...THEMES.daylight, shadingMode: 'shape' as const };
+    const n = { ...parseMermaid('flowchart TD\nA').nodes[0], colorIndex: 5 };
+    expect(nodeStyle(n, t).fill).toBe(t.nodeShades![1].fill);
+    expect(nodeStyle({ ...n, style: { fill: '#123456' } }, t).fill).toBe('#123456');
+    expect(shadeFor({ ...t, shadingMode: 'off' }, 2)).toBeNull();
+    const e = { ...parseMermaid('flowchart TD\nA-->|yes|B').edges[0], colorIndex: 2 };
+    expect(edgeStyle(e, t).stroke).toBe(t.nodeShades![2].stroke);
   });
 });

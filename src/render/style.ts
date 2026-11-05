@@ -1,5 +1,5 @@
 import { LAYOUT } from '../core/constants';
-import type { GraphEdge, GraphNode, MarkerKind, ShapeKind, Theme } from '../core/types';
+import type { GraphEdge, GraphNode, MarkerKind, NodeShade, ShapeKind, Theme } from '../core/types';
 
 export function shapeShadeTier(shape: ShapeKind): 0 | 1 | 2 | 3 {
   switch (shape) {
@@ -103,6 +103,18 @@ export function semanticStatusShade(
     : { fill: '#eff6ff', stroke: '#3b82f6' };
 }
 
+export function shadeFor(theme: Theme, colorIndex: number | undefined): NodeShade | null {
+  if (colorIndex === undefined || theme.shadingMode === 'off') {
+    return null;
+  }
+  return (
+    theme.nodeShades?.[colorIndex % 4] ?? {
+      fill: theme.nodeFill,
+      stroke: theme.nodeStroke,
+    }
+  );
+}
+
 export function nodeStyle(
   node: GraphNode,
   theme: Theme,
@@ -130,6 +142,12 @@ export function nodeStyle(
         defaultStroke = shade.stroke;
       }
     }
+  }
+
+  const ci = shadeFor(theme, node.colorIndex);
+  if (ci) {
+    defaultFill = ci.fill;
+    defaultStroke = ci.stroke;
   }
 
   const fill = node.style.fill ?? defaultFill;
@@ -160,7 +178,10 @@ export function edgeStyle(
   let defaultStroke = theme.edge;
   let semanticDash: number[] | null = null;
 
-  if (isSemanticTrue) {
+  const edgeShade = shadeFor(theme, edge.colorIndex);
+  if (edgeShade) {
+    defaultStroke = edgeShade.stroke;
+  } else if (isSemanticTrue) {
     defaultStroke = '#10b981';
     semanticDash = [6, 4];
   } else if (isSemanticFalse) {
