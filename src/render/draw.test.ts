@@ -284,4 +284,14 @@ describe('draw', () => {
     expect(calls.some((c) => c.name === 'fillText' && c.args[0] === '⚡')).toBe(true);
     expect(calls.some((c) => c.name === 'roundRect' && c.args[2] === 64 && c.args[3] === 64)).toBe(true);
   });
+
+  it('draws extra markers and end labels', () => {
+    const doc = parseMermaid('flowchart LR\nA --- B');
+    doc.edges[0].markers = { start: 'none', end: 'diamondFilled' };
+    doc.edges[0].endLabels = { from: '1', to: '*' };
+    const { ctx, calls } = createRecordingContext(800, 600);
+    drawScene(ctx, buildScene(doc, testMeasure), THEMES.daylight, { zoom: 1, panX: 0, panY: 0 }, emptyFrame(), { transparent: false, selection: null, handleNodeId: null, connectPreview: null, focus: null, showGlow: false });
+    expect(calls.filter((c) => c.name === 'fillText').map((c) => c.args[0])).toEqual(expect.arrayContaining(['1', '*']));
+    expect(calls.some((c) => c.name === 'set:fillStyle' && c.args[0] === THEMES.daylight.edge)).toBe(true);
+  });
 });

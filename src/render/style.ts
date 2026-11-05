@@ -1,5 +1,5 @@
 import { LAYOUT } from '../core/constants';
-import type { GraphEdge, GraphNode, ShapeKind, Theme } from '../core/types';
+import type { GraphEdge, GraphNode, MarkerKind, ShapeKind, Theme } from '../core/types';
 
 export function shapeShadeTier(shape: ShapeKind): 0 | 1 | 2 | 3 {
   switch (shape) {
@@ -146,8 +146,8 @@ export function edgeStyle(
   stroke: string;
   width: number;
   dash: number[] | null;
-  endMarker: 'arrow' | 'circle' | 'cross' | 'none';
-  startMarker: 'arrow' | 'circle' | 'cross' | 'none';
+  endMarker: MarkerKind;
+  startMarker: MarkerKind;
   startArrow: boolean;
 } {
   const style = edge.style;
@@ -185,7 +185,7 @@ export function edgeStyle(
       ? [...LAYOUT.dottedDash]
       : semanticDash;
 
-  let endMarker: 'arrow' | 'circle' | 'cross' | 'none' = 'none';
+  let endMarker: MarkerKind = 'none';
   if (
     kind === 'arrow' ||
     kind === 'dottedArrow' ||
@@ -201,7 +201,7 @@ export function edgeStyle(
     endMarker = 'cross';
   }
 
-  let startMarker: 'arrow' | 'circle' | 'cross' | 'none' = 'none';
+  let startMarker: MarkerKind = 'none';
   if (
     kind === 'bidirectional' ||
     kind === 'dottedBidirectional' ||
@@ -212,6 +212,11 @@ export function edgeStyle(
     startMarker = 'circle';
   } else if (kind === 'crossBoth') {
     startMarker = 'cross';
+  }
+
+  if (edge.markers) {
+    endMarker = edge.markers.end;
+    startMarker = edge.markers.start;
   }
 
   const startArrow = startMarker === 'arrow';

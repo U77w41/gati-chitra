@@ -3,6 +3,7 @@ import type { DrawOptions, FrameState, Scene, Theme } from '../core/types';
 import { tangentAt } from '../layout/geometry';
 import { fontString } from '../layout/measure';
 import { parseInlineMarkdown } from '../layout/rich-text';
+import { drawMarker, markerPrims } from './markers';
 import { edgeStyle } from './style';
 
 export function drawEdges(
@@ -104,6 +105,9 @@ export function drawEdges(
       ctx.lineWidth = 2;
       ctx.strokeStyle = st.stroke;
       ctx.stroke();
+    } else if (st.endMarker !== 'none') {
+      const prims = markerPrims(st.endMarker, to, t);
+      drawMarker(ctx, prims, st.stroke, theme.background, st.width);
     }
 
     if (st.startMarker === 'arrow' || st.startArrow) {
@@ -143,6 +147,11 @@ export function drawEdges(
       ctx.lineWidth = 2;
       ctx.strokeStyle = st.stroke;
       ctx.stroke();
+    } else if (st.startMarker !== 'none') {
+      const t0 = tangentAt(path, 0);
+      const u0 = { x: -t0.x, y: -t0.y };
+      const prims = markerPrims(st.startMarker, path.from, u0);
+      drawMarker(ctx, prims, st.stroke, theme.background, st.width);
     }
 
     if (isDimmed) {

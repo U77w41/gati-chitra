@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GraphEdge, GraphNode } from '../../src/core/types';
+import { parseMermaid } from '../mermaid/parse';
 import { THEMES } from './themes';
 import {
   edgeStyle,
@@ -153,5 +154,10 @@ describe('nodeStyle & edgeStyle upgrades', () => {
     });
     const overrideStyle = edgeStyle(overrideEdge, theme);
     expect(overrideStyle.stroke).toBe('#999999');
+  });
+
+  it('lets explicit markers replace the markers of the edge kind', () => {
+    const e = { ...parseMermaid('flowchart TD\nA-->B').edges[0], markers: { start: 'triangle' as const, end: 'none' as const } };
+    expect(edgeStyle(e, THEMES.daylight)).toMatchObject({ startMarker: 'triangle', endMarker: 'none', startArrow: false });
   });
 });

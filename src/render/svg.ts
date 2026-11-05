@@ -4,7 +4,9 @@ import { describeDiagram } from '../app/describe';
 import { tangentAt } from '../layout/geometry';
 import type { MeasureText } from '../layout/measure';
 import { parseInlineMarkdown } from '../layout/rich-text';
+import { svgEdgeEndLabels } from './edge-extras';
 import { exportFrame } from './frame';
+import { markerPrims, svgMarker } from './markers';
 import { edgeStyle } from './style';
 import { svgNodes } from './svg-nodes';
 import { escapeXml } from './xml';
@@ -94,6 +96,11 @@ export function renderSvg(
       const cx = path.from.x + t0.x * 6;
       const cy = path.from.y + t0.y * 6;
       out += `<path class="marker-cross" d="M ${fmt(cx - 5)} ${fmt(cy - 5)} L ${fmt(cx + 5)} ${fmt(cy + 5)} M ${fmt(cx - 5)} ${fmt(cy + 5)} L ${fmt(cx + 5)} ${fmt(cy - 5)}" stroke="${st.stroke}" stroke-width="2" fill="none"/>`;
+    } else if (st.startMarker !== 'none') {
+      const t0 = tangentAt(path, 0);
+      const u0 = { x: -t0.x, y: -t0.y };
+      const prims = markerPrims(st.startMarker, path.from, u0);
+      out += svgMarker(prims, st.stroke, theme.background, st.width);
     }
 
     if (st.endMarker === 'arrow') {
@@ -117,6 +124,10 @@ export function renderSvg(
       const cx = path.to.x - t.x * 6;
       const cy = path.to.y - t.y * 6;
       out += `<path class="marker-cross" d="M ${fmt(cx - 5)} ${fmt(cy - 5)} L ${fmt(cx + 5)} ${fmt(cy + 5)} M ${fmt(cx - 5)} ${fmt(cy + 5)} L ${fmt(cx + 5)} ${fmt(cy - 5)}" stroke="${st.stroke}" stroke-width="2" fill="none"/>`;
+    } else if (st.endMarker !== 'none') {
+      const t = tangentAt(path, 1);
+      const prims = markerPrims(st.endMarker, path.to, t);
+      out += svgMarker(prims, st.stroke, theme.background, st.width);
     }
   }
 
@@ -150,6 +161,8 @@ export function renderSvg(
       }
     }
   }
+
+  out += svgEdgeEndLabels(scene, theme);
 
   out += svgNodes(scene, theme, measure);
   out += '</svg>';

@@ -132,4 +132,10 @@ describe('SVG export', () => {
   it('draws label pills', () => {
     expect(svg('flowchart LR\nA -->|yes| B')).toMatch(/<rect[^>]*rx="6"/);
   });
+
+  it('writes extra markers in SVG', () => {
+    const doc = parseMermaid('flowchart LR\nA --- B');
+    doc.edges[0].markers = { start: 'none', end: 'triangle' };
+    expect(renderSvg(buildScene(doc, testMeasure), THEMES.daylight, { mode: 'content', transparent: false }, testMeasure)).toContain('class="marker-extra"');
+  });
 });

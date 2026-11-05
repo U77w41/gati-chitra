@@ -8,6 +8,7 @@ import type {
 } from '../core/types';
 import { handlePoint, pointOnPath } from '../layout/geometry';
 import { drawEdgeDashOverlay, drawEdgeLabels, drawEdges } from './draw-edges';
+import { drawEdgeEndLabels } from './edge-extras';
 import { drawGrid } from './grid';
 import { drawNodes } from './draw-nodes';
 import { drawRuns } from './draw-runs';
@@ -99,6 +100,7 @@ export function drawScene(
   // 3. Edges & 4. Edge labels
   drawEdges(ctx, scene, theme, options, frame);
   drawEdgeLabels(ctx, scene, theme, frame);
+  drawEdgeEndLabels(ctx, scene, theme, frame);
 
   // 5. Dash overlay
   if (frame.dashOffset !== null) {
