@@ -2739,7 +2739,7 @@ git add -A && git commit -m "feat: read Mermaid entity relationship diagrams"
 
 e2e rows: `{ kind: 'er', file: 'er.mmd', nodes: 4, svgText: 'CUSTOMER' }` and `{ kind: 'er', file: 'er.mmd', nodeId: 'PRODUCT', newLabel: 'Item', canAdd: true, canDelete: true }`. Template title: `Data model`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/er/ops.test.ts
@@ -2775,10 +2775,10 @@ describe('applyErOp', () => {
 
 For this test to hold, an ER entity block with no closing `}` must be an error `MESSAGES.unclosedBrace(name)` (add it to the parser if Task 79 did not).
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/er`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **ER**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/er`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **ER**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit ER diagrams on the canvas and add the ER template"

@@ -1,23 +1,15 @@
 import type { DiagramEngine } from '../engine';
-import { MESSAGES } from '../../core/constants';
 import { parseEr } from './parse';
+import {
+  ER_ADD_CHOICES, ER_CAPS, ER_EDGE_VARIANTS, applyErOp,
+} from './ops';
 
 export const engine: DiagramEngine = {
   kind: 'er',
-  caps: {
-    add: false,
-    connect: false,
-    rename: false,
-    delete: false,
-    move: false,
-    shape: false,
-    style: false,
-    edgeVariant: false,
-    reverse: false,
-  },
-  addChoices: [],
+  caps: ER_CAPS,
+  addChoices: ER_ADD_CHOICES,
   shapeChoices: [],
-  edgeVariants: [],
+  edgeVariants: ER_EDGE_VARIANTS,
   parse: parseEr,
-  applyOp: () => ({ error: MESSAGES.opUnsupported }),
+  applyOp: applyErOp,
 };

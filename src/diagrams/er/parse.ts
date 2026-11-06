@@ -32,7 +32,13 @@ export function parseEr(text: string): ParsedDoc {
   let currentGroup: { id: string; line: number } | null = null;
   let activeEntityBlock: { id: string; line: number } | null = null;
 
-  function ensureEntity(rawName: string, rawAlias: string | undefined, line: number, aliasSpan?: Span): EntityData {
+  function ensureEntity(
+    rawName: string,
+    rawAlias: string | undefined,
+    line: number,
+    aliasSpan?: Span,
+    isDeclaration = false,
+  ): EntityData {
     const { id, label, cssClass } = parseEntityId(rawName, rawAlias);
     let data = entityMap.get(id);
     if (!data) {
@@ -43,7 +49,7 @@ export function parseEr(text: string): ParsedDoc {
         line,
         group: currentGroup ? currentGroup.id : null,
         attributeRows: [],
-        refLines: [line],
+        refLines: isDeclaration ? [line] : [],
         classNames: cssClass ? [cssClass] : [],
         style: {},
       };
@@ -57,7 +63,7 @@ export function parseEr(text: string): ParsedDoc {
       if (cssClass && !data.classNames.includes(cssClass)) {
         data.classNames.push(cssClass);
       }
-      if (!data.refLines.includes(line)) {
+      if (isDeclaration && !data.refLines.includes(line)) {
         data.refLines.push(line);
       }
     }
@@ -108,7 +114,7 @@ export function parseEr(text: string): ParsedDoc {
     if (emptyBlockMatch) {
       p.lines[i].kind = 'statement';
       const aliasSpan = emptyBlockMatch[2] !== undefined ? spanAt(raw, i, emptyBlockMatch, 2) : undefined;
-      ensureEntity(emptyBlockMatch[1], emptyBlockMatch[2], i, aliasSpan);
+      ensureEntity(emptyBlockMatch[1], emptyBlockMatch[2], i, aliasSpan, true);
       continue;
     }
 
@@ -116,7 +122,7 @@ export function parseEr(text: string): ParsedDoc {
     if (openBlockMatch) {
       p.lines[i].kind = 'statement';
       const aliasSpan = openBlockMatch[2] !== undefined ? spanAt(raw, i, openBlockMatch, 2) : undefined;
-      const ent = ensureEntity(openBlockMatch[1], openBlockMatch[2], i, aliasSpan);
+      const ent = ensureEntity(openBlockMatch[1], openBlockMatch[2], i, aliasSpan, true);
       activeEntityBlock = { id: ent.id, line: i };
       continue;
     }
@@ -149,7 +155,7 @@ export function parseEr(text: string): ParsedDoc {
     if (declMatch) {
       p.lines[i].kind = 'statement';
       const aliasSpan = declMatch[2] !== undefined ? spanAt(raw, i, declMatch, 2) : undefined;
-      ensureEntity(declMatch[1], declMatch[2], i, aliasSpan);
+      ensureEntity(declMatch[1], declMatch[2], i, aliasSpan, true);
       continue;
     }
 
@@ -257,6 +263,7 @@ export function parseEr(text: string): ParsedDoc {
       sections,
       classNames: data.classNames,
       style: data.style,
+      refLines: data.refLines,
     });
     nodes.push(node);
     if (!checkLimits(nodes, edges, p.diagnostics, data.line)) break;

@@ -5,5 +5,6 @@
   { "id": "arrow-styles", "title": "Arrow styles", "file": "arrow-styles.mmd" },
   { "id": "checkout", "title": "Order checkout", "file": "checkout.mmd" },
   { "id": "state", "title": "State machine", "file": "state.mmd" },
-  { "id": "class", "title": "Class model", "file": "class.mmd" }
+  { "id": "class", "title": "Class model", "file": "class.mmd" },
+  { "id": "er", "title": "Data model", "file": "er.mmd" }
 ]
