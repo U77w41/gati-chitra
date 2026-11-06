@@ -3361,7 +3361,7 @@ block
   api --> w2
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 const T = `block
@@ -3404,10 +3404,10 @@ it('fills rows of columns, spans cells and nests blocks', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/block`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe, Part 5.9 and Part 6.4.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/block`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe, Part 5.9 and Part 6.4.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read and lay out Mermaid block diagrams"

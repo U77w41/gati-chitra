@@ -1,0 +1,10 @@
+export const HEADER_RE = /^block(-beta)?\s*$/;
+export const COLUMNS_RE = /^columns\s+(\d+|auto)$/;
+export const BLOCK_START_RE = /^block(?::([^\s:]+))?(?::(\d+))?$/;
+export const END_RE = /^end$/;
+export const SPACE_RE = /^space(?::(\d+))?$/;
+export const BLOCK_ARROW_RE = /^([^\s<([{\]>]+)<\["?(.*?)"?\]>\(([^)]+)\)(?::(\d+))?$/;
+export const EDGE_LINE_RE = /^(.+?)\s*(?:(--\s*"([^"]*)"\s*-->)|(-->)|(---))\s*(.+)$/d;
+export const STYLE_RE = /^style\s+([^\s]+)\s+(.+)$/;
+export const CLASS_DEF_RE = /^classDef\s+([^\s]+)\s+(.+)$/;
+export const CLASS_RE = /^class\s+([^\s]+)\s+([^\s]+)$/;

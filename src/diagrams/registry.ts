@@ -13,6 +13,7 @@ export const LOADERS: Partial<Record<DiagramKind, Loader>> = {
   architecture: () => import('./architecture/index').then((m) => m.engine),
   sequence: () => import('./sequence/index').then((m) => m.engine),
   gitgraph: () => import('./gitgraph/index').then((m) => m.engine),
+  block: () => import('./block/index').then((m) => m.engine),
 };
 
 const engines = new Map<DiagramKind, DiagramEngine>();
