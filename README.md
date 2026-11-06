@@ -55,6 +55,13 @@ Gati-chitra supports phones and touch screens:
 | Double tap empty canvas | Add node |
 | Double tap node | Rename node |
 
+## What's new in v0.11.0
+
+- Requirement diagrams: parse, draw, animate, and edit requirement specifications directly on the canvas.
+- Use case diagrams: parse, draw, animate, and edit use case diagrams with actors and system boundaries.
+- Architecture diagrams: parse, draw, animate, and edit cloud service architectures with built-in icons.
+- Templates: gallery templates for requirements, use cases, and cloud architectures.
+
 ## What's new in v0.10.0
 
 - State diagrams: parse, draw, animate, and edit state machines directly on the canvas.
@@ -96,12 +103,15 @@ Gati-chitra supports phones and touch screens:
 
 ## Diagram types
 
-Gati-chitra reads and edits four Mermaid diagram types:
+Gati-chitra reads and edits seven Mermaid diagram types:
 
 - **Flowcharts**: `flowchart TD` (as well as `flowchart LR`, `BT`, `RL`, and `graph`).
 - **State diagrams**: `stateDiagram-v2` (or `stateDiagram`).
 - **Class diagrams**: `classDiagram`.
 - **Entity relationship diagrams**: `erDiagram`.
+- **Requirement diagrams**: `requirementDiagram`.
+- **Use case diagrams**: `usecaseDiagram` (or `usecase`).
+- **Architecture diagrams**: `architecture-beta`.
 
 ## Supported Mermaid syntax
 

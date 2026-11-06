@@ -30,7 +30,7 @@ it('.gitignore keeps generated and local files out, and keeps the shared files i
 });
 it('has a lint script, an engines field and a Node version file', () => {
   const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
-  expect(pkg.version).toBe('0.10.0');
+  expect(pkg.version).toBe('0.11.0');
   expect(pkg.engines.node).toBe('>=22');
   expect(pkg.scripts.lint).toContain('oxlint');
   expect(readFileSync('.nvmrc', 'utf8').trim()).toMatch(/^\d+$/);

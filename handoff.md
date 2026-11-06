@@ -16,22 +16,53 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
-## 2. Current State (v0.10.0)
+## 2. Current State (v0.11.0)
 
-- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74) and Milestone D2 (Tasks 75 to 81) are complete; next is Milestone D3 (Tasks 82 to 88).
+- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74), Milestone D2 (Tasks 75 to 81), and Milestone D3 (Tasks 82 to 88) are complete; next is Milestone D4 (Tasks 89 to 94).
 - **Last verified**: 2026-11-06, locally.
 - **Branch**: `main` (ahead of origin by unpushed commits; never push without explicit user request).
-- **Release commit**: `chore: release v0.10.0` (tag `v0.10.0`).
+- **Release commit**: `chore: release v0.11.0` (tag `v0.11.0`).
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
   - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked.
-  - `plan.md` (Tasks 64 to 103): Milestones D1 and D2 complete; Tasks 74 and 81 automated boxes ticked in Part 10.
-- **Checks run on 2026-11-06 (v0.10.0 release)**:
-  - `npm test`: 531 tests passing across 87 files.
-  - `npm run lint`: 0 warnings, 0 errors across 237 files.
+  - `plan.md` (Tasks 64 to 103): Milestones D1, D2, and D3 complete; Tasks 74, 81, and 88 automated boxes ticked in Part 10.
+- **Checks run on 2026-11-06 (v0.11.0 release)**:
+  - `npm test`: 558 tests passing across 94 files.
+  - `npm run lint`: 0 warnings, 0 errors across 259 files.
   - `BASE_PATH=/gati-chitra/ npm run build`: passes, including service worker TypeScript config.
-  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 136.60 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); state (3.36 KB), class (3.52 KB), er (3.41 KB); `OK`.
-  - `npm run test:e2e`: 332 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 131.22 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); requirement (2.84 KB), usecase (2.88 KB), architecture (3.40 KB); `OK`.
+  - `npm run test:e2e`: 350 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+
+---
+
+## 2e. Latest Session (2026-11-06): Milestone D3 (Tasks 82 to 88, v0.11.0)
+
+**Status: committed locally** as individual task commits (`96b8661`, `5b64f87`, `289d7d2`, `50a68a3`, `c5f9c05`, `b046257`), release commit `chore: release v0.11.0` and tagged `v0.11.0`. Never pushed.
+
+**What was completed:**
+- **Task 82 (feat: read Mermaid requirement diagrams)**: parser for `requirementDiagram`, reading requirements and elements with ids, text, risk, verifymethod, type, docref, and relationship edges (`contains`, `copies`, `derives`, `satisfies`, `verifies`, `refines`, `traces`). Added fixtures `requirement.mmd` and `requirement.json` to corpus.
+- **Task 83 (feat: edit requirement diagrams on the canvas and add the requirement template)**: visual canvas operations for requirement diagrams (`applyRequirementOp`), added `requirement.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 84 (feat: read Mermaid use case diagrams)**: parser for `usecaseDiagram` (and `usecase`), reading use cases (`ellipse`), actors, system/boundary boxes (`rect`), packages, and edge relationships (`-->`, `--`, `--|>`, `..>`). Added fixtures `usecase.mmd` and `usecase.json` to corpus.
+- **Task 85 (feat: edit use case diagrams on the canvas and add the use case template)**: visual canvas operations for use case diagrams (`applyUsecaseOp`), added `usecase.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 86 (feat: read and lay out Mermaid architecture diagrams with built-in icons)**: parser and custom BFS grid layout for `architecture-beta`, reading groups, services with icons (`cloud`, `database`, `disk`, `internet`, `server`, and fallback for unrecognized icons), junctions, and directional side-to-side edges (`L`, `R`, `T`, `B`). Added fixtures `architecture.mmd` and `architecture.json` to corpus.
+- **Task 87 (feat: edit architecture diagrams on the canvas and add the architecture template)**: visual canvas operations for architecture diagrams (`applyArchitectureOp`), added `architecture.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 88 (chore: release v0.11.0)**: version bumped to 0.11.0 in `package.json` and `src/repo.test.ts`, updated `README.md` (and humanized), updated `RELEASE_CHECKLIST.md`, `DECISIONS.md`, and `handoff.md`.
+
+**Key files created or changed:**
+- `src/diagrams/requirement/`: `parse.ts`, `patterns.ts`, `helpers.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/usecase/`: `parse.ts`, `patterns.ts`, `helpers.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/architecture/`: `parse.ts`, `patterns.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `public/templates/`: `requirement.mmd`, `usecase.mmd`, `architecture.mmd`, `index.json`.
+- `tests/fixtures/diagrams/`: `requirement.mmd`, `requirement.json`, `usecase.mmd`, `usecase.json`, `architecture.mmd`, `architecture.json`.
+- `tests/e2e/`: `diagrams.spec.ts`, `diagram-edit.spec.ts`.
+
+**Metrics & Verification:**
+- All non-test TypeScript source files remain strictly under 300 lines (longest is `src/diagrams/usecase/parse.ts` at 249 lines).
+- `npm test`: 94 test files, 558 unit tests passing.
+- `npm run lint`: 0 warnings, 0 errors.
+- `BASE_PATH=/gati-chitra/ npm run build`: successful production build.
+- `BASE_PATH=/gati-chitra/ npm run check:dist`: Initial JS 131.22 KB gzip; largest lazy chunk 57.27 KB gzip; all diagram chunks ~2.8 - 3.4 KB gzip.
+- `npm run test:e2e`: 350 passed, 17 skipped, 0 failed.
 
 ---
 

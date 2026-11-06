@@ -3185,10 +3185,10 @@ git add -A && git commit -m "feat: edit architecture diagrams on the canvas and 
 
 Same steps as Task 81, with version `0.11.0` (`src/repo.test.ts`: `0.10.0` → `0.11.0`), README listing requirement, use case and architecture as well, and the Part 10 v0.11.0 checklist. Commit message `chore: release v0.11.0`, tag `v0.11.0`.
 
-- [ ] **Step 1:** Make the changes and run the humanizer on `README.md`.
-- [ ] **Step 2: Run** the release commands from Task 81. Expected: PASS.
-- [ ] **Step 3:** Tick the boxes you checked by command; record the numbers in `handoff.md`.
-- [ ] **Step 4: Commit and tag** (only if allowed).
+- [x] **Step 1:** Make the changes and run the humanizer on `README.md`.
+- [x] **Step 2: Run** the release commands from Task 81. Expected: PASS.
+- [x] **Step 3:** Tick the boxes you checked by command; record the numbers in `handoff.md`.
+- [x] **Step 4: Commit and tag** (only if allowed).
 
 ---
 

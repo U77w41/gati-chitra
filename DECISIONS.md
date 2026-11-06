@@ -55,4 +55,10 @@ Task 79: chose to extract buildRelEdge and cardinality mapping tables into helpe
 Task 80: chose to pass refLines from EntityData to makeNode so that deleting an ER entity also removes its declaration and attribute block lines.
 Task 81: released v0.10.0 (Milestone D2); automated test suite (87 test files, 531 unit tests) and e2e suite (332 passed, 17 skipped) pass; initial JS bundle is 136.60 KB gzip (under 150 KB limit) and state (3.36 KB), class (3.52 KB), er (3.41 KB) lazy chunks each remain well under 80 KB limit.
 Task 83: chose to delete using c.newLabel when getNodeScreenCenter(c.nodeId) is null in tests/e2e/diagram-edit.spec.ts because requirement diagram renaming renames the node name/id directly.
+Task 84: chose to add memberIds?: string[] to GraphGroup in src/core/types.ts to store group members in use case diagrams without type assertions.
+Task 85: chose to extract helper functions into helpers.ts and regexes into patterns.ts to keep usecase/parse.ts strictly under 300 lines.
+Task 86: chose to capture edge operator in EDGE_RE group 4 to record exact opSpan for architecture diagrams.
+Task 87: chose to extract grid layout calculation and side point resolution into layout.ts to keep architecture/parse.ts strictly under 300 lines.
+Task 88: released v0.11.0 (Milestone D3); automated test suite (94 test files, 558 unit tests) and e2e suite (350 passed, 17 skipped) pass; initial JS bundle is 131.22 KB gzip (under 150 KB limit) and requirement (2.84 KB), usecase (2.88 KB), architecture (3.40 KB) lazy chunks each remain well under 80 KB limit.
+
 
