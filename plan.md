@@ -2693,7 +2693,7 @@ erDiagram
   }
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/er/parse.test.ts
@@ -2724,10 +2724,10 @@ describe('parseEr', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/er`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 5.3.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/er`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 5.3.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read Mermaid entity relationship diagrams"
