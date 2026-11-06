@@ -2888,7 +2888,7 @@ git add -A && git commit -m "feat: read Mermaid requirement diagrams"
 
 e2e rows: `{ kind: 'requirement', file: 'requirement.mmd', nodes: 4, svgText: 'fast_checkout' }` and `{ kind: 'requirement', file: 'requirement.mmd', nodeId: 'load_test', newLabel: 'soak_test', canAdd: true, canDelete: true }`. Template title: `Requirements`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/requirement/ops.test.ts
@@ -2928,10 +2928,10 @@ describe('applyRequirementOp', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/requirement`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Requirement**. Inner block lines get two more spaces than the block's first line.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/requirement`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Requirement**. Inner block lines get two more spaces than the block's first line.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit requirement diagrams on the canvas and add the requirement template"

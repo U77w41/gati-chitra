@@ -1,22 +1,16 @@
 import type { DiagramEngine } from '../engine';
 import { parseRequirement } from './parse';
+import {
+  REQUIREMENT_ADD_CHOICES, REQUIREMENT_CAPS, REQUIREMENT_EDGE_VARIANTS,
+  applyRequirementOp,
+} from './ops';
 
 export const engine: DiagramEngine = {
   kind: 'requirement',
-  caps: {
-    add: false,
-    connect: false,
-    rename: false,
-    delete: false,
-    move: false,
-    shape: false,
-    style: false,
-    edgeVariant: false,
-    reverse: false,
-  },
-  addChoices: [],
+  caps: REQUIREMENT_CAPS,
+  addChoices: REQUIREMENT_ADD_CHOICES,
   shapeChoices: [],
-  edgeVariants: [],
+  edgeVariants: REQUIREMENT_EDGE_VARIANTS,
   parse: parseRequirement,
-  applyOp: () => ({ error: 'Operation not supported' }),
+  applyOp: applyRequirementOp,
 };

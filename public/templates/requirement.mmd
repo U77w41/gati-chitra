@@ -1,0 +1,24 @@
+requirementDiagram
+  requirement fast_checkout {
+    id: 1
+    text: Checkout takes under 3 seconds.
+    risk: medium
+    verifymethod: test
+  }
+  functionalRequirement pay_by_card {
+    id: 1.1
+    text: Customers can pay by card.
+    risk: high
+    verifymethod: demonstration
+  }
+  element checkout_service {
+    type: service
+    docref: docs/checkout.md
+  }
+  element load_test {
+    type: test suite
+  }
+  checkout_service - satisfies -> fast_checkout
+  checkout_service - satisfies -> pay_by_card
+  load_test - verifies -> fast_checkout
+  fast_checkout - contains -> pay_by_card

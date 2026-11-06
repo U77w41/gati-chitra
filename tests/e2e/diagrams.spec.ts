@@ -6,6 +6,7 @@ export const CASES: { kind: string; file: string; nodes: number; svgText: string
   { kind: 'state', file: 'state.mmd', nodes: 8, svgText: 'Paying' },
   { kind: 'class', file: 'class.mmd', nodes: 5, svgText: 'Animal' },
   { kind: 'er', file: 'er.mmd', nodes: 4, svgText: 'CUSTOMER' },
+  { kind: 'requirement', file: 'requirement.mmd', nodes: 4, svgText: 'fast_checkout' },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

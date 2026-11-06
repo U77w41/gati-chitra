@@ -6,6 +6,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'state', file: 'state.mmd', nodeId: 'Paying', newLabel: 'Charging', canAdd: true, canDelete: true },
   { kind: 'class', file: 'class.mmd', nodeId: 'Fish', newLabel: 'Trout', canAdd: true, canDelete: true },
   { kind: 'er', file: 'er.mmd', nodeId: 'PRODUCT', newLabel: 'Item', canAdd: true, canDelete: true },
+  { kind: 'requirement', file: 'requirement.mmd', nodeId: 'load_test', newLabel: 'soak_test', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {
@@ -35,7 +36,10 @@ for (const c of CASES) {
     }).toBe(true);
 
     if (c.canDelete) {
-      const currentCenter = await page.evaluate((id) => (window as any).__studio.getNodeScreenCenter(id), c.nodeId);
+      const deleteId = (await page.evaluate((id) => (window as any).__studio.getNodeScreenCenter(id), c.nodeId))
+        ? c.nodeId
+        : c.newLabel;
+      const currentCenter = await page.evaluate((id) => (window as any).__studio.getNodeScreenCenter(id), deleteId);
       expect(currentCenter).not.toBeNull();
       await page.mouse.click(currentCenter.x, currentCenter.y);
       await page.keyboard.press('Delete');

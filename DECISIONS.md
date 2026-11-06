@@ -54,4 +54,5 @@ Task 78: chose to record opSpan on class relations in parse.ts to support setEdg
 Task 79: chose to extract buildRelEdge and cardinality mapping tables into helpers.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
 Task 80: chose to pass refLines from EntityData to makeNode so that deleting an ER entity also removes its declaration and attribute block lines.
 Task 81: released v0.10.0 (Milestone D2); automated test suite (87 test files, 531 unit tests) and e2e suite (332 passed, 17 skipped) pass; initial JS bundle is 136.60 KB gzip (under 150 KB limit) and state (3.36 KB), class (3.52 KB), er (3.41 KB) lazy chunks each remain well under 80 KB limit.
+Task 83: chose to delete using c.newLabel when getNodeScreenCenter(c.nodeId) is null in tests/e2e/diagram-edit.spec.ts because requirement diagram renaming renames the node name/id directly.
 
