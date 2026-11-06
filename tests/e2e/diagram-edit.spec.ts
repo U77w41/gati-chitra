@@ -12,6 +12,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'sequence', file: 'sequence.mmd', nodeId: 'P', newLabel: 'Bank', canAdd: true, canDelete: true },
   { kind: 'gitgraph', file: 'gitgraph.mmd', nodeId: 'c3', newLabel: 'urgent fix', canAdd: true, canDelete: true },
   { kind: 'block', file: 'block.mmd', nodeId: 'db', newLabel: 'Store', canAdd: true, canDelete: true },
+  { kind: 'mindmap', file: 'mindmap.mmd', nodeId: 'm5', newLabel: 'Glow', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

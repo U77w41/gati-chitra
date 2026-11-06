@@ -69,5 +69,6 @@ Task 94: released v0.12.0 (Milestone D4); automated test suite (100 test files, 
 Task 95: chose to extract line token scanner and item parser into helpers.ts to keep parse.ts strictly under 300 lines.
 Task 96: chose to trim adjacent whitespace before/after defSpan on node deletion and remove dependent edge lines to preserve valid block grid syntax.
 Task 97: chose to match mindmap shape delimiter pairs sequentially with priority on double-character tokens so inner content does not greedily consume closing brackets.
+Task 98: chose to slice textLines without trailing newline when moving mindmap branches to prevent spurious empty lines inside branch subtrees.
 
 

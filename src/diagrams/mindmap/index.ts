@@ -1,25 +1,21 @@
-import { MESSAGES } from '../../core/constants';
 import type { DiagramEngine } from '../engine';
 import { layoutMindmap } from './layout';
+import {
+  applyMindmapOp,
+  MINDMAP_ADD_CHOICES,
+  MINDMAP_CAPS,
+  MINDMAP_EDGE_VARIANTS,
+  MINDMAP_SHAPE_CHOICES,
+} from './ops';
 import { parseMindmap } from './parse';
 
 export const engine: DiagramEngine = {
   kind: 'mindmap',
-  caps: {
-    add: false,
-    connect: false,
-    rename: false,
-    delete: false,
-    move: false,
-    shape: false,
-    style: false,
-    edgeVariant: false,
-    reverse: false,
-  },
-  addChoices: [],
-  shapeChoices: [],
-  edgeVariants: [],
+  caps: MINDMAP_CAPS,
+  addChoices: MINDMAP_ADD_CHOICES,
+  shapeChoices: MINDMAP_SHAPE_CHOICES,
+  edgeVariants: MINDMAP_EDGE_VARIANTS,
   parse: parseMindmap,
   layout: layoutMindmap,
-  applyOp: () => ({ error: MESSAGES.opUnsupported }),
+  applyOp: applyMindmapOp,
 };

@@ -12,5 +12,6 @@
   { "id": "architecture", "title": "Cloud architecture", "file": "architecture.mmd" },
   { "id": "sequence", "title": "Checkout sequence", "file": "sequence.mmd" },
   { "id": "gitgraph", "title": "Release branches", "file": "gitgraph.mmd" },
-  { "id": "block", "title": "Block layout", "file": "block.mmd" }
+  { "id": "block", "title": "Block layout", "file": "block.mmd" },
+  { "id": "mindmap", "title": "Mindmap", "file": "mindmap.mmd" }
 ]

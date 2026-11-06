@@ -3467,37 +3467,11 @@ git add -A && git commit -m "feat: read and lay out Mermaid mindmaps"
 
 e2e rows: `{ kind: 'mindmap', file: 'mindmap.mmd', nodes: 12, svgText: 'Animate' }` and `{ kind: 'mindmap', file: 'mindmap.mmd', nodeId: 'm5', newLabel: 'Glow', canAdd: true, canDelete: true }` (`m5` is `Pulse`: the fifth node without its own id). Template title: `Mindmap`.
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-// src/diagrams/mindmap/ops.test.ts
-const B = 'mindmap\n  root((R))\n    A\n      A1\n    B\n';   // ids: root, m1 (A), m2 (A1), m3 (B)
-const text = (r: ReturnType<typeof applyMindmapOp>) => ('text' in r ? r.text : r.error);
-it('adds a child of the root and moves a branch under another node', () => {
-  expect(applyMindmapOp(B, { type: 'addNode', label: 'C', shape: 'round' })).toEqual({ text: B + '    m4(C)\n', createdId: 'm4' });
-  expect(text(applyMindmapOp(B, { type: 'addEdge', from: 'm3', to: 'm1' }))).toBe('mindmap\n  root((R))\n    B\n      A\n        A1\n');
-  expect(applyMindmapOp(B, { type: 'addEdge', from: 'm2', to: 'm1' })).toEqual({ error: MESSAGES.mindmapCycle });
-});
-it('renames, reshapes and deletes branches', () => {
-  expect(text(applyMindmapOp(B, { type: 'renameNode', id: 'm1', label: 'Apple' }))).toBe(B.replace('    A\n', '    Apple\n'));
-  expect(text(applyMindmapOp(B, { type: 'setShape', id: 'm3', shape: 'rect' }))).toBe(B.replace('    B\n', '    [B]\n'));
-  expect(text(applyMindmapOp(B, { type: 'deleteNode', id: 'm1' }))).toBe('mindmap\n  root((R))\n    B\n');
-  expect(applyMindmapOp(B, { type: 'deleteNode', id: 'root' })).toEqual({ error: MESSAGES.opUnsupported });
-});
-it('rename with awkward characters keeps the diagram valid', () => {
-  const d = parseMindmap(text(applyMindmapOp(B, { type: 'renameNode', id: 'm3', label: 'say (hi): now #1 | ok' })));
-  expect(d.ok).toBe(true);
-  expect(d.nodes.find((n) => n.id === 'm3')!.label).toBe('say hi : now #1 | ok');
-});
-it('refuses ops while the text has errors', () => {
-  expect(applyMindmapOp('mindmap\n  a\n  b\n', { type: 'addNode', label: 'x', shape: 'round' })).toEqual({ error: MESSAGES.fixTextFirst });
-});
-```
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/mindmap`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Mindmap**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/mindmap`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Mindmap**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit mindmaps on the canvas and add the mindmap template"
