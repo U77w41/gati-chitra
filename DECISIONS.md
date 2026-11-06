@@ -63,5 +63,6 @@ Task 88: released v0.11.0 (Milestone D3); automated test suite (94 test files, 5
 Task 89: chose to extract helper functions and declarations into helpers.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
 Task 90: chose to extract column widening, activation closing, lifeline and box decoration builders into layout-helpers.ts to keep sequence/layout.ts strictly under 300 lines.
 Task 91: chose to drop activation suffixes when reversing sequence edges and use exact text 'Order checkout' in tests/e2e/chrome.spec.ts so both checkout and sequence templates coexist cleanly.
+Task 92: chose to separate gitgraph layout and regex patterns into layout.ts and patterns.ts to keep parse.ts strictly under 300 lines.
 
 
