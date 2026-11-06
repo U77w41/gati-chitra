@@ -3495,49 +3495,11 @@ journey
     Eat: 5: Me, Friend
 ```
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-const T = `journey
-  title My working day
-  section Go to work
-    Make tea: 5: Me
-    Go upstairs: 3: Me, Cat
-  section Go home
-    Go downstairs: 1: Me`;
-
-// src/diagrams/journey/parse.test.ts
-it('reads sections, tasks, scores and actors', () => {
-  const d = parseJourney(T);
-  expect(d).toMatchObject({ kind: 'journey', ok: true, title: 'My working day' });
-  expect(d.nodes.map((n) => n.id)).toEqual(['t1', 'f1', 't2', 'f2', 't3', 'f3']);
-  expect(['f1', 'f2', 'f3'].map((id) => d.nodes.find((n) => n.id === id)!.icon)).toEqual(['faceHappy', 'faceNeutral', 'faceSad']);
-  expect(d.nodes.find((n) => n.id === 't3')!.colorIndex).toBe(1);
-  expect(d.edges.map((e) => [e.from, e.to])).toEqual([['f1', 'f2'], ['f2', 'f3']]);
-  expect(d.data!.journey!.actors).toEqual(['Me', 'Cat']);
-  expect(d.stages).toEqual({ nodes: { t1: 0, f1: 0, t2: 1, f2: 1, t3: 2, f3: 2 }, edges: { e0: 1, e1: 2 } });
-});
-it('clamps a score outside 1 to 5 with a warning', () => {
-  const d = parseJourney('journey\n  Nap: 9: Me');
-  expect(d.diagnostics).toContainEqual({ line: 2, severity: 'warning', message: MESSAGES.journeyScore });
-  expect(d.data!.journey!.tasks[0].score).toBe(5);
-});
-
-// src/diagrams/journey/layout.test.ts
-it('places tasks in a row and faces by score', () => {
-  const L = layoutJourney(parseJourney(T), testMeasure);
-  expect(L.nodes.t1.center).toEqual({ x: 215, y: 68 });
-  expect(L.nodes.f1.center).toEqual({ x: 215, y: 148 });
-  expect(L.nodes.f2.center).toEqual({ x: 385, y: 220 });
-  expect(L.nodes.f3.center.y).toBe(292);
-  expect(L.decorations!.filter((d) => d.kind === 'rect' && d.role === 'band' && d.label).map((d) => (d.kind === 'rect' ? d.label : ''))).toEqual(['Go to work', 'Go home']);
-});
-```
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/journey`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe, Part 5.11 and Part 6.6.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/journey`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe, Part 5.11 and Part 6.6.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read and lay out Mermaid user journeys"
