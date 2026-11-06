@@ -49,3 +49,4 @@ Task 73: gated shift+arrow nudge with caps.move in canvas-events.ts; gated handl
 Task 74: released v0.9.0 (Milestone D1); automated test suite (80 test files, 507 unit tests) and e2e suite (311 passed, 17 skipped) pass; initial JS bundle is 136.46 KB gzip (under 150 KB limit) and largest lazy chunk is 57.27 KB gzip (under 80 KB limit).
 Task 75: chose to extract ScopeTracker into scope.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
 Task 76: chose to update src/share/templates.test.ts to use parseDocument and check length >= 5 because new diagram templates increase the template count and require multi-diagram parsing.
+Task 77: chose to extract ClassData, parseClassId, parseRelOp, and buildClassSections into helpers.ts to keep parse.ts strictly under 300 lines.

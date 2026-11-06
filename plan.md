@@ -2549,7 +2549,7 @@ classDiagram
   note for Duck "Can fly and swim"
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/class/parse.test.ts
@@ -2602,10 +2602,10 @@ describe('parseClass', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/class`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 5.2.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/class`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 5.2.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read Mermaid class diagrams"

@@ -1,0 +1,15 @@
+export const HEADER_RE = /^classDiagram(-v2)?\s*$/;
+export const DIR_RE = /^direction\s+(TB|TD|BT|LR|RL)$/;
+export const CLASS_DECL_RE = /^class\s+([A-Za-z0-9_]+)(~[^~]+~)?(?:\["([^"]*)"\])?(?::::(\w+))?\s*(\{)?$/d;
+export const ANNOTATION_RE = /^<<([^>]+)>>\s+([A-Za-z0-9_]+)$/;
+export const REL_RE = /^([A-Za-z0-9_]+(?:~[^~]+~)?)\s*(?:"([^"]*)"\s*)?((?:(?<=\s)[o*]|<\||<)?(?:--|\.\.)(?:\|>|>|[o*](?=\s))?|\(\)--|--\(\))\s*(?:"([^"]*)"\s*)?([A-Za-z0-9_]+(?:~[^~]+~)?)\s*(?::\s*(.*))?$/d;
+export const MEMBER_RE = /^([A-Za-z0-9_]+)\s*:\s*(.+)$/;
+export const NOTE_FOR_RE = /^note\s+for\s+([A-Za-z0-9_]+)\s+"([^"]*)"$/d;
+export const NOTE_FREE_RE = /^note\s+"([^"]*)"$/d;
+export const NAMESPACE_RE = /^namespace\s+([\w.]+)(?:\["([^"]*)"\])?\s*\{$/d;
+export const IGNORED_RE = /^(click|callback|link)\b/;
+export const CSS_CLASS_RE = /^cssClass\s+"([^"]+)"\s+(\w+)$/;
+export const STYLE_RE = /^style\s+([\w.-]+)\s+(.+)$/;
+export const CLASS_DEF_RE = /^classDef\s+(\w+)\s+(.+)$/;
+export const CLASS_APPLY_RE = /^class\s+([\w.,-]+)\s+(\w+)$/;
+export const CLOSE_BRACE_RE = /^\}$/;
