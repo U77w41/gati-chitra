@@ -11,6 +11,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'architecture', file: 'architecture.mmd', nodeId: 'files', newLabel: 'Blobs', canAdd: true, canDelete: true },
   { kind: 'sequence', file: 'sequence.mmd', nodeId: 'P', newLabel: 'Bank', canAdd: true, canDelete: true },
   { kind: 'gitgraph', file: 'gitgraph.mmd', nodeId: 'c3', newLabel: 'urgent fix', canAdd: true, canDelete: true },
+  { kind: 'block', file: 'block.mmd', nodeId: 'db', newLabel: 'Store', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

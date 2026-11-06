@@ -11,6 +11,7 @@ export const CASES: { kind: string; file: string; nodes: number; svgText: string
   { kind: 'architecture', file: 'architecture.mmd', nodes: 4, svgText: 'Database' },
   { kind: 'sequence', file: 'sequence.mmd', nodes: 4, svgText: 'Charge card' },
   { kind: 'gitgraph', file: 'gitgraph.mmd', nodes: 5, svgText: 'release' },
+  { kind: 'block', file: 'block.mmd', nodes: 5, svgText: 'Worker 1' },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

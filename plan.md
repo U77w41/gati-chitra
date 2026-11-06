@@ -3419,37 +3419,11 @@ git add -A && git commit -m "feat: read and lay out Mermaid block diagrams"
 
 e2e rows: `{ kind: 'block', file: 'block.mmd', nodes: 5, svgText: 'Worker 1' }` and `{ kind: 'block', file: 'block.mmd', nodeId: 'db', newLabel: 'Store', canAdd: true, canDelete: true }`. Template title: `Block layout`.
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-// src/diagrams/block/ops.test.ts
-const B = 'block\n  a b["Bee"]\n  a --> b\n';
-const text = (r: ReturnType<typeof applyBlockOp>) => ('text' in r ? r.text : r.error);
-it('adds, renames, reshapes and deletes blocks', () => {
-  expect(applyBlockOp(B, { type: 'addNode', label: 'Cat', shape: 'rect' })).toEqual({ text: B + '  b1["Cat"]\n', createdId: 'b1' });
-  expect(text(applyBlockOp(B, { type: 'renameNode', id: 'a', label: 'Ant' }))).toBe('block\n  a["Ant"] b["Bee"]\n  a --> b\n');
-  expect(text(applyBlockOp(B, { type: 'renameNode', id: 'b', label: 'Bug' }))).toBe(B.replace('Bee', 'Bug'));
-  expect(text(applyBlockOp(B, { type: 'setShape', id: 'b', shape: 'round' }))).toBe(B.replace('b["Bee"]', 'b("Bee")'));
-  expect(text(applyBlockOp(B, { type: 'deleteNode', id: 'a' }))).toBe('block\n  b["Bee"]\n');
-  expect(text(applyBlockOp(B, { type: 'setEdgeVariant', index: 0, variant: '---' }))).toBe(B.replace('a --> b', 'a --- b'));
-  expect(applyBlockOp(B, { type: 'reverseEdge', index: 0 })).toEqual({ error: MESSAGES.opUnsupported });
-});
-it('rename with awkward characters keeps the diagram valid', () => {
-  const d = parseBlock(text(applyBlockOp(B, { type: 'renameNode', id: 'b', label: 'say "hi": now #1 | ok' })));
-  expect(d.ok).toBe(true);
-  expect(d.nodes.find((n) => n.id === 'b')!.label).toBe('say hi : now #1 | ok');
-});
-it('refuses ops while the text has errors', () => {
-  expect(applyBlockOp('block\n  block:x\n', { type: 'addNode', label: 'x', shape: 'rect' })).toEqual({ error: MESSAGES.fixTextFirst });
-});
-```
-
-The last case needs a nested `block` with no `end` to be an error `MESSAGES.unclosedBlock('block')`; add it to the parser if Task 95 did not.
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/block`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Block**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/block`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Block**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit block diagrams on the canvas and add the block template"

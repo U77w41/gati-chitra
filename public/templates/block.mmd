@@ -1,0 +1,12 @@
+block
+  columns 3
+  web["Web"] api["API"] db[("Database")]
+  space:3
+  block:workers:3
+    columns 2
+    w1["Worker 1"] w2["Worker 2"]
+  end
+  web --> api
+  api --> db
+  api --> w1
+  api --> w2
