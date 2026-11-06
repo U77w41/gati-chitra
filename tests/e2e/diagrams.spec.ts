@@ -13,6 +13,7 @@ export const CASES: { kind: string; file: string; nodes: number; svgText: string
   { kind: 'gitgraph', file: 'gitgraph.mmd', nodes: 5, svgText: 'release' },
   { kind: 'block', file: 'block.mmd', nodes: 5, svgText: 'Worker 1' },
   { kind: 'mindmap', file: 'mindmap.mmd', nodes: 12, svgText: 'Animate' },
+  { kind: 'journey', file: 'journey.mmd', nodes: 10, svgText: 'Browse menus' },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

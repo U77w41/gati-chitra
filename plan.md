@@ -3511,33 +3511,11 @@ git add -A && git commit -m "feat: read and lay out Mermaid user journeys"
 
 e2e rows: `{ kind: 'journey', file: 'journey.mmd', nodes: 10, svgText: 'Browse menus' }` and `{ kind: 'journey', file: 'journey.mmd', nodeId: 't3', newLabel: 'Pay by phone', canAdd: true, canDelete: true }`. Template title: `User journey`.
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-// src/diagrams/journey/ops.test.ts
-const B = 'journey\n  section S\n    Tea: 5: Me\n';
-const text = (r: ReturnType<typeof applyJourneyOp>) => ('text' in r ? r.text : r.error);
-it('adds, renames and deletes tasks', () => {
-  expect(applyJourneyOp(B, { type: 'addNode', label: 'Walk', shape: 'round' })).toEqual({ text: B + '    Walk: 3: Me\n', createdId: 't2' });
-  expect(text(applyJourneyOp(B, { type: 'renameNode', id: 't1', label: 'Coffee' }))).toBe(B.replace('Tea', 'Coffee'));
-  expect(applyJourneyOp(B, { type: 'renameNode', id: 'f1', label: 'x' })).toEqual({ error: MESSAGES.opUnsupported });
-  expect(text(applyJourneyOp(B, { type: 'deleteNode', id: 'f1' }))).toBe('journey\n  section S\n');
-});
-it('rename with awkward characters keeps the diagram valid', () => {
-  const d = parseJourney(text(applyJourneyOp(B, { type: 'renameNode', id: 't1', label: 'say "hi": now #1 | ok' })));
-  expect(d.ok).toBe(true);
-  expect(d.nodes[0].label).toBe('say hi now #1 | ok');
-});
-it('refuses ops while the text has errors', () => {
-  const bad = { ...parseJourney(B), ok: false };
-  expect(guardOk(bad)).toEqual({ error: MESSAGES.fixTextFirst }); // a journey has no syntax error case of its own; the guard is shared
-});
-```
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/journey`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Journey**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/journey`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Journey**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit user journeys on the canvas and add the journey template"

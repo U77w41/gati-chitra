@@ -13,6 +13,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'gitgraph', file: 'gitgraph.mmd', nodeId: 'c3', newLabel: 'urgent fix', canAdd: true, canDelete: true },
   { kind: 'block', file: 'block.mmd', nodeId: 'db', newLabel: 'Store', canAdd: true, canDelete: true },
   { kind: 'mindmap', file: 'mindmap.mmd', nodeId: 'm5', newLabel: 'Glow', canAdd: true, canDelete: true },
+  { kind: 'journey', file: 'journey.mmd', nodeId: 't3', newLabel: 'Pay by phone', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {
@@ -60,7 +61,8 @@ for (const c of CASES) {
       await page.click('#btn-add-node');
       await expect.poll(async () => {
         const sum = await page.evaluate(() => (window as any).__studio.getSummary());
-        return sum.ok && sum.nodes.length === beforeAddCount + 1;
+        const expectedGrowth = c.kind === 'journey' ? 2 : 1;
+        return sum.ok && sum.nodes.length === beforeAddCount + expectedGrowth;
       }).toBe(true);
     }
   });
