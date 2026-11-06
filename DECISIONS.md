@@ -61,5 +61,6 @@ Task 86: chose to capture edge operator in EDGE_RE group 4 to record exact opSpa
 Task 87: chose to extract grid layout calculation and side point resolution into layout.ts to keep architecture/parse.ts strictly under 300 lines.
 Task 88: released v0.11.0 (Milestone D3); automated test suite (94 test files, 558 unit tests) and e2e suite (350 passed, 17 skipped) pass; initial JS bundle is 131.22 KB gzip (under 150 KB limit) and requirement (2.84 KB), usecase (2.88 KB), architecture (3.40 KB) lazy chunks each remain well under 80 KB limit.
 Task 89: chose to extract helper functions and declarations into helpers.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
+Task 90: chose to extract column widening, activation closing, lifeline and box decoration builders into layout-helpers.ts to keep sequence/layout.ts strictly under 300 lines.
 
 

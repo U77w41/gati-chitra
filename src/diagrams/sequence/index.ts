@@ -1,4 +1,5 @@
 import type { DiagramEngine } from '../engine';
+import { layoutSequence } from './layout';
 import { parseSequence } from './parse';
 
 export const engine: DiagramEngine = {
@@ -18,5 +19,6 @@ export const engine: DiagramEngine = {
   shapeChoices: [],
   edgeVariants: [],
   parse: parseSequence,
+  layout: layoutSequence,
   applyOp: () => ({ error: 'Operation not supported' }),
 };
