@@ -4,7 +4,9 @@ import { FLOWCHART_ENGINE } from './flowchart-engine';
 
 type Loader = () => Promise<DiagramEngine>;
 
-export const LOADERS: Partial<Record<DiagramKind, Loader>> = {};
+export const LOADERS: Partial<Record<DiagramKind, Loader>> = {
+  state: () => import('./state/index').then((m) => m.engine),
+};
 
 const engines = new Map<DiagramKind, DiagramEngine>();
 const promises = new Map<DiagramKind, Promise<DiagramEngine>>();

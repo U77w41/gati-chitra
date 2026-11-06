@@ -2309,7 +2309,7 @@ stateDiagram-v2
   note right of Idle : Waiting for the customer
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/corpus.test.ts
@@ -2393,10 +2393,10 @@ describe('parseState', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams`. Expected: FAIL.
-- [ ] **Step 3: Implement** per "How every engine task is built" and Part 5.1.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams`. Expected: FAIL.
+- [x] **Step 3: Implement** per "How every engine task is built" and Part 5.1.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read Mermaid state diagrams"

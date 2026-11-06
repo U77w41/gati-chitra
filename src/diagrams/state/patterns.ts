@@ -1,0 +1,16 @@
+export const HEADER_RE = /^stateDiagram(-v2)?\s*$/;
+export const DIR_RE = /^direction\s+(TB|TD|BT|LR|RL)$/;
+export const STATE_AS_RE = /^state\s+"([^"]*)"\s+as\s+([\w.-]+)\s*(\{)?$/d;
+export const STATE_SPECIAL_RE = /^state\s+([\w.-]+)\s*<<(choice|fork|join)>>$/;
+export const STATE_BLOCK_RE = /^state\s+([\w.-]+)\s*\{$/;
+export const STATE_DECL_RE = /^state\s+([\w.-]+)$/;
+export const CLOSE_BRACE_RE = /^\}$/;
+export const DIVIDER_RE = /^--$/;
+export const TRANSITION_RE = /^(\S+?)\s*-->\s*(\S+?)\s*(?::\s*(.*))?$/d;
+export const NOTE_ONE_RE = /^note\s+(?:left|right)\s+of\s+([\w.-]+)\s*:\s*(.+)$/d;
+export const NOTE_MULTI_RE = /^note\s+(?:left|right)\s+of\s+([\w.-]+)$/;
+export const DESC_RE = /^([\w.-]+)\s*:\s*(.+)$/d;
+export const HIDE_EMPTY_RE = /^hide empty description$/;
+export const STYLE_RE = /^style\s+([\w.-]+)\s+(.+)$/;
+export const CLASS_DEF_RE = /^classDef\s+(\w+)\s+(.+)$/;
+export const CLASS_APPLY_RE = /^class\s+([\w.,-]+)\s+(\w+)$/;
