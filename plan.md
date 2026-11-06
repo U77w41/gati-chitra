@@ -3451,50 +3451,11 @@ mindmap
       GIF and video
 ```
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-const T = `mindmap
-  root((Origins))
-    A[Long history]
-      A1
-    B(Popular)
-    C)Cloud(
-    D`;
-
-// src/diagrams/mindmap/parse.test.ts
-it('reads the tree, shapes and branch colours', () => {
-  const d = parseMindmap(T);
-  expect(d).toMatchObject({ kind: 'mindmap', ok: true });
-  expect(d.nodes.map((n) => [n.id, n.shape, n.label, n.colorIndex])).toEqual([
-    ['root', 'circle', 'Origins', undefined], ['A', 'rect', 'Long history', 0], ['m1', 'round', 'A1', 0],
-    ['B', 'round', 'Popular', 1], ['C', 'cloud', 'Cloud', 2], ['m2', 'round', 'D', 3],
-  ]);
-  expect(d.edges.map((e) => [e.from, e.to])).toEqual([['root', 'A'], ['A', 'm1'], ['root', 'B'], ['root', 'C'], ['root', 'm2']]);
-  expect(d.data!.mindmap!.parent).toEqual({ root: null, A: 'root', m1: 'A', B: 'root', C: 'root', m2: 'root' });
-});
-it('refuses a second root', () => {
-  expect(parseMindmap('mindmap\n  a\n  b').diagnostics).toContainEqual({ line: 3, severity: 'error', message: MESSAGES.mindmapTwoRoots });
-});
-
-// src/diagrams/mindmap/layout.test.ts
-it('puts the first half of the branches right of the root and the rest left', () => {
-  const L = layoutMindmap(parseMindmap(T), testMeasure);
-  const c = (id: string) => L.nodes[id].center;
-  expect(c('root')).toEqual({ x: 0, y: 0 });
-  expect(c('A').x).toBeGreaterThan(0);
-  expect(c('B').x).toBeGreaterThan(0);
-  expect(c('C').x).toBeLessThan(0);
-  expect(c('m2').x).toBeLessThan(0);
-  expect(c('m1').x).toBeGreaterThan(c('A').x);
-  expect(c('A').y).toBeLessThan(c('B').y);
-});
-```
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/mindmap`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe, Part 5.10 and Part 6.5.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/mindmap`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe, Part 5.10 and Part 6.5.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read and lay out Mermaid mindmaps"

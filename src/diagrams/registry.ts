@@ -14,6 +14,7 @@ export const LOADERS: Partial<Record<DiagramKind, Loader>> = {
   sequence: () => import('./sequence/index').then((m) => m.engine),
   gitgraph: () => import('./gitgraph/index').then((m) => m.engine),
   block: () => import('./block/index').then((m) => m.engine),
+  mindmap: () => import('./mindmap/index').then((m) => m.engine),
 };
 
 const engines = new Map<DiagramKind, DiagramEngine>();
