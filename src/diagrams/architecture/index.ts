@@ -1,24 +1,18 @@
 import type { DiagramEngine } from '../engine';
 import { parseArchitecture } from './parse';
 import { layoutArchitecture } from './layout';
+import {
+  ARCHITECTURE_ADD_CHOICES, ARCHITECTURE_CAPS,
+  ARCHITECTURE_EDGE_VARIANTS, applyArchitectureOp,
+} from './ops';
 
 export const engine: DiagramEngine = {
   kind: 'architecture',
-  caps: {
-    add: false,
-    connect: false,
-    rename: false,
-    delete: false,
-    move: true,
-    shape: false,
-    style: false,
-    edgeVariant: false,
-    reverse: false,
-  },
-  addChoices: [],
+  caps: ARCHITECTURE_CAPS,
+  addChoices: ARCHITECTURE_ADD_CHOICES,
   shapeChoices: [],
-  edgeVariants: [],
+  edgeVariants: ARCHITECTURE_EDGE_VARIANTS,
   parse: parseArchitecture,
   layout: layoutArchitecture,
-  applyOp: () => ({ error: 'Operation not supported' }),
+  applyOp: applyArchitectureOp,
 };

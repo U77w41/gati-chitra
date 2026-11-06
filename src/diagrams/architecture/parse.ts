@@ -112,11 +112,12 @@ export function parseArchitecture(text: string): ParsedDoc {
       const rawFrom = edgeMatch[1];
       const fromGroup = Boolean(edgeMatch[2]);
       const fromSide = edgeMatch[3] as 'L' | 'R' | 'T' | 'B';
-      const startArrow = Boolean(edgeMatch[4]);
-      const endArrow = Boolean(edgeMatch[5]);
-      const toSide = edgeMatch[6] as 'L' | 'R' | 'T' | 'B';
-      const rawTo = edgeMatch[7];
-      const toGroup = Boolean(edgeMatch[8]);
+      const variant = edgeMatch[4];
+      const startArrow = variant.startsWith('<');
+      const endArrow = variant.endsWith('>');
+      const toSide = edgeMatch[5] as 'L' | 'R' | 'T' | 'B';
+      const rawTo = edgeMatch[6];
+      const toGroup = Boolean(edgeMatch[7]);
 
       let fromId = rawFrom;
       let fromIsGroup = false;
@@ -150,15 +151,10 @@ export function parseArchitecture(text: string): ParsedDoc {
         toIsGroup = declaredGroupIds.has(rawTo);
       }
 
-      let variant: string;
-      if (startArrow && endArrow) variant = '<-->';
-      else if (startArrow) variant = '<--';
-      else if (endArrow) variant = '-->';
-      else variant = '--';
-
       const edgeIdx = edges.length;
       const edgeId = `e${edgeIdx}`;
       sides[edgeId] = { from: fromSide, to: toSide };
+      const opSpan = spanAt(raw, i, edgeMatch, 4);
 
       edges.push(makeEdge(edgeIdx, fromId, toId, 'open', '', i, {
         variant,
@@ -168,6 +164,7 @@ export function parseArchitecture(text: string): ParsedDoc {
         },
         fromIsGroup,
         toIsGroup,
+        opSpan,
       }));
       continue;
     }

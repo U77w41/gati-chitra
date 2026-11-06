@@ -1,0 +1,9 @@
+architecture-beta
+  group cloud(cloud)[Cloud]
+  service api(server)[API gateway] in cloud
+  service db(database)[Database] in cloud
+  service files(disk)[Files] in cloud
+  service auth(server)[Auth]
+  api:R -- L:db
+  api:B -- T:files
+  auth:R -- L:api

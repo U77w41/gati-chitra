@@ -3145,7 +3145,7 @@ git add -A && git commit -m "feat: read and lay out Mermaid architecture diagram
 
 e2e rows: `{ kind: 'architecture', file: 'architecture.mmd', nodes: 4, svgText: 'Database' }` and `{ kind: 'architecture', file: 'architecture.mmd', nodeId: 'files', newLabel: 'Blobs', canAdd: true, canDelete: true }`. Template title: `Cloud architecture`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/architecture/ops.test.ts
@@ -3172,10 +3172,10 @@ it('refuses ops while the text has errors', () => {
 
 The last case needs an edge to an unknown service to be an error `MESSAGES.unknownNode(id)`; add it to the parser if Task 86 did not.
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/architecture`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Architecture**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/architecture`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Architecture**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit architecture diagrams on the canvas and add the architecture template"
