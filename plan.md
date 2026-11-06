@@ -2617,7 +2617,7 @@ git add -A && git commit -m "feat: read Mermaid class diagrams"
 
 e2e rows: `{ kind: 'class', file: 'class.mmd', nodes: 5, svgText: 'Animal' }` and `{ kind: 'class', file: 'class.mmd', nodeId: 'Fish', newLabel: 'Trout', canAdd: true, canDelete: true }`. Template title: `Class model`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/class/ops.test.ts
@@ -2654,10 +2654,10 @@ describe('applyClassOp', () => {
 
 (Only `"` is forbidden in class labels; `cleanForText` turns each `"` into a space and then collapses spaces, so `say "hi": now` becomes `say hi : now`.)
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/class`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Class**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/class`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Class**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit class diagrams on the canvas and add the class template"

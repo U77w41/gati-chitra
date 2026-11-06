@@ -4,5 +4,6 @@
   { "id": "incident", "title": "Incident alert", "file": "incident.mmd" },
   { "id": "arrow-styles", "title": "Arrow styles", "file": "arrow-styles.mmd" },
   { "id": "checkout", "title": "Order checkout", "file": "checkout.mmd" },
-  { "id": "state", "title": "State machine", "file": "state.mmd" }
+  { "id": "state", "title": "State machine", "file": "state.mmd" },
+  { "id": "class", "title": "Class model", "file": "class.mmd" }
 ]

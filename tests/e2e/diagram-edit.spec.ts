@@ -4,6 +4,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 export const CASES: { kind: string; file: string; nodeId: string; newLabel: string; canAdd: boolean; canDelete: boolean }[] = [
   { kind: 'state', file: 'state.mmd', nodeId: 'Paying', newLabel: 'Charging', canAdd: true, canDelete: true },
+  { kind: 'class', file: 'class.mmd', nodeId: 'Fish', newLabel: 'Trout', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

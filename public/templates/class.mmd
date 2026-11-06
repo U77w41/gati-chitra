@@ -1,0 +1,23 @@
+---
+title: Animals
+---
+classDiagram
+  direction LR
+  class Animal {
+    <<abstract>>
+    +String name
+    +int age
+    +eat(food) void
+  }
+  class Duck {
+    +swim() void
+  }
+  class Fish {
+    -int fins
+  }
+  class Pond["Pond"]
+  Animal <|-- Duck
+  Animal <|-- Fish
+  Pond "1" o-- "*" Duck : lives in
+  Pond *-- Fish
+  note for Duck "Can fly and swim"

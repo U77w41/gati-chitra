@@ -127,9 +127,10 @@ export function parseClass(text: string): ParsedDoc {
       }
       const label = relMatch[6] ?? '';
       const span = relMatch[6] !== undefined ? spanAt(raw, i, relMatch, 6) : undefined;
+      const opSpan = spanAt(raw, i, relMatch, 3);
       const endLabels = (relMatch[2] || relMatch[4]) ? { from: relMatch[2], to: relMatch[4] } : undefined;
       edges.push(makeEdge(edges.length, fromParsed.id, toParsed.id, kind, label, i, {
-        variant: opStr, markers, endLabels, labelSpan: span,
+        variant: opStr, markers, endLabels, labelSpan: span, opSpan,
       }));
       continue;
     }
