@@ -273,7 +273,7 @@ test.describe('Site Chrome and Scheme', () => {
     await page.waitForTimeout(200);
 
     await page.click('#btn-templates');
-    await page.locator('.gallery-card', { hasText: 'Checkout' }).click();
+    await page.locator('.gallery-card', { hasText: 'Order checkout' }).click();
     await expect(page.locator('#message')).toHaveText(MESSAGES.templateFailed);
   });
 

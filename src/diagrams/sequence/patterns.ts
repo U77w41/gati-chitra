@@ -24,6 +24,6 @@ export function escapeRegExp(s: string): string {
 
 const ops = [...HALF, ...ARROWS].map(escapeRegExp).join('|');
 export const MSG_RE = new RegExp(
-  String.raw`^([^\s:+-][^\s:]*?)\s*(${ops})\s*([+-]?)\s*([^\s:]+?)\s*(?::(.*))?$`,
+  String.raw`^([^\s:+-][^\s:]*?)\s*(${ops})\s*([+-]?)\s*([^\s:]+?)\s*(?::\s*(.*))?$`,
   'd',
 );

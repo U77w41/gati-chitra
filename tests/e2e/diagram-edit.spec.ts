@@ -9,6 +9,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'requirement', file: 'requirement.mmd', nodeId: 'load_test', newLabel: 'soak_test', canAdd: true, canDelete: true },
   { kind: 'usecase', file: 'usecase.mmd', nodeId: 'Pay', newLabel: 'Pay online', canAdd: true, canDelete: true },
   { kind: 'architecture', file: 'architecture.mmd', nodeId: 'files', newLabel: 'Blobs', canAdd: true, canDelete: true },
+  { kind: 'sequence', file: 'sequence.mmd', nodeId: 'P', newLabel: 'Bank', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

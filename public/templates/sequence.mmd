@@ -1,0 +1,16 @@
+sequenceDiagram
+  title Checkout
+  actor C as Customer
+  participant W as Web app
+  participant P as Payments
+  C->>W: Place order
+  activate W
+  W->>+P: Charge card
+  P-->>-W: Approved
+  alt in stock
+    W-->>C: Order confirmed
+  else out of stock
+    W-->>C: Refund started
+  end
+  deactivate W
+  Note over C,W: Email receipt sent
