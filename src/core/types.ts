@@ -97,6 +97,7 @@ export interface GraphGroup {
   line: number; // 0-based index of the `subgraph` line
   labelSpan?: Span;
   endLine?: number;              // 0-based line that closes the group (`}` or `end`)
+  memberIds?: string[];
 }
 export type LineKind =
   | 'frontmatter' | 'directive' | 'header' | 'blank' | 'comment' | 'pos' | 'statement'

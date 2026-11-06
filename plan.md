@@ -2962,7 +2962,7 @@ usecase-beta
   Clerk --> Refund
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/usecase/parse.test.ts
@@ -3003,10 +3003,10 @@ describe('parseUsecase', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/usecase`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 5.5.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/usecase`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 5.5.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read Mermaid use case diagrams"
