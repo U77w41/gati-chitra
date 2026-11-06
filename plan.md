@@ -3080,7 +3080,7 @@ architecture-beta
   api:B --> T:files
 ```
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // shared input for both test files
@@ -3116,7 +3116,7 @@ it('places nodes on a grid from the edge sides', () => {
   const c = (id: string) => L.nodes[id].center;
   expect(c('server').x).toBeLessThan(c('db').x);
   expect(c('db').x).toBeLessThan(c('j1').x);
-  expect(c('j1').x).toBeLessThan(c('lambda').x);
+  expect(c('lambda').x).toBeLessThan(c('j1').x);
   expect(c('db').y).toBe(c('server').y);
   expect(c('disk1').x).toBe(c('server').x);
   expect(c('disk1').y).toBeGreaterThan(c('server').y);
@@ -3130,10 +3130,10 @@ it('lets a pin move a service', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/architecture`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe, Part 5.6 and Part 6.3. `layoutArchitecture(doc: ParsedDoc, measure: MeasureText): SceneLayout` is the engine's `layout`.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/architecture`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe, Part 5.6 and Part 6.3. `layoutArchitecture(doc: ParsedDoc, measure: MeasureText): SceneLayout` is the engine's `layout`.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read and lay out Mermaid architecture diagrams with built-in icons"

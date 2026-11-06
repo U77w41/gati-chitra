@@ -10,6 +10,7 @@ export const LOADERS: Partial<Record<DiagramKind, Loader>> = {
   er: () => import('./er/index').then((m) => m.engine),
   requirement: () => import('./requirement/index').then((m) => m.engine),
   usecase: () => import('./usecase/index').then((m) => m.engine),
+  architecture: () => import('./architecture/index').then((m) => m.engine),
 };
 
 const engines = new Map<DiagramKind, DiagramEngine>();
