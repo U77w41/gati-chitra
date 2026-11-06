@@ -4,7 +4,7 @@ import type {
   Direction, GraphEdge, GraphNode, ParsedDoc, ShapeKind, Span,
 } from '../../core/types';
 import {
-  checkLimits, commonLine, finishDoc, makeEdge, makeNode, newCommonState,
+  checkLimits, commonLine, finishDoc, leadOf, makeEdge, makeNode, newCommonState,
   readPrelude,
 } from '../common/prelude';
 import {
@@ -27,7 +27,7 @@ interface CommitAttrs {
   order?: number;
 }
 
-function parseAttrs(raw: string, line: number): CommitAttrs {
+function parseAttrs(raw: string, line: number, baseOffset: number): CommitAttrs {
   const ATTR_RE = /(id|type|tag|msg|order|parent)\s*:\s*("([^"]*)"|[\w.-]+)/dg;
   const result: CommitAttrs = {};
   let m: RegExpExecArray | null;
@@ -36,11 +36,9 @@ function parseAttrs(raw: string, line: number): CommitAttrs {
     const val = m[3] ?? m[2];
     if (key === 'id') {
       result.id = val;
-      if (m[3] !== undefined) {
-        const indices = (m as unknown as { indices?: [number, number][] }).indices;
-        if (indices && indices[3]) {
-          result.idSpan = { line, from: indices[3][0], to: indices[3][1] };
-        }
+      const ind = (m as unknown as { indices?: [number, number][] }).indices;
+      if (m[3] !== undefined && ind && ind[3]) {
+        result.idSpan = { line, from: ind[3][0] + baseOffset, to: ind[3][1] + baseOffset };
       }
     } else if (key === 'type') {
       result.type = val;
@@ -82,6 +80,8 @@ export function parseGitGraph(text: string): ParsedDoc {
     const raw = p.rawLines[i];
     if (commonLine(raw, i, p.lines, st)) continue;
     const t = raw.trim();
+    const lead = leadOf(raw);
+    const grpOffset = (m: unknown, grp: number) => lead + ((m as { indices?: [number, number][] }).indices?.[grp]?.[0] ?? t.length);
 
     const branchMatch = BRANCH_RE.exec(t);
     if (branchMatch) {
@@ -91,7 +91,7 @@ export function parseGitGraph(text: string): ParsedDoc {
         p.diagnostics.push({ line: i + 1, severity: 'error', message: MESSAGES.gitBranchExists(name) });
         continue;
       }
-      const attrs = parseAttrs(branchMatch[3] ?? '', i);
+      const attrs = parseAttrs(branchMatch[3] ?? '', i, grpOffset(branchMatch, 3));
       const colorIndex = branches.length;
       const order = attrs.order ?? colorIndex;
       const bInfo: BranchInfo = { name, colorIndex, order, head: currentBranch.head };
@@ -125,7 +125,7 @@ export function parseGitGraph(text: string): ParsedDoc {
       }
       if (!checkLimits(nodes, edges, p.diagnostics, i + 1)) continue;
 
-      const attrs = parseAttrs(mergeMatch[3] ?? '', i);
+      const attrs = parseAttrs(mergeMatch[3] ?? '', i, grpOffset(mergeMatch, 3));
       const commitId = `c${commitCounter}`;
       const ordinal = commitCounter++;
       const label = attrs.id ?? '';
@@ -164,7 +164,7 @@ export function parseGitGraph(text: string): ParsedDoc {
     const cherryMatch = CHERRY_PICK_RE.exec(t);
     if (cherryMatch) {
       p.lines[i].kind = 'statement';
-      const attrs = parseAttrs(cherryMatch[1] ?? '', i);
+      const attrs = parseAttrs(cherryMatch[1] ?? '', i, grpOffset(cherryMatch, 1));
       const targetId = attrs.id;
       const targetNode = targetId ? nodes.find((n) => n.id === targetId || n.label === targetId) : undefined;
       if (!targetNode) {
@@ -209,7 +209,7 @@ export function parseGitGraph(text: string): ParsedDoc {
       p.lines[i].kind = 'statement';
       if (!checkLimits(nodes, edges, p.diagnostics, i + 1)) continue;
 
-      const attrs = parseAttrs(commitMatch[1] ?? '', i);
+      const attrs = parseAttrs(commitMatch[1] ?? '', i, grpOffset(commitMatch, 1));
       const commitId = `c${commitCounter}`;
       const ordinal = commitCounter++;
       const label = attrs.id ?? '';

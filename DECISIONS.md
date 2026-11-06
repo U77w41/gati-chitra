@@ -64,5 +64,6 @@ Task 89: chose to extract helper functions and declarations into helpers.ts and 
 Task 90: chose to extract column widening, activation closing, lifeline and box decoration builders into layout-helpers.ts to keep sequence/layout.ts strictly under 300 lines.
 Task 91: chose to drop activation suffixes when reversing sequence edges and use exact text 'Order checkout' in tests/e2e/chrome.spec.ts so both checkout and sequence templates coexist cleanly.
 Task 92: chose to separate gitgraph layout and regex patterns into layout.ts and patterns.ts to keep parse.ts strictly under 300 lines.
+Task 93: chose to pass baseOffset to parseAttrs in gitgraph/parse.ts using regex indices so idSpan correctly points to the label substring in the full line.
 
 

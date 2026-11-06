@@ -10,6 +10,7 @@ export const CASES: { kind: string; file: string; nodes: number; svgText: string
   { kind: 'usecase', file: 'usecase.mmd', nodes: 6, svgText: 'Place an order' },
   { kind: 'architecture', file: 'architecture.mmd', nodes: 4, svgText: 'Database' },
   { kind: 'sequence', file: 'sequence.mmd', nodes: 4, svgText: 'Charge card' },
+  { kind: 'gitgraph', file: 'gitgraph.mmd', nodes: 5, svgText: 'release' },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

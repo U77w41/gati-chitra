@@ -10,5 +10,6 @@
   { "id": "requirement", "title": "Requirements", "file": "requirement.mmd" },
   { "id": "usecase", "title": "Use cases", "file": "usecase.mmd" },
   { "id": "architecture", "title": "Cloud architecture", "file": "architecture.mmd" },
-  { "id": "sequence", "title": "Checkout sequence", "file": "sequence.mmd" }
+  { "id": "sequence", "title": "Checkout sequence", "file": "sequence.mmd" },
+  { "id": "gitgraph", "title": "Release branches", "file": "gitgraph.mmd" }
 ]
