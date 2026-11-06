@@ -74,5 +74,6 @@ Task 99: chose to render user journey face nodes as circle shapes with faceHappy
 Task 100: chose to expect node count growth of 2 on user journey node creation in e2e tests because each journey task defines both a card node and a face node.
 Task 101: chose to track search index incrementally when scanning timeline period and event text to capture precise labelSpan offsets on multi-event lines.
 Task 102: chose to trigger #btn-fit during e2e template loading so that diagrams wider than default viewport (such as timeline) fit into canvas screen coordinates for double-click editing.
+Task 103: released v0.13.0 (Milestone D5); automated test suite (112 test files, 609 unit tests) and e2e suite (386 passed, 17 skipped) pass; initial JS bundle is 131.35 KB gzip (under 150 KB limit) and block (3.89 KB), mindmap (2.97 KB), journey (2.42 KB), timeline (2.73 KB) lazy chunks each remain well under 80 KB limit.
 
 

@@ -55,6 +55,14 @@ Gati-chitra supports phones and touch screens:
 | Double tap empty canvas | Add node |
 | Double tap node | Rename node |
 
+## What's new in v0.13.0
+
+- Block diagrams: parse blocks, spaces, nested blocks, and block arrows; lay out on a column grid; edit blocks and connections on the canvas.
+- Mindmaps: parse indentation trees and shapes; lay out as balanced two-sided trees; edit nodes and subtrees on the canvas.
+- User journeys: parse sections, tasks, scores, and actors; lay out task rows with mood indicators; edit tasks directly on the canvas.
+- Timelines: parse sections, periods, and event milestones; lay out period columns; edit periods and events on the canvas.
+- Templates: gallery templates for block layout, mindmaps, user journeys, and timelines.
+
 ## What's new in v0.12.0
 
 - Sequence diagrams: parse lifelines, activations, frames, and notes, animate messages, and edit participants and messages directly on the canvas.
@@ -109,17 +117,23 @@ Gati-chitra supports phones and touch screens:
 
 ## Diagram types
 
-Gati-chitra reads and edits nine Mermaid diagram types:
+Gati-chitra reads and edits thirteen Mermaid diagram types:
 
 - **Flowcharts**: `flowchart TD` (as well as `flowchart LR`, `BT`, `RL`, and `graph`).
 - **State diagrams**: `stateDiagram-v2` (or `stateDiagram`).
-- **Class diagrams**: `classDiagram`.
+- **Class diagrams**: `classDiagram` (or `classDiagram-v2`).
 - **Entity relationship diagrams**: `erDiagram`.
 - **Requirement diagrams**: `requirementDiagram`.
 - **Use case diagrams**: `usecase-beta`.
 - **Architecture diagrams**: `architecture-beta`.
 - **Sequence diagrams**: `sequenceDiagram`.
 - **Git graph diagrams**: `gitGraph`.
+- **Block diagrams**: `block` (or `block-beta`).
+- **Mindmaps**: `mindmap`.
+- **User journeys**: `journey`.
+- **Timelines**: `timeline`.
+
+Charts (such as pie, quadrant, and XY charts), calendar views (Gantt), Sankey flows, and kanban boards are not supported because they are not node-and-arrow diagrams that benefit from animated paths.
 
 ## Supported Mermaid syntax
 

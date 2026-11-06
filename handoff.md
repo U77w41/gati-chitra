@@ -16,22 +16,56 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
-## 2. Current State (v0.12.0)
+## 2. Current State (v0.13.0)
 
-- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74), Milestone D2 (Tasks 75 to 81), Milestone D3 (Tasks 82 to 88), and Milestone D4 (Tasks 89 to 94) are complete; next is Milestone D5 (Tasks 95 to 103).
+- **Current plan**: `plan.md` (Tasks 64 to 103). All milestones D1 (Tasks 64 to 74), D2 (Tasks 75 to 81), D3 (Tasks 82 to 88), D4 (Tasks 89 to 94), and D5 (Tasks 95 to 103) are complete!
 - **Last verified**: 2026-11-06, locally.
 - **Branch**: `main` (ahead of origin by unpushed commits; never push without explicit user request).
-- **Release commit**: `chore: release v0.12.0` (tag `v0.12.0`).
+- **Release commit**: `chore: release v0.13.0` (tag `v0.13.0`).
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
   - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked.
-  - `plan.md` (Tasks 64 to 103): Milestones D1, D2, D3, and D4 complete; Tasks 74, 81, 88, and 94 automated boxes ticked in Part 10.
-- **Checks run on 2026-11-06 (v0.12.0 release)**:
-  - `npm test`: 584 tests passing across 100 files.
-  - `npm run lint`: 0 warnings, 0 errors across 269 files.
+  - `plan.md` (Tasks 64 to 103): Milestones D1 through D5 complete; all automated boxes ticked in Part 10.
+- **Checks run on 2026-11-06 (v0.13.0 release)**:
+  - `npm test`: 609 tests passing across 112 files.
+  - `npm run lint`: 0 warnings, 0 errors across 307 files.
   - `BASE_PATH=/gati-chitra/ npm run build`: passes, including service worker TypeScript config.
-  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 131.23 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); sequence (5.72 KB), gitgraph (3.17 KB); `OK`.
-  - `npm run test:e2e`: 362 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 131.35 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); block (3.89 KB), mindmap (2.97 KB), journey (2.42 KB), timeline (2.73 KB); `OK`.
+  - `npm run test:e2e`: 386 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+
+---
+
+## 2g. Latest Session (2026-11-06): Milestone D5 (Tasks 95 to 103, v0.13.0)
+
+**Status: committed locally** as individual task commits (`c56e432`, `8076d82`, `54fbc5d`, `0181847`, `acd92f2`, `61e5844`, `d71bf2b`, `d11dbbe`), release commit `chore: release v0.13.0` and tagged `v0.13.0`. Never pushed.
+
+**What was completed:**
+- **Task 95 (feat: read and lay out Mermaid block diagrams)**: parser and grid layout for `block` / `block-beta`, reading column count, items, spans, spaces, nested blocks, and block arrows with directions (`up`, `down`, `left`, `right`). Fixtures `block.mmd` and `block.json` added to corpus.
+- **Task 96 (feat: edit block diagrams on the canvas and add the block template)**: visual canvas operations for block diagrams (`applyBlockOp`), added `block.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 97 (feat: read and lay out Mermaid mindmaps)**: indentation-based parser and two-sided radial tree layout for `mindmap`, reading bracket shapes (`rect`, `round`, `circle`, `bang`, `cloud`, `hexagon`) and computing balanced left/right branch distribution. Fixtures `mindmap.mmd` and `mindmap.json` added to corpus.
+- **Task 98 (feat: edit mindmaps on the canvas and add the mindmap template)**: visual canvas operations for mindmaps (`applyMindmapOp`), added `mindmap.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 99 (feat: read and lay out Mermaid user journeys)**: parser and sequential layout for `journey`, reading title, sections, tasks with satisfaction scores (1 to 5) and actors, rendering task cards with corresponding mood faces (`faceHappy`, `faceNeutral`, `faceSad`), and section bands. Fixtures `journey.mmd` and `journey.json` added to corpus.
+- **Task 100 (feat: edit user journeys on the canvas and add the journey template)**: visual canvas operations for user journeys (`applyJourneyOp`), added `journey.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 101 (feat: read and lay out Mermaid timelines)**: parser and column-based layout for `timeline`, reading sections, periods, and event milestones, rendering period cards, event stacks, dotted connectors, and section headers. Fixtures `timeline.mmd` and `timeline.json` added to corpus.
+- **Task 102 (feat: edit timelines on the canvas and add the timeline template)**: visual canvas operations for timelines (`applyTimelineOp`), added `timeline.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 103 (chore: release v0.13.0)**: version bumped to 0.13.0 in `package.json` and `src/repo.test.ts`, updated `README.md` (and humanized), updated `RELEASE_CHECKLIST.md`, `DECISIONS.md`, and `handoff.md`.
+
+**Key files created or changed:**
+- `src/diagrams/block/`: `parse.ts`, `helpers.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/mindmap/`: `parse.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/journey/`: `parse.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/timeline/`: `parse.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `public/templates/`: `block.mmd`, `mindmap.mmd`, `journey.mmd`, `timeline.mmd`, `index.json`.
+- `tests/fixtures/diagrams/`: `block.mmd`, `block.json`, `mindmap.mmd`, `mindmap.json`, `journey.mmd`, `journey.json`, `timeline.mmd`, `timeline.json`.
+- `tests/e2e/`: `diagrams.spec.ts`, `diagram-edit.spec.ts`.
+
+**Metrics & Verification:**
+- All non-test TypeScript source files remain strictly under 300 lines (longest in D5 is `src/diagrams/timeline/parse.ts` at 237 lines, `src/diagrams/mindmap/parse.ts` at 234 lines).
+- `npm test`: 112 test files, 609 unit tests passing.
+- `npm run lint`: 0 warnings, 0 errors.
+- `BASE_PATH=/gati-chitra/ npm run build`: successful production build.
+- `BASE_PATH=/gati-chitra/ npm run check:dist`: Initial JS 131.35 KB gzip; largest lazy chunk 57.27 KB gzip; block (3.89 KB), mindmap (2.97 KB), journey (2.42 KB), timeline (2.73 KB).
+- `npm run test:e2e`: 386 passed, 17 skipped, 0 failed.
 
 ---
 

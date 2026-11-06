@@ -3600,10 +3600,10 @@ Same steps as Task 81, with version `0.13.0` (`src/repo.test.ts`: `0.12.0` → `
 
 Commit message `chore: release v0.13.0`, tag `v0.13.0`.
 
-- [ ] **Step 1:** Make the changes.
-- [ ] **Step 2: Run** the release commands from Task 81. Expected: PASS.
-- [ ] **Step 3:** Tick the boxes you checked by command; record the numbers in `handoff.md`.
-- [ ] **Step 4: Commit and tag** (only if allowed).
+- [x] **Step 1:** Make the changes.
+- [x] **Step 2: Run** the release commands from Task 81. Expected: PASS.
+- [x] **Step 3:** Tick the boxes you checked by command; record the numbers in `handoff.md`.
+- [x] **Step 4: Commit and tag** (only if allowed).
 
 ---
 
