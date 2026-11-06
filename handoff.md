@@ -16,24 +16,53 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
-## 2. Current State (v0.9.0)
+## 2. Current State (v0.10.0)
 
-- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74) is complete; next is Milestone D2 (Tasks 75 to 81).
-- **Last verified**: 2026-11-05, locally.
+- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74) and Milestone D2 (Tasks 75 to 81) are complete; next is Milestone D3 (Tasks 82 to 88).
+- **Last verified**: 2026-11-06, locally.
 - **Branch**: `main` (ahead of origin by unpushed commits; never push without explicit user request).
-- **Release commit**: `chore: release v0.9.0` (tag `v0.9.0`).
+- **Release commit**: `chore: release v0.10.0` (tag `v0.10.0`).
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
   - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked.
-  - `plan.md` (Tasks 64 to 103): Milestone D1 (Tasks 64 to 74) complete; Task 74 automated boxes ticked in Part 10.
-- **Checks run on 2026-11-05 (v0.9.0 release)**:
-  - `npm test`: 507 tests passing across 80 files.
-  - `npm run lint`: 0 warnings, 0 errors across 215 files.
-  - `npm run build` with `BASE_PATH=/gati-chitra/`: passes, including service worker TypeScript config.
-  - `npm run check:dist` on that build: initial JS 136.47 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
-  - `npm run test:e2e`: 311 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+  - `plan.md` (Tasks 64 to 103): Milestones D1 and D2 complete; Tasks 74 and 81 automated boxes ticked in Part 10.
+- **Checks run on 2026-11-06 (v0.10.0 release)**:
+  - `npm test`: 531 tests passing across 87 files.
+  - `npm run lint`: 0 warnings, 0 errors across 237 files.
+  - `BASE_PATH=/gati-chitra/ npm run build`: passes, including service worker TypeScript config.
+  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 136.60 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); state (3.36 KB), class (3.52 KB), er (3.41 KB); `OK`.
+  - `npm run test:e2e`: 332 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
 
 ---
+
+## 2d. Latest Session (2026-11-06): Milestone D2 (Tasks 75 to 81, v0.10.0)
+
+**Status: committed locally** as individual task commits (`2f718e2`, `6e258fd`, `48d5cbe`, `e960aa3`, `bae4b43`, `4fa2b91`), release commit `chore: release v0.10.0` and tagged `v0.10.0`. Never pushed.
+
+**What was completed:**
+- **Task 75 (feat: read Mermaid state diagrams)**: parser for `stateDiagram-v2` and `stateDiagram`, supporting state nodes, start/end pseudo-states, fork/join, composite state nesting, note blocks, dividers, transitions, classDefs, and styles. Fixtures `state.mmd` and `state.json` added to corpus.
+- **Task 76 (feat: edit state diagrams on the canvas; add the state template and diagram browser tests)**: visual canvas operations for state diagrams (`applyStateOp`), added `state.mmd` template to gallery, and created browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 77 (feat: read Mermaid class diagrams)**: parser for `classDiagram`, reading classes with annotations, members, compartments, namespaces, notes, visibility symbols, and relation edges with cardinalities. Fixtures `class.mmd` and `class.json` added to corpus.
+- **Task 78 (feat: edit class diagrams on the canvas and add the class template)**: visual canvas operations for class diagrams (`applyClassOp`), added `class.mmd` template to gallery, and registered in e2e tests.
+- **Task 79 (feat: read Mermaid entity relationship diagrams)**: parser for `erDiagram`, reading entities with attributes, keys (PK/FK/UK), comments, symbol and word cardinality relationships. Fixtures `er.mmd` and `er.json` added to corpus.
+- **Task 80 (feat: edit ER diagrams on the canvas and add the ER template)**: visual canvas operations for ER diagrams (`applyErOp`), added `er.mmd` template to gallery, and registered in e2e tests.
+- **Task 81 (chore: release v0.10.0)**: version bumped to 0.10.0 in `package.json` and `src/repo.test.ts`, added "Diagram types" section to `README.md` (and humanized), updated `RELEASE_CHECKLIST.md`, `DECISIONS.md`, and `handoff.md`.
+
+**Key files created or changed:**
+- `src/diagrams/state/`: `parse.ts`, `patterns.ts`, `scope.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/class/`: `parse.ts`, `patterns.ts`, `helpers.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/er/`: `parse.ts`, `patterns.ts`, `helpers.ts`, `ops.ts`, `index.ts`, unit tests.
+- `public/templates/`: `state.mmd`, `class.mmd`, `er.mmd`, `index.json`.
+- `tests/fixtures/diagrams/`: `state.mmd`, `state.json`, `class.mmd`, `class.json`, `er.mmd`, `er.json`.
+- `tests/e2e/`: `diagrams.spec.ts`, `diagram-edit.spec.ts`.
+
+**Metrics & Verification:**
+- All non-test TypeScript source files remain strictly under 300 lines (longest is `src/diagrams/er/parse.ts` at 280 lines).
+- `npm test`: 87 test files, 531 unit tests passing.
+- `npm run lint`: 0 warnings, 0 errors.
+- `BASE_PATH=/gati-chitra/ npm run build`: successful production build.
+- `BASE_PATH=/gati-chitra/ npm run check:dist`: Initial JS 136.60 KB gzip; largest lazy chunk 57.27 KB gzip; all diagram chunks ~3.3 - 3.5 KB gzip.
+- `npm run test:e2e`: 332 passed, 17 skipped, 0 failed.
 
 ## 2a. Latest Session (2026-11-05): Pipeline Card Text Alignment
 

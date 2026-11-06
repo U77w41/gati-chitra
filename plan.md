@@ -2788,10 +2788,10 @@ git add -A && git commit -m "feat: edit ER diagrams on the canvas and add the ER
 
 **Files:** `package.json` (`0.10.0`), `src/repo.test.ts` (version `0.9.0` → `0.10.0`), `README.md` (a "Diagram types" section listing flowchart, state, class and ER, with one header line each; run the humanizer on it), `RELEASE_CHECKLIST.md`, `handoff.md`, `DECISIONS.md`.
 
-- [ ] **Step 1:** Make the changes.
-- [ ] **Step 2: Run** `npm test && npm run lint && BASE_PATH=/gati-chitra/ npm run build && BASE_PATH=/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
-- [ ] **Step 3:** Tick the Part 10 v0.10.0 boxes you checked by command; record the numbers in `handoff.md`.
-- [ ] **Step 4: Commit and tag** (only if allowed): `git add -A && git commit -m "chore: release v0.10.0" && git tag v0.10.0`
+- [x] **Step 1:** Make the changes.
+- [x] **Step 2: Run** `npm test && npm run lint && BASE_PATH=/gati-chitra/ npm run build && BASE_PATH=/gati-chitra/ npm run check:dist && npm run test:e2e`. Expected: PASS.
+- [x] **Step 3:** Tick the Part 10 v0.10.0 boxes you checked by command; record the numbers in `handoff.md`.
+- [x] **Step 4: Commit and tag** (only if allowed): `git add -A && git commit -m "chore: release v0.10.0" && git tag v0.10.0`
 
 ---
 
@@ -3976,7 +3976,7 @@ Tick a box only after you have checked it. "By hand" boxes are for the owner, in
 
 For each type the milestone adds:
 
-- [ ] The automated checks above pass; the new engine chunks are listed by `check:dist`, each ≤ 80 KB gzip.
+- [x] The automated checks above pass; the new engine chunks are listed by `check:dist`, each ≤ 80 KB gzip.
 - [ ] By hand: the type's template opens from the gallery and draws.
 - [ ] By hand: all five animation styles (pulse, traffic, dash, build, typewriter) run on it; Pause stops and Play continues from the same frame.
 - [ ] By hand: switching three themes (one light, one dark, one with a gradient) and the four shading modes recolours nodes, edges and decorations; nothing becomes unreadable.

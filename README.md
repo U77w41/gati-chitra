@@ -55,6 +55,13 @@ Gati-chitra supports phones and touch screens:
 | Double tap empty canvas | Add node |
 | Double tap node | Rename node |
 
+## What's new in v0.10.0
+
+- State diagrams: parse, draw, animate, and edit state machines directly on the canvas.
+- Class diagrams: parse, draw, animate, and edit class models and relationships.
+- Entity relationship diagrams: parse, draw, animate, and edit data models with symbols or words.
+- Templates: gallery templates for state machines, class models, and data models.
+
 ## What's new in v0.6.0
 
 - Phone layout: Diagram and Text tabs for screens under 768 pixels, with secondary actions grouped under a More menu.
@@ -86,6 +93,15 @@ Gati-chitra supports phones and touch screens:
 - Subgraphs: layout direction per subgraph, and arrows connecting directly to subgraphs.
 - Accessibility and links: accessible diagram descriptions, and clickable links in exported SVG diagrams.
 - Syntax preservation: visual edits preserve property blocks, edge lengths, and multi-statement lines.
+
+## Diagram types
+
+Gati-chitra reads and edits four Mermaid diagram types:
+
+- **Flowcharts**: `flowchart TD` (as well as `flowchart LR`, `BT`, `RL`, and `graph`).
+- **State diagrams**: `stateDiagram-v2` (or `stateDiagram`).
+- **Class diagrams**: `classDiagram`.
+- **Entity relationship diagrams**: `erDiagram`.
 
 ## Supported Mermaid syntax
 
@@ -246,4 +262,3 @@ Repository instructions for AI coding assistants are maintained in `AGENTS.md`, 
 
 - Subgraphs and node groups are edited directly in the Mermaid text rather than on the interactive canvas.
 - Real line breaks in markdown labels are only supported within a single source line (or with `<br/>`).
-- Only flowchart diagrams are supported.

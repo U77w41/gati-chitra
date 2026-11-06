@@ -50,3 +50,8 @@ Task 74: released v0.9.0 (Milestone D1); automated test suite (80 test files, 50
 Task 75: chose to extract ScopeTracker into scope.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
 Task 76: chose to update src/share/templates.test.ts to use parseDocument and check length >= 5 because new diagram templates increase the template count and require multi-diagram parsing.
 Task 77: chose to extract ClassData, parseClassId, parseRelOp, and buildClassSections into helpers.ts to keep parse.ts strictly under 300 lines.
+Task 78: chose to record opSpan on class relations in parse.ts to support setEdgeVariant and reverseEdge.
+Task 79: chose to extract buildRelEdge and cardinality mapping tables into helpers.ts and regexes into patterns.ts to keep parse.ts strictly under 300 lines.
+Task 80: chose to pass refLines from EntityData to makeNode so that deleting an ER entity also removes its declaration and attribute block lines.
+Task 81: released v0.10.0 (Milestone D2); automated test suite (87 test files, 531 unit tests) and e2e suite (332 passed, 17 skipped) pass; initial JS bundle is 136.60 KB gzip (under 150 KB limit) and state (3.36 KB), class (3.52 KB), er (3.41 KB) lazy chunks each remain well under 80 KB limit.
+

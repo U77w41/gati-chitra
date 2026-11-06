@@ -114,5 +114,20 @@ Tick every box before the release tag.
 - [ ] By hand: every template in the gallery still opens and animates exactly as before, in light and dark mode.
 - [ ] By hand: typing `pie title Pets` shows "Pie chart is not supported yet…" on line 1, and the last picture stays.
 
+## v0.10.0 (D2)
+
+For each type the milestone adds (state, class, er):
+
+- [x] The automated checks above pass; the new engine chunks are listed by `check:dist`, each ≤ 80 KB gzip.
+- [ ] By hand: the type's template opens from the gallery and draws.
+- [ ] By hand: all five animation styles (pulse, traffic, dash, build, typewriter) run on it; Pause stops and Play continues from the same frame.
+- [ ] By hand: switching three themes (one light, one dark, one with a gradient) and the four shading modes recolours nodes, edges and decorations; nothing becomes unreadable.
+- [ ] By hand: PNG, SVG and GIF exports match the canvas (no grid, no missing decorations).
+- [ ] By hand: present mode steps through the diagram in a sensible order.
+- [ ] By hand: double-click rename, Delete, Add node and (where the type allows) drag and connect all change the text, and Undo restores it.
+- [ ] By hand: on a phone, the Diagram tab shows the type and pinch zoom works.
+- [ ] By hand, deployed site: load the site, go offline, reload, and open the new type for the first time from a template; it draws (the chunk was precached).
+
+
 
 
