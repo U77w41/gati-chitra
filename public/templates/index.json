@@ -14,5 +14,6 @@
   { "id": "gitgraph", "title": "Release branches", "file": "gitgraph.mmd" },
   { "id": "block", "title": "Block layout", "file": "block.mmd" },
   { "id": "mindmap", "title": "Mindmap", "file": "mindmap.mmd" },
-  { "id": "journey", "title": "User journey", "file": "journey.mmd" }
+  { "id": "journey", "title": "User journey", "file": "journey.mmd" },
+  { "id": "timeline", "title": "Timeline", "file": "timeline.mmd" }
 ]

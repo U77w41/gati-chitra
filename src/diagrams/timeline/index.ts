@@ -1,25 +1,21 @@
-import { MESSAGES } from '../../core/constants';
 import type { DiagramEngine } from '../engine';
 import { layoutTimeline } from './layout';
+import {
+  applyTimelineOp,
+  TIMELINE_ADD_CHOICES,
+  TIMELINE_CAPS,
+  TIMELINE_EDGE_VARIANTS,
+  TIMELINE_SHAPE_CHOICES,
+} from './ops';
 import { parseTimeline } from './parse';
 
 export const engine: DiagramEngine = {
   kind: 'timeline',
-  caps: {
-    add: false,
-    connect: false,
-    rename: false,
-    delete: false,
-    move: false,
-    shape: false,
-    style: false,
-    edgeVariant: false,
-    reverse: false,
-  },
-  addChoices: [],
-  shapeChoices: [],
-  edgeVariants: [],
+  caps: TIMELINE_CAPS,
+  addChoices: TIMELINE_ADD_CHOICES,
+  shapeChoices: TIMELINE_SHAPE_CHOICES,
+  edgeVariants: TIMELINE_EDGE_VARIANTS,
   parse: parseTimeline,
   layout: layoutTimeline,
-  applyOp: () => ({ error: MESSAGES.opUnsupported }),
+  applyOp: applyTimelineOp,
 };

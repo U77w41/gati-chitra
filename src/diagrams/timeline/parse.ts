@@ -68,6 +68,10 @@ export function parseTimeline(text: string): ParsedDoc {
         continue;
       }
       const curPeriod = periods[periodCount - 1];
+      const curPeriodNode = nodes.find((n) => n.id === curPeriod.id);
+      if (curPeriodNode) {
+        curPeriodNode.refLines = [...(curPeriodNode.refLines ?? []), i];
+      }
       const periodId = curPeriod.id;
       const colorIndex = curPeriod.section >= 0 ? curPeriod.section : periodCount - 1;
       const rawEvents = mCont[1].split(/\s*:\s*/).filter(Boolean);

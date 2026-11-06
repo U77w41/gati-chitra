@@ -14,12 +14,14 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'block', file: 'block.mmd', nodeId: 'db', newLabel: 'Store', canAdd: true, canDelete: true },
   { kind: 'mindmap', file: 'mindmap.mmd', nodeId: 'm5', newLabel: 'Glow', canAdd: true, canDelete: true },
   { kind: 'journey', file: 'journey.mmd', nodeId: 't3', newLabel: 'Pay by phone', canAdd: true, canDelete: true },
+  { kind: 'timeline', file: 'timeline.mmd', nodeId: 'p5', newLabel: '2007', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {
   const text = fs.readFileSync(path.join('public/templates', file), 'utf8');
   await page.evaluate((t) => (window as any).__studio.setText(t), text);
   await expect.poll(() => page.evaluate(() => (window as any).__studio.getSummary().ok), { timeout: 10_000 }).toBe(true);
+  await page.click('#btn-fit');
 }
 
 for (const c of CASES) {

@@ -3555,7 +3555,7 @@ git add -A && git commit -m "feat: read and lay out Mermaid timelines"
 
 e2e rows: `{ kind: 'timeline', file: 'timeline.mmd', nodes: 11, svgText: 'Mosaic browser' }` and `{ kind: 'timeline', file: 'timeline.mmd', nodeId: 'p5', newLabel: '2007', canAdd: true, canDelete: true }`. Template title: `Timeline`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/timeline/ops.test.ts
@@ -3581,10 +3581,10 @@ it('refuses ops while the text has errors', () => {
 });
 ```
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/timeline`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Timeline**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/timeline`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Timeline**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit timelines on the canvas and add the timeline template"

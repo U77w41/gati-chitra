@@ -73,5 +73,6 @@ Task 98: chose to slice textLines without trailing newline when moving mindmap b
 Task 99: chose to render user journey face nodes as circle shapes with faceHappy/faceNeutral/faceSad icons and connect consecutive faces with open edges to power animations.
 Task 100: chose to expect node count growth of 2 on user journey node creation in e2e tests because each journey task defines both a card node and a face node.
 Task 101: chose to track search index incrementally when scanning timeline period and event text to capture precise labelSpan offsets on multi-event lines.
+Task 102: chose to trigger #btn-fit during e2e template loading so that diagrams wider than default viewport (such as timeline) fit into canvas screen coordinates for double-click editing.
 
 

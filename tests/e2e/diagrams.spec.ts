@@ -14,6 +14,7 @@ export const CASES: { kind: string; file: string; nodes: number; svgText: string
   { kind: 'block', file: 'block.mmd', nodes: 5, svgText: 'Worker 1' },
   { kind: 'mindmap', file: 'mindmap.mmd', nodes: 12, svgText: 'Animate' },
   { kind: 'journey', file: 'journey.mmd', nodes: 10, svgText: 'Browse menus' },
+  { kind: 'timeline', file: 'timeline.mmd', nodes: 11, svgText: 'Mosaic browser' },
 ];
 
 async function load(page: Page, file: string): Promise<void> {
