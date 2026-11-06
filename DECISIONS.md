@@ -72,5 +72,6 @@ Task 97: chose to match mindmap shape delimiter pairs sequentially with priority
 Task 98: chose to slice textLines without trailing newline when moving mindmap branches to prevent spurious empty lines inside branch subtrees.
 Task 99: chose to render user journey face nodes as circle shapes with faceHappy/faceNeutral/faceSad icons and connect consecutive faces with open edges to power animations.
 Task 100: chose to expect node count growth of 2 on user journey node creation in e2e tests because each journey task defines both a card node and a face node.
+Task 101: chose to track search index incrementally when scanning timeline period and event text to capture precise labelSpan offsets on multi-event lines.
 
 

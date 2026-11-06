@@ -3539,47 +3539,11 @@ timeline
     2006 : Twitter
 ```
 
-- [ ] **Step 1: Write the failing tests**
-
-```ts
-const T = `timeline
-  title History
-  section Early
-    2002 : LinkedIn
-    2004 : Facebook : Google
-  section Later
-    2005 : YouTube
-         : Reddit`;
-
-// src/diagrams/timeline/parse.test.ts
-it('reads periods, events, continuation lines and sections', () => {
-  const d = parseTimeline(T);
-  expect(d).toMatchObject({ kind: 'timeline', ok: true, title: 'History' });
-  expect(d.nodes.map((n) => [n.id, n.label])).toEqual([
-    ['p1', '2002'], ['p1e1', 'LinkedIn'], ['p2', '2004'], ['p2e1', 'Facebook'], ['p2e2', 'Google'], ['p3', '2005'], ['p3e1', 'YouTube'], ['p3e2', 'Reddit'],
-  ]);
-  expect(d.edges).toHaveLength(7);
-  expect(d.edges.map((e) => `${e.from}>${e.to}`)).toEqual(expect.arrayContaining(['p1>p2', 'p2>p3', 'p2e1>p2e2', 'p3e1>p3e2']));
-  expect(d.nodes.find((n) => n.id === 'p3')!.colorIndex).toBe(1);
-  const s = d.nodes.find((n) => n.id === 'p2e2')!.labelSpan!;
-  expect(T.split('\n')[s.line].slice(s.from, s.to)).toBe('Google');
-});
-
-// src/diagrams/timeline/layout.test.ts
-it('puts periods in columns with their events below', () => {
-  const L = layoutTimeline(parseTimeline(T), testMeasure);
-  expect(L.nodes.p1.center).toEqual({ x: 75, y: 78 });
-  expect(L.nodes.p2.center).toEqual({ x: 249, y: 78 });
-  expect(L.nodes.p1e1.center).toEqual({ x: 75, y: 142 });
-  expect(L.nodes.p2e2.center).toEqual({ x: 249, y: 202 });
-  expect(L.decorations!.filter((d) => d.kind === 'rect' && d.role === 'band')).toHaveLength(2);
-});
-```
-
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/timeline`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe, Part 5.12 and Part 6.7.
-- [ ] **Step 4: Run** the commands for engine tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 1: Write the failing tests**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/timeline`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe, Part 5.12 and Part 6.7.
+- [x] **Step 4: Run** the commands for engine tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: read and lay out Mermaid timelines"

@@ -16,6 +16,7 @@ export const LOADERS: Partial<Record<DiagramKind, Loader>> = {
   block: () => import('./block/index').then((m) => m.engine),
   mindmap: () => import('./mindmap/index').then((m) => m.engine),
   journey: () => import('./journey/index').then((m) => m.engine),
+  timeline: () => import('./timeline/index').then((m) => m.engine),
 };
 
 const engines = new Map<DiagramKind, DiagramEngine>();
