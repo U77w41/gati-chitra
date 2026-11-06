@@ -55,6 +55,12 @@ Gati-chitra supports phones and touch screens:
 | Double tap empty canvas | Add node |
 | Double tap node | Rename node |
 
+## What's new in v0.12.0
+
+- Sequence diagrams: parse lifelines, activations, frames, and notes, animate messages, and edit participants and messages directly on the canvas.
+- Git graph diagrams: parse branches and merges, lay out commit lanes, animate commit history, and edit commits on the canvas.
+- Templates: gallery templates for order checkout sequence and release branches.
+
 ## What's new in v0.11.0
 
 - Requirement diagrams: parse, draw, animate, and edit requirement specifications directly on the canvas.
@@ -103,15 +109,17 @@ Gati-chitra supports phones and touch screens:
 
 ## Diagram types
 
-Gati-chitra reads and edits seven Mermaid diagram types:
+Gati-chitra reads and edits nine Mermaid diagram types:
 
 - **Flowcharts**: `flowchart TD` (as well as `flowchart LR`, `BT`, `RL`, and `graph`).
 - **State diagrams**: `stateDiagram-v2` (or `stateDiagram`).
 - **Class diagrams**: `classDiagram`.
 - **Entity relationship diagrams**: `erDiagram`.
 - **Requirement diagrams**: `requirementDiagram`.
-- **Use case diagrams**: `usecaseDiagram` (or `usecase`).
+- **Use case diagrams**: `usecase-beta`.
 - **Architecture diagrams**: `architecture-beta`.
+- **Sequence diagrams**: `sequenceDiagram`.
+- **Git graph diagrams**: `gitGraph`.
 
 ## Supported Mermaid syntax
 

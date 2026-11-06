@@ -65,5 +65,6 @@ Task 90: chose to extract column widening, activation closing, lifeline and box 
 Task 91: chose to drop activation suffixes when reversing sequence edges and use exact text 'Order checkout' in tests/e2e/chrome.spec.ts so both checkout and sequence templates coexist cleanly.
 Task 92: chose to separate gitgraph layout and regex patterns into layout.ts and patterns.ts to keep parse.ts strictly under 300 lines.
 Task 93: chose to pass baseOffset to parseAttrs in gitgraph/parse.ts using regex indices so idSpan correctly points to the label substring in the full line.
+Task 94: released v0.12.0 (Milestone D4); automated test suite (100 test files, 584 unit tests) and e2e suite (362 passed, 17 skipped) pass; initial JS bundle is 131.23 KB gzip (under 150 KB limit) and sequence (5.72 KB), gitgraph (3.17 KB) lazy chunks each remain well under 80 KB limit.
 
 

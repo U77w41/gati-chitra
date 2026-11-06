@@ -16,22 +16,51 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
-## 2. Current State (v0.11.0)
+## 2. Current State (v0.12.0)
 
-- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74), Milestone D2 (Tasks 75 to 81), and Milestone D3 (Tasks 82 to 88) are complete; next is Milestone D4 (Tasks 89 to 94).
+- **Current plan**: `plan.md` (Tasks 64 to 103). Milestone D1 (Tasks 64 to 74), Milestone D2 (Tasks 75 to 81), Milestone D3 (Tasks 82 to 88), and Milestone D4 (Tasks 89 to 94) are complete; next is Milestone D5 (Tasks 95 to 103).
 - **Last verified**: 2026-11-06, locally.
 - **Branch**: `main` (ahead of origin by unpushed commits; never push without explicit user request).
-- **Release commit**: `chore: release v0.11.0` (tag `v0.11.0`).
+- **Release commit**: `chore: release v0.12.0` (tag `v0.12.0`).
 - **Plans**:
   - `docs/superpowers/plans/2026-11-02-gati-chitra.md` (v0.1, Tasks 0 to 23): all task boxes ticked.
   - `docs/superpowers/plans/2026-11-03-gati-chitra-improvements.md` (v0.2 to v0.6, Tasks 24 to 60): all 196 task step boxes ticked.
-  - `plan.md` (Tasks 64 to 103): Milestones D1, D2, and D3 complete; Tasks 74, 81, and 88 automated boxes ticked in Part 10.
-- **Checks run on 2026-11-06 (v0.11.0 release)**:
-  - `npm test`: 558 tests passing across 94 files.
-  - `npm run lint`: 0 warnings, 0 errors across 259 files.
+  - `plan.md` (Tasks 64 to 103): Milestones D1, D2, D3, and D4 complete; Tasks 74, 81, 88, and 94 automated boxes ticked in Part 10.
+- **Checks run on 2026-11-06 (v0.12.0 release)**:
+  - `npm test`: 584 tests passing across 100 files.
+  - `npm run lint`: 0 warnings, 0 errors across 269 files.
   - `BASE_PATH=/gati-chitra/ npm run build`: passes, including service worker TypeScript config.
-  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 131.22 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); requirement (2.84 KB), usecase (2.88 KB), architecture (3.40 KB); `OK`.
-  - `npm run test:e2e`: 350 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+  - `BASE_PATH=/gati-chitra/ npm run check:dist`: initial JS 131.23 KB gzip (limit 150 KB); largest lazy chunk 57.27 KB gzip (limit 80 KB); sequence (5.72 KB), gitgraph (3.17 KB); `OK`.
+  - `npm run test:e2e`: 362 passed, 17 skipped across `chromium`, `firefox`, `webkit`, `mobile-chrome` and `mobile-safari`. 0 failed.
+
+---
+
+## 2f. Latest Session (2026-11-06): Milestone D4 (Tasks 89 to 94, v0.12.0)
+
+**Status: committed locally** as individual task commits (`e648010`, `052525f`, `7f23eaf`, `bbb0a2f`, `2f6e6eb`), release commit `chore: release v0.12.0` and tagged `v0.12.0`. Never pushed.
+
+**What was completed:**
+- **Task 89 (feat: read Mermaid sequence diagrams)**: parser for `sequenceDiagram`, reading actors, participants with aliases, title, autonumber, message arrows (`<<-->>`, `<<->>`, `-->>`, `->>`, `--x`, `-x`, `--)`, `-);`, `-->`, `->`, and half-arrows), activation/deactivation markers (`+`, `-`, `activate`, `deactivate`), notes (`over`, `left of`, `right of`), and nested frames (`loop`, `alt`/`else`, `opt`, `par`/`and`, `critical`/`option`, `break`, `rect`). Fixtures `sequence.mmd` and `sequence.json` added to corpus.
+- **Task 90 (feat: lay out sequence diagrams with lifelines, activations, frames and notes)**: specialized column layout for sequence diagrams (`layoutSequence`), placing participants across evenly-spaced columns, calculating y-coordinates per message/frame event, computing activation boxes, dashed lifelines, frame bounding boxes with dividers, and note callouts.
+- **Task 91 (feat: edit sequence diagrams on the canvas and add the sequence template)**: visual canvas operations for sequence diagrams (`applySequenceOp`), added `sequence.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 92 (feat: read and lay out Mermaid git graphs)**: parser and custom commit lane layout for `gitGraph`, reading commits with types (NORMAL, HIGHLIGHT, REVERSE), tags, messages, branches, checkouts/switches, merges, and cherry-picks. Fixtures `gitgraph.mmd` and `gitgraph.json` added to corpus.
+- **Task 93 (feat: edit git graphs on the canvas and add the git graph template)**: visual canvas operations for git graphs (`applyGitGraphOp`), added `gitgraph.mmd` template to gallery, and updated browser test suites `diagrams.spec.ts` and `diagram-edit.spec.ts`.
+- **Task 94 (chore: release v0.12.0)**: version bumped to 0.12.0 in `package.json` and `src/repo.test.ts`, updated `README.md` (and humanized), updated `RELEASE_CHECKLIST.md`, `DECISIONS.md`, and `handoff.md`.
+
+**Key files created or changed:**
+- `src/diagrams/sequence/`: `parse.ts`, `patterns.ts`, `helpers.ts`, `layout.ts`, `layout-helpers.ts`, `ops.ts`, `index.ts`, unit tests.
+- `src/diagrams/gitgraph/`: `parse.ts`, `patterns.ts`, `layout.ts`, `ops.ts`, `index.ts`, unit tests.
+- `public/templates/`: `sequence.mmd`, `gitgraph.mmd`, `index.json`.
+- `tests/fixtures/diagrams/`: `sequence.mmd`, `sequence.json`, `gitgraph.mmd`, `gitgraph.json`.
+- `tests/e2e/`: `diagrams.spec.ts`, `diagram-edit.spec.ts`.
+
+**Metrics & Verification:**
+- All non-test TypeScript source files remain strictly under 300 lines (longest is `src/diagrams/sequence/layout.ts` at 284 lines, `src/diagrams/gitgraph/parse.ts` at 282 lines).
+- `npm test`: 100 test files, 584 unit tests passing.
+- `npm run lint`: 0 warnings, 0 errors.
+- `BASE_PATH=/gati-chitra/ npm run build`: successful production build.
+- `BASE_PATH=/gati-chitra/ npm run check:dist`: Initial JS 131.23 KB gzip; largest lazy chunk 57.27 KB gzip; sequence (5.72 KB), gitgraph (3.17 KB).
+- `npm run test:e2e`: 362 passed, 17 skipped, 0 failed.
 
 ---
 
