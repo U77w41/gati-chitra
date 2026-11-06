@@ -7,6 +7,7 @@ export const CASES: { kind: string; file: string; nodeId: string; newLabel: stri
   { kind: 'class', file: 'class.mmd', nodeId: 'Fish', newLabel: 'Trout', canAdd: true, canDelete: true },
   { kind: 'er', file: 'er.mmd', nodeId: 'PRODUCT', newLabel: 'Item', canAdd: true, canDelete: true },
   { kind: 'requirement', file: 'requirement.mmd', nodeId: 'load_test', newLabel: 'soak_test', canAdd: true, canDelete: true },
+  { kind: 'usecase', file: 'usecase.mmd', nodeId: 'Pay', newLabel: 'Pay online', canAdd: true, canDelete: true },
 ];
 
 async function load(page: Page, file: string): Promise<void> {

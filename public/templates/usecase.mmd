@@ -1,0 +1,14 @@
+usecase-beta
+  direction LR
+  actor Customer
+  actor Clerk("Shop clerk")
+  systemBoundary shop["Online shop"]
+    Browse("Browse products")
+    Buy("Place an order")
+    Pay("Pay")
+    Refund("Issue a refund")
+  end
+  Customer --> Browse
+  Customer --> Buy
+  Clerk --> Refund
+  Pay ..> Buy : include

@@ -3018,7 +3018,7 @@ git add -A && git commit -m "feat: read Mermaid use case diagrams"
 
 e2e rows: `{ kind: 'usecase', file: 'usecase.mmd', nodes: 6, svgText: 'Place an order' }` and `{ kind: 'usecase', file: 'usecase.mmd', nodeId: 'Pay', newLabel: 'Pay online', canAdd: true, canDelete: true }`. Template title: `Use cases`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/usecase/ops.test.ts
@@ -3053,10 +3053,10 @@ describe('applyUsecaseOp', () => {
 
 The last case needs an unclosed `systemBoundary` to be an error `MESSAGES.unclosedBlock('systemBoundary')`; add it to the parser if Task 84 did not.
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/usecase`. Expected: FAIL.
-- [ ] **Step 3: Implement** per the recipe and Part 8.2 **Use case**.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/usecase`. Expected: FAIL.
+- [x] **Step 3: Implement** per the recipe and Part 8.2 **Use case**.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit use case diagrams on the canvas and add the use case template"
