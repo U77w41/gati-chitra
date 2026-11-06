@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseMermaid } from '../mermaid/parse';
+import type { DiagramKind } from '../core/types';
+import { parseDocument } from '../diagrams/parse-any';
+import { LOADERS, loadEngine } from '../diagrams/registry';
 import {
   loadTemplate,
   loadTemplateIndex,
@@ -10,6 +12,9 @@ import {
 } from './templates';
 
 describe('templates', () => {
+  beforeAll(async () => {
+    for (const k of Object.keys(LOADERS)) await loadEngine(k as DiagramKind);
+  });
   it('formats template URLs with single slashes', () => {
     expect(templateUrl('/', 'a.mmd')).toBe('/templates/a.mmd');
     expect(templateUrl('/gati-chitra/', 'a.mmd')).toBe('/gati-chitra/templates/a.mmd');
@@ -66,13 +71,13 @@ describe('templates', () => {
     const indexPath = path.resolve(process.cwd(), 'public/templates/index.json');
     const indexContent = fs.readFileSync(indexPath, 'utf-8');
     const templates: TemplateInfo[] = JSON.parse(indexContent);
-    expect(templates.length).toBe(5);
+    expect(templates.length).toBeGreaterThanOrEqual(5);
 
     for (const item of templates) {
       const filePath = path.resolve(process.cwd(), 'public/templates', item.file);
       expect(fs.existsSync(filePath)).toBe(true);
       const text = fs.readFileSync(filePath, 'utf-8');
-      const doc = parseMermaid(text);
+      const doc = parseDocument(text);
       expect(doc.ok).toBe(true);
     }
   });

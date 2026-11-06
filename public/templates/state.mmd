@@ -1,0 +1,15 @@
+---
+title: Order lifecycle
+---
+stateDiagram-v2
+  direction LR
+  [*] --> Idle
+  Idle --> Paying : checkout
+  Paying --> Paid : approved
+  Paying --> Idle : declined
+  state Paid {
+    [*] --> Packing
+    Packing --> Shipped
+  }
+  Paid --> [*]
+  note right of Idle : Waiting for the customer

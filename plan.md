@@ -2410,7 +2410,7 @@ git add -A && git commit -m "feat: read Mermaid state diagrams"
 
 - Produces: `applyStateOp(text: string, op: TextOp): TextOpResult`; the two e2e specs with their `CASES` tables. Template title: `State machine`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // src/diagrams/state/ops.test.ts
@@ -2508,10 +2508,10 @@ for (const c of CASES) {
 
 The comments inside the two e2e files are the steps to write; replace each comment with the real Playwright code it describes.
 
-- [ ] **Step 2: Run** `npx vitest run src/diagrams/state`. Expected: FAIL.
-- [ ] **Step 3: Implement** per "How every engine task is built" and Part 8.2 **State**. Caps from Part 8.1.
-- [ ] **Step 4: Run** the commands for edit tasks. Expected: PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 2: Run** `npx vitest run src/diagrams/state`. Expected: FAIL.
+- [x] **Step 3: Implement** per "How every engine task is built" and Part 8.2 **State**. Caps from Part 8.1.
+- [x] **Step 4: Run** the commands for edit tasks. Expected: PASS.
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A && git commit -m "feat: edit state diagrams on the canvas; add the state template and diagram browser tests"

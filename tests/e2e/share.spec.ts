@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { test, expect } from '@playwright/test';
 import { encodeShare } from '../../src/share/share';
 import { MESSAGES } from '../../src/core/constants';
@@ -81,7 +82,8 @@ test.describe('Share links and templates', () => {
     await expect(gallery).toBeVisible();
 
     const buttons = gallery.locator('.template');
-    await expect(buttons).toHaveCount(5);
+    const templateCount = JSON.parse(fs.readFileSync('public/templates/index.json', 'utf8')).length;
+    await expect(buttons).toHaveCount(templateCount);
 
     await gallery.getByText('Data pipeline').click();
     await expect(gallery).toBeHidden();
