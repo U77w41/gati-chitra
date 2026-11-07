@@ -1,5 +1,10 @@
+import { FONT_STACK_SANS, LAYOUT } from '../core/constants';
 import { worldToScreen } from '../editor/view';
+import { EDITOR, editorFontPx, editorWidth } from './inline-edit-box';
 import type { AppState } from './state';
+
+// The size each kind of label is drawn at on the canvas (group titles are 14 px in svg.ts and on canvas).
+const LABEL_PX = { node: LAYOUT.fontSize, edge: LAYOUT.edgeLabelFontSize, group: 14 } as const;
 
 export interface InlineEditManager {
   start: (
@@ -21,6 +26,24 @@ export function setupInlineEditor(
   let currentKind: 'node' | 'edge' | 'group' = 'node';
   let commitCallback: ((t: string) => void) | null = null;
   let cancelCallback: (() => void) | null = null;
+  // Where the pill is pinned: its centre for node and arrow labels, its top-left for group titles.
+  let anchor: { x: number; y: number; centred: boolean } | null = null;
+  let measure: CanvasRenderingContext2D | null = null;
+
+  function fit(): void {
+    if (!anchor) return;
+    measure ??= document.createElement('canvas').getContext('2d');
+    const px = parseFloat(textarea.style.fontSize) || LAYOUT.fontSize;
+    if (measure) measure.font = `${px}px ${FONT_STACK_SANS}`;
+    const widths = textarea.value.split('\n').map((line) => measure?.measureText(line).width ?? line.length * px * 0.6);
+    const w = editorWidth(widths);
+    textarea.style.width = `${w}px`;
+    textarea.style.height = 'auto';
+    const h = textarea.scrollHeight + 2 * EDITOR.border;
+    textarea.style.height = `${h}px`;
+    textarea.style.left = `${anchor.centred ? anchor.x - w / 2 : anchor.x}px`;
+    textarea.style.top = `${anchor.centred ? anchor.y - h / 2 : anchor.y}px`;
+  }
 
   function commit(): void {
     if (!active) return;
@@ -63,6 +86,8 @@ export function setupInlineEditor(
     commit();
   });
 
+  textarea.addEventListener('input', fit);
+
   return {
     start(kind, id, initial, onCommit, onCancel) {
       active = true;
@@ -83,47 +108,33 @@ export function setupInlineEditor(
       const offsetX = canvasRect.left - parentRect.left;
       const offsetY = canvasRect.top - parentRect.top;
 
+      anchor = null;
       if (kind === 'node') {
         const box = state.scene?.layout.nodes[id];
         if (box) {
-          const center = worldToScreen(view, box.center);
-          const tl = worldToScreen(view, {
-            x: box.center.x - box.width / 2,
-            y: box.center.y - box.height / 2,
-          });
-          const br = worldToScreen(view, {
-            x: box.center.x + box.width / 2,
-            y: box.center.y + box.height / 2,
-          });
-          const w = Math.max(80, br.x - tl.x);
-          const h = Math.max(30, br.y - tl.y);
-          textarea.style.width = `${w}px`;
-          textarea.style.height = `${h}px`;
-          textarea.style.left = `${offsetX + center.x - w / 2}px`;
-          textarea.style.top = `${offsetY + center.y - h / 2}px`;
+          const c = worldToScreen(view, box.center);
+          anchor = { x: offsetX + c.x, y: offsetY + c.y, centred: true };
         }
       } else if (kind === 'edge') {
         const path = state.scene?.layout.edges[id];
         if (path) {
-          const pt = worldToScreen(view, path.labelPoint);
-          textarea.style.width = '100px';
-          textarea.style.height = '30px';
-          textarea.style.left = `${offsetX + pt.x - 50}px`;
-          textarea.style.top = `${offsetY + pt.y - 15}px`;
+          const c = worldToScreen(view, path.labelPoint);
+          anchor = { x: offsetX + c.x, y: offsetY + c.y, centred: true };
         }
       } else if (kind === 'group') {
         const gbox = state.scene?.layout.groups[id];
         if (gbox) {
           const tl = worldToScreen(view, { x: gbox.rect.x, y: gbox.rect.y });
-          textarea.style.width = `${Math.max(120, gbox.rect.width * view.zoom)}px`;
-          textarea.style.height = '30px';
-          textarea.style.left = `${offsetX + tl.x}px`;
-          textarea.style.top = `${offsetY + tl.y}px`;
+          anchor = { x: offsetX + tl.x + 4, y: offsetY + tl.y + 2, centred: false };
         }
       }
+      textarea.style.fontFamily = FONT_STACK_SANS;
+      textarea.style.fontSize = `${editorFontPx(LABEL_PX[kind], view.zoom)}px`;
+      textarea.style.textAlign = kind === 'group' ? 'left' : 'center';
 
       textarea.value = initial;
       textarea.style.display = 'block';
+      fit();
       textarea.focus();
       textarea.select();
     },

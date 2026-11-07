@@ -12,6 +12,7 @@ export const TIMING = { parseDebounceMs: 150, autosaveDebounceMs: 500 } as const
 export const STORAGE = {
   docKey: 'gati-chitra:v1:doc',
   settingsKey: 'gati-chitra:v1:settings',
+  dockKey: 'gati-chitra:v1:dock',
 } as const;
 
 export const FONT_STACK_SANS =
@@ -276,8 +277,6 @@ export const SCHEME = {
 
 export const BRAND = {
   name: 'Gati-chitra',
-  owner: 'Ujjwal Chowdhury',
-  startYear: 2026,
   hireUrl: 'https://u77w41.github.io/resume/',
   supportUrl: 'https://u77w41.github.io/support-my-work/',
   tools: [

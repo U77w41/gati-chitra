@@ -1,0 +1,30 @@
+/* Studio shell: the workspace takes the space below the header, and the panels never grow with
+   their content. Without this, a long script stretched the editor, the grid row, the canvas panel
+   and the canvas bitmap together, pushing the controls off screen. */
+
+#diagnostics-summary, #diagnostics { flex-shrink: 0; }
+#diagnostics { max-height: 7.5em; overflow-y: auto; }
+
+@media (min-width: 768px) {
+  /* min-height: below it the page scrolls rather than squeezing the canvas to nothing. */
+  body { height: 100vh; height: 100dvh; min-height: 640px; }
+  #main { flex: 1 1 0; min-height: 0; padding-top: 12px; padding-bottom: 12px; }
+  #app { min-height: 0; gap: 10px; }
+  #workspace { min-height: 0; grid-template-rows: minmax(0, 1fr); }
+  #text-panel, #canvas-panel { min-height: 0; }
+  #source { min-height: 120px; }
+  #source .cm-editor { min-height: 0; }
+  #canvas { min-height: 160px; }
+  #props, #canvas-controls, #share-box { flex-shrink: 0; }
+
+  /* Properties sit in the Nodes tab's format section here (src/app/props-dock.ts), one section per
+     row; the section has its own heading, so the panel's own title row is not needed. */
+  #format-slot > #props { gap: 10px; padding: 0; border-top: 0; background: transparent; }
+  #format-slot > #props > div { flex: 1 1 100%; border-right: none; padding-right: 0; gap: 8px; }
+  #format-slot .props-head { display: none; }
+}
+
+@media (max-width: 767px) {
+  /* Phones scroll the page, but the Editor tab keeps a fixed-height editor that scrolls inside. */
+  #source { flex: none; height: 60vh; height: 60dvh; min-height: 280px; }
+}

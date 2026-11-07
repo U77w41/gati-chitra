@@ -36,61 +36,79 @@
     <header class="site-header" id="site-header"></header>
     <main id="main" class="container-wide" tabindex="-1">
       <div id="app">
-        <div id="toolbar" role="toolbar" aria-label="Diagram tools">
-          <div role="group" aria-label="File">
-            <button id="btn-new">New</button>
-            <button id="btn-open">Open</button>
-            <button id="btn-save-mmd">Save .mmd</button>
-            <button id="btn-share" disabled>Share</button>
-            <button id="btn-templates" disabled>Templates</button>
-          </div>
-          <div role="group" aria-label="Edit">
-            <button id="btn-undo" disabled>Undo</button>
-            <button id="btn-redo" disabled>Redo</button>
-            <label for="add-shape" class="visually-hidden">New node shape</label>
-            <select id="add-shape"></select>
-            <button id="btn-add-node">Add node</button>
-          </div>
-          <div role="group" aria-label="View">
-            <button id="btn-fit">Fit</button>
-            <button id="btn-autolayout" disabled>Auto-layout</button>
-            <button id="btn-present" disabled>Present</button>
-          </div>
-          <div class="toolbar-spacer"></div>
-          <button id="btn-more" aria-expanded="false" aria-controls="more-menu">More</button>
-          <div id="more-menu" role="menu" hidden></div>
-          <button id="btn-export" class="btn-primary" disabled>Export</button>
-          <input type="file" id="file-picker" accept=".mmd,.txt,.md" style="display: none" />
-        </div>
-        <div id="share-box" hidden>
-          <label for="share-url">Share URL</label>
-          <input type="text" id="share-url" readonly />
-          <button id="share-box-close" aria-label="Close">✕</button>
-        </div>
         <div id="view-tabs" role="tablist" aria-label="Panels" hidden>
-          <button id="tab-diagram" role="tab" aria-selected="true" aria-controls="canvas-panel" tabindex="0">Diagram</button>
-          <button id="tab-text" role="tab" aria-selected="false" aria-controls="text-panel" tabindex="-1">Text</button>
+          <button id="tab-diagram" role="tab" aria-selected="true" aria-controls="canvas-panel" tabindex="0">Canvas</button>
+          <button id="tab-text" role="tab" aria-selected="false" aria-controls="text-panel" tabindex="-1">Editor</button>
         </div>
         <div id="workspace">
           <section id="text-panel" role="tabpanel" aria-labelledby="tab-text">
             <div id="text-panel-bar" class="text-panel-bar">
-              <span class="text-panel-title">Mermaid Script</span>
-              <label class="control-pill-toggle" title="Toggle line wrapping in the Mermaid editor">
-                <input id="editor-wrap" type="checkbox" />
-                <span>Wrap text</span>
-              </label>
+              <div id="editor-tabs" role="tablist" aria-label="Editor panels">
+                <button id="tab-script" class="editor-tab action-btn" type="button" role="tab" aria-selected="true" aria-controls="script-pane" aria-label="Mermaid script"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg><span class="action-label">Script</span></button>
+                <button id="tab-nodes" class="editor-tab action-btn" type="button" role="tab" aria-selected="false" aria-controls="nodes-pane" aria-label="Nodes" tabindex="-1"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><circle cx="17" cy="7" r="3.5"/><path d="M7 13.5 10.5 20h-7z"/><path d="m17 13.5 3.5 3.5-3.5 3.5-3.5-3.5z"/></svg><span class="action-label">Nodes</span></button>
+              </div>
+              <div id="script-actions" role="group" aria-label="File">
+                <button id="btn-new" class="icon-btn action-btn" type="button" aria-label="New"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg><span class="action-label">New</span></button>
+                <button id="btn-open" class="icon-btn action-btn" type="button" aria-label="Open"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v6M9 14l3-3 3 3"/></svg><span class="action-label">Open</span></button>
+                <button id="btn-templates" class="icon-btn action-btn" type="button" aria-label="Templates" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><span class="action-label">Templates</span></button>
+                <input type="file" id="file-picker" accept=".mmd,.txt,.md" hidden />
+              </div>
             </div>
-            <div id="source"></div>
-            <div id="diagnostics-summary" aria-live="polite"></div>
-            <ul id="diagnostics"></ul>
+            <div id="script-pane" role="tabpanel" aria-labelledby="tab-script">
+              <div id="source"></div>
+              <div id="source-corner" class="corner-strip">
+                <label class="control-pill-toggle switch-toggle">
+                  <input id="editor-wrap" class="visually-hidden" type="checkbox" role="switch" />
+                  <span class="switch-track" aria-hidden="true"></span>
+                  <span>Wrap text</span>
+                </label>
+              </div>
+              <div id="diagnostics-summary" aria-live="polite"></div>
+              <ul id="diagnostics"></ul>
+            </div>
+            <div id="nodes-pane" role="tabpanel" aria-labelledby="tab-nodes" hidden>
+              <section class="nodes-section format-section" aria-labelledby="format-title">
+                <h2 id="format-title" class="panel-title">Format</h2>
+                <p id="props-empty" class="nodes-hint">Select a node or an arrow on the diagram to format it.</p>
+                <div id="format-slot"></div>
+              </section>
+              <section class="nodes-section" aria-labelledby="palette-title">
+                <h2 id="palette-title" class="panel-title">Add a node</h2>
+                <div id="node-palette" role="group" aria-labelledby="palette-title"></div>
+                <p id="palette-hint" class="nodes-hint" hidden>This diagram type adds nodes in the script.</p>
+                <select id="add-shape" hidden></select>
+              </section>
+            </div>
           </section>
           <div id="splitter" role="separator" aria-orientation="vertical" tabindex="0" aria-valuemin="20" aria-valuemax="80" aria-valuenow="33" aria-label="Resize panels"></div>
           <section id="canvas-panel" role="tabpanel" aria-labelledby="tab-diagram">
             <canvas id="canvas" role="img" aria-describedby="canvas-desc" tabindex="0"></canvas>
+            <div id="canvas-edit" class="canvas-float" role="group" aria-label="Edit">
+              <div id="canvas-history">
+                <button id="btn-undo" class="icon-btn action-btn" type="button" aria-label="Undo" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="action-label">Undo</span></button>
+                <button id="btn-redo" class="icon-btn action-btn" type="button" aria-label="Redo" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg><span class="action-label">Redo</span></button>
+              </div>
+            </div>
+            <div id="canvas-tools" class="canvas-float" role="group" aria-label="View">
+              <button id="btn-fit" class="icon-btn action-btn" type="button" aria-label="Fit"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg><span class="action-label">Fit</span></button>
+              <button id="btn-autolayout" class="icon-btn action-btn" type="button" aria-label="Auto-layout" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="5" rx="1"/><rect x="3" y="16" width="6" height="5" rx="1"/><rect x="15" y="16" width="6" height="5" rx="1"/><path d="M12 8v4M6 16v-4h12v4"/></svg><span class="action-label">Auto-layout</span></button>
+              <button id="btn-present" class="icon-btn action-btn" type="button" aria-label="Present" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="m10 7 5 3-5 3z"/></svg><span class="action-label">Present</span></button>
+            </div>
+            <div id="canvas-corner" class="corner-strip">
+              <label class="icon-toggle action-btn"><input id="canvas-grid" class="visually-hidden" type="checkbox" aria-label="Grid" /><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg><span class="action-label">Grid</span></label>
+              <div id="canvas-zoom" class="canvas-float" role="group" aria-label="Zoom and move">
+                <button id="btn-zoom-out" class="icon-btn action-btn" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6"/></svg><span class="action-label">Zoom out</span></button>
+                <button id="btn-zoom-in" class="icon-btn action-btn" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6M11 8v6"/></svg><span class="action-label">Zoom in</span></button>
+                <button id="btn-pan" class="icon-btn action-btn" type="button" aria-label="Move" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18M9 6l3-3 3 3M9 18l3 3 3-3M6 9l-3 3 3 3M18 9l3 3-3 3"/></svg><span class="action-label">Move</span></button>
+              </div>
+            </div>
             <p id="canvas-desc" class="visually-hidden"></p>
             <div id="canvas-status" class="visually-hidden" aria-live="polite"></div>
             <div id="props" hidden>
-              <button id="props-close" aria-label="Close properties">✕</button>
+              <div class="props-head">
+                <span class="panel-title">Properties</span>
+                <button id="props-close" aria-label="Close properties">✕</button>
+              </div>
               <div id="prop-section-label">
                 <label for="prop-label">Label</label>
                 <input type="text" id="prop-label" />
@@ -116,104 +134,123 @@
               </div>
               <button id="prop-delete">Delete</button>
             </div>
-            <textarea id="inline-edit" aria-label="Edit label" style="display: none;"></textarea>
+            <textarea id="inline-edit" aria-label="Edit label" rows="1" style="display: none;"></textarea>
             <div id="canvas-controls">
-              <div class="canvas-controls-tier playback-tier">
-                <div class="control-cluster transport-cluster">
-                  <button id="anim-pause">Pause</button>
-                  <label for="anim-style">Animation</label>
-                  <select id="anim-style">
-                    <option value="pulse">pulse</option>
-                    <option value="traffic">traffic</option>
-                    <option value="dash">dash</option>
-                    <option value="build">build</option>
-                    <option value="typewriter">typewriter</option>
-                    <option value="off">off</option>
-                  </select>
-                </div>
-                <div class="control-cluster sliders-cluster">
-                  <div class="slider-group">
-                    <label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1×</output></label>
-                    <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+              <div class="dock-header">
+                <button id="dock-toggle" type="button" aria-expanded="true" aria-controls="dock-body">
+                  <svg class="dock-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                  <span>Animation &amp; theme</span>
+                </button>
+                <div id="message" aria-live="polite"></div>
+                <div id="dock-actions" role="group" aria-label="Share and export">
+                  <div id="share-box" hidden>
+                    <label for="share-url">Share URL</label>
+                    <input type="text" id="share-url" readonly />
+                    <button id="share-box-close" aria-label="Close">✕</button>
                   </div>
-                  <div class="slider-group">
-                    <label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label>
-                    <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
-                  </div>
-                </div>
-                <div class="control-cluster toggles-cluster">
-                  <label class="control-pill-toggle"><input id="anim-glow" type="checkbox" /> <span>Glow</span></label>
-                  <label class="control-pill-toggle"><input id="canvas-grid" type="checkbox" /> <span>Grid</span></label>
+                  <button id="btn-save-mmd" class="icon-btn action-btn" type="button" aria-label="Save .mmd"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8V3M7 21v-7h10v7"/></svg><span class="action-label">Save .mmd</span></button>
+                  <button id="btn-share" class="icon-btn action-btn" type="button" aria-label="Share" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg><span class="action-label">Share</span></button>
+                  <button id="btn-export" class="icon-btn action-btn" type="button" aria-label="Export" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg><span class="action-label">Export</span></button>
                 </div>
               </div>
-              <div class="canvas-controls-tier theming-tier">
-                <div id="theme-strip" class="theming-control-group">
-                  <label for="theme" class="theme-row-label">Diagram</label>
-                  <select id="theme">
-                    <option value="auto">Match page</option>
-                    <option value="daylight">Daylight</option>
-                    <option value="geist">Geist</option>
-                    <option value="flexoki">Flexoki</option>
-                    <option value="latte">Latte</option>
-                    <option value="matcha">Matcha</option>
-                    <option value="clay">Clay</option>
-                    <option value="swiss">Swiss</option>
-                    <option value="midnight">Midnight</option>
-                    <option value="obsidian">Obsidian</option>
-                    <option value="graphite">Graphite</option>
-                    <option value="tokyonight">Tokyo Night</option>
-                    <option value="nordic">Nordic</option>
-                    <option value="rosepine">Rosé Pine</option>
-                    <option value="monokai">Monokai</option>
-                    <option value="lagoon">Lagoon</option>
-                    <option value="ember">Ember</option>
-                  </select>
+              <div id="dock-body">
+                <div class="canvas-controls-tier playback-tier">
+                  <div class="control-cluster transport-cluster">
+                    <button id="anim-pause">Pause</button>
+                    <div class="field">
+                      <label for="anim-style">Animation</label>
+                      <select id="anim-style">
+                        <option value="pulse">pulse</option>
+                        <option value="traffic">traffic</option>
+                        <option value="dash">dash</option>
+                        <option value="build">build</option>
+                        <option value="typewriter">typewriter</option>
+                        <option value="off">off</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="control-cluster sliders-cluster">
+                    <div class="slider-group">
+                      <label for="anim-speed">Speed <output id="anim-speed-value" for="anim-speed">1×</output></label>
+                      <input id="anim-speed" type="range" min="0.25" max="3" step="0.25" value="1" />
+                    </div>
+                    <div class="slider-group">
+                      <label for="anim-density">Density <output id="anim-density-value" for="anim-density">4</output></label>
+                      <input id="anim-density" type="range" min="1" max="10" step="1" value="4" />
+                    </div>
+                  </div>
+                  <div class="control-cluster toggles-cluster">
+                    <label class="control-pill-toggle"><input id="anim-glow" type="checkbox" /> <span>Glow</span></label>
+                  </div>
                 </div>
-                <div id="bg-strip" class="theming-control-group">
-                  <label for="bg-theme" class="theme-row-label">Background</label>
-                  <select id="bg-theme" aria-label="Canvas background">
-                    <option value="match">Match diagram</option>
-                    <option value="auto">Match page</option>
-                    <option value="daylight">Daylight</option>
-                    <option value="geist">Geist</option>
-                    <option value="flexoki">Flexoki</option>
-                    <option value="latte">Latte</option>
-                    <option value="matcha">Matcha</option>
-                    <option value="clay">Clay</option>
-                    <option value="swiss">Swiss</option>
-                    <option value="midnight">Midnight</option>
-                    <option value="obsidian">Obsidian</option>
-                    <option value="graphite">Graphite</option>
-                    <option value="tokyonight">Tokyo Night</option>
-                    <option value="nordic">Nordic</option>
-                    <option value="rosepine">Rosé Pine</option>
-                    <option value="monokai">Monokai</option>
-                    <option value="lagoon">Lagoon</option>
-                    <option value="ember">Ember</option>
-                  </select>
-                </div>
-                <button id="bg-lock" type="button" class="bg-lock-btn" aria-pressed="false" title="Lock canvas background while changing diagram themes">🔓 Lock BG</button>
-                <div class="theming-control-group">
-                  <label for="node-shading" class="theme-row-label">Shading</label>
-                  <select id="node-shading" aria-label="Node shading">
-                    <option value="shape">By shape</option>
-                    <option value="semantic">Semantic</option>
-                    <option value="node">By node</option>
-                    <option value="off">Uniform</option>
-                  </select>
-                </div>
-                <div class="theming-control-group">
-                  <label for="card-mode" class="theme-row-label">Card</label>
-                  <select id="card-mode" aria-label="Card style">
-                    <option value="classic">Classic</option>
-                    <option value="pipeline">Pipeline</option>
-                    <option value="workflow">Workflow</option>
-                  </select>
+                <div class="canvas-controls-tier theming-tier">
+                  <div id="theme-strip" class="theming-control-group">
+                    <label for="theme" class="theme-row-label">Diagram</label>
+                    <select id="theme">
+                      <option value="auto">Match page</option>
+                      <option value="daylight">Daylight</option>
+                      <option value="geist">Geist</option>
+                      <option value="flexoki">Flexoki</option>
+                      <option value="latte">Latte</option>
+                      <option value="matcha">Matcha</option>
+                      <option value="clay">Clay</option>
+                      <option value="swiss">Swiss</option>
+                      <option value="midnight">Midnight</option>
+                      <option value="obsidian">Obsidian</option>
+                      <option value="graphite">Graphite</option>
+                      <option value="tokyonight">Tokyo Night</option>
+                      <option value="nordic">Nordic</option>
+                      <option value="rosepine">Rosé Pine</option>
+                      <option value="monokai">Monokai</option>
+                      <option value="lagoon">Lagoon</option>
+                      <option value="ember">Ember</option>
+                    </select>
+                  </div>
+                  <div id="bg-strip" class="theming-control-group">
+                    <label for="bg-theme" class="theme-row-label">Background</label>
+                    <select id="bg-theme" aria-label="Canvas background">
+                      <option value="match">Match diagram</option>
+                      <option value="auto">Match page</option>
+                      <option value="daylight">Daylight</option>
+                      <option value="geist">Geist</option>
+                      <option value="flexoki">Flexoki</option>
+                      <option value="latte">Latte</option>
+                      <option value="matcha">Matcha</option>
+                      <option value="clay">Clay</option>
+                      <option value="swiss">Swiss</option>
+                      <option value="midnight">Midnight</option>
+                      <option value="obsidian">Obsidian</option>
+                      <option value="graphite">Graphite</option>
+                      <option value="tokyonight">Tokyo Night</option>
+                      <option value="nordic">Nordic</option>
+                      <option value="rosepine">Rosé Pine</option>
+                      <option value="monokai">Monokai</option>
+                      <option value="lagoon">Lagoon</option>
+                      <option value="ember">Ember</option>
+                    </select>
+                  </div>
+                  <button id="bg-lock" class="switch-toggle" type="button" role="switch" aria-checked="false"><span class="switch-track" aria-hidden="true"></span><span>Lock background</span></button>
+                  <div class="theming-control-group">
+                    <label for="node-shading" class="theme-row-label">Shading</label>
+                    <select id="node-shading" aria-label="Node shading">
+                      <option value="shape">By shape</option>
+                      <option value="semantic">Semantic</option>
+                      <option value="node">By node</option>
+                      <option value="off">Uniform</option>
+                    </select>
+                  </div>
+                  <div class="theming-control-group">
+                    <label for="card-mode" class="theme-row-label">Card</label>
+                    <select id="card-mode" aria-label="Card style">
+                      <option value="classic">Classic</option>
+                      <option value="pipeline">Pipeline</option>
+                      <option value="workflow">Workflow</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
             <div id="present-step" hidden></div>
-            <div id="message" aria-live="polite"></div>
           </section>
         </div>
         <dialog id="export-panel" aria-modal="true" aria-label="Export diagram">
@@ -285,7 +322,6 @@
         </dialog>
       </div>
     </main>
-    <footer class="site-footer" id="site-footer"></footer>
     <noscript>
       <p>Draw, drag and animate Mermaid flowcharts, then save them as PNG, SVG, GIF or video. Everything runs in your browser. Source code is available on <a href="%VITE_SOURCE_URL%">GitHub</a>.</p>
     </noscript>

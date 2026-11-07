@@ -77,8 +77,8 @@ export function setupAnimControls(
     if (bgThemeEl) bgThemeEl.value = state.settings.bgTheme ?? 'match';
     if (bgLockEl) {
       const isLocked = Boolean(state.settings.bgLocked);
-      bgLockEl.setAttribute('aria-pressed', isLocked ? 'true' : 'false');
-      bgLockEl.textContent = isLocked ? '🔒 Locked' : '🔓 Lock BG';
+      // A switch: the track shows the state, and the "Lock background" label stays as written.
+      bgLockEl.setAttribute('aria-checked', isLocked ? 'true' : 'false');
     }
     if (canvasGridEl) {
       canvasGridEl.checked = Boolean(state.settings.grid);

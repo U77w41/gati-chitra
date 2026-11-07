@@ -10,6 +10,7 @@ import { panBy, screenToWorld, zoomAt } from '../editor/view';
 import { hitTest } from '../layout/geometry';
 import { capsOf } from './kind-ui';
 import type { CanvasEventsEnv } from './canvas-events';
+import { panToolOn } from './pan-tool';
 
 export interface TouchWiring {
   onPointerDown(e: PointerEvent): void;
@@ -67,7 +68,7 @@ export function createTouchWiring(env: CanvasEventsEnv): TouchWiring {
           ? hitTest(state.scene, world, selNodeId, TOUCH.hitTolerance)
           : null;
 
-        if ((hit?.kind === 'node' && caps.move) || (hit?.kind === 'handle' && caps.connect)) {
+        if (!panToolOn() && ((hit?.kind === 'node' && caps.move) || (hit?.kind === 'handle' && caps.connect))) {
           dragMode = 'controller';
           dispatch({
             type: 'pointerDown',

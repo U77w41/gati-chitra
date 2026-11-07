@@ -3,6 +3,7 @@ import type { ShapeKind, TextOp } from '../core/types';
 import { canRedo, canUndo } from '../editor/history';
 import { stripFences } from '../mermaid/fences';
 import { downloadText } from './download';
+import { setupNodePalette } from './node-palette';
 import { syncKindControls } from './kind-ui';
 import type { AppState, CommitSource } from './state';
 
@@ -26,8 +27,6 @@ export function setupToolbar(env: ToolbarEnv): () => void {
   const btnFit = document.querySelector<HTMLButtonElement>('#btn-fit')!;
   const btnAutolayout =
     document.querySelector<HTMLButtonElement>('#btn-autolayout')!;
-  const btnAddNode =
-    document.querySelector<HTMLButtonElement>('#btn-add-node')!;
   const addShapeEl = document.querySelector<HTMLSelectElement>('#add-shape')!;
   const filePicker = document.querySelector<HTMLInputElement>('#file-picker')!;
 
@@ -67,8 +66,12 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     env.executeOp({ type: 'clearPins' }),
   );
 
-  btnAddNode.addEventListener('click', () => {
-    env.onAddNode(addShapeEl.value as ShapeKind);
+  setupNodePalette({
+    palette: document.querySelector<HTMLElement>('#node-palette')!,
+    hint: document.querySelector<HTMLElement>('#palette-hint'),
+    select: addShapeEl,
+    beforeAdd: showDiagramOnPhone,
+    onAdd: () => env.onAddNode(addShapeEl.value as ShapeKind),
   });
 
   return function updateButtons(): void {
@@ -78,4 +81,13 @@ export function setupToolbar(env: ToolbarEnv): () => void {
     btnAutolayout.disabled = Object.keys(state.doc.pins).length === 0;
     syncKindControls(state.doc);
   };
+}
+
+// On phones the palette sits on the Editor tab, but a new node is placed in the visible diagram and
+// opens its label editor there, so switch to the Canvas tab and let it lay out first.
+async function showDiagramOnPhone(): Promise<void> {
+  const viewTabs = document.getElementById('view-tabs');
+  if (!viewTabs || viewTabs.hidden) return;
+  document.getElementById('tab-diagram')?.click();
+  await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 }

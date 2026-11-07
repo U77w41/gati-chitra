@@ -7,6 +7,8 @@
   --text-muted: #6b7079;
   --border: #8c8c91;
   --border-strong: #74747a;
+  /* Dividers inside the studio. Derived from --border, so the dark scheme follows without its own value. */
+  --line: color-mix(in srgb, var(--border) 45%, transparent);
   --accent: #34495e;
   --accent-darker: #2c3e50;
   --accent-text: #ffffff;

@@ -7,6 +7,10 @@ import { KEYBOARD } from '../core/constants';
 import { edgeCycle, nextNodeInDirection, type Dir } from '../editor/keyboard-nav';
 import { capsOf } from './kind-ui';
 import type { TouchWiring } from './touch-wiring';
+import { panToolOn, setupPanTool } from './pan-tool';
+
+/** The zoom buttons step like the + and - keys. */
+const ZOOM_STEP = 1.25;
 
 export interface CanvasEventsEnv {
   canvasEl: HTMLCanvasElement;
@@ -45,6 +49,12 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
     },
     { passive: false },
   );
+
+  // Zoom out, zoom in and Move in the canvas's bottom-right corner (index.html #canvas-zoom).
+  const centre = () => ({ x: canvasEl.clientWidth / 2, y: canvasEl.clientHeight / 2 });
+  document.getElementById('btn-zoom-in')?.addEventListener('click', () => updateView((v) => zoomAt(v, centre(), ZOOM_STEP)));
+  document.getElementById('btn-zoom-out')?.addEventListener('click', () => updateView((v) => zoomAt(v, centre(), 1 / ZOOM_STEP)));
+  setupPanTool();
 
   let touchWiring: TouchWiring | null = null;
   const touchPromise = import('./touch-wiring').then(({ createTouchWiring }) => {
@@ -87,7 +97,7 @@ export function setupCanvasEvents(env: CanvasEventsEnv): void {
       world,
       screen,
       button: e.button,
-      space: spaceHeld,
+      space: spaceHeld || panToolOn(),
     });
   });
 

@@ -5,11 +5,13 @@ test.describe('Mobile phone layout', () => {
   test('tabs, toolbar, panels, and accessibility on mobile', async ({ page }) => {
     await page.goto('./?e2e=1');
 
-    // the tabs are visible, and the Diagram tab is selected
+    // the tabs are visible, and the Canvas tab is selected
     const tabs = page.locator('#view-tabs');
     await expect(tabs).toBeVisible();
-    const tabDiagram = page.locator('#view-tabs button[role="tab"]', { hasText: 'Diagram' });
-    const tabText = page.locator('#view-tabs button[role="tab"]', { hasText: 'Text' });
+    // The phone tabs are named Canvas and Editor.
+    const tabDiagram = page.locator('#view-tabs button[role="tab"]', { hasText: 'Canvas' });
+    const tabText = page.locator('#view-tabs button[role="tab"]', { hasText: 'Editor' });
+    await expect(page.locator('#view-tabs [role="tab"]')).toHaveText(['Canvas', 'Editor']);
     await expect(tabDiagram).toHaveAttribute('aria-selected', 'true');
     await expect(tabText).toHaveAttribute('aria-selected', 'false');
 
@@ -19,6 +21,15 @@ test.describe('Mobile phone layout', () => {
     await expect(tabDiagram).toHaveAttribute('aria-selected', 'false');
     await expect(page.locator('#text-panel')).toBeVisible();
     await expect(page.locator('#canvas-panel')).toBeHidden();
+    // New, Open and Templates sit in the Editor tab's panel bar on phones.
+    await expect(page.locator('#text-panel-bar #btn-new')).toBeVisible();
+    await expect(page.locator('#text-panel-bar #btn-open')).toBeVisible();
+    await expect(page.locator('#text-panel-bar #btn-templates')).toBeVisible();
+    // Wrap text sits in the editor's bottom-right corner on phones too.
+    const sourceBox = (await page.locator('#source').boundingBox())!;
+    const wrapBox = (await page.locator('#source-corner label').boundingBox())!;
+    expect(wrapBox.x + wrapBox.width).toBeLessThanOrEqual(sourceBox.x + sourceBox.width);
+    expect(wrapBox.y + wrapBox.height).toBeLessThanOrEqual(sourceBox.y + sourceBox.height);
 
     // switch back to diagram
     await tabDiagram.click();
@@ -32,19 +43,27 @@ test.describe('Mobile phone layout', () => {
     });
     expect(noHorizontalScroll).toBe(true);
 
-    // the toolbar's height is 100 px or less
-    const toolbar = page.locator('#toolbar');
-    const toolbarBox = await toolbar.boundingBox();
-    expect(toolbarBox).toBeTruthy();
-    expect(toolbarBox!.height).toBeLessThanOrEqual(100);
-
-    // More opens a menu that contains "Templates"
-    const btnMore = page.locator('#btn-more');
-    await expect(btnMore).toBeVisible();
-    await btnMore.click();
-    const moreMenu = page.locator('#more-menu');
-    await expect(moreMenu).toBeVisible();
-    await expect(moreMenu).toContainText('Templates');
+    // There is no toolbar row: New and Open sit in the Editor tab's panel bar, Save .mmd in the
+    // Canvas tab's Animation & theme row, and Fit, Auto-layout and Present on the diagram.
+    await expect(page.locator('#toolbar')).toHaveCount(0);
+    await expect(page.locator('#btn-more')).toHaveCount(0);
+    await expect(page.locator('.dock-header #btn-save-mmd')).toBeVisible();
+    await expect(page.locator('#canvas-tools #btn-fit')).toBeVisible();
+    const canvasBox = (await page.locator('#canvas').boundingBox())!;
+    const fitBox = (await page.locator('#btn-fit').boundingBox())!;
+    expect(fitBox.y).toBeGreaterThanOrEqual(canvasBox.y);
+    expect(fitBox.x + fitBox.width).toBeLessThanOrEqual(canvasBox.x + canvasBox.width);
+    // Export sits at the right of the Animation & theme row on phones too.
+    await expect(page.locator('.dock-header #btn-export')).toBeVisible();
+    // Undo sits in the canvas's top-left corner on phones too.
+    await expect(page.locator('#canvas-history #btn-undo')).toBeVisible();
+    const undoBox = (await page.locator('#btn-undo').boundingBox())!;
+    expect(undoBox.x).toBeGreaterThanOrEqual(canvasBox.x);
+    expect(undoBox.y).toBeGreaterThanOrEqual(canvasBox.y);
+    // Grid sits in the canvas's bottom-left corner on phones too.
+    const gridBox = (await page.locator('#canvas-corner label').boundingBox())!;
+    expect(gridBox.x).toBeGreaterThanOrEqual(canvasBox.x);
+    expect(gridBox.y + gridBox.height).toBeLessThanOrEqual(canvasBox.y + canvasBox.height);
 
     // axe on this layout finds no violations
     const results = await new AxeBuilder({ page })
@@ -172,8 +191,10 @@ test.describe('Mobile phone layout', () => {
 
     const canvasBox = (await page.locator('#canvas').boundingBox())!;
     const nodesBefore = await page.evaluate(() => window.__studio!.getSummary().nodes.length);
+    // Below the Undo/Redo group in the top-left corner, so the taps land on bare canvas.
     const dblX = canvasBox.x + 20;
-    const dblY = canvasBox.y + 40;
+    const dblY = canvasBox.y + 80;
+    expect(await page.evaluate(([x, y]) => document.elementFromPoint(x!, y!)?.id, [dblX, dblY])).toBe('canvas');
     // tap 1
     await client.send('Input.dispatchTouchEvent', {
       type: 'touchStart',
@@ -236,5 +257,49 @@ test.describe('Mobile phone layout', () => {
       return file ? { name: file.name, type: file.type } : null;
     });
     expect(sharedFile?.name).toBe('diagram.png');
+  });
+
+  test('a long script scrolls inside the Editor tab instead of growing the page', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    await page.locator('#view-tabs button[role="tab"]', { hasText: 'Editor' }).click();
+    const panelHeight = () => page.evaluate(() => document.querySelector('#text-panel')!.getBoundingClientRect().height);
+    const before = await panelHeight();
+
+    const lines = ['flowchart TD'];
+    for (let i = 0; i < 200; i++) lines.push(`  N${i}[Step number ${i}] --> N${i + 1}`);
+    await page.evaluate((t) => (window as any).__studio.setText(t), lines.join('\n'));
+    await page.waitForTimeout(400);
+
+    expect(Math.abs((await panelHeight()) - before)).toBeLessThanOrEqual(1);
+    const fits = await page.evaluate(() => {
+      const scroller = document.querySelector('#source .cm-scroller')!;
+      const panel = document.querySelector('#text-panel')!.getBoundingClientRect();
+      return { scrolls: scroller.scrollHeight > scroller.clientHeight + 1, panel: panel.height, window: window.innerHeight };
+    });
+    expect(fits.scrolls).toBe(true);
+    expect(fits.panel).toBeLessThanOrEqual(fits.window);
+  });
+
+  test('adding a node from the Nodes tab shows it on the diagram', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    const count = () => page.evaluate(() => window.__studio!.getSummary().nodes.length);
+    await expect.poll(count).toBeGreaterThan(0);
+    const before = await count();
+    await page.locator('#tab-text').click();
+    await page.locator('#tab-nodes').click();
+    await page.locator('#node-palette button', { hasText: /^Rectangle$/ }).click();
+    await expect(page.locator('#tab-diagram')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#canvas')).toBeVisible();
+    await expect.poll(count).toBe(before + 1);
+  });
+
+  test('the header stays in the page on phones', async ({ page }) => {
+    await page.goto('./?e2e=1');
+    // On phones it scrolls with the page instead of sliding away, so scrolling to the top shows it whole.
+    const position = await page.locator('#site-header').evaluate((el) => getComputedStyle(el).position);
+    expect(position).not.toBe('fixed');
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await expect(page.locator('#site-header')).toBeInViewport({ ratio: 1 });
+    expect((await page.locator('#site-header').boundingBox())!.y).toBeGreaterThanOrEqual(0);
   });
 });

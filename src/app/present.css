@@ -1,10 +1,15 @@
-body.presenting #toolbar,
+body.presenting #canvas-tools,
+body.presenting #canvas-edit,
+body.presenting #canvas-corner,
 body.presenting #text-panel,
 body.presenting #canvas-controls,
 body.presenting #share-box,
 body.presenting #props {
   display: none !important;
 }
+
+/* The canvas panel is a full 100vh here, so any padding around it would make the page scroll. */
+body.presenting #main { padding: 0; }
 
 body.presenting #canvas-panel {
   flex: 1;

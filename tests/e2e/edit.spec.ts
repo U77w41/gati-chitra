@@ -344,6 +344,39 @@ test.describe('Editing, connecting and properties panel', () => {
     expect(Math.abs(editCenter.y - aScreen.y)).toBeLessThanOrEqual(4);
   });
 
+  test('the label editor is a compact pill on the label, in the label\'s font, that grows as you type', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('./?e2e=1');
+    await page.evaluate(() => (window as any).__studio.setText('flowchart LR\n  A[Start] --> B((Circle))'));
+    await page.waitForTimeout(300);
+    await page.click('#btn-fit');
+    const center = await page.evaluate(() => (window as any).__studio.getNodeScreenCenter('B'));
+    await page.mouse.dblclick(center.x, center.y);
+    const editor = page.locator('#inline-edit');
+    await expect(editor).toBeVisible();
+
+    const zoom = await page.evaluate(() => (window as any).__studio.getView().zoom as number);
+    const style = await editor.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { align: cs.textAlign, font: parseFloat(cs.fontSize), outline: cs.outlineStyle, lineHeight: parseFloat(cs.lineHeight) };
+    });
+    expect(style.align).toBe('center');
+    expect(Math.abs(style.font - Math.min(24, Math.max(12, Math.round(16 * zoom))))).toBeLessThanOrEqual(0.5);
+    expect(style.outline).toBe('none');
+
+    // One line tall and centred on the label, so the node's shape stays visible around it.
+    const box = (await editor.boundingBox())!;
+    expect(box.height).toBeLessThanOrEqual(style.lineHeight + 14);
+    expect(Math.abs(box.x + box.width / 2 - center.x)).toBeLessThanOrEqual(2);
+    expect(Math.abs(box.y + box.height / 2 - center.y)).toBeLessThanOrEqual(2);
+
+    await page.keyboard.type('A much longer label for this circle node');
+    const wider = (await editor.boundingBox())!;
+    expect(wider.width).toBeGreaterThan(box.width + 40);
+    expect(wider.width).toBeLessThanOrEqual(320);
+    expect(Math.abs(wider.x + wider.width / 2 - center.x)).toBeLessThanOrEqual(2);
+  });
+
   test('opening a Markdown file strips the fences', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.waitForTimeout(300);

@@ -38,7 +38,7 @@ Gati-chitra runs as a Progressive Web App (PWA):
 
 Gati-chitra supports phones and touch screens:
 
-- **Diagram and Text tabs**: Windows narrower than 768 pixels show tabs above the canvas to switch between the diagram view and the Mermaid text editor.
+- **Canvas and Editor tabs**: Windows narrower than 768 pixels show tabs above the canvas to switch between the diagram and the Mermaid editor.
 - **More menu**: Secondary toolbar buttons move into a `...` menu to fit smaller screens.
 - **Properties sheet**: Pressing and holding a node or edge opens its properties in a bottom sheet. Tap `✕` or press Escape to close the sheet and return to the canvas.
 - **Sharing exports**: When the browser supports file sharing, the Save buttons in the export dialog open the system share sheet to send diagrams directly to other apps.
@@ -85,7 +85,7 @@ Gati-chitra supports phones and touch screens:
 
 ## What's new in v0.6.0
 
-- Phone layout: Diagram and Text tabs for screens under 768 pixels, with secondary actions grouped under a More menu.
+- Phone layout: Canvas and Editor tabs for screens under 768 pixels.
 - Touch gestures: One-finger pan, node dragging, pinch-to-zoom, tap selection, double-tap node creation and renaming, and press-and-hold properties opening.
 - Bottom sheet: Properties panel opens as a bottom sheet on mobile devices.
 - System share sheet: Export dialog uses native file sharing when supported by the device.

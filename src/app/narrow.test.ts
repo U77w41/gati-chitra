@@ -37,8 +37,8 @@ describe('narrow', () => {
       };
     };
 
-    const tabText = makeElement('Text', 'tab-text');
-    const tabDiagram = makeElement('Diagram', 'tab-diagram');
+    const tabText = makeElement('Editor', 'tab-text');
+    const tabDiagram = makeElement('Canvas', 'tab-diagram');
     const tabs = makeElement();
     const allTabs = [tabText, tabDiagram];
     (tabs as unknown as HTMLElement).querySelector = (sel: string) => {
@@ -72,7 +72,7 @@ describe('narrow', () => {
       onShowDiagram,
     });
 
-    // In narrow mode, Diagram is selected first
+    // In narrow mode, Canvas is selected first
     expect(tabDiagram.getAttribute('aria-selected')).toBe('true');
     expect(tabText.getAttribute('aria-selected')).toBe('false');
     expect(canvasPanel.hidden).toBe(false);

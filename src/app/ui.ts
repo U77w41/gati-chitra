@@ -32,7 +32,7 @@ import { setupWrapToggle } from './wrap-toggle';
 
 export async function initApp(): Promise<void> {
   const store = safeStore();
-  mountChrome(document, store, import.meta.env.VITE_SOURCE_URL ?? '', () => requestRedraw());
+  mountChrome(document, store, () => requestRedraw());
   document.getElementById('main')?.focus();
 
   const initialText = loadDoc(store) ?? SAMPLE_TEXT;
@@ -292,6 +292,6 @@ export async function initApp(): Promise<void> {
   });
 
   document.querySelectorAll<HTMLButtonElement>(
-    '#toolbar button, #canvas-controls button, #props button, dialog button',
-  ).forEach((b) => b.classList.add(b.id === 'btn-export' ? 'btn-primary' : 'btn-secondary'));
+    '#canvas-controls button:not(.icon-btn):not(.switch-toggle), #props button, dialog button',
+  ).forEach((b) => b.classList.add('btn-secondary'));
 }

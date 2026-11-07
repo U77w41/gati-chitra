@@ -39,19 +39,23 @@ export function kindControlModel(doc: ParsedDoc): {
 }
 
 let lastSeenKind: DiagramKind | null = null;
+// A type's engine can load after its first parse, which used the flowchart fallback lists, so the
+// lists are refilled when the engine changes as well as when the type does.
+let lastSeenEngine: DiagramEngine | null = null;
 
 export function syncKindControls(doc: ParsedDoc): void {
   if (typeof document === 'undefined') return;
   const model = kindControlModel(doc);
   const addShapeEl = document.querySelector<HTMLSelectElement>('#add-shape');
-  const btnAddNode = document.querySelector<HTMLButtonElement>('#btn-add-node');
   const btnAutolayout = document.querySelector<HTMLButtonElement>('#btn-autolayout');
   const cardModeEl = document.querySelector<HTMLSelectElement>('#card-mode');
   const propShapeEl = document.querySelector<HTMLSelectElement>('#prop-shape');
   const propKindEl = document.querySelector<HTMLSelectElement>('#prop-kind');
 
-  if (model.kind !== lastSeenKind) {
+  const engine = engineOf(doc);
+  if (model.kind !== lastSeenKind || engine !== lastSeenEngine) {
     lastSeenKind = model.kind;
+    lastSeenEngine = engine;
     if (addShapeEl) {
       addShapeEl.innerHTML = '';
       for (const choice of model.addChoices) {
@@ -82,7 +86,6 @@ export function syncKindControls(doc: ParsedDoc): void {
   }
 
   if (addShapeEl) addShapeEl.disabled = !model.caps.add;
-  if (btnAddNode) btnAddNode.disabled = !model.caps.add;
   if (btnAutolayout && !model.caps.move) {
     btnAutolayout.disabled = true;
   }

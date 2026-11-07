@@ -9,7 +9,9 @@ test.describe('Site Chrome and Scheme', () => {
     const header = page.locator('.site-header');
     await expect(header).toBeVisible();
     const box = await header.boundingBox();
-    expect(box!.height).toBeGreaterThanOrEqual(72);
+    // A slim header: one row of about 48 px.
+    expect(box!.height).toBeGreaterThanOrEqual(40);
+    expect(box!.height).toBeLessThanOrEqual(52);
 
     await expect(page.locator('.brand-name')).toHaveText('Gati Chitra');
     const brandSvg = page.locator('.brand svg.brand-icon');
@@ -39,39 +41,10 @@ test.describe('Site Chrome and Scheme', () => {
     await page.locator('#help-close').click();
   });
 
-  test('footer renders copyright, meta, and navigation links', async ({ page }) => {
+  test('the page has no footer', async ({ page }) => {
     await page.goto('./?e2e=1');
-
-    const copyright = page.locator('.copyright');
-    await expect(copyright).toHaveText(/^© 2026( – \d{4})? Ujjwal Chowdhury$/);
-
-    const footer = page.locator('.site-footer');
-    await expect(footer).toContainText('Runs entirely in your browser');
-
-    const footerNav = page.locator('.footer-nav');
-    await expect(footerNav.locator('a', { hasText: 'Hire Me' })).toHaveAttribute(
-      'href',
-      'https://u77w41.github.io/resume/',
-    );
-    await expect(footerNav.locator('a', { hasText: 'Diff Checker' })).toHaveAttribute(
-      'href',
-      'https://u77w41.github.io/diff-checker/',
-    );
-    await expect(footerNav.locator('a', { hasText: 'Anurup' })).toHaveAttribute(
-      'href',
-      'https://u77w41.github.io/anurup/',
-    );
-
-    const sourceLink = footerNav.locator('a', { hasText: 'Source' });
-    const sourceHref = await sourceLink.getAttribute('href');
-    expect(sourceHref).toMatch(/^https:\/\/github\.com\//);
-
-    const footerSupport = page.locator('[data-testid="support-link-footer"]');
-    await expect(footerSupport).toHaveAttribute(
-      'href',
-      'https://u77w41.github.io/support-my-work/',
-    );
-    await expect(footerSupport).toContainText('Support my work');
+    await expect(page.locator('#site-header')).toBeVisible();
+    await expect(page.locator('footer, .site-footer, [role="contentinfo"]')).toHaveCount(0);
   });
 
   test('scheme follows system preference', async ({ page }) => {
@@ -208,17 +181,17 @@ test.describe('Site Chrome and Scheme', () => {
     await page.setViewportSize({ width: 600, height: 800 });
     await page.goto('./?e2e=1');
 
-    const brandBox = await page.locator('.brand').boundingBox();
-    const navBox = await page.locator('.site-nav').boundingBox();
-    expect(navBox!.y).toBeGreaterThanOrEqual(brandBox!.y + brandBox!.height);
+    // Still one row: the name, then icons only.
+    const brandBox = (await page.locator('.brand').boundingBox())!;
+    const navBox = (await page.locator('.site-nav').boundingBox())!;
+    expect(Math.abs(navBox.y + navBox.height / 2 - (brandBox.y + brandBox.height / 2))).toBeLessThanOrEqual(4);
 
-    await expect(page.locator('.site-nav .nav-label').first()).toBeHidden();
+    await expect(page.locator('.site-nav .action-label').first()).toBeHidden();
     await expect(page.locator('.site-nav .mobile-hide')).toBeHidden();
-    await expect(page.locator('[data-testid="support-link-footer"]')).toBeVisible();
 
-    const navBtnBox = await page.locator('.site-nav a.nav-text-desktop').boundingBox();
-    expect(Math.round(navBtnBox!.width)).toBe(40);
-    expect(Math.round(navBtnBox!.height)).toBe(40);
+    const navBtnBox = (await page.locator('.site-nav a[href*="resume"]').boundingBox())!;
+    expect(navBtnBox.width).toBeLessThanOrEqual(40);
+    expect(navBtnBox.height).toBeLessThanOrEqual(40);
   });
 
   test('tools dropdown menu interactions', async ({ page }) => {
@@ -250,7 +223,7 @@ test.describe('Site Chrome and Scheme', () => {
     await expect(panel).toBeHidden();
   });
 
-  test('present mode hides site header and footer', async ({ page }) => {
+  test('present mode hides the site header', async ({ page }) => {
     await page.goto('./?e2e=1');
     await page.evaluate(() => {
       (window as any).__studio.setText('flowchart TD\nA-->B');
@@ -260,11 +233,9 @@ test.describe('Site Chrome and Scheme', () => {
     await page.click('#btn-present');
     await expect(page.locator('body')).toHaveClass(/presenting/);
     await expect(page.locator('.site-header')).toBeHidden();
-    await expect(page.locator('.site-footer')).toBeHidden();
 
     await page.keyboard.press('Escape');
     await expect(page.locator('.site-header')).toBeVisible();
-    await expect(page.locator('.site-footer')).toBeVisible();
   });
 
   test('a failed template says so', async ({ page }) => {
@@ -298,11 +269,11 @@ test.describe('Site Chrome and Scheme', () => {
     }
   });
 
-  test('groups toolbar buttons into File, Edit and View', async ({ page }) => {
+  test('groups the controls into File, Edit and View', async ({ page }) => {
     await page.goto('./?e2e=1');
     const fileGroup = page.getByRole('group', { name: 'File' });
     await expect(fileGroup).toBeVisible();
-    await expect(fileGroup.locator('#btn-templates')).toBeVisible();
+    await expect(fileGroup.locator('#btn-open')).toBeVisible();
 
     const editGroup = page.getByRole('group', { name: 'Edit' });
     await expect(editGroup).toBeVisible();

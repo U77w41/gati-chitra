@@ -167,7 +167,9 @@ describe('anim-controls', () => {
       (els.bgLockEl as unknown as FakeNode).click();
       expect(state.settings.bgLocked).toBe(true);
       expect(state.settings.bgTheme).toBe('daylight');
-      expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('true');
+      expect(els.bgLockEl.getAttribute('aria-checked')).toBe('true');
+      // A switch keeps its own label; only its checked state changes.
+      expect(els.bgLockEl.textContent).toBe('');
 
       // Select diagram theme via dropdown
       els.themeEl.value = 'obsidian';
@@ -181,21 +183,21 @@ describe('anim-controls', () => {
       (els.bgLockEl as unknown as FakeNode).click();
       expect(state.settings.bgLocked).toBe(false);
       expect(state.settings.bgTheme).toBe('match');
-      expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('false');
+      expect(els.bgLockEl.getAttribute('aria-checked')).toBe('false');
 
       // Select background via dropdown
       els.bgThemeEl.value = 'paper';
       (els.bgThemeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
       expect(state.settings.bgTheme).toBe('paper');
       expect(state.settings.bgLocked).toBe(true);
-      expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('true');
+      expect(els.bgLockEl.getAttribute('aria-checked')).toBe('true');
 
       // Select match background via dropdown
       els.bgThemeEl.value = 'match';
       (els.bgThemeEl as unknown as FakeNode).dispatchEvent({ type: 'change' });
       expect(state.settings.bgTheme).toBe('match');
       expect(state.settings.bgLocked).toBe(false);
-      expect(els.bgLockEl.getAttribute('aria-pressed')).toBe('false');
+      expect(els.bgLockEl.getAttribute('aria-checked')).toBe('false');
     } finally {
       (globalThis as unknown as { document: unknown }).document = origDoc;
     }

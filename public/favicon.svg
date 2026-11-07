@@ -1,15 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
-  <style>
-    .line { stroke: #363853; }
-    .dot { fill: #363853; }
-    @media (prefers-color-scheme: dark) {
-      .line { stroke: #cbd5e1; }
-      .dot { fill: #cbd5e1; }
-    }
-  </style>
-  <path class="line" d="M 408 42 L 408 78 M 408 112 L 408 148 M 408 182 L 408 240" stroke-width="24" stroke-linecap="round" />
-  <path class="line" d="M 108 196 C 68 232 56 272 56 320 C 56 388.5 101.2 444 157 444 C 212.8 444 258 388.5 258 320 L 258 240 C 258 198.6 291.6 165 333 165 C 374.4 165 408 198.6 408 240 L 408 362" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-  <path class="line" d="M 366 318 L 408 362 L 450 318" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-  <circle class="dot" cx="108" cy="196" r="62" />
-  <circle class="dot" cx="408" cy="412" r="62" />
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#34495e" />
+  <g transform="translate(256 256) scale(0.8) translate(-258 -250)">
+    <path d="M 408 42 L 408 78 M 408 112 L 408 148 M 408 182 L 408 240" stroke="#ecf0f1" stroke-width="52" stroke-linecap="butt" />
+    <path d="M 108 196 C 68 232 56 272 56 320 C 56 388.5 101.2 444 157 444 C 212.8 444 258 388.5 258 320 L 258 240 C 258 198.6 291.6 165 333 165 C 374.4 165 408 198.6 408 240 L 408 362" stroke="#ecf0f1" stroke-width="52" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M 366 318 L 408 362 L 450 318" stroke="#ecf0f1" stroke-width="52" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="108" cy="196" r="68" fill="#ecf0f1" />
+    <circle cx="408" cy="412" r="68" fill="#ecf0f1" />
+  </g>
 </svg>

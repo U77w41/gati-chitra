@@ -1,19 +1,6 @@
 /* ---- studio skin ---- */
 #main { flex: 1 0 auto; display: flex; flex-direction: column; padding-top: 16px; padding-bottom: 24px; }
 #app { display: flex; flex-direction: column; flex: 1; gap: 12px; }
-#toolbar {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; position: relative;
-  background: var(--card-background); border: 1px solid var(--border);
-  border-radius: var(--radius-card); padding: 8px 12px; box-shadow: var(--shadow-l1);
-}
-#toolbar [role="group"] {
-  display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px;
-  padding: 4px 6px; background: color-mix(in srgb, var(--border) 24%, transparent);
-  border-radius: var(--radius-control);
-}
-#toolbar button, #toolbar select { min-height: 34px; padding: 6px 12px; font-weight: 500; line-height: 1.2; }
-#btn-export { padding: 6px 16px; min-height: 34px; font-weight: 600; }
-.toolbar-spacer { flex: 1; min-width: 8px; }
 #workspace { display: grid; grid-template-columns: var(--split, 33%) 12px minmax(0, 1fr); gap: 0; flex: 1; min-height: 520px; }
 #splitter {
   width: 12px; margin: 0 -2px; cursor: col-resize; background: transparent;
@@ -27,24 +14,53 @@
   background: var(--focus-ring); width: 4px;
 }
 #splitter:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+/* Each panel is one surface: a title row, then content edge to edge, with no box inside the box. */
 #text-panel,
 #canvas-panel {
-  display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px;
-  background: var(--card-background); border: 1px solid var(--border);
+  display: flex; flex-direction: column; gap: 0; min-width: 0; padding: 0; overflow: hidden;
+  background: var(--card-background); border: 1px solid var(--line);
   border-radius: var(--radius-card); box-shadow: var(--shadow-l1);
 }
 #canvas-panel { position: relative; }
 #text-panel-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 2px 4px 6px 4px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+  min-height: 44px; padding: 6px 8px; border-bottom: 1px solid var(--line);
 }
-.text-panel-title {
+/* Two icon tabs: the Mermaid script, and Nodes (format the selection, add a node). Their names are
+   in aria-label and in a label that shows on hover. */
+#editor-tabs { display: flex; gap: 2px; }
+#script-actions { display: flex; align-items: center; gap: 2px; }
+.editor-tab {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 30px; padding: 0 9px;
+  border: 0; border-radius: 6px; background: transparent; color: var(--text-muted); cursor: pointer;
+}
+.editor-tab:hover { color: var(--text-main); background: var(--card-background-muted); }
+.editor-tab[aria-selected="true"] { color: var(--text-main); background: var(--card-background-muted); box-shadow: inset 0 -2px 0 var(--accent); }
+#script-pane, #nodes-pane { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#script-pane[hidden], #nodes-pane[hidden] { display: none; }
+#nodes-pane { gap: 20px; padding: 12px 14px 16px; overflow-y: auto; }
+.nodes-section { display: flex; flex-direction: column; gap: 8px; }
+h2.panel-title { margin: 0; }
+.nodes-hint { margin: 0; font-size: 13px; color: var(--text-muted); }
+.format-section:has(#props:not([hidden])) #props-empty { display: none; }
+#node-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 4px; }
+#node-palette button {
+  display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 34px; padding: 4px 8px;
+  border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--text-main);
+  font-size: 13px; text-align: left; cursor: pointer;
+}
+#node-palette button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#node-palette button svg { flex: none; color: var(--text-body); }
+#node-palette button:hover:not(:disabled) { background: var(--card-background-muted); border-color: var(--line); }
+#node-palette button:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
+#node-palette button:disabled { opacity: .5; cursor: not-allowed; }
+.text-panel-title, .panel-title {
   font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
 }
 #source {
   flex: 1; min-height: 200px; width: 100%; display: flex; flex-direction: column;
-  border: 1px solid var(--border); border-radius: var(--radius-control);
-  background: var(--card-background-muted); color: var(--text-main);
+  border: 0; border-radius: 0;
+  background: var(--card-background); color: var(--text-main);
   overflow: hidden;
 }
 #source .cm-editor {
@@ -56,13 +72,15 @@
 #source .cm-activeLine { background-color: #0000000a; }
 :root[data-scheme="dark"] #source .cm-activeLine { background-color: #ffffff08; }
 #source .cm-scroller { overflow: auto; font-family: inherit; }
-#source .cm-gutters { background: transparent; border-right: 1px solid var(--border); color: var(--text-muted); }
+#source .cm-gutters { background: transparent; border-right: 1px solid var(--line); color: var(--text-muted); }
 .visually-hidden {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
-#diagnostics-summary { font-size: var(--font-size-sm); color: var(--text-body); }
-#diagnostics { margin: 0; padding: 0; list-style: none; font-size: var(--font-size-sm); }
+#diagnostics-summary { padding: 6px 14px 0; font-size: var(--font-size-sm); color: var(--text-body); border-top: 1px solid var(--line); }
+#diagnostics-summary:empty { padding: 0; border-top: 0; }
+#diagnostics { margin: 0; padding: 0 14px; list-style: none; font-size: var(--font-size-sm); }
+#diagnostics:not(:empty) { padding-bottom: 8px; }
 #diagnostics li { padding: 2px 0; }
 #diagnostics button {
   background: none; border: none; padding: 0; font: inherit; text-align: left; cursor: pointer; color: inherit;
@@ -70,88 +88,154 @@
 #diagnostics li.error, #diagnostics button.error { color: var(--danger); }
 #diagnostics li.warning, #diagnostics button.warning { color: var(--text-muted); }
 #diagnostics li.info, #diagnostics button.info { color: var(--text-muted); }
-#canvas { flex: 1; width: 100%; min-height: 360px; border-radius: var(--radius-control); touch-action: none; }
+#canvas { flex: 1; width: 100%; min-height: 360px; touch-action: none; }
+/* History and view controls float in the canvas corners, like mermaid.live's, so they act on the
+   diagram they sit on. Fit leaves a 48 px margin, so they never cover a node after it. Each is an
+   icon with an aria-label and a name that shows on hover (.action-label). */
+.canvas-float {
+  position: absolute; top: 10px; z-index: 4;
+  display: flex; align-items: center; gap: 2px; padding: 3px;
+  background: color-mix(in srgb, var(--card-background) 92%, transparent);
+  border: 1px solid var(--line); border-radius: var(--radius-control); box-shadow: var(--shadow-l1);
+}
+#canvas-edit { left: 10px; }
+#canvas-history { display: flex; align-items: center; gap: 2px; }
+#canvas-tools { right: 10px; }
+#canvas-zoom { top: auto; right: 10px; bottom: 10px; }
+/* Move is a tool you switch on: while it is on, dragging anywhere moves the view. */
+.icon-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--focus-ring) 18%, transparent); color: var(--focus-ring); }
+#canvas-panel:has(#btn-pan[aria-pressed="true"]) #canvas { cursor: grab; }
+#canvas-panel:has(#btn-pan[aria-pressed="true"]) #canvas:active { cursor: grabbing; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0;
+  border: 0; border-radius: 6px; background: transparent; color: var(--text-main); cursor: pointer;
+}
+.icon-btn:hover:not(:disabled) { background: var(--card-background-muted); }
+.icon-btn:disabled { color: var(--text-muted); opacity: .5; cursor: not-allowed; }
+/* A zero-height strip right after the canvas or the editor marks that element's bottom edge, so a
+   toggle can hang in its corner without wrapping it. The editor needs this because CodeMirror empties
+   #source when it mounts, and the canvas because its corner moves with the dock below it. */
+.corner-strip { position: relative; flex: none; height: 0; z-index: 4; }
+.corner-strip .control-pill-toggle {
+  position: absolute; bottom: 10px;
+  background: var(--card-background); box-shadow: var(--shadow-l1); color: var(--text-main);
+}
+.corner-strip .control-pill-toggle:has(input:checked) {
+  background: color-mix(in srgb, var(--focus-ring) 14%, var(--card-background));
+}
+/* Grid is an icon toggle; the checkbox stays in the label, hidden, so keyboard and screen readers use it. */
+.icon-toggle {
+  position: absolute; left: 10px; bottom: 10px;
+  display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; padding: 0 9px;
+  border: 1px solid var(--line); border-radius: var(--radius-control); cursor: pointer;
+  background: var(--card-background); color: var(--text-main); box-shadow: var(--shadow-l1);
+}
+.icon-toggle:hover { border-color: var(--focus-ring); }
+.icon-toggle:has(input:checked) {
+  border-color: var(--focus-ring); color: var(--focus-ring);
+  background: color-mix(in srgb, var(--focus-ring) 14%, var(--card-background));
+}
+.icon-toggle:has(input:focus-visible) { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+/* 20 px keeps it clear of the editor's scrollbars where they are not overlay ones (up to 17 px). */
+#source-corner .control-pill-toggle { right: 20px; bottom: 20px; }
+/* Room under the last line, so a long script can scroll its end above the Wrap text toggle. */
+#source .cm-content { padding-bottom: 56px; }
 
-#canvas-controls {
-  display: flex; flex-direction: column; align-items: stretch; gap: 10px;
-  padding-top: 8px; border-top: 1px solid var(--border);
+/* Animation and theme dock: a title row with a hide toggle, then two quiet rows of controls. */
+#canvas-controls { display: flex; flex-direction: column; border-top: 1px solid var(--line); font-size: 13px; }
+#canvas-controls label:not(.control-pill-toggle) {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
 }
-.canvas-controls-tier.playback-tier {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+#canvas-controls output { color: var(--text-main); text-transform: none; letter-spacing: 0; }
+.dock-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 38px; padding: 3px 12px 3px 6px;
 }
-.control-cluster { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-#anim-pause { min-width: 88px; font-weight: 600; }
-.slider-group {
-  display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px;
-  background: color-mix(in srgb, var(--border) 22%, transparent); border-radius: var(--radius-control);
+#canvas-controls #dock-toggle {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 4px 8px;
+  border: 0; border-radius: var(--radius-control); background: transparent; box-shadow: none;
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-muted); cursor: pointer;
 }
+#canvas-controls #dock-toggle:hover { background: var(--card-background-muted); color: var(--text-main); }
+.dock-chevron { flex-shrink: 0; transition: transform 0.15s ease; }
+#dock-toggle[aria-expanded="false"] .dock-chevron { transform: rotate(-90deg); }
+#message { flex: 1; min-width: 0; text-align: right; color: var(--text-body); font-size: var(--font-size-xs); line-height: 1.4; }
+#dock-body { display: flex; flex-direction: column; gap: 8px; padding: 0 12px 12px; }
+#dock-body[hidden] { display: none; }
+/* Labels sit above their controls, inspector style, so each row stays one line at laptop widths. */
+.canvas-controls-tier { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 18px; }
+.control-cluster { display: inline-flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.field, .slider-group, .theming-control-group { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+#canvas-controls button, #canvas-controls select { min-height: 30px; padding: 3px 10px; font-size: 13px; }
+#canvas-controls .btn-secondary { border-color: var(--line); }
+#anim-pause { min-width: 72px; font-weight: 600; }
+.slider-group input[type="range"] { width: 96px; height: 30px; margin: 0; }
 #anim-speed-value, #anim-density-value {
   display: inline-block; min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600;
 }
 .control-pill-toggle {
-  display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
-  border: 1px solid var(--border); border-radius: 999px; cursor: pointer; user-select: none;
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+  border: 1px solid var(--line); border-radius: 999px; cursor: pointer; user-select: none;
   font-size: 13px; font-weight: 500; background: var(--card-background); transition: all 0.15s ease;
 }
 .control-pill-toggle:hover { border-color: var(--focus-ring); }
 .control-pill-toggle:has(input:checked) {
   border-color: var(--focus-ring); background: color-mix(in srgb, var(--focus-ring) 14%, transparent);
 }
-.theming-tier {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 12px 20px;
-  padding: 8px 12px; background: color-mix(in srgb, var(--border) 18%, transparent);
-  border: 1px solid var(--border); border-radius: var(--radius-control);
+.theming-tier select { font-size: 13px; padding: 3px 6px; }
+/* Wrap text and Lock background are switches: a track whose knob slides right when on. */
+.switch-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 500; color: var(--text-main); }
+button.switch-toggle { border: 0; background: transparent; font-family: inherit; }
+.switch-track { position: relative; flex: none; width: 28px; height: 16px; border-radius: 999px; background: var(--border); transition: background-color .15s; }
+.switch-track::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--card-background); box-shadow: 0 1px 2px #0000004d; transition: transform .15s;
 }
-.theming-control-group {
-  display: inline-flex; align-items: center; gap: 8px;
-}
-.theming-control-group label {
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-main);
-}
-.theming-tier select {
-  font-size: 13px; padding: 4px 8px; min-width: 130px;
-}
-.bg-lock-btn {
-  padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
-  border: 1px solid var(--border); background: var(--card-background); color: var(--text-main);
-  transition: all 0.15s ease;
-}
-.bg-lock-btn:hover { border-color: var(--focus-ring); }
-.bg-lock-btn[aria-pressed="true"] {
-  background: var(--brand); color: #fff; border-color: var(--brand);
-}
+.switch-toggle[aria-checked="true"] .switch-track, .switch-toggle:has(input:checked) .switch-track { background: var(--accent); }
+.switch-toggle[aria-checked="true"] .switch-track::after, .switch-toggle:has(input:checked) .switch-track::after { transform: translateX(12px); }
+.switch-toggle:focus-visible, .switch-toggle:has(input:focus-visible) { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.corner-strip .control-pill-toggle.switch-toggle:has(input:checked) { background: var(--card-background); border-color: var(--line); }
 
 #props {
-  margin-top: 4px; padding: 10px 14px;
-  background: color-mix(in srgb, var(--border) 22%, var(--card-background));
-  border: 1px solid var(--border); border-radius: var(--radius-control);
+  padding: 10px 14px;
+  background: var(--card-background);
+  border-top: 1px solid var(--line);
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
 }
+.props-head { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; min-height: 24px; }
 #prop-section-label, #prop-section-node, #prop-section-edge {
   display: inline-flex; flex-wrap: wrap; align-items: center; gap: 10px;
-  padding-right: 14px; border-right: 1px solid var(--border);
+  padding-right: 14px; border-right: 1px solid var(--line);
 }
+#props .btn-secondary { min-height: 30px; padding: 3px 10px; font-size: 13px; border-color: var(--line); }
 #props input[type="color"] {
-  width: 30px; height: 30px; padding: 2px; border-radius: 6px;
-  border: 1px solid var(--border); background: var(--card-background); cursor: pointer;
+  width: 28px; height: 28px; padding: 2px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--card-background); cursor: pointer;
 }
 #props label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
 #prop-delete { color: var(--danger); }
-#props-close { padding: 6px 12px; }
+#props-close { padding: 2px 10px; }
 #props[hidden] { display: none !important; }
-#message { min-height: 1.5em; color: var(--text-body); font-size: var(--font-size-sm); }
+/* properties.ts hides the node or the arrow section for the other kind of selection; the display
+   rule above would otherwise override the hidden attribute and show both. */
+#prop-section-label[hidden], #prop-section-node[hidden], #prop-section-edge[hidden] { display: none; }
 select,
 #props input[type="text"],
 #export-panel input[type="text"] {
   padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-control);
   background: var(--card-background); color: var(--text-main); font: inherit;
 }
+/* The label editor: a compact pill on the label (sized and placed by inline-edit.ts), in the label's
+   font, with one focus-coloured ring instead of a border plus the browser's outline. */
 #inline-edit {
-  box-sizing: border-box;
-  padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-control);
-  background: var(--card-background); color: var(--text-main); font: inherit;
-  position: absolute; z-index: 5; resize: none; box-shadow: var(--shadow-l2);
+  position: absolute; z-index: 5; box-sizing: border-box; margin: 0;
+  padding: 4px 10px; border: 1px solid var(--focus-ring); border-radius: 8px;
+  background: var(--card-background); color: var(--text-main); line-height: 1.3;
+  resize: none; overflow: hidden; white-space: pre-wrap; overflow-wrap: anywhere;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus-ring) 25%, transparent), var(--shadow-l2);
 }
+#inline-edit:focus { outline: none; }
 dialog {
   padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-card);
   background: var(--card-background); color: var(--text-main); box-shadow: var(--shadow-l2);
@@ -162,8 +246,36 @@ dialog::backdrop { background: #00000066; }
 .dialog-header h2 { margin: 0; font-size: var(--font-size-md); }
 .dialog-body { display: flex; flex-direction: column; gap: 8px; font-size: var(--font-size-sm); }
 .dialog-footer { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 16px; }
-#share-box { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--card-background); border: 1px solid var(--border); border-radius: var(--radius-control); }
+/* Share and Export sit at the right end of the dock's title row; the share link opens just above them. */
+#dock-actions { position: relative; display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+#dock-actions .icon-btn.action-btn { padding: 0 6px; min-height: 0; }
+/* Every icon control shows only its icon; pointing at one (where the device can hover) or tabbing
+   to it widens it to show its name. The label stays in the accessibility tree either way. */
+.action-btn { width: auto; min-width: 30px; gap: 0; transition: gap .18s ease, background-color .15s, color .15s; }
+.icon-btn.action-btn { padding: 0 6px; }
+.action-label {
+  max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap; font-size: 13px; font-weight: 600;
+  transition: max-width .2s ease, opacity .15s ease;
+}
+.action-btn:focus-visible { gap: 6px; }
+.action-btn:focus-visible .action-label { max-width: 160px; opacity: 1; }
+@media (hover: hover) {
+  .action-btn:hover { gap: 6px; }
+  .action-btn:hover .action-label { max-width: 160px; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .action-btn, .action-label, .switch-track, .switch-track::after { transition: none; }
+}
+#btn-export { background: var(--accent); color: var(--accent-text); }
+#btn-export:hover:not(:disabled) { background: var(--accent-darker); }
+#share-box {
+  position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 7; width: min(420px, 80vw);
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: var(--card-background); border: 1px solid var(--line);
+  border-radius: var(--radius-control); box-shadow: var(--shadow-l2);
+}
 #share-box[hidden] { display: none; }
+#share-url { flex: 1; min-width: 0; }
 .template { background: var(--card-background-muted); border: 1px solid var(--border); border-radius: var(--radius-control); color: var(--text-main); padding: 8px 12px; font-size: var(--font-size-sm); text-align: left; cursor: pointer; }
 #export-message { font-size: var(--font-size-xs); color: var(--danger); min-height: 1.2em; }
 #help-dialog { max-width: 560px; }
@@ -172,8 +284,6 @@ dialog::backdrop { background: #00000066; }
 .help-table th { font-weight: 700; color: var(--text-main); }
 .help-table kbd { font-family: var(--font-mono); background: var(--card-background-muted); border: 1px solid var(--border); border-radius: var(--radius-tag); padding: 1px 4px; font-size: var(--font-size-xs); }
 body.presenting .site-header,
-body.presenting .site-footer,
-body.presenting #toolbar,
 body.presenting #text-panel,
 body.presenting #canvas-controls,
 body.presenting #splitter,
@@ -187,33 +297,21 @@ body.presenting #workspace { grid-template-columns: 1fr; }
   color: var(--text-muted); cursor: pointer;
 }
 #view-tabs button[role="tab"][aria-selected="true"] {
-  color: var(--text-main); border-bottom-color: var(--brand);
+  color: var(--text-main); border-bottom-color: var(--accent);
 }
-#more-menu {
-  position: absolute; top: 100%; right: 0; z-index: 20;
-  background: var(--card-background); border: 1px solid var(--border);
-  border-radius: var(--radius-card); box-shadow: var(--shadow-l2);
-  padding: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 160px;
-}
-#more-menu[hidden] { display: none !important; }
-#more-menu [role="group"] { display: flex; flex-direction: column; align-items: stretch; gap: 4px; }
-#more-menu button { text-align: left; width: 100%; }
 
 @media (min-width: 768px) {
   #view-tabs { display: none !important; }
-  #btn-more { display: none !important; }
   #props-close { display: none !important; }
 }
 
 @media (max-width: 767px) {
-  #toolbar { gap: 4px; padding: 4px 6px; }
-  #toolbar [role="group"] { flex-wrap: wrap; gap: 4px; }
-  #toolbar button,
-  #toolbar select { padding: 4px 8px; font-size: 13px; min-height: 32px; }
-  #add-shape { max-width: 100px; }
+  /* Properties are a sheet over the diagram on phones, so the Nodes tab only adds nodes there. */
+  .format-section { display: none; }
   .canvas-controls-tier.playback-tier { flex-direction: column; align-items: stretch; gap: 8px; }
   .control-cluster { justify-content: flex-start; }
   .theming-tier { gap: 8px; }
+  .field, .slider-group, .theming-control-group { flex-direction: row; align-items: center; gap: 8px; }
   .theming-control-group { width: 100%; justify-content: space-between; }
   .theming-control-group select { flex: 1; max-width: 200px; }
   #workspace { grid-template-columns: 1fr !important; gap: 8px; min-height: auto; }

@@ -10,13 +10,6 @@ import {
 } from './scheme';
 import type { KeyValueStore } from './storage';
 
-export function copyrightText(year: number): string {
-  if (year <= BRAND.startYear) {
-    return `© ${BRAND.startYear} ${BRAND.owner}`;
-  }
-  return `© ${BRAND.startYear} – ${year} ${BRAND.owner}`;
-}
-
 export function headerHtml(): string {
   const toolsHtml = BRAND.tools
     .map((t) => {
@@ -36,30 +29,28 @@ export function headerHtml(): string {
     })
     .join('');
 
+  // One slim row: the logo and name, then icon-only controls whose names show on hover or focus
+  // (.action-label), the same pattern as the canvas and editor icons.
+  const label = (name: string) => `<span class="action-label">${name}</span>`;
   return (
     '<div class="container header-inner">' +
     '<a class="brand" href="./" aria-label="Gati-chitra home">' +
     logoSvg('brand-icon') +
     '<span class="brand-text"><span class="brand-name">Gati Chitra</span></span>' +
     '</a>' +
-    '<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between light and dark colour scheme" title="Switch between light and dark colour scheme">' +
-    ICONS.moon +
-    ICONS.sun +
-    '</button>' +
     '<nav class="site-nav" aria-label="Main">' +
     '<ul>' +
     '<li>' +
-    `<button type="button" class="site-nav-btn nav-text-desktop" id="btn-install" title="Install Gati-chitra as an app" aria-label="Install Gati-chitra as an app">${ICONS.install}<span class="nav-label">Install</span></button>` +
+    `<button type="button" class="site-nav-btn action-btn" id="btn-install" aria-label="Install Gati-chitra as an app">${ICONS.install}${label('Install')}</button>` +
     '</li>' +
     '<li>' +
-    `<button type="button" class="site-nav-btn nav-text-desktop" id="btn-help" title="Help and keyboard shortcuts (?)" aria-label="Help and keyboard shortcuts">${ICONS.help}<span class="nav-label">Help</span></button>` +
+    `<button type="button" class="site-nav-btn action-btn" id="btn-help" aria-label="Help and keyboard shortcuts">${ICONS.help}${label('Help')}</button>` +
     '</li>' +
     '<li>' +
     '<div class="menu-social-dropdown">' +
-    '<button type="button" class="menu-social-dropdown-toggle nav-text-desktop" id="tools-toggle" title="My Other Tools" aria-label="My Other Tools" aria-haspopup="true" aria-expanded="false" aria-controls="menu-social-dropdown-tools">' +
+    '<button type="button" class="menu-social-dropdown-toggle action-btn" id="tools-toggle" aria-label="My Other Tools" aria-haspopup="true" aria-expanded="false" aria-controls="menu-social-dropdown-tools">' +
     ICONS.grid +
-    '<span class="nav-label">My Other Tools</span>' +
-    `<span class="menu-social-dropdown-chevron" aria-hidden="true">${ICONS.chevron}</span>` +
+    label('My Other Tools') +
     '</button>' +
     '<div class="menu-social-dropdown-panel" id="menu-social-dropdown-tools" hidden>' +
     '<p class="menu-social-dropdown-title">Tools</p>' +
@@ -68,35 +59,18 @@ export function headerHtml(): string {
     '</div>' +
     '</li>' +
     '<li>' +
-    `<a class="nav-text-desktop" href="${escapeXml(BRAND.hireUrl)}" aria-label="Hire Me">${ICONS.briefcase}<span class="nav-label">Hire Me</span></a>` +
+    `<a class="action-btn" href="${escapeXml(BRAND.hireUrl)}" aria-label="Hire Me">${ICONS.briefcase}${label('Hire Me')}</a>` +
     '</li>' +
     '<li class="mobile-hide">' +
-    `<a class="support-link-item" data-testid="support-link" href="${escapeXml(BRAND.supportUrl)}" target="_blank" rel="noreferrer" title="Support my work: send a small tip over UPI">${ICONS.support}<span>Support my work</span></a>` +
+    `<a class="support-link-item action-btn" data-testid="support-link" href="${escapeXml(BRAND.supportUrl)}" target="_blank" rel="noreferrer" aria-label="Support my work">${ICONS.support}${label('Support my work')}</a>` +
     '</li>' +
     '</ul>' +
     '</nav>' +
-    '</div>'
-  );
-}
-
-export function footerHtml(year: number, sourceUrl: string): string {
-  const diffTool = BRAND.tools.find((t) => t.id === 'diff');
-  const anurupTool = BRAND.tools.find((t) => t.id === 'anurup');
-
-  return (
-    '<div class="container footer-row">' +
-    '<p class="footer-meta">' +
-    `<span class="copyright">${copyrightText(year)}</span>` +
-    '<span class="footer-sep" aria-hidden="true">·</span>' +
-    '<span>Runs entirely in your browser</span>' +
-    '</p>' +
-    '<nav class="footer-nav" aria-label="Footer">' +
-    `<a href="${escapeXml(BRAND.hireUrl)}">Hire Me</a>` +
-    `<a href="${escapeXml(diffTool?.url ?? 'https://u77w41.github.io/diff-checker/')}">Diff Checker</a>` +
-    `<a href="${escapeXml(anurupTool?.url ?? 'https://u77w41.github.io/anurup/')}">Anurup</a>` +
-    `<a href="${escapeXml(sourceUrl)}" target="_blank" rel="noreferrer">Source</a>` +
-    `<a class="footer-support" data-testid="support-link-footer" href="${escapeXml(BRAND.supportUrl)}" target="_blank" rel="noreferrer" title="Support my work: send a small tip over UPI">${ICONS.support}<span>Support my work</span></a>` +
-    '</nav>' +
+    '<button class="theme-toggle action-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark colour scheme">' +
+    ICONS.moon +
+    ICONS.sun +
+    label('Theme') +
+    '</button>' +
     '</div>'
   );
 }
@@ -104,16 +78,11 @@ export function footerHtml(year: number, sourceUrl: string): string {
 export function mountChrome(
   doc: Document,
   store: KeyValueStore | null,
-  sourceUrl: string,
   onSchemeChange?: (scheme: 'light' | 'dark') => void,
 ): () => void {
   const header = doc.getElementById('site-header');
   if (header) {
     header.innerHTML = headerHtml();
-  }
-  const footer = doc.getElementById('site-footer');
-  if (footer) {
-    footer.innerHTML = footerHtml(new Date().getFullYear(), sourceUrl);
   }
 
   const sysDark = () => {

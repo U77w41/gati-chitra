@@ -33,10 +33,10 @@ test.describe('Accessibility and reduced motion', () => {
       expect(name.length).toBeGreaterThan(0);
     }
 
-    // Tab from page start reaches #btn-new first
+    // Tab from page start reaches the script panel's first tab, the first control in the workspace
     await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
     const focusedId = await page.evaluate(() => document.activeElement?.id);
-    expect(focusedId).toBe('btn-new');
+    expect(focusedId).toBe('tab-script');
   });
 
   test('dialog focus management: moves focus inside on open and returns on close', async ({

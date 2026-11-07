@@ -60,7 +60,9 @@ for (const c of CASES) {
 
     if (c.canAdd) {
       const beforeAddCount = (await page.evaluate(() => (window as any).__studio.getSummary())).nodes.length;
-      await page.click('#btn-add-node');
+      // Add the type's first node kind from the Nodes tab, as the old toolbar button did.
+      await page.click('#tab-nodes');
+      await page.locator('#node-palette button').first().click();
       await expect.poll(async () => {
         const sum = await page.evaluate(() => (window as any).__studio.getSummary());
         const expectedGrowth = c.kind === 'journey' ? 2 : 1;

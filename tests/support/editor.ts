@@ -6,6 +6,11 @@ export async function setEditorText(page: Page, text: string): Promise<void> {
 }
 
 export async function typeInEditor(page: Page, text: string): Promise<void> {
+  // Selecting a node switches the editor panel to its Nodes tab; typing needs the Script tab.
+  const scriptTab = page.locator('#tab-script');
+  if ((await scriptTab.count()) > 0 && (await scriptTab.getAttribute('aria-selected')) !== 'true' && (await scriptTab.isVisible())) {
+    await scriptTab.click();
+  }
   const content = page.locator('.cm-content');
   if (await content.count() > 0) {
     await content.focus();

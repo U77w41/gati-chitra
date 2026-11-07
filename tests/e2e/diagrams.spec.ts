@@ -103,5 +103,5 @@ test('restores the flowchart controls after another type', async ({ page }) => {
   await expect.poll(() => count('#add-shape')).toBe(before.add);
   expect(await count('#prop-kind')).toBe(before.kind);
   await expect(page.locator('#card-mode')).toBeEnabled();
-  await expect(page.locator('#btn-add-node')).toBeEnabled();
+  await expect(page.locator('#node-palette button').first()).toBeEnabled();
 });
