@@ -3,15 +3,15 @@ import { setupEditorTabs } from './editor-tabs';
 
 function fakeElement(initialHidden = false) {
   const attrs = new Map<string, string>();
-  const listeners: Record<string, Array<(e?: any) => void>> = {};
+  const listeners: Record<string, Array<(e?: Event) => void>> = {};
   return {
     attrs,
     hidden: initialHidden,
     tabIndex: -1,
-    parentElement: null as any,
+    parentElement: null as unknown as HTMLElement,
     setAttribute(k: string, v: string) { attrs.set(k, v); },
     getAttribute(k: string) { return attrs.get(k) ?? null; },
-    addEventListener(type: string, fn: (e?: any) => void) {
+    addEventListener(type: string, fn: (e?: Event) => void) {
       listeners[type] = listeners[type] || [];
       listeners[type].push(fn);
     },
@@ -27,8 +27,8 @@ describe('editor-tabs', () => {
     const tabScript = fakeElement();
     const tabNodes = fakeElement();
     const parent = fakeElement();
-    tabScript.parentElement = parent;
-    tabNodes.parentElement = parent;
+    tabScript.parentElement = parent as unknown as HTMLElement;
+    tabNodes.parentElement = parent as unknown as HTMLElement;
 
     const scriptPane = fakeElement(false);
     const nodesPane = fakeElement(true);
@@ -43,7 +43,7 @@ describe('editor-tabs', () => {
       },
     };
 
-    setupEditorTabs(doc as any);
+    setupEditorTabs(doc as unknown as { getElementById: (id: string) => HTMLElement | null });
 
     expect(tabScript.getAttribute('aria-selected')).toBe('true');
     expect(tabNodes.getAttribute('aria-selected')).toBe('false');

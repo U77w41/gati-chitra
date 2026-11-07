@@ -35,9 +35,26 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
+## 2y. Latest Session, Part 18 (2026-11-07): Fix CI Lint Errors in editor-tabs.test.ts
+
+**Status: committed and pushed**, level with `origin/main`.
+
+**Cause:** CI runs `npm run lint` (`oxlint -D no-explicit-any`), which failed due to 4 explicit `any` types in `src/app/editor-tabs.test.ts`.
+
+**What changed:**
+- `src/app/editor-tabs.test.ts`: replaced `any` with `Event`, `unknown as HTMLElement`, and typed document interface mock.
+
+**Checks on 2026-11-07:**
+- `npm run lint`: 0 warnings, 0 errors across 320 files.
+- `npm test`: 630 passed across 118 test files.
+- `npm run build`: cleanly built in 208ms.
+- `npm run check:dist`: initial JS 133.17 KB gzip, `OK`.
+
+---
+
 ## 2x. Latest Session, Part 17 (2026-11-07): Rounded Segmented Toggle in #text-panel-bar with Active Option Text
 
-**Status: uncommitted**, running locally on `http://localhost:5173/` for owner's manual verification.
+**Status: committed and pushed** (commit `2545667`).
 
 **Request:** in `#text-panel-bar`, add a similar toggle to the theme switcher, but when an option is selected, show its text as well as its icon.
 
