@@ -35,6 +35,52 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
+## 2x. Latest Session, Part 17 (2026-11-07): Rounded Segmented Toggle in #text-panel-bar with Active Option Text
+
+**Status: uncommitted**, running locally on `http://localhost:5173/` for owner's manual verification.
+
+**Request:** in `#text-panel-bar`, add a similar toggle to the theme switcher, but when an option is selected, show its text as well as its icon.
+
+**What changed:**
+- `src/app/style.css`: styled `#editor-tabs` as a rounded segmented pill toggle (`background: var(--card-background-muted); border: 1px solid var(--border); border-radius: 16px; height: 32px; padding: 2px`).
+- Active tab (`aria-selected="true"`): shows both its SVG icon and its text label ("Script" or "Nodes") with an active pill background (`background: var(--card-background); box-shadow: var(--shadow-l1); color: var(--text-main); font-weight: 600; border-radius: 13px`).
+- Inactive tab (`aria-selected="false"`): collapses down to show only its icon (`color: var(--text-muted); opacity: 0.75`), expanding to show text on hover or focus.
+- `src/app/editor-tabs.ts`: added optional `rootDoc` dependency injection parameter for unit testing.
+- `src/app/editor-tabs.test.ts` (new): unit tests verifying tab switching between script and nodes panes.
+- `tests/e2e/layout.spec.ts`: updated e2e tests to verify that the active tab displays its text while the inactive tab hides its text.
+- `DECISIONS.md`: added entry #108.
+
+**Checks on 2026-11-07:**
+- `npm test`: 630 passed across 118 test files (1 new unit test file).
+- `npm run build`: cleanly built in 223ms.
+- `npm run check:dist`: initial JS 133.17 KB gzip, `OK`.
+- `npx playwright test tests/e2e/layout.spec.ts`: 90 passed across Chromium, Firefox, WebKit.
+- `npm run dev`: running locally at `http://localhost:5173/`.
+
+---
+
+## 2w. Latest Session, Part 16 (2026-11-07): Rounded Checkbox Glide Toggle with Sun and Moon Icons (Icon-Only)
+
+**Status: uncommitted**, running locally on `http://localhost:5173/` for owner's manual verification.
+
+**Request:** replace the light/dark mode icon button with a rounded button checkbox glide toggle (`switcher-1` style with sliding label, smooth CSS transitions), showing only the Sun and Moon icons (no text labels).
+
+**What changed:**
+- `src/app/chrome.ts`: `headerHtml()` generates `<span class="switcher switcher-1"><input type="checkbox" id="theme-toggle" aria-label="Switch between light and dark colour scheme" /><span class="switcher-track" aria-hidden="true"><span class="switcher-option switcher-light">${ICONS.sun}</span><span class="switcher-option switcher-dark">${ICONS.moon}</span></span><label for="theme-toggle" aria-hidden="true"></label></span>`.
+- `src/app/chrome.ts`: `mountChrome()` synchronizes checkbox `checked` state with the resolved scheme via `isDark()`, listens to checkbox `change` event, updates scheme preference via `nextPref()` and `applyScheme()`, and disposes cleanly.
+- `src/app/chrome.css`: added styles for `.switcher` (58×28px compact pill), `.switcher input`, `.switcher-track`, `.switcher-option`, `.switcher label`, and `.switcher-1` stretch-glide animation using CSS custom properties (`--text-main`, `--text-muted`, `--card-background`, `--card-background-muted`, `--focus-ring`). Active icons scale to 1.12× with `--text-main`, while inactive icons dim to 0.55 opacity.
+- `src/app/chrome.test.ts`: updated unit test to assert `<span class="switcher switcher-1">`, `<input type="checkbox" id="theme-toggle">`, `.switcher-track`, `.switcher-option`, sun and moon icons, and that text labels are absent.
+- `DECISIONS.md`: added entry #107 for the icon-only glide toggle.
+
+**Checks on 2026-11-07:**
+- `npm test`: 629 passed across 117 test files.
+- `npm run build`: cleanly built in 185ms.
+- `npm run check:dist`: initial JS 133.14 KB gzip, `OK`.
+- `npx playwright test tests/e2e/chrome.spec.ts`: 42 passed across Chromium, Firefox, WebKit.
+- `npm run dev`: running locally at `http://localhost:5173/`.
+
+---
+
 ## 2v. Latest Session, Part 15 (2026-11-07): Minimal Header, Hover Labels Everywhere, Switches, Zoom and Move
 
 **Status: uncommitted**, waiting for the owner's local review together with sections 2h to 2u.

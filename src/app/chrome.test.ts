@@ -11,6 +11,18 @@ describe('chrome', () => {
       expect(h).toContain('class="brand-name">Gati Chitra<');
       expect(h).toContain('aria-label="Gati-chitra home"');
       expect(h).toContain('id="theme-toggle"');
+      // The toggle is a checkbox input inside a switcher span, not a button.
+      expect(h).toContain('class="switcher switcher-1"');
+      expect(h).toContain('type="checkbox"');
+      expect(h).toContain('<label for="theme-toggle"');
+      expect(h).toContain('class="switcher-track"');
+      expect(h).toContain('class="switcher-option switcher-light"');
+      expect(h).toContain('class="switcher-option switcher-dark"');
+      expect(h).toContain('icon-sun');
+      expect(h).toContain('icon-moon');
+      expect(h).not.toContain('switcher-text');
+      expect(h).not.toContain('Light');
+      expect(h).not.toContain('Dark');
       expect(h).toContain('id="btn-install"');
       expect(h).toContain('id="btn-help"');
       expect(h).toContain('aria-label="Main"');
@@ -26,7 +38,7 @@ describe('chrome', () => {
       expect(h).toContain(' hidden>');
 
       // Icons only, with each name in a label that shows on hover.
-      for (const name of ['Install', 'Help', 'My Other Tools', 'Hire Me', 'Support my work', 'Theme']) {
+      for (const name of ['Install', 'Help', 'My Other Tools', 'Hire Me', 'Support my work']) {
         expect(h).toContain(`<span class="action-label">${name}</span>`);
       }
       expect(h).not.toContain('nav-label');

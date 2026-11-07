@@ -5,6 +5,7 @@ import {
   readPref,
   writePref,
   nextPref,
+  isDark,
   applyScheme,
   startSchemeWatcher,
 } from './scheme';
@@ -66,11 +67,18 @@ export function headerHtml(): string {
     '</li>' +
     '</ul>' +
     '</nav>' +
-    '<button class="theme-toggle action-btn" id="theme-toggle" type="button" aria-label="Switch between light and dark colour scheme">' +
-    ICONS.moon +
+    '<span class="switcher switcher-1">' +
+    '<input type="checkbox" id="theme-toggle" aria-label="Switch between light and dark colour scheme" />' +
+    '<span class="switcher-track" aria-hidden="true">' +
+    '<span class="switcher-option switcher-light">' +
     ICONS.sun +
-    label('Theme') +
-    '</button>' +
+    '</span>' +
+    '<span class="switcher-option switcher-dark">' +
+    ICONS.moon +
+    '</span>' +
+    '</span>' +
+    '<label for="theme-toggle" aria-hidden="true"></label>' +
+    '</span>' +
     '</div>'
   );
 }
@@ -92,16 +100,26 @@ export function mountChrome(
     return false;
   };
 
-  const themeToggle = doc.getElementById('theme-toggle');
-  const onToggleClick = () => {
+  const themeToggle = doc.getElementById('theme-toggle') as HTMLInputElement | null;
+
+  // Sync checkbox checked state with the current resolved scheme.
+  const syncToggle = () => {
+    if (themeToggle) {
+      themeToggle.checked = isDark(readPref(store), sysDark());
+    }
+  };
+  syncToggle();
+
+  const onToggleChange = () => {
     const isSys = sysDark();
     const cur = readPref(store);
     const nxt = nextPref(cur, isSys);
     writePref(store, nxt);
     const s = applyScheme(nxt, isSys, doc);
+    syncToggle();
     onSchemeChange?.(s);
   };
-  themeToggle?.addEventListener('click', onToggleClick);
+  themeToggle?.addEventListener('change', onToggleChange);
 
   const toolsToggle = doc.getElementById('tools-toggle');
   const toolsPanel = doc.getElementById('menu-social-dropdown-tools');
@@ -151,11 +169,12 @@ export function mountChrome(
   doc.addEventListener('click', onDocClick);
 
   const disposeWatcher = startSchemeWatcher(store, (s) => {
+    syncToggle();
     onSchemeChange?.(s);
   });
 
   return () => {
-    themeToggle?.removeEventListener('click', onToggleClick);
+    themeToggle?.removeEventListener('change', onToggleChange);
     toolsToggle?.removeEventListener('click', onToolsClick);
     doc.removeEventListener('keydown', onKeyDown);
     doc.removeEventListener('click', onDocClick);

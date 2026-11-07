@@ -4,11 +4,16 @@ import { rovingStep } from './node-palette';
 // node). On wide screens the properties panel lives in the Nodes tab, so selecting a node
 // or arrow on the diagram opens that tab; on phones properties stay a sheet over the diagram.
 
-export function setupEditorTabs(): void {
-  if (typeof document === 'undefined') return;
-  const tabs = [document.getElementById('tab-script'), document.getElementById('tab-nodes')];
-  const panes = [document.getElementById('script-pane'), document.getElementById('nodes-pane')];
-  const props = document.getElementById('props');
+export function setupEditorTabs(
+  rootDoc: {
+    getElementById: (id: string) => HTMLElement | null;
+    activeElement?: Element | null;
+  } | null = typeof document !== 'undefined' ? document : null,
+): void {
+  if (!rootDoc) return;
+  const tabs = [rootDoc.getElementById('tab-script'), rootDoc.getElementById('tab-nodes')];
+  const panes = [rootDoc.getElementById('script-pane'), rootDoc.getElementById('nodes-pane')];
+  const props = rootDoc.getElementById('props');
   const nodesPane = panes[1];
   if (tabs.some((t) => !t) || panes.some((p) => !p)) return;
 
@@ -23,14 +28,14 @@ export function setupEditorTabs(): void {
   };
 
   tabs.forEach((tab, i) => tab!.addEventListener('click', () => select(i)));
-  tabs[0]!.parentElement!.addEventListener('keydown', (e) => {
-    const next = rovingStep(tabs.indexOf(document.activeElement as HTMLElement), e.key, tabs.length);
+  tabs[0]!.parentElement?.addEventListener('keydown', (e: KeyboardEvent) => {
+    const next = rovingStep(tabs.indexOf((rootDoc.activeElement ?? null) as HTMLElement), e.key, tabs.length);
     if (next === null) return;
     e.preventDefault();
     select(next, true);
   });
 
-  if (props && nodesPane) {
+  if (props && nodesPane && typeof MutationObserver !== 'undefined') {
     let wasHidden = props.hidden;
     new MutationObserver(() => {
       const opened = wasHidden && !props.hidden;

@@ -118,13 +118,16 @@ test.describe('Workspace fits the window', () => {
     await expect(page.locator('.brand-name')).toBeVisible();
     const brand = (await page.locator('.brand').boundingBox())!;
     const brandMid = brand.y + brand.height / 2;
-    for (const sel of ['#btn-install', '#btn-help', '#tools-toggle', '.site-nav a[href*="resume"]', '[data-testid="support-link"]', '#theme-toggle']) {
+    for (const sel of ['#btn-install', '#btn-help', '#tools-toggle', '.site-nav a[href*="resume"]', '[data-testid="support-link"]']) {
       const item = page.locator(sel);
       await expect(item.locator('.action-label')).toBeHidden();
       const b = (await item.boundingBox())!;
       expect(b.width, sel).toBeLessThanOrEqual(40);
       expect(Math.abs(b.y + b.height / 2 - brandMid), sel).toBeLessThanOrEqual(4);
     }
+    // Theme glide toggle sits on the same row.
+    const switcherBox = (await page.locator('.switcher').boundingBox())!;
+    expect(Math.abs(switcherBox.y + switcherBox.height / 2 - brandMid)).toBeLessThanOrEqual(4);
     // It stays put while you work.
     await page.mouse.move(640, 500);
     await page.waitForTimeout(500);
@@ -136,7 +139,7 @@ test.describe('Workspace fits the window', () => {
     await page.goto('./?e2e=1');
     for (const [sel, name] of [
       ['#btn-install', 'Install'], ['#btn-help', 'Help'], ['#tools-toggle', 'My Other Tools'],
-      ['.site-nav a[href*="resume"]', 'Hire Me'], ['[data-testid="support-link"]', 'Support my work'], ['#theme-toggle', 'Theme'],
+      ['.site-nav a[href*="resume"]', 'Hire Me'], ['[data-testid="support-link"]', 'Support my work'],
     ] as const) {
       await expectHoverName(page, page.locator(sel), name);
     }
@@ -395,20 +398,27 @@ test.describe('Workspace fits the window', () => {
     await expect(nodes).toHaveAccessibleName('Nodes');
     for (const tab of [script, nodes]) {
       await expect(tab.locator('svg')).toHaveCount(1);
-      await expect(tab.locator('.action-label')).toBeHidden();
     }
+    // The active tab shows its text; the inactive tab hides it until selected.
+    await expect(script.locator('.action-label')).toBeVisible();
+    await expect(nodes.locator('.action-label')).toBeHidden();
     await expect(script).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('#source')).toBeVisible();
     await expect(page.locator('#nodes-pane')).toBeHidden();
 
     await nodes.click();
     await expect(nodes).toHaveAttribute('aria-selected', 'true');
+    await expect(nodes.locator('.action-label')).toBeVisible();
+    await expect(script.locator('.action-label')).toBeHidden();
     await expect(page.locator('#nodes-pane')).toBeVisible();
     await expect(page.locator('#source')).toBeHidden();
 
+    await page.mouse.move(0, 0);
     await page.keyboard.press('ArrowLeft');
     await expect(script).toBeFocused();
     await expect(script).toHaveAttribute('aria-selected', 'true');
+    await expect(script.locator('.action-label')).toBeVisible();
+    await expect(nodes.locator('.action-label')).toBeHidden();
     await expect(page.locator('#source')).toBeVisible();
   });
 
@@ -496,7 +506,7 @@ test.describe('Workspace fits the window', () => {
       ['#btn-fit', 'Fit'], ['#btn-present', 'Present'],
       ['#btn-zoom-out', 'Zoom out'], ['#btn-zoom-in', 'Zoom in'], ['#btn-pan', 'Move'],
       ['#canvas-corner label', 'Grid'],
-      ['#tab-script', 'Script'], ['#tab-nodes', 'Nodes'],
+      ['#tab-nodes', 'Nodes'],
       ['#btn-new', 'New'], ['#btn-open', 'Open'], ['#btn-templates', 'Templates'],
     ] as const) {
       await expectHoverName(page, page.locator(sel), name);
