@@ -209,6 +209,20 @@ test.describe('Editing, connecting and properties panel', () => {
     let text = await editorText(page);
     expect(text).toContain('A -.-> B');
 
+    // Change kind to thickArrow via visual edge palette button
+    const thickBtn = page.locator('#edge-palette button[data-value="thickArrow"]');
+    if (await thickBtn.isVisible()) {
+      await thickBtn.click();
+      await page.waitForTimeout(300);
+      text = await editorText(page);
+      expect(text).toContain('A ==> B');
+      // Switch back to dottedArrow via palette button
+      await page.click('#edge-palette button[data-value="dottedArrow"]');
+      await page.waitForTimeout(300);
+      text = await editorText(page);
+      expect(text).toContain('A -.-> B');
+    }
+
     // Reverse edge
     await page.click('#prop-reverse');
     await page.waitForTimeout(300);

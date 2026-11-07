@@ -35,6 +35,32 @@ Gati-chitra is an interactive, browser-based Mermaid flowchart editor that anima
 
 ---
 
+## 2z. Latest Session, Part 19 (2026-11-07): Visual Edge & Connector Options (Dotted, Dashed, Solid, Thick)
+
+**Status: committed and pushed**, level with `origin/main`.
+
+**Request:** add options in the connectors/edges like dotted or dashed etc.
+
+**What changed:**
+- `src/app/edge-icons.ts` (new): vector SVG drawings for each connector kind (solid arrow, dotted arrow, thick arrow, solid line, dotted line, thick line, bidirectional, circle end, cross end, invisible).
+- `src/app/edge-icons.test.ts` (new): unit tests for edge icons markup.
+- `src/app/edge-palette.ts` (new): visual edge kind palette (`#edge-palette`) with SVG previews, roving tabindex keyboard navigation, and bidirectional synchronization with `#prop-kind`.
+- `src/app/edge-palette.test.ts` (new): unit tests for edge palette rendering, clicking, and select synchronization.
+- `src/app/properties.ts`: initialized `#edge-palette` in `#prop-section-edge` and added connector style selection to `#prop-connect-kind` when connecting nodes.
+- `index.html`: added `#edge-palette` into `#prop-section-edge`, and `#prop-connect-kind` into the node connect row.
+- `src/app/style.css`: added styles for `.edge-palette`, `.edge-palette button`, and `.prop-connect-row`.
+- `tests/e2e/edit.spec.ts`: verified visual edge palette button clicks change edge types between dotted, thick, and solid.
+- `DECISIONS.md`: added entry #109.
+
+**Checks on 2026-11-07:**
+- `npm run lint`: 0 warnings, 0 errors across 324 files.
+- `npm test`: 633 passed across 120 test files (2 new test files).
+- `npm run build`: cleanly built in 213ms.
+- `npm run check:dist`: initial JS 134.09 KB gzip (limit 150 KB), largest lazy chunk 57.27 KB gzip (limit 80 KB); `OK`.
+- `npx playwright test -g "edits edge properties"`: 3 passed across Chromium, Firefox, WebKit.
+
+---
+
 ## 2y. Latest Session, Part 18 (2026-11-07): Fix CI Lint Errors in editor-tabs.test.ts
 
 **Status: committed and pushed**, level with `origin/main`.

@@ -4,6 +4,7 @@ import { resolveTheme, THEMES } from '../render/themes';
 import { UI } from '../core/constants';
 import { announceSelection } from './describe';
 import { applyCapsToProps, capsOf } from './kind-ui';
+import { setupEdgePalette, type EdgePaletteInstance } from './edge-palette';
 import type { AppState } from './state';
 
 export interface PropertiesEnv {
@@ -45,7 +46,17 @@ export function setupProperties(env: PropertiesEnv): () => void {
   const propKind = panelEl.querySelector<HTMLSelectElement>('#prop-kind')!;
   const propReverse = panelEl.querySelector<HTMLButtonElement>('#prop-reverse')!;
   const propConnect = panelEl.querySelector<HTMLSelectElement>('#prop-connect')!;
+  const propConnectKind = panelEl.querySelector<HTMLSelectElement>('#prop-connect-kind');
   const propConnectGo = panelEl.querySelector<HTMLButtonElement>('#prop-connect-go')!;
+  const edgePaletteEl = panelEl.querySelector<HTMLElement>('#edge-palette');
+
+  let edgePalette: EdgePaletteInstance | null = null;
+  if (edgePaletteEl && propKind) {
+    edgePalette = setupEdgePalette({
+      palette: edgePaletteEl,
+      select: propKind,
+    });
+  }
 
   const nodeSection = panelEl.querySelector<HTMLElement>('#prop-section-node')!;
   const edgeSection = panelEl.querySelector<HTMLElement>('#prop-section-edge')!;
@@ -159,7 +170,8 @@ export function setupProperties(env: PropertiesEnv): () => void {
     const state = getState();
     const sel = state.editor.selection;
     if (sel?.kind === 'node' && state.doc.ok && propConnect.value) {
-      executeOp({ type: 'addEdge', from: sel.id, to: propConnect.value });
+      const kind = (propConnectKind?.value as EdgeKind) || 'arrow';
+      executeOp({ type: 'addEdge', from: sel.id, to: propConnect.value, kind });
     }
   });
 
@@ -236,6 +248,7 @@ export function setupProperties(env: PropertiesEnv): () => void {
         if (document.activeElement !== propKind) {
           propKind.value = isFlowchart ? edge.kind : (edge.variant ?? '');
         }
+        edgePalette?.sync();
       }
     } else if (sel.kind === 'group') {
       nodeSection.hidden = true;

@@ -124,11 +124,22 @@
                 <input type="color" id="prop-text-color" />
                 <button id="prop-clear-colours">Clear colours</button>
                 <label for="prop-connect">Connect to</label>
-                <select id="prop-connect"></select>
-                <button id="prop-connect-go">Connect</button>
+                <div class="prop-connect-row">
+                  <select id="prop-connect"></select>
+                  <select id="prop-connect-kind" aria-label="Connector style">
+                    <option value="arrow">Solid arrow</option>
+                    <option value="dottedArrow">Dotted arrow</option>
+                    <option value="thickArrow">Thick arrow</option>
+                    <option value="open">Solid line</option>
+                    <option value="dotted">Dotted line</option>
+                    <option value="thick">Thick line</option>
+                  </select>
+                  <button id="prop-connect-go">Connect</button>
+                </div>
               </div>
               <div id="prop-section-edge">
-                <label for="prop-kind">Kind</label>
+                <label for="prop-kind">Connector style</label>
+                <div id="edge-palette" class="edge-palette" role="group" aria-label="Connector style"></div>
                 <select id="prop-kind"></select>
                 <button id="prop-reverse">Reverse</button>
               </div>
